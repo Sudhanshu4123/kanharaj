@@ -1,0 +1,56 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: luxeestates-backend
+  
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 80MB
+  
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/luxeestates?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:54321}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+  
+  cache:
+    type: simple
+  
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+5:30
+
+jwt:
+  secret: ${JWT_SECRET:luxeestates-secret-key-for-jwt-token-generation-2024}
+  expiration: 86400000
+  refresh-expiration: 604800000
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:your_cloud_name}
+  api-key: ${CLOUDINARY_API_KEY:your_api_key}
+  api-secret: ${CLOUDINARY_API_SECRET:your_api_secret}
+
+admin:
+  email: ${ADMIN_EMAIL:kanharaj1389@gmail.com}
+  password: ${ADMIN_PASSWORD:admin@123}
+  name: ${ADMIN_NAME:Kanharaj}
+  phone: ${ADMIN_PHONE:9599801767}
+
+logging:
+  level:
+    root: INFO
+    com.luxeestates: DEBUG
+    org.springframework.security: INFO

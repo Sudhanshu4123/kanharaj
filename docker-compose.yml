@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: kanharaj-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: luxeestates
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-54321}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: ./backend
+    container_name: kanharaj-backend
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/luxeestates?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-54321}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-kanharaj1389@gmail.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin@123}
+      - ADMIN_NAME=${ADMIN_NAME:-Kanharaj}
+      - ADMIN_PHONE=${ADMIN_PHONE:-9599801767}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - JWT_SECRET=${JWT_SECRET:-luxeestates-secret-key-for-jwt-token-generation-2024}
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - NEXT_PUBLIC_API_URL=${API_URL:-http://localhost:8080/api}
+    container_name: kanharaj-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
