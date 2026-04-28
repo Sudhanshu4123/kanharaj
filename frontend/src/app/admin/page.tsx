@@ -10,9 +10,9 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { 
-  useAuthStore, 
-  usePropertyStore, 
+import {
+  useAuthStore,
+  usePropertyStore,
   useInquiryStore,
   fetchProperties,
   createPropertyAPI,
@@ -23,17 +23,29 @@ import {
 import { Property } from '@/lib/data'
 
 const EMPTY_PROP: Partial<Property> = {
-  title: '', price: 0, address: '', bedrooms: 0, bathrooms: 0,
-  area: 0, listingType: 'buy', propertyType: 'apartment',
-  description: '', images: [], status: 'active', featured: false
+  title: '',
+  price: 0,
+  address: '',
+  city: '',
+  state: '',
+  pincode: '',
+  bedrooms: 0,
+  bathrooms: 0,
+  area: 0,
+  listingType: 'BUY',
+  propertyType: 'APARTMENT',
+  description: '',
+  images: [],
+  status: 'ACTIVE',
+  featured: false
 }
 
 export default function AdminPage() {
   const router = useRouter()
-  const { user, logout, isAuthenticated } = useAuthStore()
-  const { properties, setProperties } = usePropertyStore()
+  const { user, token, logout, isAuthenticated } = useAuthStore()
+  const { properties, setProperties, loading } = usePropertyStore()
   const { inquiries } = useInquiryStore()
-  
+
   const [tab, setTab] = useState('dashboard')
   const [propForm, setPropForm] = useState<Partial<Property>>(EMPTY_PROP)
   const [editId, setEditId] = useState<string | null>(null)
@@ -43,6 +55,8 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [mounted, setMounted] = useState(false)
   const [uploadingImages, setUploadingImages] = useState(false)
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+  const [deleteInquiryId, setDeleteInquiryId] = useState<string | null>(null)
 
   // Mock Users
   const users = [
@@ -56,23 +70,24 @@ export default function AdminPage() {
       router.push('/login')
     } else if (isAuthenticated) {
       fetchProperties()
-      useInquiryStore.getState().fetchInquiries(user?.token || undefined)
+      useInquiryStore.getState().fetchInquiries(token || undefined)
     }
-  }, [isAuthenticated, mounted, router, user?.token])
+  }, [isAuthenticated, mounted, router, token])
 
   if (!mounted || !isAuthenticated) return null
 
   const handleSaveProp = async (e: React.FormEvent) => {
     e.preventDefault()
+    const currentToken = useAuthStore.getState().token || undefined
     try {
       if (editId) {
-        await updatePropertyAPI(editId, propForm as Property, user?.token || undefined)
+        await updatePropertyAPI(editId, propForm as Property, currentToken)
         setMsg('Asset updated successfully.')
       } else {
         await createPropertyAPI({
           ...propForm as Property,
           userId: user?.id || '1',
-        }, user?.token || undefined)
+        }, currentToken)
         setMsg('Asset published successfully.')
       }
       setShowForm(false)
@@ -86,15 +101,34 @@ export default function AdminPage() {
 
   const handleDelete = async (id: string) => {
     console.log('Delete button clicked for ID:', id)
-    if (!window.confirm('Are you sure you want to delete this asset?')) return
-    
+    setDeleteConfirmId(id)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return
+    const id = deleteConfirmId
+    setDeleteConfirmId(null)
+
     setMsg('Processing deletion...')
     try {
-      await deletePropertyAPI(id, user?.token || undefined)
+      await deletePropertyAPI(id, token || undefined)
       setMsg('Asset removed successfully.')
     } catch (err) {
       console.error('Delete error:', err)
       setMsg('Error deleting asset. Please check console.')
+    }
+    setTimeout(() => setMsg(''), 4000)
+  }
+  const confirmInquiryDelete = async () => {
+    if (!deleteInquiryId) return
+    const id = deleteInquiryId
+    setDeleteInquiryId(null)
+    setMsg('Processing lead removal...')
+    try {
+      await useInquiryStore.getState().deleteInquiry(id, token || undefined)
+      setMsg('Lead removed successfully.')
+    } catch (err) {
+      setMsg('Error removing lead.')
     }
     setTimeout(() => setMsg(''), 4000)
   }
@@ -134,7 +168,7 @@ export default function AdminPage() {
               <Sparkles size={20} />
             </div>
             <div>
-              <h1 className="text-white font-bold text-lg tracking-tight leading-none">KANHARAJ</h1>
+              <h1 className="text-white font-bold text-lg tracking-tight leading-none">KANHARAJ BUILDERS</h1>
               <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mt-1 block">Control Center</span>
             </div>
           </div>
@@ -156,11 +190,10 @@ export default function AdminPage() {
               <button
                 key={id}
                 onClick={() => { setTab(id); if (window.innerWidth < 1024) setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 group ${
-                  tab === id
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 group ${tab === id
                     ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/20'
                     : 'text-slate-400 hover:bg-white/5 hover:text-white'
-                }`}
+                  }`}
               >
                 {icon}
                 {label}
@@ -209,9 +242,8 @@ export default function AdminPage() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className={`max-w-4xl mx-auto mb-8 flex items-center gap-4 px-6 py-4 rounded-2xl border shadow-sm ${
-                  msg.toLowerCase().includes('error') ? 'bg-rose-50 border-rose-100 text-rose-700' : 'bg-emerald-50 border-emerald-100 text-emerald-700'
-                }`}
+                className={`max-w-4xl mx-auto mb-8 flex items-center gap-4 px-6 py-4 rounded-2xl border shadow-sm ${msg.toLowerCase().includes('error') ? 'bg-rose-50 border-rose-100 text-rose-700' : 'bg-emerald-50 border-emerald-100 text-emerald-700'
+                  }`}
               >
                 {msg.toLowerCase().includes('error') ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
                 <span className="text-sm font-bold tracking-tight">{msg}</span>
@@ -228,7 +260,7 @@ export default function AdminPage() {
                   { l: 'Total Inventory', v: properties.length, i: <Building2 size={22} />, c: 'text-rose-600 bg-rose-50' },
                   { l: 'Customer Leads', v: inquiries.length, i: <MessageSquare size={22} />, c: 'text-blue-600 bg-blue-50' },
                   { l: 'Platform Users', v: users.length, i: <Users size={22} />, c: 'text-emerald-600 bg-emerald-50' },
-                  { l: 'Active Deals', v: properties.filter(p => p.status === 'active').length, i: <Activity size={22} />, c: 'text-amber-600 bg-amber-50' },
+                  { l: 'Active Deals', v: properties.filter(p => p.status === 'ACTIVE').length, i: <Activity size={22} />, c: 'text-amber-600 bg-amber-50' },
                 ].map(stat => (
                   <div key={stat.l} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
                     <div className={`w-12 h-12 rounded-2xl ${stat.c} flex items-center justify-center mb-4`}>{stat.i}</div>
@@ -239,6 +271,18 @@ export default function AdminPage() {
               </div>
 
               <div className="grid lg:grid-cols-3 gap-8">
+                {/* Connection Status Banner */}
+                {properties.length === 0 && !loading && (
+                  <div className="lg:col-span-3 bg-rose-50 border border-rose-100 p-6 rounded-[2rem] flex items-center gap-4 text-rose-700 mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center shrink-0">
+                      <AlertCircle size={24} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm mb-1 uppercase tracking-tight">Backend Connectivity Issue</h4>
+                      <p className="text-xs font-medium text-rose-600/80 leading-relaxed italic">The frontend cannot reach the API at http://localhost:8080. Please ensure your Spring Boot server is running and the database is connected.</p>
+                    </div>
+                  </div>
+                )}
                 <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between mb-8">
                     <h3 className="font-bold text-lg text-slate-900">Recent Lead Traffic</h3>
@@ -256,7 +300,7 @@ export default function AdminPage() {
                             <div className="text-[10px] font-semibold text-slate-400">{inq.phone}</div>
                           </div>
                         </div>
-                        <span className={`px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest ${inq.status === 'resolved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                        <span className={`px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest ${inq.status === 'RESOLVED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
                           {inq.status}
                         </span>
                       </div>
@@ -355,10 +399,9 @@ export default function AdminPage() {
                               <div className="text-[9px] font-bold text-rose-600 uppercase tracking-widest">{p.listingType}</div>
                             </td>
                             <td className="px-8 py-6 text-center">
-                              <div className={`mx-auto w-fit px-4 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-widest border ${
-                                p.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-200'
-                              }`}>
-                                {p.status || 'active'}
+                              <div className={`mx-auto w-fit px-4 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-widest border ${p.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-200'
+                                }`}>
+                                {p.status || 'ACTIVE'}
                               </div>
                             </td>
                             <td className="px-8 py-6 text-right">
@@ -392,81 +435,77 @@ export default function AdminPage() {
               ) : (
                 inquiries.map(inq => {
                   const waMsg = encodeURIComponent(
-                    `Hello ${inq.name}! Thank you for reaching out to Kanharaj Properties. Regarding your inquiry: "${inq.message.slice(0, 100)}..." — I'd love to help you. Please let me know a good time to connect. - Kanharaj`
+                    `Hello ${inq.name}! Thank you for reaching out to Kanharaj Builders. Regarding your inquiry: "${inq.message.slice(0, 100)}..." — I'd love to help you. Please let me know a good time to connect. - Kanharaj`
                   )
                   const waUrl = `https://wa.me/${inq.phone.replace(/\D/g, '') || '9599801767'}?text=${waMsg}`
-                  const mailUrl = `mailto:${inq.email}?subject=Re: Your Inquiry at Kanharaj Properties&body=Hello ${inq.name},%0D%0A%0D%0AThank you for contacting Kanharaj Properties.%0D%0A%0D%0ARegarding your message: "${inq.message.slice(0, 200)}"%0D%0A%0D%0AWe'd be happy to assist you. Please let us know your preferred time to connect.%0D%0A%0D%0ABest regards,%0D%0AKanharaj%0D%0AKanharaj Properties%0D%0A+91 9599801767`
+                  const mailUrl = `mailto:${inq.email}?subject=Re: Your Inquiry at Kanharaj Builders&body=Hello ${inq.name},%0D%0A%0D%0AThank you for contacting Kanharaj Builders.%0D%0A%0D%0ARegarding your message: "${inq.message.slice(0, 200)}"%0D%0A%0D%0AWe'd be happy to assist you. Please let us know your preferred time to connect.%0D%0A%0D%0ABest regards,%0D%0AKanharaj%0D%0AKanharaj Builders%0D%0A+91 9599801767`
 
-                    return (
-                      <div key={inq.id} className="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-8 group hover:border-rose-500 transition-all relative overflow-hidden">
-                        <div className="absolute top-0 left-0 bg-slate-900 text-white px-3 py-1 text-[10px] font-bold rounded-br-xl">
-                          LEAD #{inquiries.indexOf(inq) + 1}
+                  return (
+                    <div key={inq.id} className="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-8 group hover:border-rose-500 transition-all relative overflow-hidden">
+                      <div className="absolute top-0 left-0 bg-slate-900 text-white px-3 py-1 text-[10px] font-bold rounded-br-xl">
+                        LEAD #{inquiries.indexOf(inq) + 1}
+                      </div>
+                      <div className="flex gap-6 items-start flex-1 mt-4 md:mt-0">
+                        <div className="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-xl font-bold group-hover:bg-rose-600 transition-colors shrink-0">
+                          {inq.name?.charAt(0)}
                         </div>
-                        <div className="flex gap-6 items-start flex-1 mt-4 md:mt-0">
-                          <div className="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-xl font-bold group-hover:bg-rose-600 transition-colors shrink-0">
-                            {inq.name?.charAt(0)}
-                          </div>
-                          <div className="space-y-1 flex-1 min-w-0">
-                            <div className="flex items-center gap-3 flex-wrap">
-                              <h4 className="text-lg font-bold text-slate-900">{inq.name}</h4>
-                              <select 
-                                value={inq.status}
-                                onChange={(e) => useInquiryStore.getState().updateInquiryStatus(inq.id, e.target.value, user?.token || undefined)}
-                                className={`px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border-none outline-none cursor-pointer ${inq.status === 'resolved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}
-                              >
-                                <option value="pending">Pending</option>
-                                <option value="contacted">Contacted</option>
-                                <option value="resolved">Resolved</option>
-                              </select>
-                            </div>
-                            <div className="text-slate-400 text-[11px] font-bold flex flex-wrap items-center gap-4">
-                              <a href={`mailto:${inq.email}`} className="flex items-center gap-1.5 hover:text-rose-600 transition-colors">
-                                <Mail size={12} /> {inq.email}
-                              </a>
-                              <a href={`tel:${inq.phone}`} className="flex items-center gap-1.5 text-rose-600 hover:text-rose-700 transition-colors">
-                                <Phone size={12} /> {inq.phone}
-                              </a>
-                            </div>
-                            <div className="mt-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 max-w-xl italic text-slate-600 text-sm">
-                              "{inq.message}"
-                            </div>
-                            {inq.createdAt && (
-                              <p className="text-[10px] text-slate-400 font-bold mt-2">
-                                Received: {new Date(inq.createdAt).toLocaleString('en-IN')}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="w-full md:w-auto flex flex-col items-stretch md:items-end gap-3 shrink-0">
-                          <div className="flex gap-2">
-                            <a
-                              href={waUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 md:flex-none px-4 py-2 bg-emerald-500 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-600 transition-all flex items-center justify-center gap-2 shadow-md"
+                        <div className="space-y-1 flex-1 min-w-0">
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <h4 className="text-lg font-bold text-slate-900">{inq.name}</h4>
+                            <select
+                              value={inq.status}
+                              onChange={(e) => useInquiryStore.getState().updateInquiryStatus(inq.id, e.target.value, token || undefined)}
+                              className={`px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border-none outline-none cursor-pointer ${inq.status === 'RESOLVED' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}
                             >
-                              <MessageSquare size={14} /> WhatsApp
+                              <option value="PENDING">Pending</option>
+                              <option value="CONTACTED">Contacted</option>
+                              <option value="RESOLVED">Resolved</option>
+                            </select>
+                          </div>
+                          <div className="text-slate-400 text-[11px] font-bold flex flex-wrap items-center gap-4">
+                            <a href={`mailto:${inq.email}`} className="flex items-center gap-1.5 hover:text-rose-600 transition-colors">
+                              <Mail size={12} /> {inq.email}
                             </a>
-                            <button
-                              onClick={() => {
-                                if (window.confirm('Delete this inquiry?')) {
-                                  useInquiryStore.getState().deleteInquiry(inq.id, user?.token || undefined)
-                                }
-                              }}
-                              className="px-4 py-2 bg-rose-50 text-rose-500 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center gap-2"
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                            <a href={`tel:${inq.phone}`} className="flex items-center gap-1.5 text-rose-600 hover:text-rose-700 transition-colors">
+                              <Phone size={12} /> {inq.phone}
+                            </a>
                           </div>
-                          <a
-                            href={mailUrl}
-                            className="px-6 py-3 bg-blue-600 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
-                          >
-                            <Mail size={14} /> Email Reply
-                          </a>
+                          <div className="mt-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 max-w-xl italic text-slate-600 text-sm">
+                            "{inq.message}"
+                          </div>
+                          {inq.createdAt && (
+                            <p className="text-[10px] text-slate-400 font-bold mt-2">
+                              Received: {new Date(inq.createdAt).toLocaleString('en-IN')}
+                            </p>
+                          )}
                         </div>
                       </div>
-                    )
+                      <div className="w-full md:w-auto flex flex-col items-stretch md:items-end gap-3 shrink-0">
+                        <div className="flex gap-2">
+                          <a
+                            href={waUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 md:flex-none px-4 py-2 bg-emerald-500 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-600 transition-all flex items-center justify-center gap-2 shadow-md"
+                          >
+                            <MessageSquare size={14} /> WhatsApp
+                          </a>
+                          <button
+                            onClick={() => setDeleteInquiryId(inq.id)}
+                            className="px-4 py-2 bg-rose-50 text-rose-500 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center gap-2"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                        <a
+                          href={mailUrl}
+                          className="px-6 py-3 bg-blue-600 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+                        >
+                          <Mail size={14} /> Email Reply
+                        </a>
+                      </div>
+                    </div>
+                  )
                 })
               )}
             </motion.div>
@@ -529,18 +568,18 @@ export default function AdminPage() {
                   <div className="space-y-2">
                     <label className="text-[10px] uppercase tracking-widest text-slate-400">Type</label>
                     <select value={propForm.propertyType} onChange={e => setPropForm({ ...propForm, propertyType: e.target.value as any })} className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm outline-none appearance-none cursor-pointer focus:border-rose-600">
-                      <option value="apartment">Apartment</option>
-                      <option value="house">House</option>
-                      <option value="villa">Villa</option>
-                      <option value="flat">Flat</option>
-                      <option value="plot">Plot</option>
+                      <option value="APARTMENT">Apartment</option>
+                      <option value="HOUSE">House</option>
+                      <option value="VILLA">Villa</option>
+                      <option value="FLAT">Flat</option>
+                      <option value="PLOT">Plot</option>
                     </select>
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] uppercase tracking-widest text-slate-400">Market Category</label>
                     <select value={propForm.listingType} onChange={e => setPropForm({ ...propForm, listingType: e.target.value as any })} className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm outline-none appearance-none cursor-pointer focus:border-rose-600">
-                      <option value="buy">Purchase</option>
-                      <option value="rent">Rent</option>
+                      <option value="BUY">Purchase</option>
+                      <option value="RENT">Rent</option>
                     </select>
                   </div>
                 </div>
@@ -564,7 +603,7 @@ export default function AdminPage() {
                   <textarea rows={4} value={propForm.description} onChange={e => setPropForm({ ...propForm, description: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-[1.5rem] p-6 text-sm outline-none focus:bg-white transition-all resize-none leading-relaxed" placeholder="Detailed intelligence about this property..." />
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="grid md:grid-cols-3 gap-8">
                   <div className="space-y-2">
                     <label className="text-[10px] uppercase tracking-widest text-slate-400">City *</label>
                     <input required value={(propForm as any).city || ''} onChange={e => setPropForm({ ...propForm, city: e.target.value } as any)} className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm focus:bg-white outline-none transition-all" placeholder="Delhi" />
@@ -573,12 +612,16 @@ export default function AdminPage() {
                     <label className="text-[10px] uppercase tracking-widest text-slate-400">State</label>
                     <input value={(propForm as any).state || ''} onChange={e => setPropForm({ ...propForm, state: e.target.value } as any)} className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm focus:bg-white outline-none transition-all" placeholder="Delhi" />
                   </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-widest text-slate-400">Pincode</label>
+                    <input value={(propForm as any).pincode || ''} onChange={e => setPropForm({ ...propForm, pincode: e.target.value } as any)} className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm focus:bg-white outline-none transition-all" placeholder="110001" />
+                  </div>
                 </div>
 
                 {/* Image Upload */}
                 <div className="space-y-3">
                   <label className="text-[10px] uppercase tracking-widest text-slate-400">Property Images (Upload Files)</label>
-                  
+
                   {/* Upload Button */}
                   <label className={`flex items-center justify-center gap-3 w-full h-20 bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl cursor-pointer hover:border-rose-500 hover:bg-rose-50 transition-all group ${uploadingImages ? 'opacity-60 pointer-events-none' : ''}`}>
                     <input
@@ -598,12 +641,16 @@ export default function AdminPage() {
                         try {
                           const formData = new FormData()
                           files.slice(0, slots).forEach(f => formData.append('files', f))
+                          const uploadToken = useAuthStore.getState().token
                           const res = await fetch(`${API_URL}/upload/images`, {
                             method: 'POST',
-                            headers: { ...(user?.token ? { 'Authorization': `Bearer ${user.token}` } : {}) },
+                            headers: { ...(uploadToken ? { 'Authorization': `Bearer ${uploadToken}` } : {}) },
                             body: formData,
                           })
-                          if (!res.ok) throw new Error('Upload failed')
+                          if (!res.ok) {
+                            const errorText = await res.text()
+                            throw new Error(`Upload failed with status ${res.status}: ${errorText}`)
+                          }
                           const data = await res.json()
                           const newUrls: string[] = data.urls || []
                           setPropForm(prev => ({
@@ -612,7 +659,7 @@ export default function AdminPage() {
                           }))
                           setMsg(`${newUrls.length} image(s) uploaded successfully.`)
                         } catch (err: any) {
-                          setMsg('Image upload failed. Check Cloudinary credentials.')
+                          setMsg(`Image upload failed: ${err.message}`)
                         } finally {
                           setUploadingImages(false)
                           e.target.value = ''
@@ -638,7 +685,7 @@ export default function AdminPage() {
                     <div className="grid grid-cols-4 gap-3 mt-3">
                       {(propForm.images as string[]).map((img, idx) => (
                         <div key={idx} className="relative group aspect-square">
-                          <img src={img} alt={`img-${idx+1}`} className="w-full h-full object-cover rounded-2xl border border-slate-200 shadow-sm" />
+                          <img src={img} alt={`img-${idx + 1}`} className="w-full h-full object-cover rounded-2xl border border-slate-200 shadow-sm" />
                           <button
                             type="button"
                             onClick={() => {
@@ -677,6 +724,80 @@ export default function AdminPage() {
                   <button type="button" onClick={() => setShowForm(false)} className="px-8 h-16 bg-slate-50 text-slate-400 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-rose-50 hover:text-rose-600 transition-all">Discard</button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      
+      {/* DELETE CONFIRMATION MODAL */}
+      <AnimatePresence>
+        {deleteConfirmId && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md" onClick={() => setDeleteConfirmId(null)}>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-[2.5rem] p-10 w-full max-w-md shadow-2xl text-center border border-white/20"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                <Trash2 size={32} />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Permanently Delete?</h3>
+              <p className="text-slate-500 text-sm font-medium leading-relaxed mb-10">
+                Are you sure you want to remove this property? This action is irreversible and will remove all associated data.
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 h-14 bg-rose-600 text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-rose-700 transition-all shadow-lg shadow-rose-600/20"
+                >
+                  Confirm Delete
+                </button>
+                <button
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="flex-1 h-14 bg-slate-100 text-slate-600 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
+                >
+                  Keep Asset
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* INQUIRY DELETE CONFIRMATION MODAL */}
+      <AnimatePresence>
+        {deleteInquiryId && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md" onClick={() => setDeleteInquiryId(null)}>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-[2.5rem] p-10 w-full max-w-md shadow-2xl text-center border border-white/20"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                <Mail size={32} />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Discard Lead?</h3>
+              <p className="text-slate-500 text-sm font-medium leading-relaxed mb-10">
+                Are you sure you want to remove this customer inquiry? This action cannot be undone.
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={confirmInquiryDelete}
+                  className="flex-1 h-14 bg-rose-600 text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-rose-700 transition-all shadow-lg"
+                >
+                  Confirm Delete
+                </button>
+                <button
+                  onClick={() => setDeleteInquiryId(null)}
+                  className="flex-1 h-14 bg-slate-100 text-slate-600 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
+                >
+                  Keep Lead
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

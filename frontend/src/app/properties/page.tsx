@@ -11,13 +11,14 @@ import { usePropertyStore } from '@/lib/store'
 import { amenitiesList } from '@/lib/data'
 import { cn, formatPrice } from '@/lib/utils'
 
-const propertyTypes = ['house', 'apartment', 'villa', 'flat', 'plot']
+const propertyTypes = ['HOUSE', 'APARTMENT', 'VILLA', 'FLAT', 'PLOT']
 const bedroomOptions = [1, 2, 3, 4, 5]
 
 function PropertiesContent() {
   const searchParams = useSearchParams()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [showFilters, setShowFilters] = useState(true)
+  const [mounted, setMounted] = useState(false)
   const [search, setSearch] = useState(searchParams.get('search') || '')
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [selectedBedrooms, setSelectedBedrooms] = useState<number[]>([])
@@ -27,6 +28,7 @@ function PropertiesContent() {
   const { filteredProperties, setFilters, filters } = usePropertyStore()
 
   useEffect(() => {
+    setMounted(true)
     usePropertyStore.getState().fetchProperties()
   }, [])
 
@@ -88,7 +90,7 @@ function PropertiesContent() {
                 Properties
               </h1>
               <p className="text-slate-600 mt-1">
-                Showing {properties.length} properties
+                Showing {mounted ? properties.length : '...'} properties
               </p>
             </div>
 

@@ -52,12 +52,14 @@ public class AuthService {
     }
     
     public AuthDto.AuthResponse login(AuthDto.LoginRequest request) {
+        System.out.println("Login attempt for email: " + request.getEmail());
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
+        System.out.println("Authentication successful for: " + request.getEmail());
         
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String token = jwtTokenProvider.generateToken(userDetails);

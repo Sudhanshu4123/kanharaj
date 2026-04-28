@@ -88,7 +88,7 @@ export default function AboutPage() {
               </h2>
               <div className="mt-6 space-y-4 text-slate-600">
                 <p>
-                  Founded in 2014, Kanharaj began with a simple vision: to revolutionize how people find their dream homes. What started as a small consultancy has grown into one of the most trusted real estate platforms in the region.
+                  Founded in 2014, Kanharaj Builders began with a simple vision: to revolutionize how people find their dream homes. What started as a small consultancy has grown into one of the most trusted real estate platforms in the region.
                 </p>
                 <p>
                   Our team of experienced professionals is dedicated to providing personalized service to each client, understanding that buying or selling a property is more than just a transaction – it's a life-changing decision.

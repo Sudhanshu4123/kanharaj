@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import { Property, Inquiry, User } from './data'
 
 interface PropertyFilters {
-  listingType: 'buy' | 'rent' | 'all'
+  listingType: 'BUY' | 'RENT' | 'all'
   propertyType: string[]
   priceMin: number
   priceMax: number
@@ -49,7 +49,7 @@ const defaultFilters: PropertyFilters = {
 }
 
 // API Config from Environment Variables
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? `${window.location.origin}/api` : 'https://kanharaj.com/api')
 
 // Timeout-aware fetch (15 seconds)
 const fetchWithTimeout = (url: string, options: RequestInit = {}, ms = 15000) => {
@@ -62,9 +62,9 @@ const fetchWithTimeout = (url: string, options: RequestInit = {}, ms = 15000) =>
 const transformFromApi = (p: any): Property => ({
   ...p,
   id: String(p.id),
-  propertyType: p.propertyType?.toLowerCase(),
-  listingType: p.listingType?.toLowerCase(),
-  status: p.status?.toLowerCase(),
+  propertyType: p.propertyType?.toUpperCase(),
+  listingType: p.listingType?.toUpperCase(),
+  status: p.status?.toUpperCase(),
   price: typeof p.price === 'object' ? Number(p.price) : p.price,
   images: Array.isArray(p.images) ? p.images : (p.images ? tryParse(p.images, []) : []),
   amenities: Array.isArray(p.amenities) ? p.amenities : (p.amenities ? tryParse(p.amenities, []) : []),
@@ -142,8 +142,12 @@ export const usePropertyStore = create<PropertyStore>()(
             },
             body: JSON.stringify(transformToApi(prop))
           })
+          
+          console.log('API Request POST /properties:', transformToApi(prop))
+
           if (!res.ok) {
             const errText = await res.text().catch(() => 'Unknown error');
+            console.error('API Error Response:', res.status, errText)
             throw new Error(`HTTP ${res.status}: ${errText}`);
           }
           
@@ -287,10 +291,19 @@ export const useInquiryStore = create<InquiryStore>((set, get) => ({
   },
   addInquiry: async (inquiry) => {
     try {
+      // Sanitize for backend: propertyId must be number or null, status must be uppercase
+      const sanitized = {
+        ...inquiry,
+        propertyId: inquiry.propertyId && !isNaN(Number(inquiry.propertyId)) 
+          ? Number(inquiry.propertyId) 
+          : null,
+        status: (inquiry.status || 'PENDING').toUpperCase()
+      }
+
       const res = await fetchWithTimeout(`${API_URL}/inquiries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(inquiry)
+        body: JSON.stringify(sanitized)
       })
       if (!res.ok) throw new Error('Failed to submit inquiry')
       const data = await res.json()

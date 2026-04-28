@@ -16,7 +16,7 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
-  const isForRent = property.listingType === 'rent'
+  const isForRent = property.listingType === 'RENT'
 
   return (
     <motion.div
@@ -29,9 +29,10 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
           {/* Image */}
           <div className="relative aspect-[16/10] overflow-hidden">
             <Image
-              src={property.images[0]}
+              src={property.images && property.images.length > 0 ? property.images[0] : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800'}
               alt={property.title}
               fill
+              priority={index < 3}
               className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />

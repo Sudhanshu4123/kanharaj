@@ -3,8 +3,8 @@ export interface Property {
   title: string;
   description: string;
   price: number;
-  propertyType: 'house' | 'apartment' | 'villa' | 'flat' | 'plot';
-  listingType: 'buy' | 'rent';
+  propertyType: 'HOUSE' | 'APARTMENT' | 'VILLA' | 'FLAT' | 'PLOT';
+  listingType: 'BUY' | 'RENT';
   address: string;
   city: string;
   state: string;
@@ -17,7 +17,7 @@ export interface Property {
   images: string[];
   latitude: number;
   longitude: number;
-  status: 'active' | 'inactive' | 'sold';
+  status: 'ACTIVE' | 'INACTIVE' | 'SOLD';
   featured: boolean;
   userId: string;
   createdAt: string;
@@ -34,13 +34,13 @@ export interface User {
 
 export interface Inquiry {
   id: string;
-  propertyId: string;
+  propertyId: string | null;
   userId?: string;
   name: string;
   email: string;
   phone: string;
   message: string;
-  status: 'pending' | 'contacted' | 'resolved';
+  status: 'PENDING' | 'CONTACTED' | 'RESOLVED';
   createdAt: string;
 }
 

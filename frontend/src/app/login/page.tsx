@@ -64,7 +64,7 @@ export default function LoginPage() {
           <Link href="/" className="inline-flex items-center space-x-2">
             <Building className="h-8 w-8 text-rose-600" />
             <span className="font-heading text-2xl font-bold text-slate-900">
-              Kanharaj<span className="text-rose-600">Properties</span>
+              Kanharaj<span className="text-rose-600">Builders</span>
             </span>
           </Link>
         </div>

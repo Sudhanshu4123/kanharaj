@@ -74,7 +74,7 @@ export default function PropertyDetailPage() {
         email: inquiryForm.email,
         phone: inquiryForm.phone,
         message: inquiryForm.message,
-        status: 'pending'
+        status: 'PENDING'
       })
       alert('Inquiry sent successfully!')
       setInquiryForm({ name: '', email: '', phone: '', message: '' })
@@ -105,7 +105,7 @@ export default function PropertyDetailPage() {
             <div className="relative">
               <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-slate-200">
                 <Image
-                  src={property.images[currentImageIndex]}
+                  src={property.images && property.images.length > 0 ? property.images[currentImageIndex] : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800'}
                   alt={property.title}
                   fill
                   className="object-cover"
@@ -128,8 +128,8 @@ export default function PropertyDetailPage() {
 
                 {/* Badges */}
                 <div className="absolute top-4 left-4 flex gap-2">
-                  <Badge variant={property.listingType === 'rent' ? 'warning' : 'success'}>
-                    For {property.listingType === 'rent' ? 'Rent' : 'Sale'}
+                  <Badge variant={property.listingType === 'RENT' ? 'warning' : 'success'}>
+                    For {property.listingType === 'RENT' ? 'Rent' : 'Sale'}
                   </Badge>
                   {property.featured && <Badge>Featured</Badge>}
                 </div>
@@ -184,7 +184,7 @@ export default function PropertyDetailPage() {
                 <div className="text-right">
                   <p className="text-3xl font-bold text-rose-600">
                     {formatPrice(property.price)}
-                    {property.listingType === 'rent' && <span className="text-lg font-normal">/month</span>}
+                    {property.listingType === 'RENT' && <span className="text-lg font-normal">/month</span>}
                   </p>
                 </div>
               </div>
@@ -346,7 +346,7 @@ export default function PropertyDetailPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-slate-900">Kanharaj</p>
-                  <p className="text-sm text-slate-600">Kanharaj Properties</p>
+                  <p className="text-sm text-slate-600">Kanharaj Builders</p>
                 </div>
               </div>
             </Card>

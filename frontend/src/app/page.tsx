@@ -221,7 +221,7 @@ export default function HomePage() {
                     alt={testimonial.name}
                     width={48}
                     height={48}
-                    className="rounded-full"
+                    className="rounded-full w-12 h-12 object-cover"
                   />
                   <div>
                     <p className="font-semibold text-white">{testimonial.name}</p>
