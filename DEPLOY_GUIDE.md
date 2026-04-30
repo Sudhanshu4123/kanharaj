@@ -156,6 +156,9 @@ server {
     listen 80;
     server_name shrishyam.com www.shrishyam.com;
 
+    # Allow large file uploads (413 Request Entity Too Large fix)
+    client_max_body_size 100M;
+
     # Frontend
     location / {
         proxy_pass http://localhost:3000;
