@@ -39,9 +39,9 @@ jwt:
   refresh-expiration: 604800000
 
 cloudinary:
-  cloud-name: ${CLOUDINARY_CLOUD_NAME:your_cloud_name}
-  api-key: ${CLOUDINARY_API_KEY:your_api_key}
-  api-secret: ${CLOUDINARY_API_SECRET:your_api_secret}
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:root}
+  api-key: ${CLOUDINARY_API_KEY:875458451963368}
+  api-secret: ${CLOUDINARY_API_SECRET:sWLzcHw238P8KIW--9bWxip1cvc}
 
 admin:
   email: ${ADMIN_EMAIL:kanharaj1389@gmail.com}
