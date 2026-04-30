@@ -5,8 +5,8 @@ import { Footer } from "@/components/footer"
 import { LoadingProvider } from "@/components/loading-provider"
 
 export const metadata: Metadata = {
-  title: "Kanharaj Builders | Dwarka's Premium Real Estate Platform",
-  description: "Discover your dream property with Kanharaj Builders. Premium real estate listings for buy, rent, and commercial properties in Dwarka, New Delhi.",
+  title: "Kanharaj Builder | Dwarka's Premium Real Estate Platform",
+  description: "Discover your dream property with Kanharaj Builder. Premium real estate listings for buy, rent, and commercial properties in Dwarka, New Delhi.",
   keywords: "real estate, properties, buy house, rent apartment, luxury homes, Dwarka real estate, New Delhi",
 }
 

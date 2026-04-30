@@ -72,7 +72,7 @@ export function Footer() {
             <div className="mt-6 space-y-3">
               <div className="flex items-center space-x-3 text-slate-400 text-sm">
                 <MapPin className="h-4 w-4 text-rose-500" />
-                <span>Kanharaj Builders, Dwarka, New Delhi — 110078</span>
+                <span>Kanharaj Builder, Dwarka, New Delhi — 110078</span>
               </div>
               <div className="flex items-center space-x-3 text-slate-400 text-sm">
                 <Phone className="h-4 w-4 text-rose-500" />
@@ -129,7 +129,7 @@ export function Footer() {
         {/* Social & Copyright */}
         <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-slate-500 text-sm">
-            © {new Date().getFullYear()} Kanharaj Builders. All rights reserved.
+            © {new Date().getFullYear()} Kanharaj Builder. All rights reserved.
           </p>
           <div className="flex items-center space-x-4">
             {socialLinks.map((social) => (

@@ -346,7 +346,7 @@ export default function PropertyDetailPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-slate-900">Kanharaj</p>
-                  <p className="text-sm text-slate-600">Kanharaj Builders</p>
+                  <p className="text-sm text-slate-600">Kanharaj Builder</p>
                 </div>
               </div>
             </Card>

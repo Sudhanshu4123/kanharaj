@@ -15,12 +15,24 @@ public class CloudinaryService {
 
     private final Cloudinary cloudinary;
 
+    @org.springframework.beans.factory.annotation.Value("${cloudinary.cloud-name:your_cloud_name}")
+    private String cloudName;
+
     /**
      * Uploads a single image file to Cloudinary under the "shrishyam" folder.
      * @param file the multipart image file
      * @return the secure HTTPS URL of the uploaded image
      */
     public String uploadImage(MultipartFile file) throws IOException {
+        if (cloudName == null || cloudName.trim().isEmpty() || "your_cloud_name".equals(cloudName)) {
+            // Fallback to local storage if Cloudinary is not configured
+            String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.-]", "_");
+            java.nio.file.Path path = java.nio.file.Paths.get("C:/Users/user/Desktop/shrishyam/frontend/public/uploads", filename).toAbsolutePath().normalize();
+            java.nio.file.Files.createDirectories(path.getParent());
+            java.nio.file.Files.copy(file.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            return "/uploads/" + filename;
+        }
+
         Map<?, ?> uploadResult = cloudinary.uploader().upload(
                 file.getBytes(),
                 ObjectUtils.asMap(

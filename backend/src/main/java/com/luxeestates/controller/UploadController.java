@@ -25,17 +25,19 @@ public class UploadController {
      */
     @PostMapping("/images")
     public ResponseEntity<Map<String, List<String>>> uploadImages(
-            @RequestParam("files") List<MultipartFile> files
+            @RequestParam("files") MultipartFile[] files
     ) {
         List<String> urls = new ArrayList<>();
-        for (MultipartFile file : files) {
-            if (file.isEmpty()) continue;
-            try {
-                String url = cloudinaryService.uploadImage(file);
-                urls.add(url);
-            } catch (IOException e) {
-                return ResponseEntity.internalServerError()
-                        .body(Map.of("error", List.of("Failed to upload: " + file.getOriginalFilename())));
+        if (files != null) {
+            for (MultipartFile file : files) {
+                if (file.isEmpty()) continue;
+                try {
+                    String url = cloudinaryService.uploadImage(file);
+                    urls.add(url);
+                } catch (Exception e) {
+                    return ResponseEntity.internalServerError()
+                            .body(Map.of("error", List.of("Failed to upload: " + e.getMessage())));
+                }
             }
         }
         return ResponseEntity.ok(Map.of("urls", urls));
