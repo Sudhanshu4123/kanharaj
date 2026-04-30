@@ -39,7 +39,7 @@ jwt:
   refresh-expiration: 604800000
 
 cloudinary:
-  cloud-name: ${CLOUDINARY_CLOUD_NAME:root}
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:Root}
   api-key: ${CLOUDINARY_API_KEY:875458451963368}
   api-secret: ${CLOUDINARY_API_SECRET:sWLzcHw238P8KIW--9bWxip1cvc}
 
