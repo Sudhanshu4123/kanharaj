@@ -63,7 +63,7 @@ export function Footer() {
             <Link href="/" className="flex items-center space-x-2">
               <Building className="h-8 w-8 text-rose-500" />
               <span className="font-heading text-2xl font-bold">
-                Kanharaj<span className="text-rose-500">Builders</span>
+                Kanharaj<span className="text-rose-500">Builder</span>
               </span>
             </Link>
             <p className="mt-4 text-slate-400 text-sm leading-relaxed">
