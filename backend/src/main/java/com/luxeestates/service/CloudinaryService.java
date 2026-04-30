@@ -24,25 +24,30 @@ public class CloudinaryService {
      * @return the secure HTTPS URL of the uploaded image
      */
     public String uploadImage(MultipartFile file) throws IOException {
-        if (cloudName == null || cloudName.trim().isEmpty() || "your_cloud_name".equals(cloudName)) {
-            // Fallback to local storage if Cloudinary is not configured
-            String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.-]", "_");
-            java.nio.file.Path path = java.nio.file.Paths.get("C:/Users/user/Desktop/shrishyam/frontend/public/uploads", filename).toAbsolutePath().normalize();
-            java.nio.file.Files.createDirectories(path.getParent());
-            java.nio.file.Files.copy(file.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            return "/uploads/" + filename;
+        // Only attempt Cloudinary if configured
+        if (cloudName != null && !cloudName.trim().isEmpty() && !"your_cloud_name".equals(cloudName)) {
+            try {
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                        file.getBytes(),
+                        ObjectUtils.asMap(
+                                "folder", "shrishyam",
+                                "resource_type", "image",
+                                "quality", "auto",
+                                "fetch_format", "auto"
+                        )
+                );
+                return (String) uploadResult.get("secure_url");
+            } catch (Exception e) {
+                System.err.println("Cloudinary upload failed: " + e.getMessage() + ". Falling back to local storage.");
+            }
         }
 
-        Map<?, ?> uploadResult = cloudinary.uploader().upload(
-                file.getBytes(),
-                ObjectUtils.asMap(
-                        "folder", "shrishyam",
-                        "resource_type", "image",
-                        "quality", "auto",
-                        "fetch_format", "auto"
-                )
-        );
-        return (String) uploadResult.get("secure_url");
+        // Fallback to local storage (used if Cloudinary is not configured OR if it fails)
+        String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.-]", "_");
+        java.nio.file.Path path = java.nio.file.Paths.get("C:/Users/user/Desktop/shrishyam/frontend/public/uploads", filename).toAbsolutePath().normalize();
+        java.nio.file.Files.createDirectories(path.getParent());
+        java.nio.file.Files.copy(file.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        return "/uploads/" + filename;
     }
 
     /**
