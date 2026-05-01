@@ -20,6 +20,7 @@ export interface Property {
   status: 'ACTIVE' | 'INACTIVE' | 'SOLD';
   featured: boolean;
   userId: string;
+  user?: User;
   createdAt: string;
 }
 

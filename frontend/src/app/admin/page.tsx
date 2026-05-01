@@ -652,7 +652,8 @@ export default function AdminPage() {
                             throw new Error(`Upload failed with status ${res.status}: ${errorText}`)
                           }
                           const data = await res.json()
-                          const newUrls: string[] = data.urls || []
+                          const baseUrl = API_URL.replace('/api', '')
+                          const newUrls: string[] = (data.urls || []).map((u: string) => u.startsWith('/uploads') ? `${baseUrl}${u}` : u)
                           setPropForm(prev => ({
                             ...prev,
                             images: [...(Array.isArray(prev.images) ? prev.images : []), ...newUrls].slice(0, 4)

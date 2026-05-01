@@ -121,12 +121,20 @@ export function Header() {
               </Link>
             ))}
             <div className="pt-4 space-y-2">
-              <Link href="/login" className="block">
-                <Button variant="outline" className="w-full">
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/contact" className="block">
+              {!isAuthenticated ? (
+                <Link href="/login" className="block" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="outline" className="w-full">
+                    Sign In
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="/profile" className="block" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="outline" className="w-full">
+                    My Profile
+                  </Button>
+                </Link>
+              )}
+              <Link href="/contact" className="block" onClick={() => setIsMenuOpen(false)}>
                 <Button className="w-full">Enquire Now</Button>
               </Link>
             </div>

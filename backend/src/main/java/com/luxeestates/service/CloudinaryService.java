@@ -24,8 +24,13 @@ public class CloudinaryService {
      * @return the secure HTTPS URL of the uploaded image
      */
     public String uploadImage(MultipartFile file) throws IOException {
-        // Only attempt Cloudinary if configured
-        if (cloudName != null && !cloudName.trim().isEmpty() && !"your_cloud_name".equals(cloudName)) {
+        // Only attempt Cloudinary if configured with something other than placeholders
+        boolean isCloudinaryConfigured = cloudName != null && 
+                                       !cloudName.trim().isEmpty() && 
+                                       !"your_cloud_name".equals(cloudName) &&
+                                       !"Root".equals(cloudName);
+
+        if (isCloudinaryConfigured) {
             try {
                 Map<?, ?> uploadResult = cloudinary.uploader().upload(
                         file.getBytes(),
@@ -38,13 +43,14 @@ public class CloudinaryService {
                 );
                 return (String) uploadResult.get("secure_url");
             } catch (Exception e) {
-                System.err.println("Cloudinary upload failed: " + e.getMessage() + ". Falling back to local storage.");
+                // If the user explicitly wants Cloudinary but it fails, we should let them know
+                throw new IOException("Cloudinary upload failed: " + e.getMessage() + ". Please check your API keys.");
             }
         }
 
-        // Fallback to local storage (used if Cloudinary is not configured OR if it fails)
+        // Fallback to local storage (only if Cloudinary is not configured)
         String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.-]", "_");
-        java.nio.file.Path path = java.nio.file.Paths.get("C:/Users/user/Desktop/shrishyam/frontend/public/uploads", filename).toAbsolutePath().normalize();
+        java.nio.file.Path path = java.nio.file.Paths.get("c:/Users/Shree Shyam Property/Downloads/shrishyam/shrishyam/frontend/public/uploads", filename).toAbsolutePath().normalize();
         java.nio.file.Files.createDirectories(path.getParent());
         java.nio.file.Files.copy(file.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         return "/uploads/" + filename;

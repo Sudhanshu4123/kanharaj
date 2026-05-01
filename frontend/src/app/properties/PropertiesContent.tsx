@@ -152,25 +152,37 @@ export default function PropertiesContent() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="w-64 flex-shrink-0"
+              className={cn(
+                "w-64 flex-shrink-0 z-50",
+                "fixed inset-0 bg-white p-6 md:relative md:inset-auto md:bg-transparent md:p-0",
+                "overflow-y-auto md:overflow-visible"
+              )}
             >
-              <div className="bg-white rounded-xl border border-slate-200 p-6 sticky top-24">
+              <div className="bg-white rounded-xl border-0 md:border border-slate-200 p-0 md:p-6 sticky top-24">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-semibold text-slate-900">Filters</h3>
-                  <button
-                    onClick={resetFilters}
-                    className="text-sm text-rose-600 hover:text-rose-700"
-                  >
-                    Reset
-                  </button>
+                  <h3 className="font-semibold text-slate-900 text-xl md:text-base">Filters</h3>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={resetFilters}
+                      className="text-sm text-rose-600 hover:text-rose-700"
+                    >
+                      Reset
+                    </button>
+                    <button
+                      onClick={() => setShowFilters(false)}
+                      className="md:hidden text-sm font-bold text-slate-900"
+                    >
+                      Close
+                    </button>
+                  </div>
                 </div>
-
+                
                 {/* Property Type */}
                 <div className="mb-6">
-                  <h4 className="text-sm font-medium text-slate-900 mb-3">Property Type</h4>
-                  <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-slate-900 mb-3 uppercase tracking-wider text-xs">Property Type</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
                     {propertyTypes.map((type) => (
-                      <label key={type} className="flex items-center gap-2 cursor-pointer">
+                      <label key={type} className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-slate-100 md:border-0">
                         <input
                           type="checkbox"
                           checked={selectedTypes.includes(type)}
@@ -185,7 +197,7 @@ export default function PropertiesContent() {
 
                 {/* Bedrooms */}
                 <div className="mb-6">
-                  <h4 className="text-sm font-medium text-slate-900 mb-3">Bedrooms</h4>
+                  <h4 className="text-sm font-medium text-slate-900 mb-3 uppercase tracking-wider text-xs">Bedrooms</h4>
                   <div className="flex flex-wrap gap-2">
                     {bedroomOptions.map((bed) => (
                       <button
@@ -206,48 +218,28 @@ export default function PropertiesContent() {
 
                 {/* Price Range */}
                 <div className="mb-6">
-                  <h4 className="text-sm font-medium text-slate-900 mb-3">Price Range</h4>
+                  <h4 className="text-sm font-medium text-slate-900 mb-3 uppercase tracking-wider text-xs">Price Range</h4>
                   <div className="space-y-3">
-                    <Input
-                      type="number"
-                      placeholder="Min"
-                      value={priceRange[0] || ''}
-                      onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                    />
-                    <Input
-                      type="number"
-                      placeholder="Max"
-                      value={priceRange[1] || ''}
-                      onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        type="number"
+                        placeholder="Min"
+                        value={priceRange[0] || ''}
+                        onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
+                        className="bg-slate-50"
+                      />
+                      <Input
+                        type="number"
+                        placeholder="Max"
+                        value={priceRange[1] || ''}
+                        onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
+                        className="bg-slate-50"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Amenities */}
-                <div className="mb-6">
-                  <h4 className="text-sm font-medium text-slate-900 mb-3">Amenities</h4>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {amenitiesList.slice(0, 8).map((amenity) => (
-                      <label key={amenity} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selectedAmenities.includes(amenity)}
-                          onChange={() => {
-                            setSelectedAmenities(prev =>
-                              prev.includes(amenity)
-                                ? prev.filter(a => a !== amenity)
-                                : [...prev, amenity]
-                            )
-                          }}
-                          className="rounded border-slate-300 text-rose-600 focus:ring-rose-600"
-                        />
-                        <span className="text-sm text-slate-600">{amenity}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <Button onClick={handleSearch} className="w-full">
+                <Button onClick={() => { handleSearch(); if (window.innerWidth < 768) setShowFilters(false); }} className="w-full mt-4 h-12 md:h-10">
                   Apply Filters
                 </Button>
               </div>
@@ -257,11 +249,14 @@ export default function PropertiesContent() {
           {/* Properties Grid */}
           <div className="flex-1">
             {properties.length === 0 ? (
-              <div className="text-center py-20">
+              <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
+                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Search className="h-8 w-8 text-slate-300" />
+                </div>
                 <h3 className="text-xl font-semibold text-slate-900">No properties found</h3>
-                <p className="text-slate-600 mt-2">Try adjusting your filters</p>
-                <Button onClick={resetFilters} variant="outline" className="mt-4">
-                  Reset Filters
+                <p className="text-slate-600 mt-2">Try adjusting your filters to find what you're looking for</p>
+                <Button onClick={resetFilters} variant="outline" className="mt-6">
+                  Reset All Filters
                 </Button>
               </div>
             ) : (

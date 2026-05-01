@@ -49,7 +49,7 @@ const defaultFilters: PropertyFilters = {
 }
 
 // API Config from Environment Variables
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? `${window.location.origin}/api` : 'https://kanharaj.com/api')
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://192.168.1.13:8080/api'
 
 // Timeout-aware fetch (15 seconds)
 const fetchWithTimeout = (url: string, options: RequestInit = {}, ms = 15000) => {
@@ -59,16 +59,21 @@ const fetchWithTimeout = (url: string, options: RequestInit = {}, ms = 15000) =>
     .finally(() => clearTimeout(timer))
 }
 
-const transformFromApi = (p: any): Property => ({
-  ...p,
-  id: String(p.id),
-  propertyType: p.propertyType?.toUpperCase(),
-  listingType: p.listingType?.toUpperCase(),
-  status: p.status?.toUpperCase(),
-  price: typeof p.price === 'object' ? Number(p.price) : p.price,
-  images: Array.isArray(p.images) ? p.images : (p.images ? tryParse(p.images, []) : []),
-  amenities: Array.isArray(p.amenities) ? p.amenities : (p.amenities ? tryParse(p.amenities, []) : []),
-})
+const transformFromApi = (p: any): Property => {
+  const baseUrl = API_URL.replace('/api', '')
+  return {
+    ...p,
+    id: String(p.id),
+    propertyType: p.propertyType?.toUpperCase(),
+    listingType: p.listingType?.toUpperCase(),
+    status: p.status?.toUpperCase(),
+    price: typeof p.price === 'object' ? Number(p.price) : p.price,
+    images: (Array.isArray(p.images) ? p.images : (p.images ? tryParse(p.images, []) : [])).map((img: string) => 
+      img.startsWith('/uploads') ? `${baseUrl}${img}` : img
+    ),
+    amenities: Array.isArray(p.amenities) ? p.amenities : (p.amenities ? tryParse(p.amenities, []) : []),
+  }
+}
 
 const transformToApi = (prop: Partial<Property>) => ({
   ...prop,

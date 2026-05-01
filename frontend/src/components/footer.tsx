@@ -34,22 +34,22 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-slate-900 text-white">
+    <footer className="bg-slate-900 text-white pb-32 md:pb-0">
       {/* Newsletter Section */}
       <div className="border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-            <div>
-              <h3 className="font-heading text-2xl font-bold">Subscribe to our newsletter</h3>
-              <p className="text-slate-400 mt-1">Get the latest property updates in your inbox</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="text-center lg:text-left">
+              <h3 className="font-heading text-xl md:text-2xl font-bold">Subscribe to our newsletter</h3>
+              <p className="text-slate-400 mt-2 text-sm md:text-base">Get the latest property updates in your inbox</p>
             </div>
-            <div className="flex gap-3 w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto max-w-md">
               <Input
                 type="email"
                 placeholder="Enter your email"
-                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 max-w-xs"
+                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 h-12"
               />
-              <Button>Subscribe</Button>
+              <Button className="h-12 px-8">Subscribe</Button>
             </div>
           </div>
         </div>
@@ -57,88 +57,90 @@ export function Footer() {
 
       {/* Main Footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 md:gap-8">
           {/* Company Info */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
             <Link href="/" className="flex items-center space-x-2">
               <Building className="h-8 w-8 text-rose-500" />
               <span className="font-heading text-2xl font-bold">
                 Kanharaj<span className="text-rose-500">Builder</span>
               </span>
             </Link>
-            <p className="mt-4 text-slate-400 text-sm leading-relaxed">
-              Your trusted partner in finding the perfect property. We connect buyers with their dream homes across premium locations.
+            <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
+              Your trusted partner in finding the perfect property. We connect buyers with their dream homes across premium locations in Dwarka and beyond.
             </p>
-            <div className="mt-6 space-y-3">
-              <div className="flex items-center space-x-3 text-slate-400 text-sm">
-                <MapPin className="h-4 w-4 text-rose-500" />
-                <span>Kanharaj Builder, Dwarka, New Delhi — 110078</span>
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3 text-slate-400 text-sm">
+                <MapPin className="h-5 w-5 text-rose-500 flex-shrink-0 mt-0.5" />
+                <span>Kanharaj Builder, Sector 7, Dwarka, New Delhi — 110078</span>
               </div>
               <div className="flex items-center space-x-3 text-slate-400 text-sm">
-                <Phone className="h-4 w-4 text-rose-500" />
-                <span>+91 9599801767</span>
+                <Phone className="h-5 w-5 text-rose-500 flex-shrink-0" />
+                <Link href="tel:+919599801767" className="hover:text-white transition-colors">+91 9599801767</Link>
               </div>
               <div className="flex items-center space-x-3 text-slate-400 text-sm">
-                <Mail className="h-4 w-4 text-rose-500" />
-                <span>kanharaj1389@gmail.com</span>
+                <Mail className="h-5 w-5 text-rose-500 flex-shrink-0" />
+                <Link href="mailto:kanharaj1389@gmail.com" className="hover:text-white transition-colors">kanharaj1389@gmail.com</Link>
               </div>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="font-semibold text-lg mb-4">Company</h4>
-            <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="text-slate-400 hover:text-white text-sm transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Quick Links Group */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:col-span-3">
+            <div>
+              <h4 className="font-bold text-slate-200 text-sm uppercase tracking-wider mb-5">Company</h4>
+              <ul className="space-y-3">
+                {footerLinks.company.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="text-slate-400 hover:text-white text-sm transition-colors block">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          <div>
-            <h4 className="font-semibold text-lg mb-4">Properties</h4>
-            <ul className="space-y-3">
-              {footerLinks.properties.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="text-slate-400 hover:text-white text-sm transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+            <div>
+              <h4 className="font-bold text-slate-200 text-sm uppercase tracking-wider mb-5">Properties</h4>
+              <ul className="space-y-3">
+                {footerLinks.properties.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="text-slate-400 hover:text-white text-sm transition-colors block">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          <div>
-            <h4 className="font-semibold text-lg mb-4">Support</h4>
-            <ul className="space-y-3">
-              {footerLinks.support.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="text-slate-400 hover:text-white text-sm transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <div className="col-span-2 lg:col-span-1">
+              <h4 className="font-bold text-slate-200 text-sm uppercase tracking-wider mb-5">Support</h4>
+              <ul className="space-y-3">
+                {footerLinks.support.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="text-slate-400 hover:text-white text-sm transition-colors block">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 
         {/* Social & Copyright */}
-        <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-slate-500 text-sm">
-            © {new Date().getFullYear()} Kanharaj Builder. All rights reserved.
+        <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
+          <p className="text-slate-500 text-sm text-center md:text-left order-2 md:order-1">
+            © {new Date().getFullYear()} Kanharaj Builder. Dwarka's Most Trusted Developer.
           </p>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 order-1 md:order-2">
             {socialLinks.map((social) => (
               <Link
                 key={social.label}
                 href={social.href}
-                className="p-2 rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-rose-600 transition-all"
               >
-                <social.icon className="h-4 w-4" />
+                <social.icon className="h-5 w-5" />
                 <span className="sr-only">{social.label}</span>
               </Link>
             ))}
