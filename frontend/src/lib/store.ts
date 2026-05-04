@@ -68,13 +68,13 @@ const transformFromApi = (p: any): Property => {
     status: p.status?.toUpperCase(),
     price: typeof p.price === 'object' ? Number(p.price) : p.price,
     images: (Array.isArray(p.images) ? p.images : (p.images ? tryParse(p.images, []) : [])).map((img: string) => {
-      // If already a full URL (Cloudinary, Unsplash, http/https), keep as-is
-      if (!img || img.startsWith('http')) return img
-      // For relative paths (/api/uploads/... or /uploads/...), keep them relative.
-      // Browser will resolve them from the same origin (kanharaj.com),
-      // which Nginx then routes to the backend. This avoids mixed-content errors.
+      if (!img) return ''
+      if (img.startsWith('http')) return img // Cloudinary / Unsplash — keep as-is
+      if (img.startsWith('/api/uploads/') || img.startsWith('/uploads/')) return img // already relative ✓
+      if (img.startsWith('api/uploads/')) return `/${img}` // fix missing leading slash
+      if (img.startsWith('uploads/')) return `/api/${img}` // fix old db format
       return img
-    }),
+    }).filter(Boolean),
     amenities: Array.isArray(p.amenities) ? p.amenities : (p.amenities ? tryParse(p.amenities, []) : []),
   }
 }
