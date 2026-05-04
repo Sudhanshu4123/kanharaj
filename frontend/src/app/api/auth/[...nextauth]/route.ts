@@ -86,6 +86,10 @@ const handler = NextAuth({
   pages: {
     signIn: "/login",
   },
+  secret: process.env.NEXTAUTH_SECRET || "luxeestates-secret-key-for-jwt-token-generation-2024",
+  session: {
+    strategy: "jwt",
+  },
 })
 
 export { handler as GET, handler as POST }
