@@ -85,12 +85,16 @@ CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 
-# IMPORTANT: Replace with your actual VPS Public IP
-API_URL=http://YOUR_VPS_PUBLIC_IP:8080/api
+# IMPORTANT: Use your domain (recommended) or VPS IP
+# If you have a domain with Nginx:
+API_URL=https://kanharaj.com/api
+# If running without domain (IP only):
+# API_URL=http://YOUR_VPS_PUBLIC_IP:3000/api
 ```
 
-> ⚠️ **IMPORTANT:** `API_URL` must be your real VPS Public IP — not localhost!
-> Example: `API_URL=http://103.45.67.89:8080/api`
+> ⚠️ **IMPORTANT:** If using a domain with Nginx (e.g. kanharaj.com), set `API_URL=https://kanharaj.com/api`
+> This ensures images load without mixed-content errors.
+> If no domain, set it to `http://YOUR_IP:3000/api` (port 3000, not 8080)
 
 ---
 

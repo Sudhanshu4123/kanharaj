@@ -652,10 +652,9 @@ export default function AdminPage() {
                             throw new Error(`Upload failed with status ${res.status}: ${errorText}`)
                           }
                           const data = await res.json()
-                          const baseUrl = API_URL.replace(/\/api$/, '')
-                          const newUrls: string[] = (data.urls || []).map((u: string) => 
-                            (u.startsWith('/uploads') || u.startsWith('/api/uploads')) ? `${baseUrl}${u}` : u
-                          )
+                          // Keep URLs as-is: relative paths (/api/uploads/...) resolve from same origin,
+                          // absolute Cloudinary URLs (https://...) stay absolute
+                          const newUrls: string[] = data.urls || []
                           setPropForm(prev => ({
                             ...prev,
                             images: [...(Array.isArray(prev.images) ? prev.images : []), ...newUrls].slice(0, 4)
