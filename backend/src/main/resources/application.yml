@@ -54,3 +54,6 @@ logging:
     root: INFO
     com.luxeestates: DEBUG
     org.springframework.security: INFO
+
+upload:
+  path: ${UPLOAD_PATH:uploads}

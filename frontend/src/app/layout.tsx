@@ -4,6 +4,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { MobileNav } from "@/components/mobile-nav"
 import { LoadingProvider } from "@/components/loading-provider"
+import Script from "next/script"
 
 export const metadata: Metadata = {
   title: "Kanharaj Builder | Dwarka's Premium Real Estate Platform",
@@ -18,6 +19,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-SG9DCZDFPW"
+        />
+        <Script id="google-analytics">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-SG9DCZDFPW');
+          `}
+        </Script>
+      </head>
       <body className="min-h-screen flex flex-col">
         <LoadingProvider>
           <Header />

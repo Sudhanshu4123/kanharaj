@@ -14,6 +14,10 @@ import java.util.Map;
 public class CloudinaryService {
 
     private final Cloudinary cloudinary;
+    
+    @org.springframework.beans.factory.annotation.Value("${upload.path:uploads}")
+    private String uploadPath;
+
 
     @org.springframework.beans.factory.annotation.Value("${cloudinary.cloud-name:your_cloud_name}")
     private String cloudName;
@@ -50,10 +54,11 @@ public class CloudinaryService {
 
         // Fallback to local storage (only if Cloudinary is not configured)
         String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.-]", "_");
-        java.nio.file.Path path = java.nio.file.Paths.get("c:/Users/Shree Shyam Property/Downloads/shrishyam/shrishyam/frontend/public/uploads", filename).toAbsolutePath().normalize();
+        java.nio.file.Path path = java.nio.file.Paths.get(uploadPath, filename).toAbsolutePath().normalize();
         java.nio.file.Files.createDirectories(path.getParent());
         java.nio.file.Files.copy(file.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         return "/uploads/" + filename;
+
     }
 
     /**
