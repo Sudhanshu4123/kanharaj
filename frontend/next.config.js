@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -14,18 +15,5 @@ const nextConfig = {
   },
   // Required for Docker deployments
   output: 'standalone',
-  
-  async rewrites() {
-    // Use an internal URL to bypass Nginx and avoid infinite loops
-    const backendUrl = process.env.INTERNAL_BACKEND_URL || 'http://localhost:8080';
-
-    return [
-      {
-        source: '/uploads/:path*',
-        destination: `${backendUrl}/api/uploads/:path*`,
-      },
-    ];
-  },
 };
-
 module.exports = nextConfig;
