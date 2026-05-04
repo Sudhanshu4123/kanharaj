@@ -7,6 +7,8 @@ COPY . .
 # Set the production API URL during build
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ARG INTERNAL_BACKEND_URL
+ENV INTERNAL_BACKEND_URL=${INTERNAL_BACKEND_URL}
 RUN npm run build
 
 # Run stage — uses Next.js standalone output for smaller image
