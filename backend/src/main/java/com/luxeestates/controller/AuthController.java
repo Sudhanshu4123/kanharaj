@@ -37,6 +37,13 @@ public class AuthController {
     ) {
         return ResponseEntity.ok(authService.refreshToken(request));
     }
+
+    @PostMapping("/social-login")
+    public ResponseEntity<AuthDto.AuthResponse> socialLogin(
+            @Valid @RequestBody AuthDto.SocialLoginRequest request
+    ) {
+        return ResponseEntity.ok(authService.socialLogin(request));
+    }
     
     @GetMapping("/me")
     public ResponseEntity<UserDto> getCurrentUser(

@@ -94,6 +94,32 @@ public class AuthService {
                 .user(UserDto.fromEntity(user))
                 .build();
     }
+
+    @Transactional
+    public AuthDto.AuthResponse socialLogin(AuthDto.SocialLoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseGet(() -> {
+                    // Create new user if not exists
+                    User newUser = User.builder()
+                            .name(request.getName())
+                            .email(request.getEmail())
+                            .password(passwordEncoder.encode("SOCIAL_LOGIN_" + Math.random()))
+                            .role(User.Role.USER)
+                            .enabled(true)
+                            .build();
+                    return userRepository.save(newUser);
+                });
+
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        String token = jwtTokenProvider.generateToken(userDetails);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+
+        return AuthDto.AuthResponse.builder()
+                .token(token)
+                .refreshToken(refreshToken)
+                .user(UserDto.fromEntity(user))
+                .build();
+    }
     
     public UserDto getCurrentUser(String email) {
         User user = userRepository.findByEmail(email)

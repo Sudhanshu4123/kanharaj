@@ -6,6 +6,8 @@ import { MobileNav } from "@/components/mobile-nav"
 import { LoadingProvider } from "@/components/loading-provider"
 import Script from "next/script"
 
+import { AuthProvider } from "@/components/auth-provider"
+
 export const metadata: Metadata = {
   title: "Kanharaj Builder | Dwarka's Premium Real Estate Platform",
   description: "Discover your dream property with Kanharaj Builder. Premium real estate listings for buy, rent, and commercial properties in Dwarka, New Delhi.",
@@ -35,14 +37,16 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="min-h-screen flex flex-col">
-        <LoadingProvider>
-          <Header />
-          <main className="flex-1 pt-20 pb-20 md:pb-0">
-            {children}
-          </main>
-          <MobileNav />
-          <Footer />
-        </LoadingProvider>
+        <AuthProvider>
+          <LoadingProvider>
+            <Header />
+            <main className="flex-1 pt-20 pb-20 md:pb-0">
+              {children}
+            </main>
+            <MobileNav />
+            <Footer />
+          </LoadingProvider>
+        </AuthProvider>
       </body>
     </html>
   )

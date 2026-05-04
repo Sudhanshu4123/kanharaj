@@ -61,4 +61,22 @@ public class AuthDto {
         @NotBlank(message = "Refresh token is required")
         private String refreshToken;
     }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class SocialLoginRequest {
+        @NotBlank(message = "Name is required")
+        private String name;
+        
+        @NotBlank(message = "Email is required")
+        @Email(message = "Invalid email format")
+        private String email;
+        
+        @NotBlank(message = "Provider is required")
+        private String provider;
+        
+        private String providerId;
+    }
 }
