@@ -262,6 +262,8 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     <Label htmlFor="name" className="text-xs uppercase tracking-wider text-slate-500">Your Name</Label>
                     <Input
                       id="name"
+                      name="name"
+                      autoComplete="name"
                       placeholder="Enter your name"
                       value={inquiryForm.name}
                       onChange={(e) => setInquiryForm({ ...inquiryForm, name: e.target.value })}
@@ -273,6 +275,8 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     <Label htmlFor="email" className="text-xs uppercase tracking-wider text-slate-500">Email Address</Label>
                     <Input
                       id="email"
+                      name="email"
+                      autoComplete="email"
                       type="email"
                       placeholder="Enter your email"
                       value={inquiryForm.email}
@@ -285,6 +289,8 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     <Label htmlFor="phone" className="text-xs uppercase tracking-wider text-slate-500">Phone Number</Label>
                     <Input
                       id="phone"
+                      name="phone"
+                      autoComplete="tel"
                       type="tel"
                       placeholder="Your mobile number"
                       value={inquiryForm.phone}
@@ -297,6 +303,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     <Label htmlFor="message" className="text-xs uppercase tracking-wider text-slate-500">Message</Label>
                     <textarea
                       id="message"
+                      name="message"
                       rows={4}
                       value={inquiryForm.message}
                       onChange={(e) => setInquiryForm({ ...inquiryForm, message: e.target.value })}
