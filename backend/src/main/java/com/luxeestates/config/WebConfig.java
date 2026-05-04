@@ -34,6 +34,10 @@ public class WebConfig implements WebMvcConfigurer {
         
         registry.addResourceHandler("/api/uploads/**")
                 .addResourceLocations(absolutePath);
+
+        // Fallback: also serve at /uploads/** in case Nginx strips the /api prefix
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations(absolutePath);
     }
 
 

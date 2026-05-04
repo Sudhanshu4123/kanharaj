@@ -60,7 +60,7 @@ const fetchWithTimeout = (url: string, options: RequestInit = {}, ms = 15000) =>
 }
 
 const transformFromApi = (p: any): Property => {
-  const baseUrl = API_URL.replace('/api', '')
+  const baseUrl = API_URL.replace(/\/api$/, '')
   return {
     ...p,
     id: String(p.id),
@@ -68,9 +68,13 @@ const transformFromApi = (p: any): Property => {
     listingType: p.listingType?.toUpperCase(),
     status: p.status?.toUpperCase(),
     price: typeof p.price === 'object' ? Number(p.price) : p.price,
-    images: (Array.isArray(p.images) ? p.images : (p.images ? tryParse(p.images, []) : [])).map((img: string) => 
-      img.startsWith('/uploads') ? `${baseUrl}${img}` : img
-    ),
+    images: (Array.isArray(p.images) ? p.images : (p.images ? tryParse(p.images, []) : [])).map((img: string) => {
+      // Convert any relative upload URL to absolute so it works everywhere
+      if (img && (img.startsWith('/uploads') || img.startsWith('/api/uploads'))) {
+        return `${baseUrl}${img}`
+      }
+      return img
+    }),
     amenities: Array.isArray(p.amenities) ? p.amenities : (p.amenities ? tryParse(p.amenities, []) : []),
   }
 }
