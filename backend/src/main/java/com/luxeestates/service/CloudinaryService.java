@@ -27,6 +27,9 @@ public class CloudinaryService {
      * @param file the multipart image file
      * @return the secure HTTPS URL of the uploaded image
      */
+    @org.springframework.beans.factory.annotation.Value("${API_URL:http://localhost:8080/api}")
+    private String apiUrl;
+
     public String uploadImage(MultipartFile file) throws IOException {
         // Only attempt Cloudinary if configured with something other than placeholders
         boolean isCloudinaryConfigured = cloudName != null && 
@@ -57,8 +60,10 @@ public class CloudinaryService {
         java.nio.file.Path path = java.nio.file.Paths.get(uploadPath, filename).toAbsolutePath().normalize();
         java.nio.file.Files.createDirectories(path.getParent());
         java.nio.file.Files.copy(file.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-        return "/uploads/" + filename;
-
+        
+        // Return full absolute URL so frontend treats it as an external image
+        String baseUrl = apiUrl.replaceAll("/api$", "");
+        return baseUrl + "/api/uploads/" + filename;
     }
 
     /**

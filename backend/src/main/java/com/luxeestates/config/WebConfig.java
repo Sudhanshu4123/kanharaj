@@ -32,7 +32,7 @@ public class WebConfig implements WebMvcConfigurer {
             absolutePath += "/";
         }
         
-        registry.addResourceHandler("/uploads/**")
+        registry.addResourceHandler("/api/uploads/**")
                 .addResourceLocations(absolutePath);
     }
 
