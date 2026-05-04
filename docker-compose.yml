@@ -47,6 +47,8 @@ services:
     restart: always
     environment:
       - INTERNAL_BACKEND_URL=http://backend:8080
+      - NEXTAUTH_SECRET=${JWT_SECRET:-luxeestates-secret-key-for-jwt-token-generation-2024}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-https://kanharaj.com}
     ports:
       - "3000:3000"
     depends_on:
