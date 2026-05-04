@@ -23,17 +23,17 @@ function normalizeImage(img: string): string {
 }
 
 async function getProperty(id: string) {
-  // Use internal backend URL for server-side rendering (Docker network)
-  // Fall back to public API URL for local dev
-  const internalUrl = process.env.INTERNAL_BACKEND_URL
-  const baseUrl = internalUrl
-    ? `${internalUrl}/api`
-    : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api')
+  // For SSR, use internal Docker network if available
+  const INTERNAL_BACKEND_URL = process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
+  // Ensure the internal URL also has the /api prefix if it's pointing to the service root
+  const fetchUrl = INTERNAL_BACKEND_URL?.includes('/api') 
+    ? `${INTERNAL_BACKEND_URL}/properties/${id}`
+    : `${INTERNAL_BACKEND_URL}/api/properties/${id}`;
+
   try {
-    const res = await fetch(`${baseUrl}/properties/${id}`, {
-      next: { revalidate: 60 },
-      cache: 'no-store',
-    })
+    const res = await fetch(fetchUrl, {
+      next: { revalidate: 60 }, // Cache for 60 seconds
+    });
     if (!res.ok) return null
     return res.json()
   } catch (error) {
