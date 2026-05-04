@@ -39,7 +39,12 @@ const handler = NextAuth({
     async signIn({ user, account, profile }) {
       if (account?.provider === "google" || account?.provider === "facebook") {
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/social-login`, {
+          const INTERNAL_BACKEND_URL = process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
+          const fetchUrl = INTERNAL_BACKEND_URL?.includes('/api') 
+            ? `${INTERNAL_BACKEND_URL}/auth/social-login`
+            : `${INTERNAL_BACKEND_URL}/api/auth/social-login`;
+
+          const response = await fetch(fetchUrl, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
