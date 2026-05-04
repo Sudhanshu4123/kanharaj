@@ -33,6 +33,8 @@ services:
       - JWT_SECRET=${JWT_SECRET:-luxeestates-secret-key-for-jwt-token-generation-2024}
     ports:
       - "8080:8080"
+    volumes:
+      - uploads_data:/app/uploads
 
   frontend:
     build:
@@ -48,3 +50,4 @@ services:
 
 volumes:
   mysql_data:
+  uploads_data:
