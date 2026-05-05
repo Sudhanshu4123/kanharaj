@@ -42,7 +42,7 @@ export default function LoginPage() {
       } else {
         await register(form.name, form.email, form.phone, form.password)
       }
-      // Redirect admin to admin panel
+      // Redirect based on role
       const updatedUser = useAuthStore.getState().user
       if (updatedUser?.role?.toLowerCase() === 'admin') {
         router.push('/admin')
@@ -50,7 +50,9 @@ export default function LoginPage() {
         router.push('/')
       }
     } catch (error: any) {
-      setErrors({ general: error?.message || 'Login failed. Please check credentials.' })
+      console.error("Auth error:", error)
+      const errorMsg = error.message || 'Action failed. Please try again.'
+      setErrors({ general: errorMsg })
     }
   }
 
