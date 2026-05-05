@@ -61,7 +61,18 @@ export function Footer() {
           {/* Company Info */}
           <div className="lg:col-span-2 space-y-6">
             <Link href="/" className="flex items-center space-x-2">
-              <Building className="h-8 w-8 text-rose-500" />
+              <div className="relative h-10 w-10 flex items-center justify-center">
+                <img 
+                  src="/logo.png" 
+                  alt="Kanharaj Builder Logo" 
+                  className="h-full w-auto object-contain brightness-0 invert"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <Building className="h-8 w-8 text-rose-500 hidden" />
+              </div>
               <span className="font-heading text-2xl font-bold">
                 Kanharaj<span className="text-rose-500">Builder</span>
               </span>

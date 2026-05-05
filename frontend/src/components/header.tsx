@@ -27,8 +27,20 @@ export function Header() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <Building className="h-8 w-8 text-rose-600" />
-            <span className="font-heading text-2xl font-bold text-slate-900">
+            <div className="relative h-10 w-10 md:h-12 md:w-12 flex items-center justify-center">
+              <img 
+                src="/logo.png" 
+                alt="Kanharaj Builder Logo" 
+                className="h-full w-auto object-contain"
+                onError={(e) => {
+                  // Fallback to Icon if image missing
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+              <Building className="h-8 w-8 text-rose-600 hidden" />
+            </div>
+            <span className="font-heading text-xl md:text-2xl font-bold text-slate-900">
               Kanharaj<span className="text-rose-600">Builder</span>
             </span>
           </Link>
