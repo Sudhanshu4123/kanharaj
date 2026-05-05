@@ -16,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -27,24 +29,24 @@ public class AuthService {
 
     @Value("${ADMIN_EMAIL:kanharaj1389@gmail.com}")
     private String adminEmail;
-    @Value("${ADMIN_PASSWORD:change_this_admin_password}")
+    
+    @Value("${ADMIN_PASSWORD:admin@123}")
     private String adminPassword;
-    @Value("${ADMIN_NAME:Kanharaj}")
+    
+    @Value("${ADMIN_NAME:Admin}")
     private String adminName;
-    @Value("${ADMIN_PHONE:9599801767}")
+    
+    @Value("${ADMIN_PHONE:0000000000}")
     private String adminPhone;
 
     @PostConstruct
     public void init() {
-        System.out.println("Checking for admin user: " + adminEmail);
         userRepository.findByEmail(adminEmail).ifPresentOrElse(
             admin -> {
-                System.out.println("Updating existing admin password...");
                 admin.setPassword(passwordEncoder.encode(adminPassword));
                 userRepository.save(admin);
             },
             () -> {
-                System.out.println("Creating new admin user...");
                 User admin = User.builder()
                         .name(adminName)
                         .email(adminEmail)
@@ -52,6 +54,7 @@ public class AuthService {
                         .password(passwordEncoder.encode(adminPassword))
                         .role(User.Role.ADMIN)
                         .enabled(true)
+                        .createdAt(LocalDateTime.now())
                         .build();
                 userRepository.save(admin);
             }
@@ -60,7 +63,6 @@ public class AuthService {
     
     @Transactional
     public AuthDto.AuthResponse register(AuthDto.RegisterRequest request) {
-        System.out.println("Registration request for: " + request.getEmail());
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
@@ -73,10 +75,10 @@ public class AuthService {
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(User.Role.USER)
                     .enabled(true)
+                    .createdAt(LocalDateTime.now()) // Explicitly setting for safety
                     .build();
             
             user = userRepository.save(user);
-            System.out.println("User saved successfully: " + user.getId());
             
             CustomUserDetails userDetails = new CustomUserDetails(user);
             String token = jwtTokenProvider.generateToken(userDetails);
@@ -88,14 +90,11 @@ public class AuthService {
                     .user(UserDto.fromEntity(user))
                     .build();
         } catch (Exception e) {
-            System.err.println("Registration failed in DB: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Database error during registration: " + e.getMessage());
+            throw new RuntimeException("Registration failed: " + e.getMessage());
         }
     }
     
     public AuthDto.AuthResponse login(AuthDto.LoginRequest request) {
-        System.out.println("Login attempt: " + request.getEmail());
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -117,7 +116,6 @@ public class AuthService {
                     .user(UserDto.fromEntity(user))
                     .build();
         } catch (Exception e) {
-            System.err.println("Login failed: " + e.getMessage());
             throw new RuntimeException("Invalid email or password");
         }
     }
@@ -152,6 +150,7 @@ public class AuthService {
                             .password(passwordEncoder.encode("SOCIAL_LOGIN_" + Math.random()))
                             .role(User.Role.USER)
                             .enabled(true)
+                            .createdAt(LocalDateTime.now())
                             .build();
                     return userRepository.save(newUser);
                 });
