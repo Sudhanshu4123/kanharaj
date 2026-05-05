@@ -29,7 +29,7 @@ export function MobileNav() {
       <div className="flex items-center justify-around h-16">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
-          
+
           return (
             <Link
               key={item.label}

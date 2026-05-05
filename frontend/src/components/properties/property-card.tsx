@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -16,13 +17,25 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
+  const [mounted, setMounted] = useState(false)
   const isForRent = property.listingType === 'RENT'
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="h-[400px] w-full bg-slate-100 animate-pulse rounded-xl" />
+    )
+  }
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.4 }}
+      className="relative"
     >
       <Link href={`/property/${property.id}`}>
         <Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
@@ -45,16 +58,6 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
               {property.featured && (
                 <Badge variant="default">Featured</Badge>
               )}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="absolute top-3 right-3 flex flex-col gap-2">
-              <button className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors">
-                <Heart className="h-4 w-4 text-slate-700" />
-              </button>
-              <button className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors">
-                <Share2 className="h-4 w-4 text-slate-700" />
-              </button>
             </div>
 
             {/* Price */}
@@ -97,6 +100,22 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
           </div>
         </Card>
       </Link>
+
+      {/* Action Buttons (Moved outside Link to fix Hydration Error) */}
+      <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
+        <button 
+          className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors shadow-sm"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        >
+          <Heart className="h-4 w-4 text-slate-700" />
+        </button>
+        <button 
+          className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors shadow-sm"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        >
+          <Share2 className="h-4 w-4 text-slate-700" />
+        </button>
+      </div>
     </motion.div>
   )
 }
