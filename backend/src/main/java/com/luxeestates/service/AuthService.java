@@ -27,52 +27,57 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
 
-    @Value("${admin.email}")
+    @Value("${admin.email:kanharaj1389@gmail.com}")
     private String adminEmail;
     
-    @Value("${admin.password}")
+    @Value("${admin.password:admin@123}")
     private String adminPassword;
     
-    @Value("${admin.name}")
+    @Value("${admin.name:Admin}")
     private String adminName;
     
-    @Value("${admin.phone}")
+    @Value("${admin.phone:0000000000}")
     private String adminPhone;
 
     @PostConstruct
     public void init() {
-        // Ensure admin account exists based on environment variables
-        userRepository.findByEmail(adminEmail).ifPresentOrElse(
-            admin -> {
-                admin.setPassword(passwordEncoder.encode(adminPassword));
-                userRepository.save(admin);
-            },
-            () -> {
-                User admin = User.builder()
-                        .name(adminName)
-                        .email(adminEmail)
-                        .phone(adminPhone)
-                        .password(passwordEncoder.encode(adminPassword))
-                        .role(User.Role.ADMIN)
-                        .enabled(true)
-                        .createdAt(LocalDateTime.now())
-                        .build();
-                userRepository.save(admin);
-            }
-        );
+        try {
+            userRepository.findByEmail(adminEmail).ifPresentOrElse(
+                admin -> {
+                    admin.setPassword(passwordEncoder.encode(adminPassword));
+                    userRepository.save(admin);
+                },
+                () -> {
+                    User admin = User.builder()
+                            .name(adminName)
+                            .email(adminEmail)
+                            .phone(adminPhone)
+                            .password(passwordEncoder.encode(adminPassword))
+                            .role(User.Role.ADMIN)
+                            .enabled(true)
+                            .createdAt(LocalDateTime.now())
+                            .build();
+                    userRepository.save(admin);
+                }
+            );
+        } catch (Exception e) {
+            System.err.println("Admin init error: " + e.getMessage());
+        }
     }
     
     @Transactional
     public AuthDto.AuthResponse register(AuthDto.RegisterRequest request) {
+        System.out.println("Registering user: " + request.getEmail());
+        
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new RuntimeException("This email is already registered");
         }
         
         try {
             User user = User.builder()
                     .name(request.getName())
                     .email(request.getEmail())
-                    .phone(request.getPhone())
+                    .phone(request.getPhone() != null ? request.getPhone() : "")
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(User.Role.USER)
                     .enabled(true)
@@ -80,6 +85,7 @@ public class AuthService {
                     .build();
             
             user = userRepository.save(user);
+            System.out.println("User saved successfully with ID: " + user.getId());
             
             CustomUserDetails userDetails = new CustomUserDetails(user);
             String token = jwtTokenProvider.generateToken(userDetails);
@@ -91,7 +97,9 @@ public class AuthService {
                     .user(UserDto.fromEntity(user))
                     .build();
         } catch (Exception e) {
-            throw new RuntimeException("Registration failed: " + e.getMessage());
+            System.err.println("Database Registration Error: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Database error: " + e.getMessage());
         }
     }
     
@@ -109,7 +117,7 @@ public class AuthService {
             String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
             
             User user = userRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new RuntimeException("User data not found"));
             
             return AuthDto.AuthResponse.builder()
                     .token(token)
