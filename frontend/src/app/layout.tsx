@@ -9,9 +9,38 @@ import Script from "next/script"
 import { AuthProvider } from "@/components/auth-provider"
 
 export const metadata: Metadata = {
-  title: "Kanharaj Builder | Dwarka's Premium Real Estate Platform",
+  title: {
+    default: "Kanharaj Builder | Dwarka's Premium Real Estate Platform",
+    template: "%s | Kanharaj Builder"
+  },
   description: "Discover your dream property with Kanharaj Builder. Premium real estate listings for buy, rent, and commercial properties in Dwarka, New Delhi.",
-  keywords: "real estate, properties, buy house, rent apartment, luxury homes, Dwarka real estate, New Delhi",
+  keywords: ["real estate", "properties", "buy house", "rent apartment", "luxury homes", "Dwarka real estate", "New Delhi", "Kanharaj Builder"],
+  authors: [{ name: "Kanharaj Builder" }],
+  creator: "Kanharaj Builder",
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://kanharaj.com",
+    title: "Kanharaj Builder | Premium Real Estate in Dwarka",
+    description: "Premium real estate listings for buy, rent, and commercial properties in Dwarka, New Delhi.",
+    siteName: "Kanharaj Builder",
+    images: [{
+      url: "https://kanharaj.com/og-image.jpg",
+      width: 1200,
+      height: 630,
+      alt: "Kanharaj Builder"
+    }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kanharaj Builder | Premium Real Estate",
+    description: "Premium real estate listings in Dwarka, New Delhi.",
+    images: ["https://kanharaj.com/og-image.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function RootLayout({

@@ -65,15 +65,30 @@ export async function generateMetadata(
     : (typeof property.images === 'string' ? JSON.parse(property.images || '[]') : [])
 
   // For OpenGraph, we need absolute URLs only
+  const baseUrl = "https://kanharaj.com"
   const ogImages = rawImages
     .map(normalizeImage)
-    .filter(img => img.startsWith('http')) // Only absolute URLs for OG
+    .map(img => img.startsWith('http') ? img : `${baseUrl}${img}`)
     .slice(0, 1)
 
   return {
-    title: `${property.title} | Kanharaj Builder`,
+    title: property.title,
     description,
     openGraph: {
+      title: property.title,
+      description,
+      url: `${baseUrl}/property/${id}`,
+      siteName: "Kanharaj Builder",
+      images: ogImages.map(url => ({
+        url,
+        width: 1200,
+        height: 630,
+        alt: property.title,
+      })),
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
       title: property.title,
       description,
       images: ogImages,
