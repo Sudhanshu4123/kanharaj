@@ -70,7 +70,8 @@ export default function AdminPage() {
       router.push('/login')
     } else if (isAuthenticated) {
       fetchProperties()
-      useInquiryStore.getState().fetchInquiries(token || undefined)
+      const currentToken = useAuthStore.getState().token
+      useInquiryStore.getState().fetchInquiries(currentToken || undefined)
     }
   }, [isAuthenticated, mounted, router, token])
 
