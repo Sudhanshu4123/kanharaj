@@ -27,20 +27,21 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
 
-    @Value("${admin.email:kanharaj1389@gmail.com}")
+    @Value("${admin.email}")
     private String adminEmail;
     
-    @Value("${admin.password:admin@123}")
+    @Value("${admin.password}")
     private String adminPassword;
     
-    @Value("${admin.name:Admin}")
+    @Value("${admin.name}")
     private String adminName;
     
-    @Value("${admin.phone:0000000000}")
+    @Value("${admin.phone}")
     private String adminPhone;
 
     @PostConstruct
     public void init() {
+        // Init logic for admin account from environment variables
         try {
             userRepository.findByEmail(adminEmail).ifPresentOrElse(
                 admin -> {
@@ -61,23 +62,22 @@ public class AuthService {
                 }
             );
         } catch (Exception e) {
-            System.err.println("Admin init error: " + e.getMessage());
+            // Silently log init error to prevent app crash if env vars are missing during some builds
+            System.err.println("Admin init failed: " + e.getMessage());
         }
     }
     
     @Transactional
     public AuthDto.AuthResponse register(AuthDto.RegisterRequest request) {
-        System.out.println("Registering user: " + request.getEmail());
-        
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("This email is already registered");
+            throw new RuntimeException("Email already exists");
         }
         
         try {
             User user = User.builder()
                     .name(request.getName())
                     .email(request.getEmail())
-                    .phone(request.getPhone() != null ? request.getPhone() : "")
+                    .phone(request.getPhone())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(User.Role.USER)
                     .enabled(true)
@@ -85,7 +85,6 @@ public class AuthService {
                     .build();
             
             user = userRepository.save(user);
-            System.out.println("User saved successfully with ID: " + user.getId());
             
             CustomUserDetails userDetails = new CustomUserDetails(user);
             String token = jwtTokenProvider.generateToken(userDetails);
@@ -97,9 +96,7 @@ public class AuthService {
                     .user(UserDto.fromEntity(user))
                     .build();
         } catch (Exception e) {
-            System.err.println("Database Registration Error: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Database error: " + e.getMessage());
+            throw new RuntimeException("Registration failed: " + e.getMessage());
         }
     }
     
@@ -117,7 +114,7 @@ public class AuthService {
             String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
             
             User user = userRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new RuntimeException("User data not found"));
+                    .orElseThrow(() -> new RuntimeException("User not found"));
             
             return AuthDto.AuthResponse.builder()
                     .token(token)
@@ -125,7 +122,7 @@ public class AuthService {
                     .user(UserDto.fromEntity(user))
                     .build();
         } catch (Exception e) {
-            throw new RuntimeException("Invalid email or password");
+            throw new RuntimeException("Invalid credentials");
         }
     }
     
