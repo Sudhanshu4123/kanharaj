@@ -75,6 +75,14 @@ export default function PropertiesContent() {
     })
   }
 
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-rose-600 border-t-transparent" />
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -90,7 +98,7 @@ export default function PropertiesContent() {
                 Properties
               </h1>
               <p className="text-slate-600 mt-1">
-                Showing {mounted ? properties.length : '...'} properties
+                Showing {properties.length} properties
               </p>
             </div>
 
@@ -278,4 +286,5 @@ export default function PropertiesContent() {
       </div>
     </div>
   )
+}
 }
