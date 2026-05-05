@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Home, Building, User, Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from './ui/button'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/lib/store'
@@ -19,7 +19,12 @@ const navLinks = [
 export function Header() {
   const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { isAuthenticated, user, logout } = useAuthStore()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
@@ -70,24 +75,28 @@ export function Header() {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            {isAuthenticated ? (
-              <div className="flex items-center space-x-4">
-                <Link href="/admin">
-                  <Button variant="ghost" size="sm">
-                    <User className="h-4 w-4 mr-2" />
-                    {user?.name}
-                  </Button>
-                </Link>
-                <Button variant="outline" size="sm" onClick={logout}>
-                  Logout
-                </Button>
-              </div>
-            ) : (
-              <Link href="/login">
-                <Button variant="outline" size="sm">
-                  Sign In
-                </Button>
-              </Link>
+            {mounted && (
+              <>
+                {isAuthenticated ? (
+                  <div className="flex items-center space-x-4">
+                    <Link href="/admin">
+                      <Button variant="ghost" size="sm">
+                        <User className="h-4 w-4 mr-2" />
+                        {user?.name}
+                      </Button>
+                    </Link>
+                    <Button variant="outline" size="sm" onClick={logout}>
+                      Logout
+                    </Button>
+                  </div>
+                ) : (
+                  <Link href="/login">
+                    <Button variant="outline" size="sm">
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
+              </>
             )}
             <Link href="/contact">
               <Button size="sm">Enquire Now</Button>
@@ -132,18 +141,22 @@ export function Header() {
               </Link>
             ))}
             <div className="pt-4 space-y-2">
-              {!isAuthenticated ? (
-                <Link href="/login" className="block" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="outline" className="w-full">
-                    Sign In
-                  </Button>
-                </Link>
-              ) : (
-                <Link href="/profile" className="block" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="outline" className="w-full">
-                    My Profile
-                  </Button>
-                </Link>
+              {mounted && (
+                <>
+                  {!isAuthenticated ? (
+                    <Link href="/login" className="block" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="outline" className="w-full">
+                        Sign In
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link href="/profile" className="block" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="outline" className="w-full">
+                        My Profile
+                      </Button>
+                    </Link>
+                  )}
+                </>
               )}
               <Link href="/contact" className="block" onClick={() => setIsMenuOpen(false)}>
                 <Button className="w-full">Enquire Now</Button>

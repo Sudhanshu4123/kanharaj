@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Search, PlusSquare, MessageSquare, User } from 'lucide-react'
@@ -8,14 +9,19 @@ import { useAuthStore } from '@/lib/store'
 
 export function MobileNav() {
   const pathname = usePathname()
+  const [mounted, setMounted] = useState(false)
   const { isAuthenticated } = useAuthStore()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const navItems = [
     { label: 'Home', icon: Home, href: '/' },
     { label: 'Explore', icon: Search, href: '/properties' },
     { label: 'Add', icon: PlusSquare, href: '/admin' },
     { label: 'Inquiry', icon: MessageSquare, href: '/admin?tab=inquiries' },
-    { label: 'Account', icon: User, href: isAuthenticated ? '/profile' : '/login' },
+    { label: 'Account', icon: User, href: mounted ? (isAuthenticated ? '/profile' : '/login') : '/login' },
   ]
 
   return (
