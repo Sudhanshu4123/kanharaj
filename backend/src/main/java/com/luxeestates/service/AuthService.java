@@ -27,16 +27,16 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
 
-    @Value("${ADMIN_EMAIL}")
+    @Value("${admin.email}")
     private String adminEmail;
     
-    @Value("${ADMIN_PASSWORD}")
+    @Value("${admin.password}")
     private String adminPassword;
     
-    @Value("${ADMIN_NAME}")
+    @Value("${admin.name}")
     private String adminName;
     
-    @Value("${ADMIN_PHONE}")
+    @Value("${admin.phone}")
     private String adminPhone;
 
     @PostConstruct
