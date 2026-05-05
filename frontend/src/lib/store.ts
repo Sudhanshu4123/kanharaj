@@ -48,8 +48,9 @@ const defaultFilters: PropertyFilters = {
   search: '',
 }
 
-// API Config from Environment Variables
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://192.168.1.13:8080/api'
+// API Config: Uses /api by default for relative routing in production, 
+// or environment variable if provided.
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
 // Timeout-aware fetch (15 seconds)
 const fetchWithTimeout = (url: string, options: RequestInit = {}, ms = 15000) => {
