@@ -27,20 +27,21 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
 
-    @Value("${ADMIN_EMAIL:kanharaj1389@gmail.com}")
+    @Value("${ADMIN_EMAIL}")
     private String adminEmail;
     
-    @Value("${ADMIN_PASSWORD:admin@123}")
+    @Value("${ADMIN_PASSWORD}")
     private String adminPassword;
     
-    @Value("${ADMIN_NAME:Admin}")
+    @Value("${ADMIN_NAME}")
     private String adminName;
     
-    @Value("${ADMIN_PHONE:0000000000}")
+    @Value("${ADMIN_PHONE}")
     private String adminPhone;
 
     @PostConstruct
     public void init() {
+        // Ensure admin account exists based on environment variables
         userRepository.findByEmail(adminEmail).ifPresentOrElse(
             admin -> {
                 admin.setPassword(passwordEncoder.encode(adminPassword));
@@ -71,11 +72,11 @@ public class AuthService {
             User user = User.builder()
                     .name(request.getName())
                     .email(request.getEmail())
-                    .phone(request.getPhone() != null ? request.getPhone() : "")
+                    .phone(request.getPhone())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(User.Role.USER)
                     .enabled(true)
-                    .createdAt(LocalDateTime.now()) // Explicitly setting for safety
+                    .createdAt(LocalDateTime.now())
                     .build();
             
             user = userRepository.save(user);
