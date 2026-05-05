@@ -239,13 +239,16 @@ export const useAuthStore = create<AuthStore>()(
             body: JSON.stringify({ email, password })
           })
           
-          if (!res.ok) throw new Error('Invalid credentials')
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({ message: 'Invalid credentials' }))
+            throw new Error(errData.message || 'Invalid credentials')
+          }
 
           const data = await res.json()
           set({ user: data.user, token: data.token, isAuthenticated: true })
         } catch (err: any) {
           if (err?.name === 'AbortError') {
-            throw new Error('Server is offline. Please start the backend.')
+            throw new Error('Server is offline. Please try again later.')
           }
           throw err
         }
@@ -258,7 +261,12 @@ export const useAuthStore = create<AuthStore>()(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, phone, password })
           })
-          if (!res.ok) throw new Error('Registration failed')
+          
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({ message: 'Registration failed' }))
+            throw new Error(errData.message || 'Registration failed')
+          }
+          
           const data = await res.json()
           set({ user: data.user, token: data.token, isAuthenticated: true })
         } catch (err: any) {
