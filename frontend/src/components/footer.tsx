@@ -1,3 +1,5 @@
+"use client"
+
 import Link from 'next/link'
 import { Building, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react'
 import { Button } from './ui/button'
@@ -61,11 +63,11 @@ export function Footer() {
           {/* Company Info */}
           <div className="lg:col-span-2 space-y-6">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="relative h-10 w-10 flex items-center justify-center">
+              <div className="relative h-10 w-10 flex items-center justify-center overflow-hidden rounded-full border border-slate-700 bg-white">
                 <img 
                   src="/logo.png" 
                   alt="Kanharaj Builder Logo" 
-                  className="h-full w-auto object-contain brightness-0 invert"
+                  className="h-full w-full object-cover"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');

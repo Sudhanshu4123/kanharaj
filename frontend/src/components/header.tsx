@@ -27,13 +27,12 @@ export function Header() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="relative h-10 w-10 md:h-12 md:w-12 flex items-center justify-center">
+            <div className="relative h-10 w-10 md:h-12 md:w-12 flex items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-white">
               <img 
                 src="/logo.png" 
                 alt="Kanharaj Builder Logo" 
-                className="h-full w-auto object-contain"
+                className="h-full w-full object-cover"
                 onError={(e) => {
-                  // Fallback to Icon if image missing
                   e.currentTarget.style.display = 'none';
                   e.currentTarget.nextElementSibling?.classList.remove('hidden');
                 }}
