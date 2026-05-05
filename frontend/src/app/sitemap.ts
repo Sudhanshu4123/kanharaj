@@ -2,7 +2,8 @@ import { MetadataRoute } from 'next'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://kanharaj.com'
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://kanharaj.com/api'
+  // Use internal docker network URL if available for faster/reliable fetching during build
+  const apiUrl = process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'https://kanharaj.com/api'
 
   const staticPages: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
