@@ -72,7 +72,6 @@ public class PropertyController {
     }
     
     @PutMapping("/{id}")
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PropertyDto> updateProperty(
             @PathVariable Long id,
             @RequestBody PropertyDto dto
@@ -81,7 +80,6 @@ public class PropertyController {
     }
     
     @DeleteMapping("/{id}")
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProperty(@PathVariable Long id) {
         propertyService.deleteProperty(id);
         return ResponseEntity.noContent().build();
