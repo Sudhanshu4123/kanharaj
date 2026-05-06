@@ -35,27 +35,28 @@ public class DataInitializer implements CommandLineRunner {
         }
         
         String trimmedEmail = adminEmail.trim();
+        String trimmedPassword = adminPassword.trim();
         User admin = userRepository.findByEmail(trimmedEmail).orElse(null);
         
         if (admin == null) {
             // Create new admin
             admin = User.builder()
                     .name(adminName)
-                    .email(adminEmail)
+                    .email(trimmedEmail)
                     .phone(adminPhone)
-                    .password(passwordEncoder.encode(adminPassword))
+                    .password(passwordEncoder.encode(trimmedPassword))
                     .role(User.Role.ADMIN)
                     .enabled(true)
                     .build();
             userRepository.save(admin);
-            System.out.println("New admin user created: " + adminEmail);
+            System.out.println("New admin user created: " + trimmedEmail);
         } else {
             // Force update existing user to be Admin with correct password
             admin.setRole(User.Role.ADMIN);
-            admin.setPassword(passwordEncoder.encode(adminPassword));
+            admin.setPassword(passwordEncoder.encode(trimmedPassword));
             admin.setEnabled(true);
             userRepository.save(admin);
-            System.out.println("Existing admin user credentials reset: " + adminEmail);
+            System.out.println("Existing admin user credentials reset: " + trimmedEmail);
         }
 
         // Add a sample property if the database is empty

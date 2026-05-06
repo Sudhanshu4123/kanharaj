@@ -40,31 +40,9 @@ public class AuthService {
         private String adminPhone;
 
         @PostConstruct
-        public void init() {
-                // Init logic for admin account from environment variables
-                try {
-                        userRepository.findByEmail(adminEmail).ifPresentOrElse(
-                                        admin -> {
-                                                admin.setPassword(passwordEncoder.encode(adminPassword));
-                                                userRepository.save(admin);
-                                        },
-                                        () -> {
-                                                User admin = User.builder()
-                                                                .name(adminName)
-                                                                .email(adminEmail)
-                                                                .phone(adminPhone)
-                                                                .password(passwordEncoder.encode(adminPassword))
-                                                                .role(User.Role.ADMIN)
-                                                                .enabled(true)
-                                                                .createdAt(LocalDateTime.now())
-                                                                .build();
-                                                userRepository.save(admin);
-                                        });
-                } catch (Exception e) {
-                        // Silently log init error to prevent app crash if env vars are missing during
-                        // some builds
-                        System.err.println("Admin init failed: " + e.getMessage());
-                }
+        public void postConstruct() {
+                if (adminEmail != null) adminEmail = adminEmail.trim();
+                if (adminPassword != null) adminPassword = adminPassword.trim();
         }
 
         @Transactional
@@ -102,10 +80,11 @@ public class AuthService {
 
         public AuthDto.AuthResponse login(AuthDto.LoginRequest request) {
                 try {
+                        String email = request.getEmail().trim();
                         Authentication authentication = authenticationManager.authenticate(
                                         new UsernamePasswordAuthenticationToken(
-                                                        request.getEmail(),
-                                                        request.getPassword()));
+                                                        email,
+                                                        request.getPassword().trim()));
 
                         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
                         String token = jwtTokenProvider.generateToken(userDetails);
