@@ -24,6 +24,39 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
     setMounted(true)
   }, [])
 
+  const getImageUrl = (imageInput: any) => {
+    let url = '';
+    
+    if (!imageInput) return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
+    
+    // If it's an array, take the first one
+    if (Array.isArray(imageInput) && imageInput.length > 0) {
+      url = imageInput[0];
+    } else if (typeof imageInput === 'string') {
+      // If it's a JSON string like '["url1"]', parse it
+      if (imageInput.startsWith('[') && imageInput.endsWith(']')) {
+        try {
+          const parsed = JSON.parse(imageInput);
+          url = Array.isArray(parsed) ? parsed[0] : imageInput;
+        } catch (e) {
+          url = imageInput;
+        }
+      } else {
+        url = imageInput;
+      }
+    }
+
+    if (!url || url === '[]') return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
+    
+    // Handle Cloudinary/External vs Local
+    if (url.startsWith('http')) {
+      return url.replace('http://', 'https://');
+    }
+    
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || '';
+    return `${apiUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   if (!mounted) {
     return (
       <div className="h-[400px] w-full bg-slate-100 animate-pulse rounded-xl" />
@@ -42,7 +75,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
           {/* Image */}
           <div className="relative aspect-[16/10] overflow-hidden">
             <Image
-              src={property.images && property.images.length > 0 ? property.images[0] : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800'}
+              src={getImageUrl(property.images && property.images.length > 0 ? property.images[0] : '')}
               alt={property.title}
               fill
               priority={index < 3}

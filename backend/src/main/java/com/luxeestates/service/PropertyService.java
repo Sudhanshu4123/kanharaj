@@ -24,13 +24,11 @@ public class PropertyService {
     private final UserRepository userRepository;
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
     
-    @Cacheable(value = "properties", key = "#pageable.pageNumber")
     public Page<PropertyDto> getAllProperties(Pageable pageable) {
         return propertyRepository.findByStatus(Property.Status.ACTIVE, pageable)
                 .map(PropertyDto::fromEntity);
     }
     
-    @Cacheable(value = "featured_properties")
     public List<PropertyDto> getFeaturedProperties() {
         return propertyRepository.findByFeaturedTrueAndStatus(Property.Status.ACTIVE, Pageable.ofSize(6))
                 .map(PropertyDto::fromEntity)
@@ -44,7 +42,6 @@ public class PropertyService {
     }
     
     @Transactional
-    @CacheEvict(value = {"properties", "featured_properties"}, allEntries = true)
     public PropertyDto createProperty(PropertyDto dto, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -76,7 +73,6 @@ public class PropertyService {
     }
     
     @Transactional
-    @CacheEvict(value = {"properties", "featured_properties"}, allEntries = true)
     public PropertyDto updateProperty(Long id, PropertyDto dto) {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));

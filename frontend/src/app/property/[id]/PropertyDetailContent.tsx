@@ -40,6 +40,39 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     setCurrentImageIndex((prev) => (prev - 1 + property.images.length) % property.images.length)
   }
 
+  const getImageUrl = (imageInput: any) => {
+    let url = '';
+    
+    if (!imageInput) return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
+    
+    // If it's an array, take the first one
+    if (Array.isArray(imageInput) && imageInput.length > 0) {
+      url = imageInput[0];
+    } else if (typeof imageInput === 'string') {
+      // If it's a JSON string like '["url1"]', parse it
+      if (imageInput.startsWith('[') && imageInput.endsWith(']')) {
+        try {
+          const parsed = JSON.parse(imageInput);
+          url = Array.isArray(parsed) ? parsed[0] : imageInput;
+        } catch (e) {
+          url = imageInput;
+        }
+      } else {
+        url = imageInput;
+      }
+    }
+
+    if (!url || url === '[]') return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
+    
+    // Handle Cloudinary/External vs Local
+    if (url.startsWith('http')) {
+      return url.replace('http://', 'https://');
+    }
+    
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || '';
+    return `${apiUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   const handleInquiry = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitted(true)
@@ -81,7 +114,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
             <div className="relative">
               <div className="relative aspect-[16/10] sm:rounded-xl overflow-hidden bg-slate-200">
                 <Image
-                  src={property.images && property.images.length > 0 ? property.images[currentImageIndex] : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800'}
+                  src={getImageUrl(property.images && property.images.length > 0 ? property.images[currentImageIndex] : '')}
                   alt={property.title}
                   fill
                   className="object-cover"
@@ -130,7 +163,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     currentImageIndex === index ? 'ring-2 ring-rose-600' : 'opacity-70 hover:opacity-100'
                   )}
                 >
-                  <Image src={image} alt={`View ${index + 1}`} fill className="object-cover" />
+                  <Image src={getImageUrl(image)} alt={`View ${index + 1}`} fill className="object-cover" />
                 </button>
               ))}
             </div>
