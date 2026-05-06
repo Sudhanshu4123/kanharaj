@@ -79,18 +79,22 @@ public class AuthService {
         }
 
         public AuthDto.AuthResponse login(AuthDto.LoginRequest request) {
+                String email = request.getEmail() != null ? request.getEmail().trim() : "";
+                String password = request.getPassword() != null ? request.getPassword().trim() : "";
+                
+                System.out.println("Login attempt for: [" + email + "]");
+                
                 try {
-                        String email = request.getEmail().trim();
                         Authentication authentication = authenticationManager.authenticate(
-                                        new UsernamePasswordAuthenticationToken(
-                                                        email,
-                                                        request.getPassword().trim()));
+                                        new UsernamePasswordAuthenticationToken(email, password));
 
                         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+                        System.out.println("Authentication successful for: " + email + " with role: " + userDetails.getAuthorities());
+                        
                         String token = jwtTokenProvider.generateToken(userDetails);
                         String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
 
-                        User user = userRepository.findByEmail(request.getEmail())
+                        User user = userRepository.findByEmail(email)
                                         .orElseThrow(() -> new RuntimeException("User not found"));
 
                         return AuthDto.AuthResponse.builder()
@@ -99,6 +103,7 @@ public class AuthService {
                                         .user(UserDto.fromEntity(user))
                                         .build();
                 } catch (Exception e) {
+                        System.err.println("Login failed for [" + email + "]: " + e.getMessage());
                         throw new RuntimeException("Invalid credentials");
                 }
         }
