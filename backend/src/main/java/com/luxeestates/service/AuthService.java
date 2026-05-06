@@ -21,168 +21,167 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final AuthenticationManager authenticationManager;
 
-    @Value("${admin.email}")
-    private String adminEmail;
-    
-    @Value("${admin.password}")
-    private String adminPassword;
-    
-    @Value("${admin.name}")
-    private String adminName;
-    
-    @Value("${admin.phone}")
-    private String adminPhone;
+        private final UserRepository userRepository;
+        private final PasswordEncoder passwordEncoder;
+        private final JwtTokenProvider jwtTokenProvider;
+        private final AuthenticationManager authenticationManager;
 
-    @PostConstruct
-    public void init() {
-        // Init logic for admin account from environment variables
-        try {
-            userRepository.findByEmail(adminEmail).ifPresentOrElse(
-                admin -> {
-                    admin.setPassword(passwordEncoder.encode(adminPassword));
-                    userRepository.save(admin);
-                },
-                () -> {
-                    User admin = User.builder()
-                            .name(adminName)
-                            .email(adminEmail)
-                            .phone(adminPhone)
-                            .password(passwordEncoder.encode(adminPassword))
-                            .role(User.Role.ADMIN)
-                            .enabled(true)
-                            .createdAt(LocalDateTime.now())
-                            .build();
-                    userRepository.save(admin);
+        @Value("${admin.email}")
+        private String adminEmail;
+
+        @Value("${admin.password}")
+        private String adminPassword;
+
+        @Value("${admin.name}")
+        private String adminName;
+
+        @Value("${admin.phone}")
+        private String adminPhone;
+
+        @PostConstruct
+        public void init() {
+                // Init logic for admin account from environment variables
+                try {
+                        userRepository.findByEmail(adminEmail).ifPresentOrElse(
+                                        admin -> {
+                                                admin.setPassword(passwordEncoder.encode(adminPassword));
+                                                userRepository.save(admin);
+                                        },
+                                        () -> {
+                                                User admin = User.builder()
+                                                                .name(adminName)
+                                                                .email(adminEmail)
+                                                                .phone(adminPhone)
+                                                                .password(passwordEncoder.encode(adminPassword))
+                                                                .role(User.Role.ADMIN)
+                                                                .enabled(true)
+                                                                .createdAt(LocalDateTime.now())
+                                                                .build();
+                                                userRepository.save(admin);
+                                        });
+                } catch (Exception e) {
+                        // Silently log init error to prevent app crash if env vars are missing during
+                        // some builds
+                        System.err.println("Admin init failed: " + e.getMessage());
                 }
-            );
-        } catch (Exception e) {
-            // Silently log init error to prevent app crash if env vars are missing during some builds
-            System.err.println("Admin init failed: " + e.getMessage());
         }
-    }
-    
-    @Transactional
-    public AuthDto.AuthResponse register(AuthDto.RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
-        
-        try {
-            User user = User.builder()
-                    .name(request.getName())
-                    .email(request.getEmail())
-                    .phone(request.getPhone())
-                    .password(passwordEncoder.encode(request.getPassword()))
-                    .role(User.Role.USER)
-                    .enabled(true)
-                    .createdAt(LocalDateTime.now())
-                    .build();
-            
-            user = userRepository.save(user);
-            
-            CustomUserDetails userDetails = new CustomUserDetails(user);
-            String token = jwtTokenProvider.generateToken(userDetails);
-            String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
-            
-            return AuthDto.AuthResponse.builder()
-                    .token(token)
-                    .refreshToken(refreshToken)
-                    .user(UserDto.fromEntity(user))
-                    .build();
-        } catch (Exception e) {
-            throw new RuntimeException("Registration failed: " + e.getMessage());
-        }
-    }
-    
-    public AuthDto.AuthResponse login(AuthDto.LoginRequest request) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getEmail(),
-                            request.getPassword()
-                    )
-            );
-            
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            String token = jwtTokenProvider.generateToken(userDetails);
-            String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
-            
-            User user = userRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            
-            return AuthDto.AuthResponse.builder()
-                    .token(token)
-                    .refreshToken(refreshToken)
-                    .user(UserDto.fromEntity(user))
-                    .build();
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid credentials");
-        }
-    }
-    
-    public AuthDto.AuthResponse refreshToken(AuthDto.RefreshTokenRequest request) {
-        if (!jwtTokenProvider.validateToken(request.getRefreshToken())) {
-            throw new RuntimeException("Invalid refresh token");
-        }
-        
-        String email = jwtTokenProvider.extractUsername(request.getRefreshToken());
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
-        CustomUserDetails userDetails = new CustomUserDetails(user);
-        String token = jwtTokenProvider.generateToken(userDetails);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
-        
-        return AuthDto.AuthResponse.builder()
-                .token(token)
-                .refreshToken(refreshToken)
-                .user(UserDto.fromEntity(user))
-                .build();
-    }
 
-    @Transactional
-    public AuthDto.AuthResponse socialLogin(AuthDto.SocialLoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseGet(() -> {
-                    User newUser = User.builder()
-                            .name(request.getName())
-                            .email(request.getEmail())
-                            .password(passwordEncoder.encode("SOCIAL_LOGIN_" + Math.random()))
-                            .role(User.Role.USER)
-                            .enabled(true)
-                            .createdAt(LocalDateTime.now())
-                            .build();
-                    return userRepository.save(newUser);
-                });
+        @Transactional
+        public AuthDto.AuthResponse register(AuthDto.RegisterRequest request) {
+                if (userRepository.existsByEmail(request.getEmail())) {
+                        throw new RuntimeException("Email already exists");
+                }
 
-        CustomUserDetails userDetails = new CustomUserDetails(user);
-        String token = jwtTokenProvider.generateToken(userDetails);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+                try {
+                        User user = User.builder()
+                                        .name(request.getName())
+                                        .email(request.getEmail())
+                                        .phone(request.getPhone())
+                                        .password(passwordEncoder.encode(request.getPassword()))
+                                        .role(User.Role.USER)
+                                        .enabled(true)
+                                        .createdAt(LocalDateTime.now())
+                                        .build();
 
-        return AuthDto.AuthResponse.builder()
-                .token(token)
-                .refreshToken(refreshToken)
-                .user(UserDto.fromEntity(user))
-                .build();
-    }
-    
-    public UserDto getCurrentUser(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return UserDto.fromEntity(user);
-    }
-    
-    public Long getTotalUsers() {
-        return userRepository.count();
-    }
-    
-    public Long getTotalAdmins() {
-        return userRepository.countByRole(User.Role.ADMIN);
-    }
+                        user = userRepository.save(user);
+
+                        CustomUserDetails userDetails = new CustomUserDetails(user);
+                        String token = jwtTokenProvider.generateToken(userDetails);
+                        String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+
+                        return AuthDto.AuthResponse.builder()
+                                        .token(token)
+                                        .refreshToken(refreshToken)
+                                        .user(UserDto.fromEntity(user))
+                                        .build();
+                } catch (Exception e) {
+                        throw new RuntimeException("Registration failed: " + e.getMessage());
+                }
+        }
+
+        public AuthDto.AuthResponse login(AuthDto.LoginRequest request) {
+                try {
+                        Authentication authentication = authenticationManager.authenticate(
+                                        new UsernamePasswordAuthenticationToken(
+                                                        request.getEmail(),
+                                                        request.getPassword()));
+
+                        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+                        String token = jwtTokenProvider.generateToken(userDetails);
+                        String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+
+                        User user = userRepository.findByEmail(request.getEmail())
+                                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+                        return AuthDto.AuthResponse.builder()
+                                        .token(token)
+                                        .refreshToken(refreshToken)
+                                        .user(UserDto.fromEntity(user))
+                                        .build();
+                } catch (Exception e) {
+                        throw new RuntimeException("Invalid credentials");
+                }
+        }
+
+        public AuthDto.AuthResponse refreshToken(AuthDto.RefreshTokenRequest request) {
+                if (!jwtTokenProvider.validateToken(request.getRefreshToken())) {
+                        throw new RuntimeException("Invalid refresh token");
+                }
+
+                String email = jwtTokenProvider.extractUsername(request.getRefreshToken());
+                User user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+
+                CustomUserDetails userDetails = new CustomUserDetails(user);
+                String token = jwtTokenProvider.generateToken(userDetails);
+                String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+
+                return AuthDto.AuthResponse.builder()
+                                .token(token)
+                                .refreshToken(refreshToken)
+                                .user(UserDto.fromEntity(user))
+                                .build();
+        }
+
+        @Transactional
+        public AuthDto.AuthResponse socialLogin(AuthDto.SocialLoginRequest request) {
+                User user = userRepository.findByEmail(request.getEmail())
+                                .orElseGet(() -> {
+                                        User newUser = User.builder()
+                                                        .name(request.getName())
+                                                        .email(request.getEmail())
+                                                        .password(passwordEncoder
+                                                                        .encode("SOCIAL_LOGIN_" + Math.random()))
+                                                        .role(User.Role.USER)
+                                                        .enabled(true)
+                                                        .createdAt(LocalDateTime.now())
+                                                        .build();
+                                        return userRepository.save(newUser);
+                                });
+
+                CustomUserDetails userDetails = new CustomUserDetails(user);
+                String token = jwtTokenProvider.generateToken(userDetails);
+                String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+
+                return AuthDto.AuthResponse.builder()
+                                .token(token)
+                                .refreshToken(refreshToken)
+                                .user(UserDto.fromEntity(user))
+                                .build();
+        }
+
+        public UserDto getCurrentUser(String email) {
+                User user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+                return UserDto.fromEntity(user);
+        }
+
+        public Long getTotalUsers() {
+                return userRepository.count();
+        }
+
+        public Long getTotalAdmins() {
+                return userRepository.countByRole(User.Role.ADMIN);
+        }
 }

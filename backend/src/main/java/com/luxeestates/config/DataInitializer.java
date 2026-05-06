@@ -29,7 +29,13 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        User admin = userRepository.findByEmail(adminEmail.trim()).orElse(null);
+        if (adminEmail == null || adminEmail.isEmpty()) {
+            System.err.println("Warning: ADMIN_EMAIL is not configured!");
+            return;
+        }
+        
+        String trimmedEmail = adminEmail.trim();
+        User admin = userRepository.findByEmail(trimmedEmail).orElse(null);
         
         if (admin == null) {
             // Create new admin

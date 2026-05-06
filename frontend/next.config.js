@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -17,21 +16,18 @@ const nextConfig = {
   output: 'standalone',
 
   async rewrites() {
-    // For local development, proxy API requests to the backend
-    const backendUrl = process.env.INTERNAL_BACKEND_URL || 'http://localhost:8080';
+    // Remove '/api' from the end to get the base backend URL
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL
+      ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api$/, '')
+      : 'http://localhost:8080';
 
     return [
       {
-        // Fix for old properties in the database
         source: '/uploads/:path*',
-        destination: `${backendUrl}/api/uploads/:path*`,
+        destination: `${backendUrl}/uploads/:path*`,
       },
-      {
-        // For local development to proxy the new image URLs
-        source: '/api/uploads/:path*',
-        destination: `${backendUrl}/api/uploads/:path*`,
-      }
     ];
   },
 };
+
 module.exports = nextConfig;
