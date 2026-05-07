@@ -574,6 +574,10 @@ export default function AdminPage() {
                       <option value="VILLA">Villa</option>
                       <option value="FLAT">Flat</option>
                       <option value="PLOT">Plot</option>
+                      <option value="PG">PG/Hostel</option>
+                      <option value="HOTEL">Hotel Rooms</option>
+                      <option value="COMMERCIAL">Commercial Space</option>
+                      <option value="RESIDENTIAL PROJECT">New Project</option>
                     </select>
                   </div>
                   <div className="space-y-2">
@@ -581,6 +585,7 @@ export default function AdminPage() {
                     <select value={propForm.listingType} onChange={e => setPropForm({ ...propForm, listingType: e.target.value as any })} className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm outline-none appearance-none cursor-pointer focus:border-rose-600">
                       <option value="BUY">Purchase</option>
                       <option value="RENT">Rent</option>
+                      <option value="LEASE">Lease</option>
                     </select>
                   </div>
                 </div>

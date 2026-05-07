@@ -1,34 +1,27 @@
 import { MetadataRoute } from 'next'
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://kanharaj.com'
-  // Use internal docker network URL if available for faster/reliable fetching during build
-  const apiUrl = process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'https://kanharaj.com/api'
+export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = 'https://kanharajbuilder.com' // Replace with your actual production domain
 
-  const staticPages: MetadataRoute.Sitemap = [
-    { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
-    { url: `${baseUrl}/properties`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
-    { url: `${baseUrl}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${baseUrl}/login`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+  const staticRoutes = [
+    '',
+    '/properties',
+    '/properties?listing=buy',
+    '/properties?listing=rent',
+    '/about',
+    '/contact',
+    '/login',
+    '/properties/post',
+  ].map((route) => ({
+    url: `${baseUrl}${route}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: route === '' ? 1 : 0.8,
+  }))
+
+  return [
+    ...staticRoutes,
+    // Future: You can also fetch all dynamic property IDs from your database here
+    // and add them as { url: `${baseUrl}/property/${id}`, ... }
   ]
-
-  try {
-    // Fetch all properties to add to sitemap
-    const res = await fetch(`${apiUrl}/properties?size=100`, { next: { revalidate: 3600 } })
-    const data = await res.json()
-    const properties = data.content || (Array.isArray(data) ? data : [])
-
-    const propertyPages: MetadataRoute.Sitemap = properties.map((p: any) => ({
-      url: `${baseUrl}/property/${p.id}`,
-      lastModified: new Date(p.updatedAt || p.createdAt || new Date()),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    }))
-
-    return [...staticPages, ...propertyPages]
-  } catch (error) {
-    console.error('Sitemap generation error:', error)
-    return staticPages
-  }
 }

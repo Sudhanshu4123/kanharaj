@@ -11,18 +11,30 @@ const footerLinks = {
     { label: 'Careers', href: '#' },
     { label: 'Press', href: '#' },
     { label: 'Blog', href: '#' },
+    { label: 'Contact Us', href: '/contact' },
   ],
   properties: [
-    { label: 'Buy Properties', href: '/properties?type=buy' },
-    { label: 'Rent Properties', href: '/properties?type=rent' },
-    { label: 'New Projects', href: '#' },
-    { label: 'Commercial', href: '/properties?type=commercial' },
+    { label: 'Buy Properties', href: '/properties?listing=buy' },
+    { label: 'Rent Properties', href: '/properties?listing=rent' },
+    { label: 'New Projects', href: '/properties?type=RESIDENTIAL+PROJECT&listing=buy' },
+    { label: 'Commercial', href: '/properties?type=COMMERCIAL' },
+    { label: 'Plots / Land', href: '/properties?type=PLOTS%2FLAND' },
+    { label: 'PG / Hostel', href: '/properties?type=PG&listing=rent' },
+    { label: 'Hotel Rooms', href: '/properties?type=HOTEL' },
+  ],
+  services: [
+    { label: 'Post Property FREE', href: '/properties/post' },
+    { label: 'My Account', href: '/profile' },
+    { label: 'Property Valuation', href: '#' },
+    { label: 'Home Loans', href: '#' },
+    { label: 'Legal Services', href: '#' },
   ],
   support: [
-    { label: 'Contact Us', href: '/contact' },
     { label: 'Help Center', href: '#' },
     { label: 'Privacy Policy', href: '#' },
     { label: 'Terms of Service', href: '#' },
+    { label: 'Cookie Policy', href: '#' },
+    { label: 'Sitemap', href: '#' },
   ],
 }
 
@@ -99,7 +111,7 @@ export function Footer() {
           </div>
 
           {/* Quick Links Group */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:col-span-3">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:col-span-3">
             <div>
               <h4 className="font-bold text-slate-200 text-sm uppercase tracking-wider mb-5">Company</h4>
               <ul className="space-y-3">
@@ -126,7 +138,20 @@ export function Footer() {
               </ul>
             </div>
 
-            <div className="col-span-2 lg:col-span-1">
+            <div>
+              <h4 className="font-bold text-slate-200 text-sm uppercase tracking-wider mb-5">Services</h4>
+              <ul className="space-y-3">
+                {footerLinks.services.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="text-slate-400 hover:text-white text-sm transition-colors block">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
               <h4 className="font-bold text-slate-200 text-sm uppercase tracking-wider mb-5">Support</h4>
               <ul className="space-y-3">
                 {footerLinks.support.map((link) => (

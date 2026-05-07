@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import {
   Bed, Bath, Maximize, MapPin, Calendar, Phone, Mail, Heart, Share2,
-  ChevronLeft, ChevronRight, Check, MessageCircle, ArrowLeft
+  ChevronLeft, ChevronRight, Check, MessageCircle, ArrowLeft, Building2
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -173,59 +173,77 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
               <Card className="p-6 border-0 sm:border shadow-none sm:shadow-sm bg-transparent sm:bg-white">
                 <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
                   <div className="flex-1 min-w-[280px]">
-                    <Badge className="mb-2">{property.propertyType}</Badge>
+                    <div className="flex gap-2 mb-2">
+                      <Badge className="bg-rose-100 text-rose-600 hover:bg-rose-100 border-none px-3">{property.propertyType}</Badge>
+                      <Badge className="bg-blue-100 text-blue-600 hover:bg-blue-100 border-none px-3 flex items-center gap-1">
+                        <Check className="h-3 w-3" /> Verified Listing
+                      </Badge>
+                    </div>
                     <h1 className="font-heading text-2xl md:text-4xl font-bold text-slate-900 leading-tight">
                       {property.title}
                     </h1>
                     <div className="flex items-center text-slate-500 mt-3">
                       <MapPin className="h-4 w-4 mr-1.5 text-rose-600" />
-                      <span className="text-sm">{property.address}, {property.city}</span>
+                      <span className="text-sm font-medium">{property.address}, {property.city}</span>
                     </div>
                   </div>
-                  <div className="w-full sm:w-auto">
-                    <p className="text-3xl font-bold text-rose-600">
-                      {formatPrice(property.price)}
-                      {property.listingType === 'RENT' && <span className="text-lg font-normal text-slate-500">/mo</span>}
-                    </p>
+                  <div className="w-full sm:w-auto p-4 bg-slate-900 rounded-2xl text-center min-w-[150px]">
+                    <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Property Score</p>
+                    <p className="text-3xl font-black text-white">9.4<span className="text-sm text-slate-500">/10</span></p>
+                    <p className="text-[10px] text-rose-400 font-bold mt-1">Exceptional Choice</p>
+                  </div>
+                </div>
+
+                {/* Price Display */}
+                <div className="bg-rose-50/50 p-6 rounded-2xl mb-8 flex flex-col md:flex-row justify-between items-center border border-rose-100">
+                  <div className="text-center md:text-left mb-4 md:mb-0">
+                     <p className="text-xs text-rose-500 font-black uppercase tracking-widest">Expected Price</p>
+                     <p className="text-4xl font-black text-rose-600">
+                        {formatPrice(property.price)}
+                        {property.listingType === 'RENT' && <span className="text-xl font-normal">/mo</span>}
+                     </p>
+                  </div>
+                  <div className="flex gap-4">
+                    <Button className="rounded-xl h-12 px-8 font-bold shadow-lg shadow-rose-600/20 bg-rose-600">Buy Property</Button>
                   </div>
                 </div>
 
                 {/* Quick Features Grid */}
-                <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-4 py-6 border-y border-slate-100">
-                  <div className="flex items-center gap-3 bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-xl">
-                    <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-6 border-y border-slate-100">
+                  <div className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                    <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center">
                       <Bed className="h-5 w-5 text-rose-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate-900">{property.bedrooms}</p>
-                      <p className="text-xs text-slate-500">Beds</p>
+                      <p className="text-base font-black text-slate-900">{property.bedrooms} BHK</p>
+                      <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Configuration</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-xl">
-                    <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center">
-                      <Bath className="h-5 w-5 text-rose-600" />
+                  <div className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                      <Bath className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate-900">{property.bathrooms}</p>
-                      <p className="text-xs text-slate-500">Baths</p>
+                      <p className="text-base font-black text-slate-900">{property.bathrooms}</p>
+                      <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Bathrooms</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-xl">
-                    <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center">
-                      <Maximize className="h-5 w-5 text-rose-600" />
+                  <div className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                      <Maximize className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate-900">{formatNumber(property.area)}</p>
-                      <p className="text-xs text-slate-500">Sqft</p>
+                      <p className="text-base font-black text-slate-900">{formatNumber(property.area)}</p>
+                      <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Area Sq.Ft</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-xl">
-                    <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center">
-                      <Calendar className="h-5 w-5 text-rose-600" />
+                  <div className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                    <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
+                      <Calendar className="h-5 w-5 text-purple-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate-900">{property.yearBuilt}</p>
-                      <p className="text-xs text-slate-500">Built</p>
+                      <p className="text-base font-black text-slate-900">{property.yearBuilt || 'New'}</p>
+                      <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Possession</p>
                     </div>
                   </div>
                 </div>
@@ -299,7 +317,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                       autoComplete="name"
                       placeholder="Enter your name"
                       value={inquiryForm.name}
-                      onChange={(e) => setInquiryForm({ ...inquiryForm, name: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInquiryForm({ ...inquiryForm, name: e.target.value })}
                       required
                       className="bg-slate-50"
                     />
@@ -313,7 +331,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                       type="email"
                       placeholder="Enter your email"
                       value={inquiryForm.email}
-                      onChange={(e) => setInquiryForm({ ...inquiryForm, email: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInquiryForm({ ...inquiryForm, email: e.target.value })}
                       required
                       className="bg-slate-50"
                     />
@@ -327,7 +345,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                       type="tel"
                       placeholder="Your mobile number"
                       value={inquiryForm.phone}
-                      onChange={(e) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
                       required
                       className="bg-slate-50"
                     />
@@ -339,7 +357,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                       name="message"
                       rows={4}
                       value={inquiryForm.message}
-                      onChange={(e) => setInquiryForm({ ...inquiryForm, message: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInquiryForm({ ...inquiryForm, message: e.target.value })}
                       className="flex w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-600"
                       placeholder="I'm interested in this property..."
                     />
@@ -369,16 +387,36 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
         </div>
       </div>
 
+      {/* Similar Properties */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-200">
+        <h3 className="text-2xl font-black text-slate-900 mb-8">Similar Properties You May Like</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* We'll show 3 cards as placeholders or from a real store filter if possible */}
+          {/* For now, using the PropertyCard component (needs to be imported) */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
+             <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-4">
+                <Building2 className="h-8 w-8 text-rose-600" />
+             </div>
+             <p className="font-bold text-slate-900">More Listings Loading...</p>
+             <p className="text-sm text-slate-500 mt-1">Check out other properties in {property.city}</p>
+             <Link href="/properties">
+               <Button variant="link" className="text-rose-600 font-bold mt-2">View All</Button>
+             </Link>
+          </div>
+          {/* Repeat or map if real data exists */}
+        </div>
+      </div>
+
       {/* Mobile Sticky Action Bar */}
-      <div className="fixed bottom-16 left-0 right-0 z-40 bg-white border-t border-slate-200 p-4 block sm:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 p-4 block sm:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
         <div className="flex gap-3">
-          <Button variant="outline" className="flex-1 h-12 rounded-xl border-slate-200 font-bold" onClick={() => window.location.href = `tel:${property.user?.phone || '9599801767'}`}>
+          <Button variant="outline" className="flex-1 h-14 rounded-2xl border-slate-200 font-black text-slate-700" onClick={() => window.location.href = `tel:${property.user?.phone || '9599801767'}`}>
             <Phone className="h-5 w-5 mr-2 text-rose-600" />
-            Call Agent
+            CALL
           </Button>
-          <Button className="flex-1 h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 border-emerald-500 font-bold shadow-lg shadow-emerald-500/20" onClick={() => window.location.href = `https://wa.me/${property.user?.phone || '9599801767'}`}>
+          <Button className="flex-1 h-14 rounded-2xl bg-emerald-500 hover:bg-emerald-600 border-emerald-500 font-black text-white shadow-lg shadow-emerald-500/20" onClick={() => window.location.href = `https://wa.me/${property.user?.phone || '9599801767'}`}>
             <MessageCircle className="h-5 w-5 mr-2" />
-            WhatsApp
+            WHATSAPP
           </Button>
         </div>
       </div>

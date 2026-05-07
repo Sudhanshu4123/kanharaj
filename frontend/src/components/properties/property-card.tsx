@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Bed, Bath, Maximize, MapPin, Heart, Share2 } from 'lucide-react'
+import { Bed, Bath, Maximize, MapPin, Heart, Share2, CheckCircle2 } from 'lucide-react'
 import { Card } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Property } from '@/lib/data'
-import { formatPrice, formatNumber } from '@/lib/utils'
+import { usePropertyStore } from '@/lib/store'
+import { formatPrice, formatNumber, cn } from '@/lib/utils'
 
 interface PropertyCardProps {
   property: Property
@@ -57,6 +58,9 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
     return `${apiUrl}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
+  const { toggleWishlist, isInWishlist } = usePropertyStore()
+  const isWishlisted = isInWishlist(String(property.id))
+
   if (!mounted) {
     return (
       <div className="h-[400px] w-full bg-slate-100 animate-pulse rounded-xl" />
@@ -84,18 +88,28 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             
             {/* Badges */}
-            <div className="absolute top-3 left-3 flex gap-2">
-              <Badge variant={isForRent ? 'warning' : 'success'}>
+            <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+              <Badge variant={isForRent ? 'warning' : 'success'} className="shadow-md">
                 For {isForRent ? 'Rent' : 'Sale'}
               </Badge>
               {property.featured && (
-                <Badge variant="default">Featured</Badge>
+                <Badge variant="default" className="shadow-md">Featured</Badge>
               )}
+              <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-none flex items-center gap-1 shadow-md">
+                <CheckCircle2 className="h-3 w-3" /> Verified
+              </Badge>
+            </div>
+
+            {/* Property Type Floating Badge */}
+            <div className="absolute top-3 right-3 z-20">
+               <span className="bg-black/50 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">
+                 {property.propertyType}
+               </span>
             </div>
 
             {/* Price */}
             <div className="absolute bottom-3 left-3 right-3">
-              <p className="text-2xl font-bold text-white">
+              <p className="text-2xl font-bold text-white drop-shadow-md">
                 {formatPrice(property.price)}
                 {isForRent && <span className="text-sm font-normal">/month</span>}
               </p>
@@ -104,32 +118,56 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
 
           {/* Content */}
           <div className="p-4">
-            <h3 className="font-heading text-lg font-semibold text-slate-900 line-clamp-1 group-hover:text-rose-600 transition-colors">
-              {property.title}
-            </h3>
+            <div className="flex justify-between items-start mb-1">
+              <h3 className="font-heading text-lg font-semibold text-slate-900 line-clamp-1 group-hover:text-rose-600 transition-colors flex-1">
+                {property.title}
+              </h3>
+            </div>
             
-            <div className="flex items-center text-slate-500 text-sm mt-1">
-              <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
+            <div className="flex items-center text-slate-500 text-xs mb-3">
+              <MapPin className="h-3 w-3 mr-1 flex-shrink-0 text-rose-500" />
               <span className="line-clamp-1">
                 {property.address}, {property.city}
               </span>
             </div>
 
-            {/* Features */}
-            <div className="flex items-center gap-4 mt-4 pt-4 border-t border-slate-100">
-              <div className="flex items-center text-slate-600 text-sm">
-                <Bed className="h-4 w-4 mr-1 text-rose-500" />
-                <span>{property.bedrooms} Beds</span>
+            {/* Price & Area Info */}
+            <div className="flex items-baseline gap-2 mb-4">
+              <span className="text-xl font-bold text-slate-900">{formatPrice(property.price)}</span>
+              {property.area > 0 && (
+                <span className="text-xs text-slate-400 font-medium">
+                  @{formatPrice(Math.round(property.price / property.area))}/sqft
+                </span>
+              )}
+            </div>
+
+            {/* Features Grid */}
+            <div className="grid grid-cols-3 gap-2 py-3 border-t border-slate-100">
+              <div className="flex flex-col">
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-tight">Config</span>
+                <div className="flex items-center text-slate-700 text-sm font-semibold">
+                  <Bed className="h-3.5 w-3.5 mr-1 text-rose-500" />
+                  <span>{property.bedrooms} BHK</span>
+                </div>
               </div>
-              <div className="flex items-center text-slate-600 text-sm">
-                <Bath className="h-4 w-4 mr-1 text-rose-500" />
-                <span>{property.bathrooms} Baths</span>
+              <div className="flex flex-col">
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-tight">Area</span>
+                <div className="flex items-center text-slate-700 text-sm font-semibold">
+                  <Maximize className="h-3.5 w-3.5 mr-1 text-rose-500" />
+                  <span>{formatNumber(property.area)} <span className="text-[10px] font-normal ml-0.5">sqft</span></span>
+                </div>
               </div>
-              <div className="flex items-center text-slate-600 text-sm">
-                <Maximize className="h-4 w-4 mr-1 text-rose-500" />
-                <span>{formatNumber(property.area)} sqft</span>
+              <div className="flex flex-col">
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-tight">Status</span>
+                <div className="flex items-center text-slate-700 text-sm font-semibold">
+                  <span className="truncate">Ready to Move</span>
+                </div>
               </div>
             </div>
+            
+            <Button variant="outline" className="w-full mt-2 group-hover:bg-rose-600 group-hover:text-white group-hover:border-rose-600 transition-all text-xs h-9">
+              View Details
+            </Button>
           </div>
         </Card>
       </Link>
@@ -137,16 +175,29 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
       {/* Action Buttons (Moved outside Link to fix Hydration Error) */}
       <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
         <button 
-          className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors shadow-sm"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          className={cn(
+            "p-2 rounded-full transition-all shadow-md backdrop-blur-md",
+            isWishlisted ? "bg-rose-600 text-white" : "bg-white/90 text-slate-700 hover:bg-white"
+          )}
+          onClick={(e) => { 
+            e.preventDefault(); 
+            e.stopPropagation();
+            toggleWishlist(String(property.id))
+          }}
         >
-          <Heart className="h-4 w-4 text-slate-700" />
+          <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
         </button>
         <button 
-          className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors shadow-sm"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md backdrop-blur-md text-slate-700"
+          onClick={(e) => { 
+            e.preventDefault(); 
+            e.stopPropagation();
+            if (navigator.share) {
+               navigator.share({ title: property.title, url: window.location.href + 'property/' + property.id })
+            }
+          }}
         >
-          <Share2 className="h-4 w-4 text-slate-700" />
+          <Share2 className="h-4 w-4" />
         </button>
       </div>
     </motion.div>

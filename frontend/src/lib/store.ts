@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { Property, Inquiry, User } from './data'
+import { tryParse } from './utils'
 
 interface PropertyFilters {
   listingType: 'BUY' | 'RENT' | 'all'
@@ -26,6 +27,9 @@ interface PropertyStore {
   createProperty: (prop: Partial<Property>, token?: string) => Promise<Property>
   updateProperty: (id: string, prop: Partial<Property>, token?: string) => Promise<Property>
   deleteProperty: (id: string, token?: string) => Promise<void>
+  wishlist: string[]
+  toggleWishlist: (id: string) => void
+  isInWishlist: (id: string) => boolean
 }
 
 interface AuthStore {
@@ -35,6 +39,7 @@ interface AuthStore {
   login: (email: string, password: string) => Promise<void>
   logout: () => void
   register: (name: string, email: string, phone: string, password: string) => Promise<void>
+  setAuth: (user: any, token: string) => void
 }
 
 const defaultFilters: PropertyFilters = {
@@ -87,24 +92,30 @@ const transformToApi = (prop: Partial<Property>) => ({
   status: prop.status?.toUpperCase(),
 })
 
-function tryParse(str: string, fallback: any) {
-  try { return JSON.parse(str) } catch { return fallback }
-}
-
 export const usePropertyStore = create<PropertyStore>()(
   persist(
     (set, get) => ({
       properties: [],
       filters: defaultFilters,
       loading: false,
+      wishlist: [],
       setProperties: (properties) => set({ properties }),
       setFilters: (filters) => set((state) => ({ filters: { ...state.filters, ...filters } })),
       resetFilters: () => set({ filters: defaultFilters }),
+      toggleWishlist: (id: string) => {
+        const current = get().wishlist
+        if (current.includes(id)) {
+          set({ wishlist: current.filter(wid => wid !== id) })
+        } else {
+          set({ wishlist: [...current, id] })
+        }
+      },
+      isInWishlist: (id: string) => get().wishlist.includes(id),
       filteredProperties: () => {
         const { properties, filters } = get()
         return properties.filter((property) => {
           if (filters.listingType !== 'all' && property.listingType !== filters.listingType) return false
-          if (filters.propertyType.length > 0 && !filters.propertyType.includes(property.propertyType)) return false
+          if (filters.propertyType.length > 0 && !filters.propertyType.some(t => t.toLowerCase() === property.propertyType?.toLowerCase())) return false
           if (property.price < filters.priceMin || property.price > filters.priceMax) return false
           if (filters.bedrooms.length > 0 && !filters.bedrooms.includes(property.bedrooms)) return false
           if (filters.bathrooms.length > 0 && !filters.bathrooms.includes(property.bathrooms)) return false
@@ -115,7 +126,9 @@ export const usePropertyStore = create<PropertyStore>()(
             return (
               property.title?.toLowerCase().includes(s) ||
               property.city?.toLowerCase().includes(s) ||
-              property.address?.toLowerCase().includes(s)
+              property.address?.toLowerCase().includes(s) ||
+              property.description?.toLowerCase().includes(s) ||
+              property.propertyType?.toLowerCase().includes(s)
             )
           }
           return true
@@ -274,6 +287,7 @@ export const useAuthStore = create<AuthStore>()(
           throw err
         }
       },
+      setAuth: (user, token) => set({ user, token, isAuthenticated: !!token }),
     }),
     {
       name: 'kanharaj-auth',

@@ -3,7 +3,7 @@ export interface Property {
   title: string;
   description: string;
   price: number;
-  propertyType: 'HOUSE' | 'APARTMENT' | 'VILLA' | 'FLAT' | 'PLOT';
+  propertyType: 'HOUSE' | 'APARTMENT' | 'VILLA' | 'FLAT' | 'PLOT' | 'PG' | 'HOTEL' | 'COMMERCIAL' | 'RESIDENTIAL PROJECT' | 'PLOTS/LAND';
   listingType: 'BUY' | 'RENT';
   address: string;
   city: string;
