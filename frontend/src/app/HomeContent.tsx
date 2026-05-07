@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, Star, Home, Calendar, CheckCircle, Building2, MapPin, TrendingUp, Users, Shield, Phone, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -66,10 +66,17 @@ const popularCities = [
 ]
 
 export default function HomeContent() {
+  const [mounted, setMounted] = useState(false)
+  const [currentWordIndex, setCurrentWordIndex] = useState(0)
   const { properties } = usePropertyStore()
 
   useEffect(() => {
+    setMounted(true)
+    const timer = setInterval(() => {
+      setCurrentWordIndex((prev) => (prev + 1) % 4)
+    }, 3000)
     usePropertyStore.getState().fetchProperties()
+    return () => clearInterval(timer)
   }, [])
 
   const featuredProperties = properties.filter(p => p.featured).slice(0, 3)
@@ -105,7 +112,22 @@ export default function HomeContent() {
                 India's Trusted Property Portal
               </span>
               <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.2] sm:leading-[1.1] tracking-tight">
-                Find Property <span className="text-rose-500">Buy, Rent</span> <br className="hidden sm:block" />or Sell in India
+                Find Property To <br className="sm:hidden" />
+                <span className="relative inline-block text-rose-500 min-w-[180px] text-left sm:text-center">
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={currentWordIndex}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                      className="inline-block"
+                    >
+                      {['Buy', 'Rent', 'Sell', 'Invest'][currentWordIndex]}
+                    </motion.span>
+                  </AnimatePresence>
+                </span>
+                <br className="hidden sm:block" /> in India
               </h1>
               <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-medium line-clamp-2 sm:line-clamp-none">
                 10,000+ verified properties in Delhi, Dwarka, Gurgaon, Noida & more cities.
