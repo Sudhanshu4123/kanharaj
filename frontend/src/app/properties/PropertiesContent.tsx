@@ -216,7 +216,7 @@ export default function PropertiesContent() {
               className={cn(
                 "w-full md:w-72 flex-shrink-0 z-[40]",
                 "fixed inset-0 bg-white md:sticky md:top-32 md:inset-auto md:bg-transparent",
-                "overflow-y-auto no-scrollbar"
+                "md:overflow-visible overflow-y-auto no-scrollbar"
               )}
             >
               <div className="bg-white rounded-xl border-0 md:border border-slate-200 md:max-h-[calc(100vh-160px)] flex flex-col overflow-hidden shadow-sm">
