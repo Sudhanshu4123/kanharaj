@@ -12,7 +12,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthStore } from '@/lib/store'
 
-export default function LoginPage() {
+import { Suspense } from 'react'
+
+function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/'
@@ -187,3 +189,15 @@ export default function LoginPage() {
     </div>
   )
 }
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-rose-600 border-t-transparent" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
+  )
+}
