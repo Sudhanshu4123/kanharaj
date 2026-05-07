@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Home, Building, User, Menu, X, ChevronDown, Phone, PlusCircle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Button } from './ui/button'
@@ -49,7 +49,7 @@ export function Header() {
         : "bg-white/95 backdrop-blur-md border-b border-slate-200"
     )}>
       {/* Top bar */}
-      <div className="hidden md:block bg-slate-900 text-slate-300 text-xs py-1.5">
+      <div className="hidden lg:block bg-slate-900 text-slate-300 text-xs py-1.5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <span>India's Trusted Real Estate Portal — Dwarka, Delhi, Gurgaon, Noida & more</span>
           <div className="flex items-center gap-4">
@@ -99,23 +99,26 @@ export function Header() {
                     {link.label}
                     <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", openDropdown === link.label && "rotate-180")} />
                   </button>
-                  {openDropdown === link.label && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="absolute top-full left-0 mt-1 w-52 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50"
-                    >
-                      {link.dropdown.map((item) => (
-                        <Link
-                          key={item.label}
-                          href={item.href}
-                          className="flex items-center px-4 py-2.5 text-sm text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                        >
-                          {item.label}
-                        </Link>
-                      ))}
-                    </motion.div>
-                  )}
+                  <AnimatePresence>
+                    {openDropdown === link.label && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute top-full left-0 w-56 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 mt-1 z-50 overflow-hidden"
+                      >
+                        {link.dropdown.map((item) => (
+                          <Link
+                            key={item.label}
+                            href={item.href}
+                            className="block px-4 py-2.5 text-sm text-slate-600 hover:bg-rose-50 hover:text-rose-600 transition-colors font-medium"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ) : (
                 <Link
@@ -123,7 +126,7 @@ export function Header() {
                   href={link.href}
                   className={cn(
                     "px-3 py-2 text-sm font-semibold transition-colors rounded-lg",
-                    pathname === link.href
+                    pathname === link.href.split('?')[0]
                       ? "text-rose-600 bg-rose-50"
                       : "text-slate-700 hover:text-rose-600 hover:bg-rose-50"
                   )}
@@ -134,19 +137,14 @@ export function Header() {
             )}
           </nav>
 
-          {/* Right side buttons */}
-          <div className="hidden md:flex items-center gap-3">
-            <Link href="/properties/post" className="group">
-              <Button variant="ghost" className="relative font-bold text-slate-800 hover:text-rose-600 hover:bg-rose-50 px-3 text-sm">
-                <PlusCircle className="h-4 w-4 mr-1.5" />
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center gap-4">
+            <Link href="/properties/post">
+              <Button variant="outline" className="hidden xl:flex border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-bold px-4 h-9 text-sm rounded-full">
+                <PlusCircle className="h-4 w-4 mr-2" />
                 Post Property
-                <span className="absolute -top-1 -right-2 bg-emerald-500 text-[9px] text-white px-1.5 py-0.5 rounded-full font-black animate-bounce group-hover:animate-none">
-                  FREE
-                </span>
               </Button>
             </Link>
-
-            <div className="h-5 w-px bg-slate-200" />
 
             {mounted && (
               <>
@@ -172,7 +170,7 @@ export function Header() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? (
@@ -189,7 +187,7 @@ export function Header() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="md:hidden bg-white border-b border-slate-200 shadow-xl"
+          className="lg:hidden bg-white border-b border-slate-200 shadow-xl"
         >
           <div className="px-4 py-4 space-y-1">
             {[

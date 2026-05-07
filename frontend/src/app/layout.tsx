@@ -69,7 +69,7 @@ export default function RootLayout({
         <AuthProvider>
           <LoadingProvider>
             <Header />
-            <main className="flex-1 pt-20 pb-20 md:pb-0">
+            <main className="flex-1 pt-20 pb-20 lg:pb-0">
               {children}
             </main>
             <MobileNav />
