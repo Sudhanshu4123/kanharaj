@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, MapPin, Home, DollarSign } from 'lucide-react'
@@ -53,6 +53,16 @@ export function SearchBar() {
     router.push(`/properties?${params.toString()}`)
   }
 
+  const [placeholderIndex, setPlaceholderIndex] = useState(0)
+  const locations = ["Dwarka, New Delhi", "Gurgaon, Haryana", "Noida, UP", "Janakpuri, Delhi", "Vikas Puri, Delhi"]
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % locations.length)
+    }, 2500)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <div className="w-full max-w-5xl mx-auto">
       {/* Tabs */}
@@ -85,10 +95,10 @@ export function SearchBar() {
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
               <Input
                 type="text"
-                placeholder="Enter city, locality or project name"
+                placeholder={`Try "${locations[placeholderIndex]}"`}
                 value={search}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
-                className="pl-12 h-14 text-base border-slate-200 focus:border-rose-500 focus:ring-rose-500 rounded-xl transition-all"
+                className="pl-12 h-14 text-base border-slate-200 focus:border-rose-500 focus:ring-rose-500 rounded-xl transition-all placeholder:transition-all placeholder:duration-500"
               />
             </div>
           </div>

@@ -206,7 +206,7 @@ export default function PropertiesContent() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex gap-8">
+        <div className="flex flex-col md:flex-row gap-8 items-start">
           {/* Filters Sidebar */}
           {showFilters && (
             <motion.aside
@@ -214,18 +214,19 @@ export default function PropertiesContent() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               className={cn(
-                "w-full md:w-72 flex-shrink-0 z-[60]",
+                "w-full md:w-72 flex-shrink-0 z-[40] self-start",
                 "fixed inset-0 bg-white md:relative md:inset-auto md:bg-transparent",
                 "overflow-y-auto no-scrollbar"
               )}
             >
-              <div className="bg-white rounded-xl border-0 md:border border-slate-200 p-6 md:sticky md:top-24 md:max-h-[calc(100vh-120px)] md:overflow-y-auto custom-scrollbar">
-                <div className="flex items-center justify-between mb-6">
+              <div className="bg-white rounded-xl border-0 md:border border-slate-200 md:sticky md:top-32 md:max-h-[calc(100vh-160px)] flex flex-col overflow-hidden shadow-sm">
+                {/* Fixed Header within Sidebar */}
+                <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-100 bg-white z-10">
                   <h3 className="font-semibold text-slate-900 text-xl md:text-base">Filters</h3>
                   <div className="flex gap-4">
                     <button
                       onClick={resetFilters}
-                      className="text-sm text-rose-600 hover:text-rose-700"
+                      className="text-sm font-bold text-rose-600 hover:text-rose-700 transition-colors"
                     >
                       Reset
                     </button>
@@ -237,6 +238,9 @@ export default function PropertiesContent() {
                     </button>
                   </div>
                 </div>
+
+                {/* Scrollable Body within Sidebar */}
+                <div className="flex-1 overflow-y-auto p-6 pt-4 custom-scrollbar">
 
                 {/* Listing Type */}
                 <div className="mb-6">
@@ -344,16 +348,20 @@ export default function PropertiesContent() {
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <Button 
-                  onClick={() => { 
-                    handleSearch(); 
-                    if (window.innerWidth < 768) setShowFilters(false); 
-                  }} 
-                  className="w-full mt-4 h-12 md:h-10 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl"
-                >
-                  Apply Filters
-                </Button>
+              {/* Fixed Footer within Sidebar */}
+                <div className="p-6 pt-0 border-t border-slate-100 bg-white">
+                  <Button 
+                    onClick={() => { 
+                      handleSearch(); 
+                      if (window.innerWidth < 768) setShowFilters(false); 
+                    }} 
+                    className="w-full h-12 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-lg shadow-rose-600/20 transition-all"
+                  >
+                    Apply Filters
+                  </Button>
+                </div>
               </div>
             </motion.aside>
           )}
