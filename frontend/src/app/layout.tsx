@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s | Kanharaj Builder"
   },
   description: "Kanharaj Builder is Dwarka's leading real estate consultancy. We provide verified listings for luxury flats, residential plots, and commercial spaces in Dwarka Sector 7, 10, 19 and more. Zero brokerage options available.",
-  keywords: ["best real estate agent Dwarka", "property dealer in Dwarka Delhi", "buy flats in Dwarka", "luxury homes Dwarka", "commercial property Dwarka", "Dwarka Sector 7 real estate", "Kanharaj Builder", "New Delhi property portal"],
+  keywords: ["property dealer in dwarka", "2bhk flat in dwarka", "builder floor in delhi", "best real estate agent Dwarka", "property dealer in Dwarka Delhi", "buy flats in Dwarka", "luxury homes Dwarka", "commercial property Dwarka", "Dwarka Sector 7 real estate", "Kanharaj Builder", "New Delhi property portal"],
   authors: [{ name: "Kanharaj Builder" }],
   creator: "Kanharaj Builder",
   openGraph: {

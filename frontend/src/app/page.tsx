@@ -3,8 +3,8 @@ import HomeContent from "./HomeContent"
 
 export const metadata: Metadata = {
   title: "Kanharaj Builder | Best Real Estate Agent & Property Dealer in Dwarka Delhi",
-  description: "Explore premium properties with Kanharaj Builder, the most trusted real estate agent in Dwarka, New Delhi. Buy, sell, or rent luxury flats, commercial spaces, and residential projects in Dwarka Sector 7, 10, 12 & more.",
-  keywords: "best property dealer in Dwarka, real estate agent in Dwarka Delhi, buy 3 BHK flats in Dwarka, property for sale in Dwarka Sector 7, luxury residential projects Dwarka, commercial property for rent in Dwarka, Kanharaj Builder, Dwarka real estate platform",
+  description: "Explore premium properties with Kanharaj Builder, the most trusted real estate agent in Dwarka, New Delhi. Buy, sell, or rent luxury flats, 2BHK in Dwarka, builder floors in Delhi, and residential projects in Dwarka Sector 7, 10, 12 & more.",
+  keywords: "property dealer in dwarka, 2bhk flat in dwarka, builder floor in delhi, best property dealer in Dwarka, real estate agent in Dwarka Delhi, buy 3 BHK flats in Dwarka, property for sale in Dwarka Sector 7, luxury residential projects Dwarka, commercial property for rent in Dwarka, Kanharaj Builder, Dwarka real estate platform",
 }
 
 export default function HomePage() {

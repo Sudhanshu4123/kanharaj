@@ -89,6 +89,25 @@ const popularCities = [
   { name: 'Noida', image: 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400' },
 ]
 
+const faqs = [
+  {
+    question: 'How to buy a property in Dwarka, Delhi?',
+    answer: 'To buy a property in Dwarka, start by browsing our verified listings. Once you find a property, contact us for a site visit. We assist with documentation and direct connection with builders for a smooth transaction.'
+  },
+  {
+    question: 'What is the average price of 3 BHK flats in Dwarka?',
+    answer: 'The price of 3 BHK flats in Dwarka depends on the sector and amenities. On average, prices range from ₹1.2 Cr to ₹2.5 Cr. Sector 7, 10, and 12 are among the most premium areas.'
+  },
+  {
+    question: 'Does Kanharaj Builder provide zero brokerage options?',
+    answer: 'Yes, we have many direct-from-builder listings where you can save on brokerage. Look for the "Verified" and "Direct" badges on our property listings.'
+  },
+  {
+    question: 'Are the properties on your website verified?',
+    answer: 'Absolutely. Every property listed on Kanharaj Builder undergoes a verification process to ensure authenticity of details, price, and ownership.'
+  }
+]
+
 export default function HomeContent() {
   const [mounted, setMounted] = useState(false)
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
@@ -154,7 +173,7 @@ export default function HomeContent() {
                 <br className="hidden sm:block" /> in India
               </h1>
               <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-medium line-clamp-2 sm:line-clamp-none">
-                10,000+ verified properties in Delhi, Dwarka, Gurgaon, Noida & more cities.
+                As the leading <strong>property dealer in Dwarka</strong>, we offer 10,000+ verified properties including <strong>2BHK flats in Dwarka</strong> and <strong>builder floors in Delhi</strong>.
               </p>
             </motion.div>
           </div>
@@ -504,6 +523,45 @@ export default function HomeContent() {
                  />
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section for SEO */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <span className="text-rose-600 text-xs font-bold uppercase tracking-widest mb-3 block">Got Questions?</span>
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900">Frequently Asked Questions</h2>
+            <p className="mt-4 text-slate-500">Find quick answers to common queries about property in Dwarka.</p>
+          </motion.div>
+
+          <div className="space-y-4">
+            {faqs.map((faq, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xs shrink-0">Q</span>
+                    {faq.question}
+                  </h3>
+                  <p className="text-slate-600 text-sm leading-relaxed pl-8">
+                    {faq.answer}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
