@@ -163,8 +163,8 @@ export default function AdminPage() {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#0F172A] border-r border-white/5 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 lg:static lg:translate-x-0 mt-20 lg:mt-0`}>
         <div className="h-full flex flex-col">
           <div className="p-6 mb-4 flex items-center gap-3 border-b border-white/5">
-            <div className="w-10 h-10 rounded-xl bg-rose-600 flex items-center justify-center text-white shadow-lg shadow-rose-600/20">
-              <Sparkles size={20} />
+            <div className="w-10 h-10 rounded-xl bg-white overflow-hidden flex items-center justify-center text-white shadow-lg shadow-rose-600/10">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <h1 className="text-white font-bold text-lg tracking-tight leading-none">KANHARAJ BUILDER</h1>

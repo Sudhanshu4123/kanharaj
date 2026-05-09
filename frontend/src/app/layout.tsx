@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     description: "Premium real estate listings for buy, rent, and commercial properties in Dwarka, New Delhi.",
     siteName: "Kanharaj Builder",
     images: [{
-      url: "https://kanharaj.com/og-image.jpg",
+      url: "/logo.png",
       width: 1200,
       height: 630,
       alt: "Kanharaj Builder"
@@ -35,11 +35,16 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Kanharaj Builder | Premium Real Estate",
     description: "Premium real estate listings in Dwarka, New Delhi.",
-    images: ["https://kanharaj.com/og-image.jpg"],
+    images: ["/logo.png"],
   },
   robots: {
     index: true,
     follow: true,
+  },
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
   },
 }
 
