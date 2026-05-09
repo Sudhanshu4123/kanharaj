@@ -10,11 +10,11 @@ import { AuthProvider } from "@/components/auth-provider"
 
 export const metadata: Metadata = {
   title: {
-    default: "Kanharaj Builder | Dwarka's Premium Real Estate Platform",
+    default: "Kanharaj Builder | Best Real Estate Agent in Dwarka, New Delhi",
     template: "%s | Kanharaj Builder"
   },
-  description: "Discover your dream property with Kanharaj Builder. Premium real estate listings for buy, rent, and commercial properties in Dwarka, New Delhi.",
-  keywords: ["real estate", "properties", "buy house", "rent apartment", "luxury homes", "Dwarka real estate", "New Delhi", "Kanharaj Builder"],
+  description: "Kanharaj Builder is Dwarka's leading real estate consultancy. We provide verified listings for luxury flats, residential plots, and commercial spaces in Dwarka Sector 7, 10, 19 and more. Zero brokerage options available.",
+  keywords: ["best real estate agent Dwarka", "property dealer in Dwarka Delhi", "buy flats in Dwarka", "luxury homes Dwarka", "commercial property Dwarka", "Dwarka Sector 7 real estate", "Kanharaj Builder", "New Delhi property portal"],
   authors: [{ name: "Kanharaj Builder" }],
   creator: "Kanharaj Builder",
   openGraph: {
