@@ -40,6 +40,30 @@ const mockTestimonials = [
   }
 ]
 
+const partners = [
+  {
+    name: 'Unnati Properties',
+    phone: '7982339104',
+    address: 'E548, Ramphal Chowk Rd, Block E, Sector 7, Dwarka, Palam, New Delhi - 110075',
+    color: 'bg-blue-50 text-blue-600',
+    icon: '🏗️'
+  },
+  {
+    name: 'Shri Shyam Real Estate',
+    phone: '9136985670',
+    address: 'Shop 5, Mohit Nagar, Kakrola, Near British Hair Saloon, Dwarka, New Delhi - 110078',
+    color: 'bg-emerald-50 text-emerald-600',
+    icon: '🏠'
+  },
+  {
+    name: 'Tanisha Real Estate',
+    phone: '9310271473',
+    address: 'Shop 8, 2nd Floor, Sector 19, Ambrahi Village, Dwarka, New Delhi - 110075',
+    color: 'bg-amber-50 text-amber-600',
+    icon: '🤝'
+  }
+]
+
 const stats = [
   { value: '10,000+', label: 'Properties Listed', icon: Building2 },
   { value: '15+', label: 'Cities Covered', icon: MapPin },
@@ -372,6 +396,61 @@ export default function HomeContent() {
                     <p className="text-slate-400 text-xs flex items-center gap-1">
                       <MapPin className="h-3 w-3" />{testimonial.location}
                     </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Collaboration Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <span className="text-rose-600 text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Network Excellence</span>
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Our Strategic Partners</h2>
+            <div className="w-20 h-1.5 bg-rose-600 mx-auto mt-6 rounded-full" />
+            <p className="mt-6 text-slate-500 max-w-2xl mx-auto text-lg font-medium">
+              We collaborate with the most trusted names in Dwarka real estate to bring you verified and exclusive property options.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {partners.map((partner, index) => (
+              <motion.div
+                key={partner.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="group relative bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100 hover:bg-white hover:border-rose-500 hover:shadow-2xl hover:shadow-rose-500/10 transition-all duration-500"
+              >
+                <div className={`w-16 h-16 rounded-2xl ${partner.color} flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-transform duration-500 shadow-sm`}>
+                  {partner.icon}
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 mb-4 group-hover:text-rose-600 transition-colors">
+                  {partner.name}
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3 text-slate-500 group-hover:text-slate-700 transition-colors">
+                    <MapPin className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
+                    <p className="text-sm font-medium leading-relaxed">{partner.address}</p>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-500 group-hover:text-slate-700 transition-colors">
+                    <Phone className="h-5 w-5 text-rose-500 shrink-0" />
+                    <a href={`tel:+91${partner.phone}`} className="text-sm font-bold hover:text-rose-600 transition-colors tracking-tight">+91 {partner.phone}</a>
+                  </div>
+                </div>
+                <div className="mt-8 pt-8 border-t border-slate-200/60 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Verified Partner</span>
+                  <div className="w-8 h-8 rounded-full bg-rose-600 text-white flex items-center justify-center scale-0 group-hover:scale-100 transition-transform duration-500">
+                    <ChevronRight size={18} />
                   </div>
                 </div>
               </motion.div>
