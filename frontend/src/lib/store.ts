@@ -36,10 +36,12 @@ interface AuthStore {
   user: (User & { token?: string }) | null
   token: string | null
   isAuthenticated: boolean
+  users: User[]
   login: (email: string, password: string) => Promise<void>
   logout: () => void
   register: (name: string, email: string, phone: string, password: string) => Promise<void>
   setAuth: (user: any, token: string) => void
+  fetchUsers: (token?: string) => Promise<void>
 }
 
 const defaultFilters: PropertyFilters = {
@@ -244,6 +246,7 @@ export const useAuthStore = create<AuthStore>()(
       user: null,
       token: null,
       isAuthenticated: false,
+      users: [],
       login: async (email, password) => {
         try {
           const res = await fetchWithTimeout(`${API_URL}/auth/login`, {
@@ -288,6 +291,18 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
       setAuth: (user, token) => set({ user, token, isAuthenticated: !!token }),
+      fetchUsers: async (token) => {
+        try {
+          const res = await fetchWithTimeout(`${API_URL}/admin/users`, {
+            headers: { ...(token ? { 'Authorization': `Bearer ${token}` } : {}) }
+          })
+          if (!res.ok) throw new Error('Failed to fetch users')
+          const data = await res.json()
+          set({ users: data })
+        } catch (err) {
+          console.error('Error fetching users:', err)
+        }
+      },
     }),
     {
       name: 'kanharaj-auth',

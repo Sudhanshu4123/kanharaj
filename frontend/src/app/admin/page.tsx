@@ -42,7 +42,7 @@ const EMPTY_PROP: Partial<Property> = {
 
 export default function AdminPage() {
   const router = useRouter()
-  const { user, token, logout, isAuthenticated } = useAuthStore()
+  const { user, token, logout, isAuthenticated, users, fetchUsers } = useAuthStore()
   const { properties, setProperties, loading } = usePropertyStore()
   const { inquiries } = useInquiryStore()
 
@@ -58,11 +58,8 @@ export default function AdminPage() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [deleteInquiryId, setDeleteInquiryId] = useState<string | null>(null)
 
-  // Mock Users
-  const users = [
-    { id: '1', name: 'John Doe', email: 'john@example.com', role: 'admin' },
-    { id: '2', name: 'Jane Smith', email: 'jane@example.com', role: 'user' },
-  ]
+  // Real users from store
+  // const users = useAuthStore(state => state.users) // Already destructured above
 
   useEffect(() => {
     setMounted(true)
@@ -72,6 +69,7 @@ export default function AdminPage() {
       fetchProperties()
       const currentToken = useAuthStore.getState().token
       useInquiryStore.getState().fetchInquiries(currentToken || undefined)
+      fetchUsers(currentToken || undefined)
     }
   }, [isAuthenticated, mounted, router, token])
 

@@ -168,4 +168,10 @@ public class AuthService {
         public Long getTotalAdmins() {
                 return userRepository.countByRole(User.Role.ADMIN);
         }
+
+        public java.util.List<UserDto> getAllUsers() {
+                return userRepository.findAll().stream()
+                                .map(UserDto::fromEntity)
+                                .collect(java.util.stream.Collectors.toList());
+        }
 }

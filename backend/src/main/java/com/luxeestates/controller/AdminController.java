@@ -1,5 +1,6 @@
 package com.luxeestates.controller;
 
+import com.luxeestates.dto.UserDto;
 import com.luxeestates.service.AuthService;
 import com.luxeestates.service.InquiryService;
 import com.luxeestates.service.PropertyService;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -45,5 +47,10 @@ public class AdminController {
         analytics.put("usersByRole", authService.getTotalUsers());
         
         return ResponseEntity.ok(analytics);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        return ResponseEntity.ok(authService.getAllUsers());
     }
 }
