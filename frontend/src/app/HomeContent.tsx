@@ -174,7 +174,7 @@ export default function HomeContent() {
                 </span>
               </h1>
               <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-medium line-clamp-2 sm:line-clamp-none">
-                Looking for <strong>3 BHK Flats in Dwarka</strong>? As the <strong>best property dealer in Dwarka</strong>, we offer premium <strong>luxury 3 BHK flats in Dwarka</strong>, <strong>independent builder floors</strong>, and <strong>ready to move flats in Dwarka Delhi</strong> with modern amenities.
+                As the <strong>best property dealer in Dwarka Delhi NCR</strong>, we offer expert <strong>real estate investing</strong> advice and premium <strong>3 BHK flats in Dwarka Expressway</strong>. Looking for a <strong>property dealer near me</strong>? Contact us for the <strong>best builder floor in Dwarka</strong>.
               </p>
             </motion.div>
           </div>
@@ -239,6 +239,51 @@ export default function HomeContent() {
                     <p className="text-xs text-slate-400 mt-1">{cat.desc}</p>
                   </div>
                 </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Our Services Section */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <span className="text-rose-600 text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Expert Solutions</span>
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Our Premium Services</h2>
+            <div className="w-20 h-1.5 bg-rose-600 mx-auto mt-6 rounded-full" />
+            <p className="mt-6 text-slate-600 max-w-2xl mx-auto text-lg font-medium">
+              We provide comprehensive support for all your <strong>real estate in Delhi NCR Dwarka</strong> needs, from buying to legal documentation.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              { title: 'Property Buying & Selling', icon: Building2, desc: 'Find the best 3 BHK flats and luxury builder floors in Dwarka with expert guidance.' },
+              { title: 'Legal & Documentation', icon: Shield, desc: 'Hassle-free registry and documentation support for all property transactions in Delhi.' },
+              { title: 'Home Loan Assistance', icon: TrendingUp, desc: 'Get the best home loan rates through our strategic banking partnerships.' },
+              { title: 'Property Valuation', icon: MapPin, desc: 'Professional assessment of your property market value in Dwarka sectors.' },
+              { title: 'Rental Management', icon: Home, desc: 'Top <strong>brokers in Dwarka for rent</strong> to help you find verified tenants or dream rentals.' },
+              { title: 'Investment Advisory', icon: Star, desc: 'High-ROI <strong>real estate investing</strong> opportunities in Dwarka Expressway & Delhi NCR.' },
+            ].map((service, index) => (
+              <motion.div
+                key={service.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white p-8 rounded-3xl border border-slate-100 hover:border-rose-500 hover:shadow-2xl hover:shadow-rose-500/10 transition-all duration-500 group"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-6 group-hover:bg-rose-600 group-hover:text-white transition-all duration-500">
+                  <service.icon size={28} />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-rose-600 transition-colors">{service.title}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: service.desc }} />
               </motion.div>
             ))}
           </div>
