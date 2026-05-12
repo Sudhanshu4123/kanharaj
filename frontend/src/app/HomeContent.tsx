@@ -99,12 +99,12 @@ const faqs = [
     answer: 'The price of 3 BHK flats in Dwarka depends on the sector and amenities. On average, prices range from ₹1.2 Cr to ₹2.5 Cr. Sector 7, 10, and 12 are among the most premium areas.'
   },
   {
-    question: 'Does Kanharaj Builder provide zero brokerage options?',
+    question: 'Does Shri Shyam Properties provide zero brokerage options?',
     answer: 'Yes, we have many direct-from-builder listings where you can save on brokerage. Look for the "Verified" and "Direct" badges on our property listings.'
   },
   {
     question: 'Are the properties on your website verified?',
-    answer: 'Absolutely. Every property listed on Kanharaj Builder undergoes a verification process to ensure authenticity of details, price, and ownership.'
+    answer: 'Absolutely. Every property listed on Shri Shyam Properties undergoes a verification process to ensure authenticity of details, price, and ownership.'
   }
 ]
 
@@ -155,7 +155,7 @@ export default function HomeContent() {
                 India's Trusted Property Portal
               </span>
               <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.2] sm:leading-[1.1] tracking-tight">
-                Find Property To <br className="sm:hidden" />
+                Best 3 BHK Flats <br className="sm:hidden" />
                 <span className="relative inline-block text-rose-500 min-w-[180px] text-left sm:text-center">
                   <AnimatePresence mode="wait">
                     <motion.span
@@ -166,14 +166,13 @@ export default function HomeContent() {
                       transition={{ duration: 0.5, ease: "easeOut" }}
                       className="inline-block"
                     >
-                      {['Buy', 'Rent', 'Sell', 'Invest'][currentWordIndex]}
+                      {['in Dwarka', 'Delhi', 'NCR', 'India'][currentWordIndex]}
                     </motion.span>
                   </AnimatePresence>
                 </span>
-                <br className="hidden sm:block" /> in India
               </h1>
               <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-medium line-clamp-2 sm:line-clamp-none">
-                As the leading <strong>property dealer in Dwarka</strong>, we offer 10,000+ verified properties including <strong>2BHK flats in Dwarka</strong> and <strong>builder floors in Delhi</strong>.
+                Looking for <strong>3 BHK Flats in Dwarka</strong>? As the <strong>best property dealer in Dwarka</strong>, we offer premium <strong>luxury 3 BHK flats in Dwarka</strong>, <strong>independent builder floors</strong>, and <strong>ready to move flats in Dwarka Delhi</strong> with modern amenities.
               </p>
             </motion.div>
           </div>
@@ -436,7 +435,7 @@ export default function HomeContent() {
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Our Strategic Partners</h2>
             <div className="w-20 h-1.5 bg-rose-600 mx-auto mt-6 rounded-full" />
             <p className="mt-6 text-slate-500 max-w-2xl mx-auto text-lg font-medium">
-              We collaborate with the most trusted names in Dwarka real estate to bring you verified and exclusive property options.
+              We collaborate with the most trusted names in Dwarka real estate to bring you verified <strong>3 BHK flats in Dwarka Expressway</strong> and exclusive <strong>luxury builder floors in Dwarka Sector 8</strong> with lift and parking.
             </p>
           </motion.div>
 

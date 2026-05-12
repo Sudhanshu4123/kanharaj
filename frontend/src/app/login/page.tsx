@@ -33,7 +33,7 @@ function LoginContent() {
 
   useEffect(() => {
     if (isAuthenticated) {
-       router.push(redirectTo)
+      router.push(redirectTo)
     }
   }, [isAuthenticated, router, redirectTo])
 
@@ -52,7 +52,7 @@ function LoginContent() {
       } else {
         await register(form.name, form.email, form.phone, form.password)
       }
-      
+
       const updatedUser = useAuthStore.getState().user
       if (updatedUser?.role?.toLowerCase() === 'admin') {
         router.push('/admin')
@@ -120,8 +120,8 @@ function LoginContent() {
               {isLogin ? 'Welcome Back!' : 'Create Account'}
             </h1>
             <p className="text-slate-500">
-              {isLogin 
-                ? "Enter your details to access your account" 
+              {isLogin
+                ? "Enter your details to access your account"
                 : "Join us today and find your perfect space"}
             </p>
           </div>
@@ -200,4 +200,4 @@ export default function LoginPage() {
       <LoginContent />
     </Suspense>
   )
-}
+}

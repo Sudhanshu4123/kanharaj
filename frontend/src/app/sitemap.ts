@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://kanharajbuilder.com' // Replace with your actual production domain
+  const baseUrl = 'https://kanharaj.com' // Replace with your actual production domain
 
   const staticRoutes = [
     '',

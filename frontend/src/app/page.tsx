@@ -2,19 +2,19 @@ import type { Metadata } from "next"
 import HomeContent from "./HomeContent"
 
 export const metadata: Metadata = {
-  title: "Kanharaj Builder | Best Real Estate Agent & Property Dealer in Dwarka Delhi",
-  description: "Explore premium properties with Kanharaj Builder, the most trusted real estate agent in Dwarka, New Delhi. Buy, sell, or rent luxury flats, 2BHK in Dwarka, builder floors in Delhi, and residential projects in Dwarka Sector 7, 10, 12 & more.",
-  keywords: "property dealer in dwarka, 2bhk flat in dwarka, builder floor in delhi, best property dealer in Dwarka, real estate agent in Dwarka Delhi, buy 3 BHK flats in Dwarka, property for sale in Dwarka Sector 7, luxury residential projects Dwarka, commercial property for rent in Dwarka, Kanharaj Builder, Dwarka real estate platform",
+  title: "3 BHK Flats in Dwarka Delhi | Luxury Builder Floors | Shri Shyam Properties",
+  description: "Buy premium 3 BHK flats in Dwarka Delhi with lift, parking & modern amenities. Contact Shri Shyam Properties today.",
+  keywords: "3 BHK Flats in Dwarka, 3 BHK Flat for Sale in Dwarka, 3 BHK Flats in Dwarka Delhi, 3 BHK Builder Floor in Dwarka, Luxury 3 BHK Flats in Dwarka, Ready to Move 3 BHK Flats in Dwarka, 3 BHK Flats in Dwarka Sector 7, 3 BHK Flats in Dwarka Sector 12, 3 BHK Flats in Dwarka Sector 18, 3 BHK Flats near Metro Station, Independent Builder Floor in Dwarka, DDA Flats in Dwarka, Society Flats in Dwarka, 3 BHK Apartments in Dwarka, 3 BHK Flats for Rent in Dwarka, Affordable 3 BHK Flats in Dwarka, Premium 3 BHK Flats in Dwarka, Spacious 3 BHK Flats in Dwarka, 3 BHK Flats with Parking in Dwarka, 3 BHK Flats with Lift in Dwarka, Property in Dwarka Delhi, Flats for Sale in Dwarka Delhi, Best Property Dealer in Dwarka, Dwarka Real Estate, Flats near Vegas Mall Dwarka, Flats near Dwarka Metro Station, 3 BHK Flats under 1.5 Crore in Dwarka, 3 BHK Flats in Dwarka Expressway, Best 3 BHK Flats in Dwarka Delhi, Luxury Builder Floor in Dwarka Sector 8, Ready to Move Flats in Dwarka Delhi, 3 BHK Flats near Dwarka Sector 21 Metro, Affordable Flats in Dwarka Delhi, Independent Floors for Sale in Dwarka, Buy 3 BHK Flat in Dwarka Delhi, Premium Flats in Dwarka Sector 7, 3 BHK Society Flats in Dwarka Delhi, Builder Floor with Lift and Parking in Dwarka, Property Dealer in Dwarka, Real Estate Agent in Dwarka, Best Builder in Dwarka, Flats in Dwarka Delhi, Buy Property in Dwarka, Delhi NCR Real Estate",
 }
 
 export default function HomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "RealEstateAgent",
-    "name": "Kanharaj Builder",
-    "image": "https://kanharajbuilder.com/logo.png",
-    "@id": "https://kanharajbuilder.com",
-    "url": "https://kanharajbuilder.com",
+    "name": "Shri Shyam Properties",
+    "image": "https://shrishyamproperties.com/logo.png",
+    "@id": "https://shrishyamproperties.com",
+    "url": "https://shrishyamproperties.com",
     "telephone": "+919599801767",
     "address": {
       "@type": "PostalAddress",
