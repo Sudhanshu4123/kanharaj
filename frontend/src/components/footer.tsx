@@ -168,7 +168,7 @@ export function Footer() {
 
         {/* Social & Copyright */}
         <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-slate-500 text-sm text-center md:text-left order-2 md:order-1">
+          <p className="text-slate-400 text-sm text-center md:text-left order-2 md:order-1">
             © {new Date().getFullYear()} Kanharaj Builder. Dwarka's Most Trusted Developer.
           </p>
           <div className="flex items-center space-x-4 order-1 md:order-2">

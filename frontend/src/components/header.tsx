@@ -172,6 +172,7 @@ export function Header() {
           <button
             className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMenuOpen ? (
               <X className="h-6 w-6 text-slate-900" />

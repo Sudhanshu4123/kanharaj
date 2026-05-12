@@ -135,7 +135,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
             <div className="flex items-baseline gap-2 mb-4">
               <span className="text-xl font-bold text-slate-900">{formatPrice(property.price)}</span>
               {property.area > 0 && (
-                <span className="text-xs text-slate-400 font-medium">
+                <span className="text-xs text-slate-500 font-medium">
                   @{formatPrice(Math.round(property.price / property.area))}/sqft
                 </span>
               )}
@@ -144,21 +144,21 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
             {/* Features Grid */}
             <div className="grid grid-cols-3 gap-2 py-3 border-t border-slate-100">
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-tight">Config</span>
+                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-tight">Config</span>
                 <div className="flex items-center text-slate-700 text-sm font-semibold">
                   <Bed className="h-3.5 w-3.5 mr-1 text-rose-500" />
                   <span>{property.bedrooms} BHK</span>
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-tight">Area</span>
+                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-tight">Area</span>
                 <div className="flex items-center text-slate-700 text-sm font-semibold">
                   <Maximize className="h-3.5 w-3.5 mr-1 text-rose-500" />
                   <span>{formatNumber(property.area)} <span className="text-[10px] font-normal ml-0.5">sqft</span></span>
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-tight">Status</span>
+                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-tight">Status</span>
                 <div className="flex items-center text-slate-700 text-sm font-semibold">
                   <span className="truncate">Ready to Move</span>
                 </div>
@@ -179,6 +179,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
             "p-2 rounded-full transition-all shadow-md backdrop-blur-md",
             isWishlisted ? "bg-rose-600 text-white" : "bg-white/90 text-slate-700 hover:bg-white"
           )}
+          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
           onClick={(e) => { 
             e.preventDefault(); 
             e.stopPropagation();
@@ -189,6 +190,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
         </button>
         <button 
           className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md backdrop-blur-md text-slate-700"
+          aria-label="Share property"
           onClick={(e) => { 
             e.preventDefault(); 
             e.stopPropagation();

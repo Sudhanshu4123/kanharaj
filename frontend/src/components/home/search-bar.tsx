@@ -88,12 +88,13 @@ export function SearchBar() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
           {/* Location */}
           <div className="md:col-span-5 relative group">
-            <label className="block text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1 ml-1 group-focus-within:text-rose-500 transition-colors">
+            <label htmlFor="search-location" className="block text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1 ml-1 group-focus-within:text-rose-500 transition-colors">
               Location
             </label>
             <div className="relative">
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
+              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-rose-500 transition-colors" />
               <Input
+                id="search-location"
                 type="text"
                 placeholder={`Try "${locations[placeholderIndex]}"`}
                 value={search}
@@ -105,12 +106,13 @@ export function SearchBar() {
 
           {/* Property Type */}
           <div className="md:col-span-3 relative group">
-            <label className="block text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1 ml-1 group-focus-within:text-rose-500 transition-colors">
+            <label htmlFor="property-type" className="block text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1 ml-1 group-focus-within:text-rose-500 transition-colors">
               Property Type
             </label>
             <div className="relative">
-              <Home className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
+              <Home className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-rose-500 transition-colors" />
               <select
+                id="property-type"
                 value={propertyType}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPropertyType(e.target.value)}
                 className="w-full h-14 pl-12 pr-4 rounded-xl border border-slate-200 bg-white text-base focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-all appearance-none cursor-pointer"
@@ -125,12 +127,13 @@ export function SearchBar() {
 
           {/* Budget */}
           <div className="md:col-span-2 relative group">
-            <label className="block text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1 ml-1 group-focus-within:text-rose-500 transition-colors">
+            <label htmlFor="budget-range" className="block text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1 ml-1 group-focus-within:text-rose-500 transition-colors">
               Budget
             </label>
             <div className="relative">
-              <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
+              <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-rose-500 transition-colors" />
               <select 
+                id="budget-range"
                 value={budget}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setBudget(e.target.value)}
                 className="w-full h-14 pl-12 pr-4 rounded-xl border border-slate-200 bg-white text-base focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-all appearance-none cursor-pointer"
@@ -171,7 +174,7 @@ export function SearchBar() {
 
         {/* Popular Searches / Suggestions */}
         <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter shrink-0">Popular:</span>
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter shrink-0">Popular:</span>
           {['2BHK in Dwarka', 'Ready to move', 'New Projects', 'PG near Metro', 'Commercial Space', 'Hotel Rooms'].map((tag) => (
             <button key={tag} className="text-xs text-slate-500 hover:text-rose-600 hover:bg-rose-50/50 px-2 py-1 rounded-md transition-colors shrink-0">
               {tag}

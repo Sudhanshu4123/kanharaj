@@ -133,10 +133,11 @@ export default function HomeContent() {
         <div className="absolute inset-0">
           <Image
             src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920"
-            alt="Luxury Home"
+            alt="Luxury Home Interior in Dwarka Delhi"
             fill
             className="object-cover"
             priority
+            fetchPriority="high"
             sizes="100vw"
           />
           <div className="absolute inset-0 bg-slate-900/50" />
@@ -201,7 +202,7 @@ export default function HomeContent() {
             ].map((s) => (
               <div key={s.label} className="text-center p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 md:bg-transparent md:backdrop-blur-none md:border-none">
                 <p className="text-xl sm:text-2xl md:text-3xl font-black text-white">{s.value}</p>
-                <p className="text-[10px] sm:text-xs text-white/60 uppercase tracking-wider mt-1">{s.label}</p>
+                <p className="text-[10px] sm:text-xs text-white/80 uppercase tracking-wider mt-1">{s.label}</p>
               </div>
             ))}
           </motion.div>
@@ -218,7 +219,7 @@ export default function HomeContent() {
             className="text-center mb-10"
           >
             <h2 className="text-2xl md:text-3xl font-black text-slate-900">What are you looking for?</h2>
-            <p className="text-slate-500 mt-2 text-sm">Select a category to start your property search</p>
+            <p className="text-slate-600 mt-2 text-sm">Select a category to start your property search</p>
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
@@ -250,7 +251,7 @@ export default function HomeContent() {
             <div>
               <span className="text-rose-600 text-xs font-bold uppercase tracking-widest">Handpicked for you</span>
               <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mt-1">Featured Properties</h2>
-              <p className="text-slate-500 mt-1 text-sm">Verified listings from trusted builders & owners</p>
+              <p className="text-slate-600 mt-1 text-sm">Verified listings from trusted builders & owners</p>
             </div>
             <Link href="/properties">
               <Button variant="ghost" className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 font-bold">
@@ -303,7 +304,7 @@ export default function HomeContent() {
                   <div className="relative rounded-2xl overflow-hidden h-40 group cursor-pointer">
                     <Image
                       src={city.image}
-                      alt={city.name}
+                      alt={`Real estate properties in ${city.name}`}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
                       sizes="(max-width: 768px) 50vw, 25vw"
@@ -578,7 +579,7 @@ export default function HomeContent() {
               <h2 className="font-heading text-2xl md:text-3xl font-black text-white">
                 Own a property? List it for <span className="underline">FREE</span>
               </h2>
-              <p className="mt-2 text-rose-100 text-sm max-w-xl">
+              <p className="mt-2 text-white text-sm max-w-xl">
                 Post your property and connect directly with thousands of verified buyers & tenants. No brokerage. No hidden charges.
               </p>
               <div className="mt-4 flex items-center gap-4 text-rose-100 text-sm">
