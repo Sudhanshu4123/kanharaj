@@ -40,17 +40,6 @@ export function Header() {
         : "bg-white/95 backdrop-blur-md border-b border-slate-200"
     )}>
       {/* Top bar */}
-      <div className="hidden lg:block bg-slate-900 text-slate-300 text-xs py-1.5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <span />
-          <div className="flex items-center gap-4">
-            <Link href="tel:+919599801767" className="flex items-center gap-1 hover:text-white transition-colors">
-              <Phone className="h-3 w-3" /> +91 9599801767
-            </Link>
-
-          </div>
-        </div>
-      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
