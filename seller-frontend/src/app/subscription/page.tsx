@@ -77,6 +77,8 @@ export default function SubscriptionPage() {
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ amount: amount }) // Backend multiplies by 100
       })
+      const { orderId } = await orderRes.json()
+      
       if (!orderId) {
         throw new Error("Failed to create payment order. Please check backend logs.")
       }
