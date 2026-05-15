@@ -1,18 +1,17 @@
 import { MetadataRoute } from 'next'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://kanharaj.com' // Replace with your actual production domain
+  const baseUrl = 'https://kanharaj.com'
 
+  // Publicly accessible static routes only
   const staticRoutes = [
     '',
     '/properties',
     '/about',
     '/contact',
     '/for-sellers',
-    '/login',
-    '/forgot-password',
-    '/reset-password',
     '/privacy',
+    '/terms',
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
@@ -21,9 +20,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   try {
-    // Attempt to fetch properties to add to sitemap
-    // Note: In production, ensure this URL is accessible from the build environment
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL}`}/properties?size=100`)
+    // Dynamic property routes
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/properties?size=100`)
     if (response.ok) {
       const data = await response.json()
       const propertyRoutes = data.content.map((prop: any) => ({
