@@ -42,7 +42,7 @@ export function Header() {
       {/* Top bar */}
       <div className="hidden lg:block bg-slate-900 text-slate-300 text-xs py-1.5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <span>India's Trusted Real Estate Portal — Dwarka, Delhi, Gurgaon, Noida & more</span>
+          <span />
           <div className="flex items-center gap-4">
             <Link href="tel:+919599801767" className="flex items-center gap-1 hover:text-white transition-colors">
               <Phone className="h-3 w-3" /> +91 9599801767
