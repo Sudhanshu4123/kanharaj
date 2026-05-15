@@ -77,7 +77,9 @@ export default function SubscriptionPage() {
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ amount: amount }) // Backend multiplies by 100
       })
-      const { orderId } = await orderRes.json()
+      if (!orderId) {
+        throw new Error("Failed to create payment order. Please check backend logs.")
+      }
 
       // 2. Open Razorpay Checkout
       const options = {
@@ -87,7 +89,14 @@ export default function SubscriptionPage() {
         name: "Kanharaj",
         description: `${plan.name} - ${months} Months`,
         order_id: orderId,
+        modal: {
+          ondismiss: function() {
+            setLoading(false);
+            document.body.style.overflow = 'auto';
+          }
+        },
         handler: async function (response: any) {
+          document.body.style.overflow = 'auto';
           // 3. Verify Payment on Backend
           const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/verify`, {
             method: "POST",
@@ -122,11 +131,12 @@ export default function SubscriptionPage() {
       const rzp = new (window as any).Razorpay(options);
       rzp.open();
 
-    } catch (err) {
+    } catch (err: any) {
       console.error("Payment flow failed", err)
-      alert("Error connecting to payment gateway.")
+      alert(err.message || "Error connecting to payment gateway.")
     } finally {
       setLoading(false)
+      document.body.style.overflow = 'auto';
     }
   }
 
