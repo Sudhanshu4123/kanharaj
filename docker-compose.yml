@@ -48,6 +48,8 @@ services:
     restart: always
     environment:
       - INTERNAL_BACKEND_URL=http://backend:8080
+      - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
+      - NEXT_PUBLIC_SELLER_URL=${SELLER_URL:-https://seller.kanharaj.com}
       - NEXTAUTH_SECRET=${JWT_SECRET:-luxeestates-secret-key-for-jwt-token-generation-2024}
       - NEXTAUTH_URL=${NEXTAUTH_URL:-https://kanharaj.com}
     ports:
@@ -64,6 +66,8 @@ services:
     container_name: kanharaj-seller
     restart: always
     environment:
+      - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
+      - NEXT_PUBLIC_MAIN_URL=${MAIN_URL:-https://kanharaj.com}
       - NEXTAUTH_SECRET=${JWT_SECRET:-luxeestates-secret-key-for-jwt-token-generation-2024}
     ports:
       - "3001:3001"
