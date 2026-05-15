@@ -1,12 +1,12 @@
-import { Shield, Lock, Eye, FileText, Globe, Mail } from 'lucide-react'
+import { Shield, Lock, Eye, FileText, Globe, Mail, Users, CreditCard, CheckCircle } from 'lucide-react'
 
 export const metadata = {
-  title: 'Privacy Policy | Kanharaj',
-  description: 'Learn how Kanharaj collects, uses, and protects your personal information.',
+  title: 'Privacy Policy | Kanharaj - Dwarka Real Estate',
+  description: 'Our commitment to protecting your data and ensuring a transparent real estate experience.',
 }
 
 export default function PrivacyPolicy() {
-  const lastUpdated = 'May 15, 2026'
+  const lastUpdated = 'May 15, 2024'
 
   return (
     <div className="min-h-screen bg-slate-50 pt-24 pb-20">
@@ -19,109 +19,124 @@ export default function PrivacyPolicy() {
               <Shield size={32} />
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">
-              Privacy <span className="text-rose-600">Policy</span>
+              Privacy <span className="text-rose-600">Protocol</span>
             </h1>
-            <p className="text-slate-500 font-medium">Last Updated: {lastUpdated}</p>
+            <p className="text-slate-500 font-medium tracking-wide uppercase text-xs">Security & Transparency • Last Updated: {lastUpdated}</p>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-slate-100 prose prose-slate max-w-none">
-          <section className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
-                <FileText size={20} />
-              </div>
-              <h2 className="text-2xl font-bold text-slate-900 m-0">Introduction</h2>
-            </div>
-            <p className="text-slate-600 leading-relaxed">
-              At Kanharaj, accessible from kanharaj.com, one of our main priorities is the privacy of our visitors. 
-              This Privacy Policy document contains types of information that is collected and recorded by Kanharaj 
-              and how we use it. If you have additional questions or require more information about our Privacy Policy, 
-              do not hesitate to contact us.
+        {/* Content Container */}
+        <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-slate-100">
+          
+          <div className="prose prose-slate max-w-none">
+            <p className="text-lg text-slate-600 leading-relaxed mb-12 italic border-l-4 border-rose-500 pl-6">
+              "At Kanharaj, we believe transparency is the foundation of trust. This protocol outlines our commitment to managing your real estate data with the highest level of integrity."
             </p>
-          </section>
 
-          <section className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
-                <Lock size={20} />
+            <section className="mb-12">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
+                  <FileText size={20} />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 m-0">1. Data Governance</h2>
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 m-0">Information We Collect</h2>
-            </div>
-            <p className="text-slate-600 leading-relaxed mb-4">
-              Kanharaj follows a standard procedure of using log files. These files log visitors when they visit websites. 
-              The information collected by log files includes:
-            </p>
-            <ul className="list-disc pl-6 space-y-2 text-slate-600">
-              <li>Internet Protocol (IP) addresses</li>
-              <li>Browser type and version</li>
-              <li>Internet Service Provider (ISP)</li>
-              <li>Date and time stamps</li>
-              <li>Referring/exit pages</li>
-              <li>Number of clicks and on-site behavior</li>
-            </ul>
-          </section>
+              <p className="text-slate-600 leading-relaxed">
+                Kanharaj ("we", "us", or "our") operates the real estate platform at kanharaj.com. We collect personal identification information to provide a seamless property discovery experience. This includes, but is not limited to, your name, contact numbers, email addresses, and specific property preferences.
+              </p>
+            </section>
 
-          <section className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
-                <Eye size={20} />
+            <section className="mb-12">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600">
+                  <Users size={20} />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 m-0">2. Lead Management & Disclosure</h2>
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 m-0">How We Use Your Information</h2>
-            </div>
-            <p className="text-slate-600 leading-relaxed mb-4">
-              We use the information we collect in various ways, including to:
-            </p>
-            <ul className="list-disc pl-6 space-y-2 text-slate-600">
-              <li>Provide, operate, and maintain our website</li>
-              <li>Improve, personalize, and expand our website</li>
-              <li>Understand and analyze how you use our website</li>
-              <li>Develop new products, services, features, and functionality</li>
-              <li>Communicate with you for customer service and updates</li>
-              <li>Send you emails and notifications about property inquiries</li>
-              <li>Find and prevent fraud</li>
-            </ul>
-          </section>
+              <p className="text-slate-600 leading-relaxed mb-4">
+                Our platform functions as a bridge between buyers and sellers. When you submit an inquiry for a listing:
+              </p>
+              <ul className="space-y-4 text-slate-600 list-none p-0">
+                <li className="flex items-start gap-3">
+                  <CheckCircle size={18} className="text-emerald-500 mt-1 shrink-0" />
+                  <span>Your contact profile is shared securely with the specific property owner or verified agent.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle size={18} className="text-emerald-500 mt-1 shrink-0" />
+                  <span>Sellers receive these details as "Leads" to facilitate immediate professional communication.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle size={18} className="text-emerald-500 mt-1 shrink-0" />
+                  <span>We strictly prohibit the bulk sale of user leads to third-party advertisers.</span>
+                </li>
+              </ul>
+            </section>
 
-          <section className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
-                <Globe size={20} />
+            <section className="mb-12">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                  <CreditCard size={20} />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 m-0">3. Transactional Security</h2>
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 m-0">Cookies and Web Beacons</h2>
-            </div>
-            <p className="text-slate-600 leading-relaxed">
-              Like any other website, Kanharaj uses 'cookies'. These cookies are used to store information including 
-              visitors' preferences, and the pages on the website that the visitor accessed or visited. The information 
-              is used to optimize the users' experience by customizing our web page content based on visitors' 
-              browser type and/or other information.
-            </p>
-          </section>
+              <p className="text-slate-600 leading-relaxed">
+                All premium subscriptions and seller plans are processed via Razorpay. We adhere to industry-standard encryption protocols. Kanharaj does not store sensitive financial instruments like CVV numbers or bank passwords. We only retain metadata (Transaction ID, Amount, Expiry) to ensure your account services remain uninterrupted.
+              </p>
+            </section>
 
-          <section className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
-                <Mail size={20} />
+            <section className="mb-12">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
+                  <Lock size={20} />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 m-0">4. User Authentication</h2>
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 m-0">Contact Us</h2>
-            </div>
-            <p className="text-slate-600 leading-relaxed mb-6">
-              If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at:
-            </p>
-            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
-              <p className="m-0 font-bold text-slate-900">Kanharaj Real Estate</p>
-              <p className="m-0 text-slate-600">Email: kanharaj1389@gmail.com</p>
-              <p className="m-0 text-slate-600">Phone: +91 9599801767</p>
-            </div>
-          </section>
+              <p className="text-slate-600 leading-relaxed">
+                User accounts are protected by encrypted password hashing and JWT (JSON Web Tokens). It is the user's responsibility to maintain the confidentiality of their login credentials. Any unauthorized access detected should be reported immediately to our security team.
+              </p>
+            </section>
 
-          <div className="pt-8 border-t border-slate-100 text-center">
-            <p className="text-slate-400 text-sm">
-              &copy; 2024 Kanharaj. All rights reserved.
-            </p>
+            <section className="mb-12">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
+                  <Globe size={20} />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 m-0">5. Digital Footprints (Cookies)</h2>
+              </div>
+              <p className="text-slate-600 leading-relaxed">
+                We utilize essential cookies to manage sessions and remember your property filters. This enables a personalized browsing experience, allowing the platform to suggest properties that match your previously viewed listings.
+              </p>
+            </section>
+
+            <section className="pt-10 border-t border-slate-100">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-rose-600 flex items-center justify-center text-white">
+                  <Mail size={20} />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 m-0">Support & Inquiries</h2>
+              </div>
+              <p className="text-slate-600 leading-relaxed mb-8">
+                For legal inquiries, data deletion requests, or privacy concerns, please reach out to our compliance department.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-slate-50 rounded-3xl p-6 border border-slate-100">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Corporate Office</p>
+                  <p className="text-slate-900 font-bold mb-0">Kanharaj Real Estate Solutions</p>
+                  <p className="text-slate-600 text-sm">Sector 7, Dwarka, New Delhi — 110078</p>
+                </div>
+                <div className="bg-slate-50 rounded-3xl p-6 border border-slate-100">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Direct Channels</p>
+                  <p className="text-slate-900 font-bold mb-0">kanharaj1389@gmail.com</p>
+                  <p className="text-slate-600 text-sm">+91 9599801767</p>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
+
+        <p className="mt-10 text-center text-slate-400 text-sm font-medium">
+          &copy; 2024 Kanharaj. Licensed Real Estate Portal.
+        </p>
       </div>
     </div>
   )
