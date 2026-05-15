@@ -25,13 +25,25 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
-  
+
   cache:
     type: simple
   
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+5:30
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:kanharaj1389@gmail.com}
+    password: ${MAIL_PASSWORD:nonfivgrhpmvbdnj}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 jwt:
   secret: ${JWT_SECRET:luxeestates-secret-key-for-jwt-token-generation-2024}
@@ -57,3 +69,8 @@ logging:
 
 upload:
   path: ${UPLOAD_PATH:uploads}
+
+razorpay:
+  key:
+    id: ${RAZORPAY_KEY_ID:rzp_test_SpDgwQDb3VVlJ9}
+    secret: ${RAZORPAY_KEY_SECRET:bL01i7L47qVC7afUkPj9AUPy}

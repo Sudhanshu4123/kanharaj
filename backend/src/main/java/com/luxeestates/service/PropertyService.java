@@ -5,6 +5,7 @@ import com.luxeestates.model.Property;
 import com.luxeestates.model.User;
 import com.luxeestates.repository.PropertyRepository;
 import com.luxeestates.repository.UserRepository;
+import com.luxeestates.repository.InquiryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,6 +23,7 @@ public class PropertyService {
     
     private final PropertyRepository propertyRepository;
     private final UserRepository userRepository;
+    private final InquiryRepository inquiryRepository;
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
     
     public Page<PropertyDto> getAllProperties(Pageable pageable) {
@@ -66,6 +68,7 @@ public class PropertyService {
                 .longitude(dto.getLongitude())
                 .status(Property.Status.ACTIVE)
                 .featured(dto.getFeatured() != null ? dto.getFeatured() : false)
+                .views(0)
                 .user(user)
                 .build();
         
@@ -73,9 +76,13 @@ public class PropertyService {
     }
     
     @Transactional
-    public PropertyDto updateProperty(Long id, PropertyDto dto) {
+    public PropertyDto updateProperty(Long id, PropertyDto dto, Long userId) {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
+        
+        if (!property.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Unauthorized to update this property");
+        }
         
         property.setTitle(dto.getTitle());
         property.setDescription(dto.getDescription());
@@ -98,7 +105,15 @@ public class PropertyService {
     
     @Transactional
     @CacheEvict(value = "properties", allEntries = true)
-    public void deleteProperty(Long id) {
+    public void deleteProperty(Long id, Long userId) {
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Property not found"));
+        
+        if (!property.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Unauthorized to delete this property");
+        }
+
+        inquiryRepository.deleteByPropertyId(id);
         propertyRepository.deleteById(id);
     }
     
@@ -131,6 +146,21 @@ public class PropertyService {
     
     public Long getFeaturedPropertiesCount() {
         return propertyRepository.countByFeaturedTrueAndStatus(Property.Status.ACTIVE);
+    }
+
+    @Transactional
+    public void incrementViews(Long id) {
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Property not found"));
+        property.setViews(property.getViews() != null ? property.getViews() + 1 : 1);
+        propertyRepository.save(property);
+    }
+
+    public List<PropertyDto> getPropertiesByUserId(Long userId) {
+        return propertyRepository.findByUserIdAndStatus(userId, Property.Status.ACTIVE)
+                .stream()
+                .map(PropertyDto::fromEntity)
+                .toList();
     }
 
     private String toJson(java.util.List<String> list) {

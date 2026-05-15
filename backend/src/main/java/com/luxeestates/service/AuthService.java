@@ -2,7 +2,10 @@ package com.luxeestates.service;
 
 import com.luxeestates.dto.AuthDto;
 import com.luxeestates.dto.UserDto;
+import com.luxeestates.model.PasswordResetToken;
 import com.luxeestates.model.User;
+import com.luxeestates.repository.PasswordResetTokenRepository;
+import com.luxeestates.repository.SellerRepository;
 import com.luxeestates.repository.UserRepository;
 import com.luxeestates.security.CustomUserDetails;
 import com.luxeestates.security.JwtTokenProvider;
@@ -23,9 +26,12 @@ import java.time.LocalDateTime;
 public class AuthService {
 
         private final UserRepository userRepository;
+        private final SellerRepository sellerRepository;
         private final PasswordEncoder passwordEncoder;
         private final JwtTokenProvider jwtTokenProvider;
         private final AuthenticationManager authenticationManager;
+        private final PasswordResetTokenRepository passwordResetTokenRepository;
+        private final EmailService emailService;
 
         @Value("${admin.email}")
         private String adminEmail;
@@ -41,8 +47,10 @@ public class AuthService {
 
         @PostConstruct
         public void postConstruct() {
-                if (adminEmail != null) adminEmail = adminEmail.trim();
-                if (adminPassword != null) adminPassword = adminPassword.trim();
+                if (adminEmail != null)
+                        adminEmail = adminEmail.trim();
+                if (adminPassword != null)
+                        adminPassword = adminPassword.trim();
         }
 
         @Transactional
@@ -71,7 +79,7 @@ public class AuthService {
                         return AuthDto.AuthResponse.builder()
                                         .token(token)
                                         .refreshToken(refreshToken)
-                                        .user(UserDto.fromEntity(user))
+                                        .user(getCurrentUser(user.getEmail()))
                                         .build();
                 } catch (Exception e) {
                         throw new RuntimeException("Registration failed: " + e.getMessage());
@@ -81,16 +89,17 @@ public class AuthService {
         public AuthDto.AuthResponse login(AuthDto.LoginRequest request) {
                 String email = request.getEmail() != null ? request.getEmail().trim() : "";
                 String password = request.getPassword() != null ? request.getPassword().trim() : "";
-                
+
                 System.out.println("Login attempt for: [" + email + "]");
-                
+
                 try {
                         Authentication authentication = authenticationManager.authenticate(
                                         new UsernamePasswordAuthenticationToken(email, password));
 
                         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-                        System.out.println("Authentication successful for: " + email + " with role: " + userDetails.getAuthorities());
-                        
+                        System.out.println("Authentication successful for: " + email + " with role: "
+                                        + userDetails.getAuthorities());
+
                         String token = jwtTokenProvider.generateToken(userDetails);
                         String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
 
@@ -100,7 +109,7 @@ public class AuthService {
                         return AuthDto.AuthResponse.builder()
                                         .token(token)
                                         .refreshToken(refreshToken)
-                                        .user(UserDto.fromEntity(user))
+                                        .user(getCurrentUser(user.getEmail()))
                                         .build();
                 } catch (Exception e) {
                         System.err.println("Login failed for [" + email + "]: " + e.getMessage());
@@ -124,7 +133,7 @@ public class AuthService {
                 return AuthDto.AuthResponse.builder()
                                 .token(token)
                                 .refreshToken(refreshToken)
-                                .user(UserDto.fromEntity(user))
+                                .user(getCurrentUser(user.getEmail()))
                                 .build();
         }
 
@@ -151,14 +160,23 @@ public class AuthService {
                 return AuthDto.AuthResponse.builder()
                                 .token(token)
                                 .refreshToken(refreshToken)
-                                .user(UserDto.fromEntity(user))
+                                .user(getCurrentUser(user.getEmail()))
                                 .build();
         }
 
         public UserDto getCurrentUser(String email) {
                 User user = userRepository.findByEmail(email)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
-                return UserDto.fromEntity(user);
+
+                UserDto dto = UserDto.fromEntity(user);
+
+                // Fetch professional seller data if it exists
+                sellerRepository.findByUserId(user.getId()).ifPresent(seller -> {
+                        dto.setSubscriptionPlan(seller.getSubscriptionPlan());
+                        dto.setSubscriptionExpiry(seller.getSubscriptionExpiry());
+                });
+
+                return dto;
         }
 
         public Long getTotalUsers() {
@@ -173,5 +191,52 @@ public class AuthService {
                 return userRepository.findAll().stream()
                                 .map(UserDto::fromEntity)
                                 .collect(java.util.stream.Collectors.toList());
+        }
+
+        @Transactional
+        public void forgotPassword(AuthDto.ForgotPasswordRequest request) {
+                User user = userRepository.findByEmail(request.getEmail())
+                                .orElseThrow(() -> new RuntimeException("User not found with email"));
+
+                // Delete any existing tokens for this user
+                passwordResetTokenRepository.deleteByUser(user);
+
+                // Create new token
+                String token = java.util.UUID.randomUUID().toString();
+                PasswordResetToken resetToken = PasswordResetToken.builder()
+                                .token(token)
+                                .user(user)
+                                .expiryDate(LocalDateTime.now().plusHours(1))
+                                .build();
+
+                passwordResetTokenRepository.save(resetToken);
+
+                // Send email
+                String resetLink = "http://localhost:3000/reset-password?token=" + token;
+                String emailContent = "Hello " + user.getName() + ",\n\n" +
+                                "You requested to reset your password. Click the link below to set a new password:\n" +
+                                resetLink + "\n\n" +
+                                "This link will expire in 1 hour.\n\n" +
+                                "If you didn't request this, please ignore this email.";
+
+                emailService.sendSimpleMessage(user.getEmail(), "Password Reset Request - Kanharaj", emailContent);
+        }
+
+        @Transactional
+        public void resetPassword(AuthDto.ResetPasswordRequest request) {
+                PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(request.getToken())
+                                .orElseThrow(() -> new RuntimeException("Invalid or expired password reset token"));
+
+                if (resetToken.isExpired()) {
+                        passwordResetTokenRepository.delete(resetToken);
+                        throw new RuntimeException("Password reset token has expired");
+                }
+
+                User user = resetToken.getUser();
+                user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+                userRepository.save(user);
+
+                // Delete the token after successful use
+                passwordResetTokenRepository.delete(resetToken);
         }
 }

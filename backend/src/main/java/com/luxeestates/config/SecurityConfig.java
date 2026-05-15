@@ -47,6 +47,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/upload/**", "/api/upload").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/inquiries/**", "/api/inquiries").permitAll()
+                        .requestMatchers("/api/auth/me").authenticated()
+                        .requestMatchers("/api/payments/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

@@ -3,8 +3,8 @@ import { Suspense } from 'react'
 import PropertiesContent from "./PropertiesContent"
 
 export const metadata: Metadata = {
-  title: "Properties | Kanharaj Builder - Discover Premium Real Estate in Dwarka",
-  description: "Browse our extensive portfolio of residential and commercial properties in Dwarka, New Delhi. Find your perfect home, villa, or office space with Kanharaj Builder.",
+  title: "Properties | Kanharaj - Discover Premium Real Estate in Dwarka",
+  description: "Browse our extensive portfolio of residential and commercial properties in Dwarka, New Delhi. Find your perfect home, villa, or office space with Kanharaj.",
   keywords: "property listings, buy house Dwarka, rent apartment New Delhi, luxury villas, commercial space, real estate portfolio",
 }
 

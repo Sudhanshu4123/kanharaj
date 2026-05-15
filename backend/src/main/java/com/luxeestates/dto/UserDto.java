@@ -22,6 +22,10 @@ public class UserDto {
     private Boolean enabled;
     private LocalDateTime createdAt;
     
+    // Subscription Info (Source of truth: Seller table)
+    private String subscriptionPlan;
+    private LocalDateTime subscriptionExpiry;
+    
     public static UserDto fromEntity(User user) {
         return UserDto.builder()
                 .id(user.getId())
@@ -31,6 +35,7 @@ public class UserDto {
                 .role(user.getRole())
                 .enabled(user.getEnabled())
                 .createdAt(user.getCreatedAt())
+                .subscriptionPlan("NONE")
                 .build();
     }
 }

@@ -8,7 +8,7 @@ import { MapPin, ArrowRight } from 'lucide-react'
 const projects = [
   {
     name: 'The Grand Residency',
-    developer: 'Kanharaj Builders',
+    developer: 'Kanharaj',
     location: 'Sector 10, Dwarka',
     image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800',
     status: 'Ready to Move',
@@ -16,7 +16,7 @@ const projects = [
   },
   {
     name: 'Elite Heights',
-    developer: 'Kanharaj Builders',
+    developer: 'Kanharaj',
     location: 'Sector 22, Dwarka',
     image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
     status: 'Under Construction',
@@ -24,7 +24,7 @@ const projects = [
   },
   {
     name: 'Skyline Plaza',
-    developer: 'Kanharaj Builders',
+    developer: 'Kanharaj',
     location: 'Sector 12, Dwarka',
     image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800',
     status: 'Launching Soon',
@@ -38,7 +38,7 @@ export function ProjectGallery() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Our Signature Projects</h2>
-          <p className="text-slate-500 mt-2">Discover the standard of luxury living by Kanharaj Builders</p>
+          <p className="text-slate-500 mt-2">Discover the standard of luxury living by Kanharaj</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

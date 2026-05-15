@@ -51,6 +51,8 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
     
     // Handle Cloudinary/External vs Local
     if (url.startsWith('http')) {
+      // Don't force HTTPS for localhost (development)
+      if (url.includes('localhost')) return url;
       return url.replace('http://', 'https://');
     }
     

@@ -27,8 +27,16 @@ public class DataInitializer implements CommandLineRunner {
     @org.springframework.beans.factory.annotation.Value("${admin.phone}")
     private String adminPhone;
 
+    private final jakarta.persistence.EntityManager entityManager;
+
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public void run(String... args) {
+        try {
+            entityManager.createNativeQuery("ALTER TABLE users MODIFY COLUMN role VARCHAR(255)").executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Table alter failed (might already be VARCHAR or different DB): " + e.getMessage());
+        }
         if (adminEmail == null || adminEmail.isEmpty()) {
             System.err.println("Warning: ADMIN_EMAIL is not configured!");
             return;
@@ -36,7 +44,6 @@ public class DataInitializer implements CommandLineRunner {
         
         String trimmedEmail = adminEmail.trim();
         String trimmedPassword = adminPassword.trim();
-        System.out.println("Admin Init -> Email: [" + trimmedEmail + "], Password Length: " + trimmedPassword.length());
         User admin = userRepository.findByEmail(trimmedEmail).orElse(null);
         
         if (admin == null) {
@@ -50,14 +57,26 @@ public class DataInitializer implements CommandLineRunner {
                     .enabled(true)
                     .build();
             userRepository.save(admin);
-            System.out.println("New admin user created: [" + trimmedEmail + "]");
         } else {
             // Force update existing user to be Admin with correct password
             admin.setRole(User.Role.ADMIN);
             admin.setPassword(passwordEncoder.encode(trimmedPassword));
             admin.setEnabled(true);
             userRepository.save(admin);
-            System.out.println("Existing admin user credentials reset: [" + trimmedEmail + "]");
+        }
+
+        // Create a sample seller
+        String sellerEmail = "seller@example.com";
+        if (userRepository.findByEmail(sellerEmail).isEmpty()) {
+            User seller = User.builder()
+                    .name("Sample Seller")
+                    .email(sellerEmail)
+                    .phone("9876543210")
+                    .password(passwordEncoder.encode("seller@123"))
+                    .role(User.Role.SELLER)
+                    .enabled(true)
+                    .build();
+            userRepository.save(seller);
         }
 
         // Add a sample property if the database is empty

@@ -41,7 +41,8 @@ services:
     build:
       context: ./frontend
       args:
-        - NEXT_PUBLIC_API_URL=${API_URL:-http://localhost:8080/api}
+        - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
+        - NEXT_PUBLIC_SELLER_URL=${SELLER_URL:-https://seller.kanharaj.com}
         - INTERNAL_BACKEND_URL=http://backend:8080
     container_name: kanharaj-frontend
     restart: always
@@ -51,6 +52,21 @@ services:
       - NEXTAUTH_URL=${NEXTAUTH_URL:-https://kanharaj.com}
     ports:
       - "3000:3000"
+    depends_on:
+      - backend
+
+  seller-frontend:
+    build:
+      context: ./seller-frontend
+      args:
+        - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
+        - NEXT_PUBLIC_MAIN_URL=${MAIN_URL:-https://kanharaj.com}
+    container_name: kanharaj-seller
+    restart: always
+    environment:
+      - NEXTAUTH_SECRET=${JWT_SECRET:-luxeestates-secret-key-for-jwt-token-generation-2024}
+    ports:
+      - "3001:3001"
     depends_on:
       - backend
 

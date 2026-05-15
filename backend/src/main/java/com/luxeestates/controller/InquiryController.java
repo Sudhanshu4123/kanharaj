@@ -2,9 +2,11 @@ package com.luxeestates.controller;
 
 import com.luxeestates.dto.InquiryDto;
 import com.luxeestates.model.Inquiry;
+import com.luxeestates.security.CustomUserDetails;
 import com.luxeestates.service.InquiryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +26,16 @@ public class InquiryController {
     @GetMapping
     public ResponseEntity<List<InquiryDto>> getAllInquiries() {
         return ResponseEntity.ok(inquiryService.getAllInquiries());
+    }
+
+    @GetMapping("/seller")
+    public ResponseEntity<List<InquiryDto>> getSellerInquiries(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(required = false) Long sellerId
+    ) {
+        Long id = (userDetails != null) ? userDetails.getId() : sellerId;
+        if (id == null) id = 1L; // Fallback to sample seller/admin
+        return ResponseEntity.ok(inquiryService.getInquiriesBySeller(id));
     }
 
     @PatchMapping("/{id}/status")

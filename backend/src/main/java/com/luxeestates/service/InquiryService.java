@@ -80,4 +80,9 @@ public class InquiryService {
     public Long getPendingInquiries() {
         return inquiryRepository.countByStatus(Inquiry.InquiryStatus.PENDING);
     }
+    public List<InquiryDto> getInquiriesBySeller(Long userId) {
+        return inquiryRepository.findBySellerId(userId).stream()
+                .map(InquiryDto::fromEntity)
+                .collect(Collectors.toList());
+    }
 }

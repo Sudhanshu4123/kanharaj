@@ -8,22 +8,18 @@ import { Input } from './ui/input'
 const footerLinks = {
   company: [
     { label: 'About Us', href: '/about' },
-    { label: 'Careers', href: '#' },
     { label: 'Press', href: '#' },
     { label: 'Blog', href: '#' },
     { label: 'Contact Us', href: '/contact' },
   ],
   properties: [
-    { label: 'Buy Properties', href: '/properties?listing=buy' },
-    { label: 'Rent Properties', href: '/properties?listing=rent' },
-    { label: 'New Projects', href: '/properties?type=RESIDENTIAL+PROJECT&listing=buy' },
+    { label: 'All Properties', href: '/properties' },
+    { label: 'Residential', href: '/properties?type=RESIDENTIAL' },
     { label: 'Commercial', href: '/properties?type=COMMERCIAL' },
     { label: 'Plots / Land', href: '/properties?type=PLOTS%2FLAND' },
-    { label: 'PG / Hostel', href: '/properties?type=PG&listing=rent' },
-    { label: 'Hotel Rooms', href: '/properties?type=HOTEL' },
   ],
   services: [
-    { label: 'Post Property FREE', href: '/properties/post' },
+    { label: 'Seller Plans', href: '/for-sellers' },
     { label: 'My Account', href: '/profile' },
     { label: 'Property Valuation', href: '#' },
     { label: 'Home Loans', href: '#' },
@@ -34,7 +30,6 @@ const footerLinks = {
     { label: 'Privacy Policy', href: '#' },
     { label: 'Terms of Service', href: '#' },
     { label: 'Cookie Policy', href: '#' },
-    { label: 'Sitemap', href: '#' },
   ],
 }
 
@@ -76,9 +71,9 @@ export function Footer() {
           <div className="lg:col-span-2 space-y-6">
             <Link href="/" className="flex items-center space-x-2">
               <div className="relative h-10 w-10 flex items-center justify-center overflow-hidden rounded-full border border-slate-700 bg-white">
-                <img 
-                  src="/logo.png" 
-                  alt="Kanharaj Builder Logo" 
+                <img
+                  src="/logo.png"
+                  alt="Kanharaj Logo"
                   className="h-full w-full object-cover"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
@@ -87,8 +82,8 @@ export function Footer() {
                 />
                 <Building className="h-8 w-8 text-rose-500 hidden" />
               </div>
-              <span className="font-heading text-2xl font-bold">
-                Kanharaj<span className="text-rose-500">Builder</span>
+              <span className="font-heading text-2xl font-black text-white tracking-tighter">
+                Kanharaj
               </span>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
@@ -97,7 +92,7 @@ export function Footer() {
             <div className="space-y-4">
               <div className="flex items-start space-x-3 text-slate-400 text-sm">
                 <MapPin className="h-5 w-5 text-rose-500 flex-shrink-0 mt-0.5" />
-                <span>Kanharaj Builder, Sector 7, Dwarka, New Delhi — 110078</span>
+                <span>Kanharaj, Sector 7, Dwarka, New Delhi — 110078</span>
               </div>
               <div className="flex items-center space-x-3 text-slate-400 text-sm">
                 <Phone className="h-5 w-5 text-rose-500 flex-shrink-0" />
@@ -169,7 +164,7 @@ export function Footer() {
         {/* Social & Copyright */}
         <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
           <p className="text-slate-400 text-sm text-center md:text-left order-2 md:order-1">
-            © {new Date().getFullYear()} Kanharaj Builder. Dwarka's Most Trusted Developer.
+            © {new Date().getFullYear()} Kanharaj. Dwarka's Most Trusted Developer.
           </p>
           <div className="flex items-center space-x-4 order-1 md:order-2">
             {socialLinks.map((social) => (

@@ -34,11 +34,22 @@ public class User {
     private String password;
     
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private Role role;
     
     @Column(nullable = false)
     private Boolean enabled = true;
+
+    // Subscription & Payment Fields
+    @Column(length = 20)
+    private String subscriptionPlan = "NONE";
+
+    private LocalDateTime subscriptionExpiry;
+
+    private Double lastPaymentAmount = 0.0;
+
+    @Column(length = 20)
+    private String paymentStatus = "PENDING";
     
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -49,6 +60,7 @@ public class User {
     
     public enum Role {
         USER,
-        ADMIN
+        ADMIN,
+        SELLER
     }
 }

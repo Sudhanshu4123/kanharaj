@@ -17,7 +17,7 @@ const mockTestimonials = [
   {
     id: 1,
     name: 'Rahul Sharma',
-    text: 'Kanharaj Builders helped me find my dream home in Dwarka. The process was smooth and transparent.',
+    text: 'Kanharaj helped me find my dream home in Dwarka. The process was smooth and transparent.',
     location: 'Sector 10, Dwarka',
     avatar: 'https://i.pravatar.cc/150?u=rahul',
     rating: 5,
@@ -79,7 +79,7 @@ const categories = [
   { label: 'Plots / Land', icon: '📍', href: '/properties?type=PLOTS%2FLAND&listing=buy', desc: 'Residential & Commercial plots' },
   { label: 'PG / Hostel', icon: '🛏️', href: '/properties?listing=rent&type=PG', desc: 'Affordable stays' },
   { label: 'Hotel Rooms', icon: '🏨', href: '/properties?type=HOTEL', desc: 'Hotels & Guest Houses' },
-  { label: 'Sell Property', icon: '💰', href: '/properties/post', desc: 'Post your listing FREE' },
+
 ]
 
 const popularCities = [
@@ -99,12 +99,12 @@ const faqs = [
     answer: 'The price of 3 BHK flats in Dwarka depends on the sector and amenities. On average, prices range from ₹1.2 Cr to ₹2.5 Cr. Sector 7, 10, and 12 are among the most premium areas.'
   },
   {
-    question: 'Does Shri Shyam Properties provide zero brokerage options?',
+    question: 'Does Kanharaj Properties provide zero brokerage options?',
     answer: 'Yes, we have many direct-from-builder listings where you can save on brokerage. Look for the "Verified" and "Direct" badges on our property listings.'
   },
   {
     question: 'Are the properties on your website verified?',
-    answer: 'Absolutely. Every property listed on Shri Shyam Properties undergoes a verification process to ensure authenticity of details, price, and ownership.'
+    answer: 'Absolutely. Every property listed on Kanharaj Properties undergoes a verification process to ensure authenticity of details, price, and ownership.'
   }
 ]
 
@@ -317,9 +317,7 @@ export default function HomeContent() {
               <Building2 className="h-16 w-16 text-slate-200 mx-auto mb-4" />
               <h3 className="text-lg font-bold text-slate-700">No properties listed yet</h3>
               <p className="text-slate-400 mt-2 mb-6">Be the first to list your property!</p>
-              <Link href="/properties/post">
-                <Button className="bg-rose-600 hover:bg-rose-700 text-white">Post Your Property FREE</Button>
-              </Link>
+
             </div>
           )}
         </div>
@@ -623,7 +621,7 @@ export default function HomeContent() {
           >
             <div>
               <h2 className="font-heading text-2xl md:text-3xl font-black text-white">
-                Own a property? List it for <span className="underline">FREE</span>
+                Own a property? List it <span className="underline">Now</span>
               </h2>
               <p className="mt-2 text-white text-sm max-w-xl">
                 Post your property and connect directly with thousands of verified buyers & tenants. No brokerage. No hidden charges.
@@ -635,14 +633,9 @@ export default function HomeContent() {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-              <Link href="/properties/post">
-                <Button size="lg" className="bg-white text-rose-600 hover:bg-rose-50 font-bold shadow-xl px-8">
-                  Post Property FREE
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button size="lg" variant="ghost" className="text-white border-2 border-white/50 hover:bg-white/10 font-bold">
-                  <Phone className="h-4 w-4 mr-2" /> Contact Us
+              <Link href="/for-sellers">
+                <Button size="lg" className="bg-white text-rose-600 hover:bg-rose-50 font-bold shadow-xl px-8 w-full sm:w-auto">
+                  Get Started as Seller
                 </Button>
               </Link>
             </div>

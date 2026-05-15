@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Search, PlusSquare, Building2, User } from 'lucide-react'
+import { Home, Search, Phone, Building2, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/lib/store'
 
@@ -18,14 +18,8 @@ export function MobileNav() {
 
   const navItems = [
     { label: 'Home', icon: Home, href: '/' },
-    { label: 'Properties', icon: Search, href: '/properties' },
-    {
-      label: 'Post FREE',
-      icon: PlusSquare,
-      href: '/properties/post',
-      highlight: true,
-    },
-    { label: 'Projects', icon: Building2, href: '/properties?type=RESIDENTIAL+PROJECT&listing=buy' },
+    { label: 'Search', icon: Search, href: '/properties' },
+    { label: 'Contact', icon: Phone, href: '/contact' },
     { label: mounted && isAuthenticated ? 'Profile' : 'Login', icon: User, href: mounted ? (isAuthenticated ? '/profile' : '/login') : '/login' },
   ]
 
@@ -54,7 +48,7 @@ export function MobileNav() {
                   <div className="w-14 h-14 rounded-full bg-rose-600 flex items-center justify-center shadow-lg shadow-rose-600/40 border-4 border-white">
                     <item.icon className="h-6 w-6 text-white" />
                   </div>
-                  <span className="text-[10px] font-bold text-rose-600 mt-0.5 leading-none">Post FREE</span>
+                  <span className="text-[10px] font-bold text-rose-600 mt-0.5 leading-none">Sell Property</span>
                 </div>
               ) : (
                 <>

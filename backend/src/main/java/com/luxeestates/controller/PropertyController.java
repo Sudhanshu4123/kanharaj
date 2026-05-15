@@ -41,10 +41,26 @@ public class PropertyController {
     public ResponseEntity<List<PropertyDto>> getFeaturedProperties() {
         return ResponseEntity.ok(propertyService.getFeaturedProperties());
     }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<PropertyDto>> getMyProperties(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(propertyService.getPropertiesByUserId(userDetails.getId()));
+    }
     
     @GetMapping("/{id}")
     public ResponseEntity<PropertyDto> getPropertyById(@PathVariable Long id) {
         return ResponseEntity.ok(propertyService.getPropertyById(id));
+    }
+
+    @PostMapping("/{id}/view")
+    public ResponseEntity<Void> incrementViews(@PathVariable Long id) {
+        propertyService.incrementViews(id);
+        return ResponseEntity.ok().build();
     }
     
     @GetMapping("/search")
@@ -68,20 +84,38 @@ public class PropertyController {
             @RequestBody PropertyDto dto,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
+        
+        // Restrict to SELLER or ADMIN only
+        boolean isAuthorized = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_SELLER") || a.getAuthority().equals("ROLE_ADMIN"));
+        
+        if (!isAuthorized) {
+            return ResponseEntity.status(403).build();
+        }
+        
         return ResponseEntity.ok(propertyService.createProperty(dto, userDetails.getId()));
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<PropertyDto> updateProperty(
             @PathVariable Long id,
-            @RequestBody PropertyDto dto
+            @RequestBody PropertyDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return ResponseEntity.ok(propertyService.updateProperty(id, dto));
+        if (userDetails == null) return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(propertyService.updateProperty(id, dto, userDetails.getId()));
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProperty(@PathVariable Long id) {
-        propertyService.deleteProperty(id);
+    public ResponseEntity<Void> deleteProperty(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) return ResponseEntity.status(401).build();
+        propertyService.deleteProperty(id, userDetails.getId());
         return ResponseEntity.noContent().build();
     }
 }

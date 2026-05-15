@@ -24,7 +24,7 @@ export default function PropertiesContent() {
   const [search, setSearch] = useState(searchParams.get('search') || '')
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [selectedBedrooms, setSelectedBedrooms] = useState<number[]>([])
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000000])
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000000])
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
 
   const { filteredProperties, setFilters, fetchProperties, filters: storeFilters } = usePropertyStore()
@@ -61,9 +61,9 @@ export default function PropertiesContent() {
         initialFilters.priceMax = max
       } else if (budget.endsWith('+')) {
         const min = Number(budget.replace('+', ''))
-        setPriceRange([min, 100000000])
+        setPriceRange([min, 1000000000])
         initialFilters.priceMin = min
-        initialFilters.priceMax = 100000000
+        initialFilters.priceMax = 1000000000
       }
     }
     
@@ -122,14 +122,14 @@ export default function PropertiesContent() {
     setSearch('')
     setSelectedTypes([])
     setSelectedBedrooms([])
-    setPriceRange([0, 100000000])
+    setPriceRange([0, 1000000000])
     setSelectedAmenities([])
     setFilters({
       search: '',
       propertyType: [],
       bedrooms: [],
       priceMin: 0,
-      priceMax: 100000000,
+      priceMax: 1000000000,
     })
   }
 

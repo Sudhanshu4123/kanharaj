@@ -32,15 +32,19 @@ async function getProperty(id: string) {
 
   try {
     const res = await fetch(fetchUrl, {
-      next: { revalidate: 60 }, // Cache for 60 seconds
+      cache: 'no-store', // Always fetch fresh — never use cached version
     });
-    if (!res.ok) return null
+    if (!res.ok) {
+      console.error(`[PropertyPage] API returned ${res.status} for id=${id}, url=${fetchUrl}`)
+      return null
+    }
     return res.json()
   } catch (error) {
-    console.error("Error fetching property:", error)
+    console.error("[PropertyPage] Error fetching property:", error, "URL:", fetchUrl)
     return null
   }
 }
+
 
 export async function generateMetadata(
   { params }: Props,
@@ -51,7 +55,7 @@ export async function generateMetadata(
 
   if (!property) {
     return {
-      title: "Property Not Found | Kanharaj Builder",
+      title: "Property Not Found | Kanharaj",
     }
   }
 
@@ -78,7 +82,7 @@ export async function generateMetadata(
       title: property.title,
       description,
       url: `${baseUrl}/property/${id}`,
-      siteName: "Kanharaj Builder",
+      siteName: "Kanharaj",
       images: ogImages.map(url => ({
         url,
         width: 1200,

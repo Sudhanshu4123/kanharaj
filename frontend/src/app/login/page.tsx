@@ -113,7 +113,7 @@ function LoginContent() {
             <Link href="/" className="inline-flex items-center space-x-2 mb-8">
               <Building className="h-8 w-8 text-rose-600" />
               <span className="font-heading text-3xl font-black text-slate-900 tracking-tighter">
-                Kanharaj<span className="text-rose-600">Builders</span>
+                Kanharaj
               </span>
             </Link>
             <h1 className="text-3xl font-bold text-slate-900 mb-2">
@@ -164,7 +164,7 @@ function LoginContent() {
 
             {isLogin && (
               <div className="flex justify-end">
-                <Link href="#" className="text-sm font-bold text-rose-600 hover:text-rose-700">Forgot password?</Link>
+                <Link href="/forgot-password" className="text-sm font-bold text-rose-600 hover:text-rose-700">Forgot password?</Link>
               </div>
             )}
 

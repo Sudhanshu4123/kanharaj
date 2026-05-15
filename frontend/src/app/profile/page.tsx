@@ -8,15 +8,13 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { User, Mail, Phone, Shield, LogOut, ArrowLeft, History, Heart, MessageSquare, Building } from 'lucide-react'
+import { User, Mail, Phone, Shield, LogOut, ArrowLeft, History, Heart, MessageSquare } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
 import { PropertyCard } from '@/components/properties/property-card'
 export default function ProfilePage() {
   const { user, isAuthenticated, logout } = useAuthStore()
   const { properties, wishlist } = usePropertyStore()
   const router = useRouter()
-
-  const myProperties = properties.filter(p => String(p.userId || p.user?.id) === String(user?.id))
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -92,10 +90,6 @@ export default function ProfilePage() {
                   <History className="h-4 w-4 mr-2" />
                   Recent
                 </TabsTrigger>
-                <TabsTrigger value="my-properties" className="flex-1 rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:text-rose-600 data-[state=active]:shadow-sm">
-                  <Building className="h-4 w-4 mr-2" />
-                  My Listings
-                </TabsTrigger>
                 <TabsTrigger value="shortlisted" className="flex-1 rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:text-rose-600 data-[state=active]:shadow-sm">
                   <Heart className="h-4 w-4 mr-2" />
                   Shortlisted
@@ -115,26 +109,7 @@ export default function ProfilePage() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="my-properties" className="space-y-6">
-                {myProperties.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {myProperties.map((property) => (
-                      <PropertyCard key={property.id} property={property} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-20 bg-rose-50/50 rounded-3xl border-2 border-dashed border-rose-100">
-                    <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                      <Building className="h-8 w-8 text-rose-500" />
-                    </div>
-                    <h3 className="text-lg font-bold text-slate-900">List your property for free</h3>
-                    <p className="text-slate-500 text-sm mt-1 max-w-xs mx-auto">Upload your property now and get direct calls from interested buyers.</p>
-                    <Link href="/properties/post" className="mt-6 inline-block">
-                      <Button className="bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl px-8">Add New Property</Button>
-                    </Link>
-                  </div>
-                )}
-              </TabsContent>
+
 
               <TabsContent value="shortlisted" className="space-y-6">
                 {properties.filter(p => wishlist.includes(String(p.id))).length > 0 ? (

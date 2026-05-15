@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import {
@@ -31,6 +31,24 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     message: '',
   })
   const [submitted, setSubmitted] = useState(false)
+
+  // Track property views
+  useEffect(() => {
+    const trackView = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL}`;
+        await fetch(`${apiUrl}/properties/${property.id}/view`, {
+          method: 'POST',
+        });
+      } catch (err) {
+        console.warn("View tracking failed:", err);
+      }
+    };
+
+    if (property.id) {
+      trackView();
+    }
+  }, [property.id]);
 
   const handleNextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % property.images.length)
@@ -66,6 +84,8 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     
     // Handle Cloudinary/External vs Local
     if (url.startsWith('http')) {
+      // Don't force HTTPS for localhost (development)
+      if (url.includes('localhost')) return url;
       return url.replace('http://', 'https://');
     }
     

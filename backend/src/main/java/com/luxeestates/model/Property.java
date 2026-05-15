@@ -72,6 +72,9 @@ public class Property {
     private BigDecimal latitude;
     
     private BigDecimal longitude;
+
+    @Column(nullable = false)
+    private Integer views = 0;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -92,7 +95,7 @@ public class Property {
     private LocalDateTime updatedAt;
     
     public enum PropertyType {
-        HOUSE, APARTMENT, VILLA, FLAT, PLOT
+        HOUSE, APARTMENT, VILLA, FLAT, PLOT, RESIDENTIAL_PROJECT, COMMERCIAL, PG, HOTEL, OFFICE_SPACE, SHOP, BUILDER_FLOOR, GUEST_HOUSE
     }
     
     public enum ListingType {

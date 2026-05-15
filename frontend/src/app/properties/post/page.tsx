@@ -38,18 +38,23 @@ export default function PostPropertyPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { createProperty } = usePropertyStore()
-  const { token, isAuthenticated } = useAuthStore()
+  const { token, isAuthenticated, user } = useAuthStore()
   const router = useRouter()
 
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    if (mounted && !isAuthenticated) {
-      alert('Please login to post a property.')
-      router.push('/login?redirect=/properties/post')
+    if (mounted) {
+      if (!isAuthenticated) {
+        alert('Please login to post a property.')
+        router.push('/login?redirect=/properties/post')
+      } else if (user && user.role !== 'SELLER' && user.role !== 'ADMIN' && user.role !== 'seller' && user.role !== 'admin') {
+        alert('Only Sellers can post properties. Please upgrade your account.')
+        router.push('/for-sellers')
+      }
     }
-  }, [isAuthenticated, router, mounted])
+  }, [isAuthenticated, router, mounted, user])
 
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1))
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0))

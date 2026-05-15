@@ -35,6 +35,7 @@ public class PropertyDto {
     private BigDecimal longitude;
     private Property.Status status;
     private Boolean featured;
+    private Integer views;
     private Long userId;
     private String userName;
     private LocalDateTime createdAt;
@@ -61,6 +62,7 @@ public class PropertyDto {
                 .longitude(property.getLongitude())
                 .status(property.getStatus())
                 .featured(property.getFeatured())
+                .views(property.getViews())
                 .userId(property.getUser().getId())
                 .userName(property.getUser().getName())
                 .createdAt(property.getCreatedAt())

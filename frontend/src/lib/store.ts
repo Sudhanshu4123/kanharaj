@@ -24,6 +24,7 @@ interface PropertyStore {
   filteredProperties: () => Property[]
   setLoading: (loading: boolean) => void
   fetchProperties: () => Promise<void>
+  fetchMyProperties: (token: string) => Promise<void>
   createProperty: (prop: Partial<Property>, token?: string) => Promise<Property>
   updateProperty: (id: string, prop: Partial<Property>, token?: string) => Promise<Property>
   deleteProperty: (id: string, token?: string) => Promise<void>
@@ -48,7 +49,7 @@ const defaultFilters: PropertyFilters = {
   listingType: 'all',
   propertyType: [],
   priceMin: 0,
-  priceMax: 100000000,
+  priceMax: 1000000000,
   bedrooms: [],
   bathrooms: [],
   city: '',
@@ -153,6 +154,26 @@ export const usePropertyStore = create<PropertyStore>()(
           set({ loading: false })
         } catch (err) {
           console.warn('Backend offline, using cached properties.')
+          set({ loading: false })
+        }
+      },
+
+      fetchMyProperties: async (token: string) => {
+        set({ loading: true })
+        try {
+          const res = await fetchWithTimeout(`${API_URL}/properties/my`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+          if (!res.ok) throw new Error('Failed to fetch my properties')
+          const data = await res.json()
+          const myProps = data.map(transformFromApi)
+          // Merge with existing properties or just replace if needed
+          set(state => ({ 
+            properties: [...state.properties.filter(p => !myProps.find((mp: Property) => mp.id === p.id)), ...myProps],
+            loading: false 
+          }))
+        } catch (err) {
+          console.error('Error fetching my properties:', err)
           set({ loading: false })
         }
       },

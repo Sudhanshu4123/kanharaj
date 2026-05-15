@@ -167,7 +167,7 @@ export default function AdminPage() {
               <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <div>
-              <h1 className="text-white font-bold text-lg tracking-tight leading-none">KANHARAJ BUILDER</h1>
+              <h1 className="text-white font-bold text-lg tracking-tight leading-none">KANHARAJ</h1>
               <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mt-1 block">Control Center</span>
             </div>
           </div>
@@ -434,10 +434,10 @@ export default function AdminPage() {
               ) : (
                 inquiries.map(inq => {
                   const waMsg = encodeURIComponent(
-                    `Hello ${inq.name}! Thank you for reaching out to Kanharaj Builder. Regarding your inquiry: "${inq.message.slice(0, 100)}..." — I'd love to help you. Please let me know a good time to connect. - Kanharaj`
+                    `Hello ${inq.name}! Thank you for reaching out to Kanharaj. Regarding your inquiry: "${inq.message.slice(0, 100)}..." — I'd love to help you. Please let me know a good time to connect. - Kanharaj`
                   )
                   const waUrl = `https://wa.me/${inq.phone.replace(/\D/g, '') || '9599801767'}?text=${waMsg}`
-                  const mailUrl = `mailto:${inq.email}?subject=Re: Your Inquiry at Kanharaj Builder&body=Hello ${inq.name},%0D%0A%0D%0AThank you for contacting Kanharaj Builder.%0D%0A%0D%0ARegarding your message: "${inq.message.slice(0, 200)}"%0D%0A%0D%0AWe'd be happy to assist you. Please let us know your preferred time to connect.%0D%0A%0D%0ABest regards,%0D%0AKanharaj%0D%0AKanharaj Builder%0D%0A+91 9599801767`
+                  const mailUrl = `mailto:${inq.email}?subject=Re: Your Inquiry at Kanharaj&body=Hello ${inq.name},%0D%0A%0D%0AThank you for contacting Kanharaj.%0D%0A%0D%0ARegarding your message: "${inq.message.slice(0, 200)}"%0D%0A%0D%0AWe'd be happy to assist you. Please let us know your preferred time to connect.%0D%0A%0D%0ABest regards,%0D%0AKanharaj%0D%0A+91 9599801767`
 
                   return (
                     <div key={inq.id} className="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-8 group hover:border-rose-500 transition-all relative overflow-hidden">
