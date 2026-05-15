@@ -1,4 +1,4 @@
-import { Scale, ShieldCheck, AlertCircle, FileText, Globe, Gavel, Ban, HelpCircle } from 'lucide-react'
+import { Scale, ShieldCheck, AlertCircle, FileText, Globe, Gavel, Ban, HelpCircle, Mail } from 'lucide-react'
 
 export const metadata = {
   title: 'Terms of Service | Kanharaj',
