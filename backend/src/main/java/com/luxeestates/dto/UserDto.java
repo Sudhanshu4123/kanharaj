@@ -22,6 +22,11 @@ public class UserDto {
     private Boolean enabled;
     private LocalDateTime createdAt;
     
+    // Profile Fields
+    private String profileImage;
+    private String description;
+    private String experienceYears;
+    
     // Subscription Info (Source of truth: Seller table)
     private String subscriptionPlan;
     private LocalDateTime subscriptionExpiry;
@@ -35,6 +40,9 @@ public class UserDto {
                 .role(user.getRole())
                 .enabled(user.getEnabled())
                 .createdAt(user.getCreatedAt())
+                .profileImage(user.getProfileImage())
+                .description(user.getDescription())
+                .experienceYears(user.getExperienceYears())
                 .subscriptionPlan("NONE")
                 .build();
     }

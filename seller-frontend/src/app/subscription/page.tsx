@@ -9,34 +9,51 @@ import {
   Calendar,
   Clock,
   ShieldCheck,
-  Loader2
+  Loader2,
+  X
 } from "lucide-react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 
 const plans = [
   {
     id: "basic",
     name: "Basic Plan",
-    monthlyPrice: 3299,
+    monthlyPrice: 6099,
     desc: "Perfect for individual owners.",
-    features: ["Up to 5 Property Listings", "Standard Lead Support", "Standard Support", "7 Days Visibility"],
+    features: [
+      "Unlimited Property Listings (No Limit)",
+      "Allowed: Sell Only (No Rent / PG)",
+      "Standard Lead Support",
+    ],
     color: "slate"
   },
   {
     id: "premium",
     name: "Premium Pro",
-    monthlyPrice: 3899,
+    monthlyPrice: 6599,
     desc: "For active agents.",
-    features: ["Up to 25 Property Listings", "Priority Lead Alerts", "Direct WhatsApp Integration", "30 Days Visibility", "Verified Seller Badge"],
+    features: [
+      "Unlimited Property Listings (No Limit)",
+      "Allowed: Sell & PG (No Rent)",
+      "Standard Lead Support",
+      "Standard Support"
+    ],
     color: "rose",
     popular: true
   },
   {
     id: "super",
     name: "Super Enterprise",
-    monthlyPrice: 4399,
-    desc: "For builders and firms.",
-    features: ["Unlimited Listings", "Featured Property Status", "Dedicated Account Manager", "White-label Reports", "24/7 VIP Support"],
+    monthlyPrice: 7299,
+    desc: "For large firms and builders with high-volume scale.",
+    features: [
+      "Unlimited Property Listings (No Limit)",
+      "Allowed: Sell, Rent, PG (All Types)",
+      "Standard Lead Support",
+      "Dashboard Access",
+      "Standard Support",
+      "24/7 VIP Support"
+    ],
     color: "amber"
   }
 ]
@@ -45,10 +62,36 @@ export default function SubscriptionPage() {
   const [months, setMonths] = useState(1)
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<any>(null)
+  const [showHistory, setShowHistory] = useState(false)
+  const [historyList, setHistoryList] = useState<any[]>([])
+  const [historyLoading, setHistoryLoading] = useState(false)
+
+  const getPrice = (monthlyPrice: number, months: number) => {
+    return monthlyPrice * months
+  }
 
   useEffect(() => {
     fetchStatus()
   }, [])
+
+  const fetchHistory = async () => {
+    setShowHistory(true)
+    setHistoryLoading(true)
+    const token = localStorage.getItem("seller_token")
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/history`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setHistoryList(data || [])
+      }
+    } catch (err) {
+      console.error("Failed to fetch payment history", err)
+    } finally {
+      setHistoryLoading(false)
+    }
+  }
 
   const fetchStatus = async () => {
     const token = localStorage.getItem("seller_token")
@@ -68,7 +111,7 @@ export default function SubscriptionPage() {
   const handleSubscribe = async (plan: any) => {
     setLoading(true)
     const token = localStorage.getItem("seller_token")
-    const amount = plan.monthlyPrice * months
+    const amount = getPrice(plan.monthlyPrice, months)
 
     try {
       // 1. Create Order on Backend
@@ -78,7 +121,7 @@ export default function SubscriptionPage() {
         body: JSON.stringify({ amount: amount }) // Backend multiplies by 100
       })
       const { orderId } = await orderRes.json()
-      
+
       if (!orderId) {
         throw new Error("Failed to create payment order. Please check backend logs.")
       }
@@ -92,7 +135,7 @@ export default function SubscriptionPage() {
         description: `${plan.name} - ${months} Months`,
         order_id: orderId,
         modal: {
-          ondismiss: function() {
+          ondismiss: function () {
             setLoading(false);
             document.body.style.overflow = 'auto';
           }
@@ -152,26 +195,32 @@ export default function SubscriptionPage() {
       </div>
 
       {/* Current Plan Status */}
-      <div className={`dashboard-card border-none text-white overflow-hidden relative ${status?.plan === 'NONE' ? 'bg-slate-800' : 'bg-slate-900'}`}>
+      <div className={`dashboard-card border-none text-white overflow-hidden relative ${!status || status.plan === 'NONE' ? 'bg-gradient-to-br from-slate-800 to-slate-950 border border-slate-700/50 shadow-xl' : 'bg-gradient-to-br from-rose-950 via-slate-900 to-slate-950 border border-rose-500/20 shadow-2xl shadow-rose-950/20'}`}>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
-            <div className={`w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center ${status?.plan !== 'NONE' ? 'text-rose-500' : 'text-slate-400'}`}>
+            <div className={`w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center ${status && status.plan !== 'NONE' ? 'text-rose-500' : 'text-slate-400'}`}>
               <ShieldCheck size={32} />
             </div>
             <div>
               <h3 className="text-2xl font-bold">
-                {status?.plan === 'NONE' ? "No Active Subscription" : `Active: ${status?.plan} Plan`}
+                {!status ? "Checking Subscription..." : (status.plan === 'NONE' ? "No Active Subscription" : `Active: ${status.plan} Plan`)}
               </h3>
               <div className="flex items-center gap-4 mt-2 text-slate-400 text-sm">
                 <span className="flex items-center gap-1">
                   <Clock size={14} />
-                  {status?.expiry === 'NONE' ? "Upgrade to get started" : `Expires: ${new Date(status?.expiry).toLocaleDateString()}`}
+                  {!status || status.expiry === 'NONE' ? "Upgrade to get started" : (() => {
+                    const d = new Date(status.expiry);
+                    return isNaN(d.getTime()) ? "Upgrade to get started" : `Expires: ${d.toLocaleDateString()}`;
+                  })()}
                 </span>
                 <span className="flex items-center gap-1"><Check size={14} /> Status: {status?.status || "PENDING"}</span>
               </div>
             </div>
           </div>
-          <button className="bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-2xl font-bold transition-all border border-white/20">
+          <button 
+            onClick={fetchHistory}
+            className="bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-2xl font-bold transition-all border border-white/10 hover:scale-105 active:scale-95 shadow-md"
+          >
             View History
           </button>
         </div>
@@ -181,19 +230,24 @@ export default function SubscriptionPage() {
       </div>
 
       {/* Duration Selector */}
-      <div className="flex items-center justify-center gap-2 bg-white p-2 rounded-2xl border border-slate-100 w-fit mx-auto shadow-sm">
-        {[1, 2, 3].map((m) => (
-          <button
-            key={m}
-            onClick={() => setMonths(m)}
-            className={`px-8 py-2.5 rounded-xl text-sm font-bold transition-all ${months === m
+      <div className="flex flex-col items-center gap-4">
+        <div className="flex items-center justify-center gap-2 bg-white p-2 rounded-2xl border border-slate-100 w-fit mx-auto shadow-sm">
+          {[1, 3, 6, 12].map((m) => (
+            <button
+              key={m}
+              onClick={() => setMonths(m)}
+              className={`px-8 py-2.5 rounded-xl text-sm font-bold transition-all relative ${months === m
                 ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/20'
                 : 'text-slate-500 hover:bg-slate-50'
-              }`}
-          >
-            {m} {m === 1 ? 'Month' : 'Months'}
-          </button>
-        ))}
+                }`}
+            >
+              {m} {m === 1 ? 'Month' : 'Months'}
+            </button>
+          ))}
+        </div>
+        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">
+          {months === 12 ? "🎉 Annual Value Pack" : months === 6 ? "🚀 Semi-Annual Saver" : months === 3 ? "📈 Quarterly Growth" : "Standard Monthly"}
+        </p>
       </div>
 
       {/* Plans Grid */}
@@ -217,10 +271,9 @@ export default function SubscriptionPage() {
               <p className="text-slate-500 text-xs mt-1">{plan.desc}</p>
               <div className="mt-6 flex flex-col">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-slate-900">₹{(plan.monthlyPrice * months).toLocaleString()}</span>
-                  <span className="text-slate-400 text-sm font-medium">/{months} {months === 1 ? 'mo' : 'mos'}</span>
+                  <span className="text-3xl font-black text-slate-900">₹{getPrice(plan.monthlyPrice, months).toLocaleString()}</span>
+                  <span className="text-slate-400 text-sm font-medium">/{months === 12 ? 'year' : `${months} mos`}</span>
                 </div>
-                {months > 1 && <p className="text-emerald-600 text-[10px] font-bold mt-1 uppercase tracking-tight">Saving included</p>}
               </div>
             </div>
 
@@ -239,8 +292,8 @@ export default function SubscriptionPage() {
               onClick={() => handleSubscribe(plan)}
               disabled={loading || status?.plan === plan.id.toUpperCase()}
               className={`w-full py-3.5 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${status?.plan === plan.id.toUpperCase()
-                  ? 'bg-emerald-50 text-emerald-600 cursor-default border border-emerald-100'
-                  : 'btn-primary'
+                ? 'bg-emerald-50 text-emerald-600 cursor-default border border-emerald-100'
+                : 'btn-primary'
                 }`}
             >
               {loading ? <Loader2 className="animate-spin" size={18} /> : null}
@@ -249,6 +302,79 @@ export default function SubscriptionPage() {
           </motion.div>
         ))}
       </div>
+
+      {/* Transaction History Modal */}
+      <AnimatePresence>
+        {showHistory && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md" onClick={() => setShowHistory(false)}>
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-[2rem] p-6 sm:p-8 w-full max-w-2xl shadow-2xl border border-slate-100 relative max-h-[85vh] flex flex-col"
+              onClick={e => e.stopPropagation()}
+            >
+              <button 
+                onClick={() => setShowHistory(false)}
+                className="absolute top-6 right-6 p-2 rounded-xl hover:bg-slate-50 text-slate-400 hover:text-slate-900 transition-colors"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="mb-6">
+                <h3 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  <CreditCard className="text-rose-600" /> Transaction History
+                </h3>
+                <p className="text-slate-500 text-xs mt-1">Logs of all subscription purchases and active invoicing.</p>
+              </div>
+
+              <div className="flex-1 overflow-y-auto pr-1 no-scrollbar space-y-4 min-h-[30vh]">
+                {historyLoading ? (
+                  <div className="flex flex-col items-center justify-center py-20 gap-3">
+                    <Loader2 className="animate-spin text-rose-600" size={32} />
+                    <p className="text-slate-400 text-sm font-bold uppercase tracking-wider">Loading logs...</p>
+                  </div>
+                ) : historyList.length > 0 ? (
+                  <div className="space-y-3">
+                    {historyList.map((tx) => (
+                      <div key={tx.id} className="p-4 rounded-2xl border border-slate-100 hover:border-rose-100 transition-colors bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-900 text-sm sm:text-base capitalize">
+                              {tx.planName ? `${tx.planName.toLowerCase()} Plan` : 'Plan Purchase'}
+                            </span>
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-100">
+                              {tx.status || 'SUCCESS'}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                            <Calendar size={10} /> {tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : 'Date N/A'}
+                          </p>
+                          <div className="mt-2 text-[10px] text-slate-400 font-medium font-mono space-y-0.5">
+                            <p>Order ID: {tx.orderId || 'N/A'}</p>
+                            <p>Payment ID: {tx.paymentId || 'N/A'}</p>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="text-lg sm:text-xl font-black text-slate-900">₹{(tx.amount || 0).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-20 text-center flex flex-col items-center justify-center">
+                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-3">
+                      <CreditCard size={28} />
+                    </div>
+                    <h4 className="font-bold text-slate-950">No purchases found</h4>
+                    <p className="text-slate-400 text-xs mt-1 max-w-xs mx-auto">You have not completed any payments yet. Subscribe to a plan to start your listing campaign.</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

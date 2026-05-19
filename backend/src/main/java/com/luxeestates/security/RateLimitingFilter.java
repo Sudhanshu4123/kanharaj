@@ -20,10 +20,17 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RateLimitingFilter extends OncePerRequestFilter {
 
     private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
+    private final Map<String, Bucket> loginCache = new ConcurrentHashMap<>();
 
     private Bucket createNewBucket() {
-        // Allow 50 requests per minute per IP for Auth endpoints (Increased from 10 to avoid blocking dashboard users)
+        // Allow 50 requests per minute per IP for general Auth endpoints
         Bandwidth limit = Bandwidth.builder().capacity(50).refillGreedy(50, Duration.ofMinutes(1)).build();
+        return Bucket.builder().addLimit(limit).build();
+    }
+
+    private Bucket createLoginBucket() {
+        // Stricter limit for actual login attempts: 5 per minute
+        Bandwidth limit = Bandwidth.builder().capacity(5).refillGreedy(5, Duration.ofMinutes(1)).build();
         return Bucket.builder().addLimit(limit).build();
     }
 
@@ -33,7 +40,16 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
         
-        // Apply rate limiting only to authentication endpoints
+        if (path.equals("/api/auth/login")) {
+            String ip = getClientIP(request);
+            Bucket bucket = loginCache.computeIfAbsent(ip, k -> createLoginBucket());
+
+            if (!bucket.tryConsume(1)) {
+                sendErrorResponse(response, "Too many login attempts. Please try again after a minute.");
+                return;
+            }
+        }
+
         if (path.startsWith("/api/auth/")) {
             String ip = getClientIP(request);
             Bucket bucket = cache.computeIfAbsent(ip, k -> createNewBucket());
@@ -41,13 +57,17 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             if (bucket.tryConsume(1)) {
                 filterChain.doFilter(request, response);
             } else {
-                response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-                response.setContentType("application/json");
-                response.getWriter().write("{\"message\": \"Too many requests. Please try again after a minute.\"}");
+                sendErrorResponse(response, "Too many requests. Please try again after a minute.");
             }
         } else {
             filterChain.doFilter(request, response);
         }
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+        response.setContentType("application/json");
+        response.getWriter().write("{\"message\": \"" + message + "\"}");
     }
 
     private String getClientIP(HttpServletRequest request) {

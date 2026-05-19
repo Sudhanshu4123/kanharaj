@@ -31,6 +31,14 @@ public class AuthController {
     ) {
         return ResponseEntity.ok(authService.login(request));
     }
+
+    @PostMapping("/login-verify-otp")
+    public ResponseEntity<AuthDto.AuthResponse> verifyLoginOtp(
+            @RequestParam String email,
+            @RequestParam String otp
+    ) {
+        return ResponseEntity.ok(authService.verifyLoginOtp(email, otp));
+    }
     
     @PostMapping("/refresh")
     public ResponseEntity<AuthDto.AuthResponse> refresh(
@@ -47,9 +55,12 @@ public class AuthController {
     }
     
     @GetMapping("/me")
-    public ResponseEntity<UserDto> getCurrentUser(
+    public ResponseEntity<?> getCurrentUser(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body("User not authenticated");
+        }
         return ResponseEntity.ok(authService.getCurrentUser(userDetails.getUsername()));
     }
 
@@ -63,5 +74,17 @@ public class AuthController {
     public ResponseEntity<Void> resetPassword(@Valid @RequestBody AuthDto.ResetPasswordRequest request) {
         authService.resetPassword(request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/resend-otp")
+    public ResponseEntity<String> resendOtp(@RequestParam String email) {
+        authService.resendOtp(email);
+        return ResponseEntity.ok("New OTP sent to your email.");
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<String> verifyEmail(@RequestParam String token) {
+        authService.verifyEmail(token);
+        return ResponseEntity.ok("Email verified successfully! You can now login.");
     }
 }

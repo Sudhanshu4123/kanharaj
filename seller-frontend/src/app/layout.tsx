@@ -28,6 +28,14 @@ export default function RootLayout({
         return
       }
 
+      // Read from local cache for instant avatar/name rendering
+      const localUserData = localStorage.getItem("seller_user")
+      if (localUserData) {
+        try {
+          setUser(JSON.parse(localUserData))
+        } catch (e) {}
+      }
+
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
           headers: { "Authorization": `Bearer ${token}` }
@@ -35,6 +43,7 @@ export default function RootLayout({
         if (res.ok) {
           const data = await res.json()
           setUser(data)
+          localStorage.setItem("seller_user", JSON.stringify(data))
           
           // REAL WORLD GUARD: Redirect if no active plan (Allow Profile and Subscription)
           if (data.subscriptionPlan === "NONE" && 
@@ -83,13 +92,24 @@ export default function RootLayout({
                     <p className="hidden sm:block text-slate-500 text-[10px] lg:text-xs mt-0.5">Manage your real estate empire.</p>
                   </div>
 
-                  <div className="flex items-center gap-3 lg:gap-4">
+                  <div 
+                    onClick={() => router.push("/profile")}
+                    className="flex items-center gap-3 lg:gap-4 cursor-pointer hover:opacity-80 active:scale-95 transition-all"
+                  >
                     <div className="flex flex-col text-right">
-                      <span className="text-xs lg:text-sm font-bold text-slate-900">{user?.name || "Seller Account"}</span>
+                      <span className="text-xs lg:text-sm font-bold text-slate-900 hover:text-rose-600 transition-colors">{user?.name || "Seller Account"}</span>
                       <span className="text-[9px] lg:text-[10px] text-rose-600 font-bold uppercase tracking-wider">Verified Builder</span>
                     </div>
-                    <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-slate-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center text-slate-400 font-bold">
-                      {user?.name?.charAt(0) || "S"}
+                    <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-slate-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center text-slate-400 font-bold hover:border-rose-500 transition-all duration-300">
+                      {user?.profileImage ? (
+                        <img 
+                          src={user.profileImage} 
+                          alt={user.name || "Seller"} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        user?.name?.charAt(0) || "S"
+                      )}
                     </div>
                   </div>
                 </header>

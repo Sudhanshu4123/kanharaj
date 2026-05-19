@@ -26,29 +26,27 @@ const plans = [
   {
     id: "basic",
     name: "Basic Plan",
-    monthlyPrice: 3299,
+    monthlyPrice: 6099,
     desc: "Perfect for individual owners starting their journey.",
     features: [
-      "Up to 5 Property Listings",
+      "Unlimited Property Listings (No Limit)",
+      "Allowed: Sell Only (No Rent / PG)",
       "Standard Lead Support",
-      "7 Days Priority Visibility",
-      "Dashboard Access",
-      "Standard Support"
+      "Dashboard Access"
     ],
     color: "slate"
   },
   {
     id: "premium",
     name: "Premium Pro",
-    monthlyPrice: 3899,
+    monthlyPrice: 6599,
     desc: "For active agents looking for more high-quality leads.",
     features: [
-      "Up to 25 Property Listings",
-      "Direct WhatsApp Integration",
-      "30 Days Priority Visibility",
-      "Verified Seller Badge",
-      "Featured Search Status",
-      "Lead Analytics"
+      "Unlimited Property Listings (No Limit)",
+      "Allowed: Sell & PG (No Rent)",
+      "Standard Lead Support",
+      "Dashboard Access",
+      "Standard Support"
     ],
     color: "rose",
     popular: true
@@ -56,14 +54,14 @@ const plans = [
   {
     id: "super",
     name: "Super Enterprise",
-    monthlyPrice: 4399,
+    monthlyPrice: 7299,
     desc: "For large firms and builders with high-volume scale.",
     features: [
-      "Unlimited Property Listings",
-      "Dedicated Account Manager",
-      "Top-tier Search Ranking",
-      "Custom Marketing Tools",
-      "White-label Reports",
+      "Unlimited Property Listings (No Limit)",
+      "Allowed: Sell, Rent, PG (All Types)",
+      "Standard Lead Support",
+      "Dashboard Access",
+      "Standard Support",
       "24/7 VIP Support"
     ],
     color: "amber"
@@ -105,6 +103,10 @@ export default function ForSellersPage() {
   const { token, isAuthenticated } = useAuthStore()
   const router = useRouter()
 
+  const getPrice = (monthlyPrice: number, months: number) => {
+    return monthlyPrice * months
+  }
+
   const handlePayment = async (plan: any) => {
     if (!isAuthenticated) {
       router.push("/login?redirect=/for-sellers")
@@ -112,7 +114,7 @@ export default function ForSellersPage() {
     }
 
     setLoading(true)
-    const amount = plan.monthlyPrice * months
+    const amount = getPrice(plan.monthlyPrice, months)
 
     try {
       // 1. Create Order
@@ -121,7 +123,16 @@ export default function ForSellersPage() {
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ amount: amount })
       })
-      const { orderId } = await orderRes.json()
+
+      if (!orderRes.ok) {
+        const errorText = await orderRes.text()
+        console.error("Order creation failed:", orderRes.status, errorText)
+        throw new Error(`Payment error (${orderRes.status}): ${errorText || "Failed to create order"}`)
+      }
+
+      const orderData = await orderRes.json()
+
+      const { orderId } = orderData
 
       // 2. Razorpay Popup
       const options = {
@@ -133,31 +144,44 @@ export default function ForSellersPage() {
         order_id: orderId,
         handler: async function (response: any) {
           // 3. Verify & Upgrade
-          const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/verify`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              plan: plan.id,
-              months: months,
-              amount: amount
+          try {
+            const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/verify`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                plan: plan.id,
+                months: months,
+                amount: amount
+              })
             })
-          })
 
-          if (verifyRes.ok) {
+            if (!verifyRes.ok) {
+              const verifyError = await verifyRes.text()
+              console.error("Verification failed:", verifyRes.status, verifyError)
+              alert(`Verification failed (${verifyRes.status}): ${verifyError || "Please contact support."}`)
+              return
+            }
+
+            const verifyData = await verifyRes.json()
             alert("Payment Successful! Welcome to Seller Hub.")
             window.location.href = `${process.env.NEXT_PUBLIC_SELLER_URL}/login?token=${token}`
+          } catch (err) {
+            alert("Verification connection failed. Please contact support.")
           }
         },
         theme: { color: "#E11D48" }
       };
 
       const rzp = new (window as any).Razorpay(options);
+      rzp.on('payment.failed', function (response: any) {
+        alert("Payment failed: " + response.error.description);
+      });
       rzp.open();
-    } catch (err) {
-      alert("Payment failed to initialize.")
+    } catch (err: any) {
+      alert(err.message || "Payment failed to initialize.")
     } finally {
       setLoading(false)
     }
@@ -298,19 +322,27 @@ export default function ForSellersPage() {
             <p className="text-slate-500 mt-4 text-lg">Transparent pricing for every stage of your real estate business.</p>
 
             {/* Duration Selector */}
-            <div className="mt-12 flex items-center justify-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 w-fit mx-auto shadow-sm">
-              {[1, 2, 3].map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setMonths(m)}
-                  className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${months === m
+            <div className="mt-12 flex flex-col items-center gap-6">
+              <div className="flex items-center justify-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 w-fit mx-auto shadow-sm">
+                {[1, 3, 6, 12].map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setMonths(m)}
+                    className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all relative ${months === m
                       ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/20'
                       : 'text-slate-500 hover:bg-slate-50'
-                    }`}
-                >
-                  {m} {m === 1 ? 'Month' : 'Months'}
-                </button>
-              ))}
+                      }`}
+                  >
+                    {m} {m === 1 ? 'Month' : (m === 12 ? 'Year' : 'Months')}
+                  </button>
+                ))}
+              </div>
+              <p className="text-slate-500 text-sm font-medium">
+                {months === 12 ? "🎉 Annual plan selected - Best value for your business!" :
+                  months === 6 ? "🚀 6-month plan selected - Save more with half-yearly billing!" :
+                    months === 3 ? "📈 Quarterly plan selected - Great for consistent results!" :
+                      "Individual monthly billing"}
+              </p>
             </div>
           </div>
 
@@ -323,8 +355,8 @@ export default function ForSellersPage() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 className={`relative bg-white rounded-[3rem] p-10 border-2 transition-all duration-500 flex flex-col ${plan.popular
-                    ? 'border-rose-500 shadow-2xl shadow-rose-500/20 scale-105 z-10'
-                    : 'border-slate-100 hover:border-rose-200'
+                  ? 'border-rose-500 shadow-2xl shadow-rose-500/20 scale-105 z-10'
+                  : 'border-slate-100 hover:border-rose-200'
                   }`}
               >
                 {plan.popular && (
@@ -338,14 +370,9 @@ export default function ForSellersPage() {
                   <p className="text-slate-500 text-sm h-10">{plan.desc}</p>
                   <div className="mt-8 flex flex-col items-center md:items-start">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-5xl font-black text-slate-900">₹{(plan.monthlyPrice * months).toLocaleString()}</span>
-                      <span className="text-slate-400 font-bold text-sm">/{months} {months === 1 ? 'mo' : 'mos'}</span>
+                      <span className="text-5xl font-black text-slate-900">₹{getPrice(plan.monthlyPrice, months).toLocaleString()}</span>
+                      <span className="text-slate-400 font-bold text-sm">/{months === 12 ? 'year' : `${months} mos`}</span>
                     </div>
-                    {months > 1 && (
-                      <p className="text-emerald-600 text-xs font-bold mt-2">
-                        Includes {months} months access
-                      </p>
-                    )}
                   </div>
                 </div>
 
@@ -365,8 +392,8 @@ export default function ForSellersPage() {
                     onClick={() => handlePayment(plan)}
                     disabled={loading}
                     className={`w-full h-14 rounded-2xl font-bold text-lg transition-all ${plan.popular
-                        ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-xl shadow-rose-600/20'
-                        : 'bg-slate-900 hover:bg-slate-800 text-white'
+                      ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-xl shadow-rose-600/20'
+                      : 'bg-slate-900 hover:bg-slate-800 text-white'
                       }`}
                   >
                     {loading ? "Processing..." : "Select Plan"}
@@ -437,7 +464,6 @@ export default function ForSellersPage() {
               </div>
               <div className="mt-12 flex items-center justify-center gap-8 text-slate-500 text-sm font-bold uppercase tracking-widest">
                 <span className="flex items-center gap-2"><Check size={16} className="text-rose-500" /> No Hidden Fees</span>
-                <span className="flex items-center gap-2"><Check size={16} className="text-rose-500" /> Cancel Anytime</span>
                 <span className="flex items-center gap-2"><Check size={16} className="text-rose-500" /> 24/7 Support</span>
               </div>
             </div>

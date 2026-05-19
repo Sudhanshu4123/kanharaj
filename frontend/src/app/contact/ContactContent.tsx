@@ -59,7 +59,7 @@ export default function ContactContent() {
     {
       icon: MapPin,
       title: 'Address',
-      details: ['Kanharaj, Dwarka', 'New Delhi — 110078'],
+      details: ['2nd Floor, Vardhaman City Mall', 'Sector 7, Dwarka, New Delhi - 110078'],
       color: 'bg-rose-100 text-rose-600',
     },
     {
@@ -196,9 +196,13 @@ export default function ContactContent() {
                           id="phone"
                           type="tel"
                           value={form.phone}
-                          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                          maxLength={10}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '')
+                            if (val.length <= 10) setForm({ ...form, phone: val })
+                          }}
                           required
-                          placeholder="+91 9XXXXXXXXX"
+                          placeholder="10-digit number"
                         />
                       </div>
                     </div>

@@ -31,7 +31,7 @@ export function MobileNav() {
             key={item.name}
             href={item.href}
             className={cn(
-              "flex flex-col items-center gap-1 p-2 transition-all",
+              "flex flex-col items-center gap-1 px-1 py-1.5 transition-all flex-1",
               isActive ? "text-rose-600" : "text-slate-400"
             )}
           >
@@ -40,7 +40,7 @@ export function MobileNav() {
               className={cn("transition-transform", isActive && "scale-110")} 
               strokeWidth={isActive ? 2.5 : 2}
             />
-            <span className={cn("text-[10px] font-bold uppercase tracking-tighter", isActive ? "opacity-100" : "opacity-60")}>
+            <span className={cn("text-[9px] font-black uppercase tracking-wider", isActive ? "opacity-100" : "opacity-60")}>
               {item.name}
             </span>
             {isActive && (

@@ -8,6 +8,14 @@ import Script from "next/script"
 
 import { AuthProvider } from "@/components/auth-provider"
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#E11D48",
+}
+
 export const metadata: Metadata = {
   title: {
     default: "Kanharaj | Best Real Estate Agent in Dwarka, New Delhi",
@@ -73,7 +81,7 @@ export default function RootLayout({
         </Script>
         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       </head>
-      <body className="min-h-screen flex flex-col">
+      <body className="min-h-screen flex flex-col overflow-x-hidden">
         <AuthProvider>
           <LoadingProvider>
             <Header />

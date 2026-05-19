@@ -108,9 +108,19 @@ const faqs = [
   }
 ]
 
+const heroBackgrounds: Record<string, string> = {
+  buy: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920',
+  rent: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1920',
+  projects: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920',
+  commercial: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920',
+  plots: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920',
+  pg: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=1920',
+}
+
 export default function HomeContent() {
   const [mounted, setMounted] = useState(false)
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
+  const [activeBg, setActiveBg] = useState<string>('buy')
   const { properties } = usePropertyStore()
 
   useEffect(() => {
@@ -130,22 +140,32 @@ export default function HomeContent() {
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="relative min-h-[92vh] flex items-center pt-20">
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920"
-            alt="Luxury Home Interior in Dwarka Delhi"
-            fill
-            className="object-cover"
-            priority
-            fetchPriority="high"
-            quality={75}
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-slate-900/50" />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/30 to-white" />
+        <div className="absolute inset-0 overflow-hidden">
+          <AnimatePresence initial={false}>
+            <motion.div
+              key={activeBg}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={heroBackgrounds[activeBg] || heroBackgrounds.buy}
+                alt="Kanharaj Properties Dwarka"
+                fill
+                className="object-cover"
+                priority={activeBg === 'buy'}
+                quality={75}
+                sizes="100vw"
+              />
+            </motion.div>
+          </AnimatePresence>
+          <div className="absolute inset-0 bg-slate-900/50 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/30 to-white z-10" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="text-center mb-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -173,7 +193,7 @@ export default function HomeContent() {
                   </AnimatePresence>
                 </span>
               </h1>
-              <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-medium line-clamp-2 sm:line-clamp-none">
+              <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-medium line-clamp-none">
                 As the <strong>best property dealer in Dwarka Delhi NCR</strong>, we offer expert <strong>real estate investing</strong> advice and premium <strong>3 BHK flats in Dwarka Expressway</strong>. Looking for a <strong>property dealer near me</strong>? Contact us for the <strong>best builder floor in Dwarka</strong>.
               </p>
             </motion.div>
@@ -185,7 +205,7 @@ export default function HomeContent() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="w-full"
           >
-            <SearchBar />
+            <SearchBar onTabChange={setActiveBg} />
           </motion.div>
 
           {/* Quick Stats inside Hero */}
@@ -266,7 +286,6 @@ export default function HomeContent() {
             {[
               { title: 'Property Buying & Selling', icon: Building2, desc: 'Find the best 3 BHK flats and luxury builder floors in Dwarka with expert guidance.' },
               { title: 'Legal & Documentation', icon: Shield, desc: 'Hassle-free registry and documentation support for all property transactions in Delhi.' },
-              { title: 'Home Loan Assistance', icon: TrendingUp, desc: 'Get the best home loan rates through our strategic banking partnerships.' },
               { title: 'Property Valuation', icon: MapPin, desc: 'Professional assessment of your property market value in Dwarka sectors.' },
               { title: 'Rental Management', icon: Home, desc: 'Top <strong>brokers in Dwarka for rent</strong> to help you find verified tenants or dream rentals.' },
               { title: 'Investment Advisory', icon: Star, desc: 'High-ROI <strong>real estate investing</strong> opportunities in Dwarka Expressway & Delhi NCR.' },
@@ -624,11 +643,10 @@ export default function HomeContent() {
                 Own a property? List it <span className="underline">Now</span>
               </h2>
               <p className="mt-2 text-white text-sm max-w-xl">
-                Post your property and connect directly with thousands of verified buyers & tenants. No brokerage. No hidden charges.
+                Post your property and connect directly with thousands of verified buyers & tenants. No hidden charges.
               </p>
               <div className="mt-4 flex items-center gap-4 text-rose-100 text-sm">
                 <span className="flex items-center gap-1"><CheckCircle className="h-4 w-4" /> Verified Buyers</span>
-                <span className="flex items-center gap-1"><CheckCircle className="h-4 w-4" /> Zero Brokerage</span>
                 <span className="flex items-center gap-1"><CheckCircle className="h-4 w-4" /> Instant Listing</span>
               </div>
             </div>

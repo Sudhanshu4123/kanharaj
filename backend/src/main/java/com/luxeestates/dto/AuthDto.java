@@ -2,6 +2,7 @@ package com.luxeestates.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,7 @@ public class AuthDto {
     public static class LoginRequest {
         @NotBlank(message = "Email is required")
         @Email(message = "Invalid email format")
+        @Pattern(regexp = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$", message = "Please enter a valid email address")
         private String email;
         
         @NotBlank(message = "Password is required")
@@ -33,13 +35,15 @@ public class AuthDto {
         
         @NotBlank(message = "Email is required")
         @Email(message = "Invalid email format")
+        @Pattern(regexp = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$", message = "Please enter a valid email address")
         private String email;
         
         @NotBlank(message = "Phone is required")
+        @Pattern(regexp = "^[0-9]{10}$", message = "Mobile number must be exactly 10 digits")
         private String phone;
         
         @NotBlank(message = "Password is required")
-        @Size(min = 6, message = "Password must be at least 6 characters")
+        @Size(min = 8, message = "Password must be at least 8 characters")
         private String password;
     }
     
@@ -50,6 +54,7 @@ public class AuthDto {
     public static class AuthResponse {
         private String token;
         private String refreshToken;
+        private String message;
         private UserDto user;
     }
     
@@ -61,7 +66,7 @@ public class AuthDto {
         @NotBlank(message = "Refresh token is required")
         private String refreshToken;
     }
-
+    
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -72,6 +77,7 @@ public class AuthDto {
         
         @NotBlank(message = "Email is required")
         @Email(message = "Invalid email format")
+        @Pattern(regexp = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$", message = "Please enter a valid email address")
         private String email;
         
         @NotBlank(message = "Provider is required")
@@ -79,16 +85,17 @@ public class AuthDto {
         
         private String providerId;
     }
-
+    
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ForgotPasswordRequest {
         @NotBlank(message = "Email is required")
         @Email(message = "Invalid email format")
+        @Pattern(regexp = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$", message = "Please enter a valid email address")
         private String email;
     }
-
+    
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -97,7 +104,7 @@ public class AuthDto {
         private String token;
         
         @NotBlank(message = "New password is required")
-        @Size(min = 6, message = "Password must be at least 6 characters")
+        @Size(min = 8, message = "Password must be at least 8 characters")
         private String newPassword;
     }
 }

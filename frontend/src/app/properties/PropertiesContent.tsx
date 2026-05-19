@@ -39,12 +39,17 @@ export default function PropertiesContent() {
     }
     
     // Apply initial filters from URL
-    const search = searchParams.get('search') || ''
+    const urlSearch = searchParams.get('search') || ''
     const type = searchParams.get('type')
     const listing = searchParams.get('listing')?.toUpperCase()
     const budget = searchParams.get('budget')
     
-    const initialFilters: any = { search }
+    // Update local search state
+    if (urlSearch) {
+      setSearch(urlSearch)
+    }
+    
+    const initialFilters: any = { search: urlSearch }
     if (type) {
       initialFilters.propertyType = [type.toUpperCase()]
       setSelectedTypes([type.toUpperCase()])
@@ -68,7 +73,7 @@ export default function PropertiesContent() {
     }
     
     setFilters(initialFilters)
-  }, [])
+  }, [searchParams])
 
   const properties = filteredProperties()
 
@@ -151,10 +156,14 @@ export default function PropertiesContent() {
             animate={{ opacity: 1, y: 0 }}
           >
             <h1 className="font-heading text-3xl md:text-5xl font-bold text-slate-900 tracking-tight">
-              Properties
+              {search ? (
+                <>Properties in <span className="text-rose-600">{search}</span></>
+              ) : (
+                'Properties'
+              )}
             </h1>
             <p className="text-slate-500 mt-2 text-sm md:text-lg">
-              Explore {properties.length} premium properties.
+              Explore {properties.length} premium properties{search ? ` in ${search}` : ''}.
             </p>
           </motion.div>
         </div>

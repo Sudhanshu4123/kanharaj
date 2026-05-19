@@ -54,6 +54,16 @@ export default function AddPropertyPage() {
     const files = e.target.files
     if (!files || files.length === 0) return
     
+    // Client-side validation — only images allowed
+    for (let i = 0; i < files.length; i++) {
+      const type = files[i].type
+      if (!type.startsWith("image/")) {
+        alert(`❌ "${files[i].name}" is not allowed. Only image files (JPG, PNG, WEBP) can be uploaded. Videos and PDFs are not permitted.`)
+        e.target.value = ""
+        return
+      }
+    }
+    
     setUploading(true)
     const data = new FormData()
     for (let i = 0; i < files.length; i++) {
@@ -374,7 +384,10 @@ export default function AddPropertyPage() {
                           />
                        </label>
                     </div>
-                    <p className="text-xs text-slate-400 text-center">Add at least 3 high-quality photos of your property.</p>
+                     <p className="text-xs text-slate-400 text-center">
+                       Add at least 3 high-quality photos. &nbsp;
+                       <span className="text-rose-500 font-semibold">Only images are allowed (JPG, PNG, WEBP). Videos and PDFs are not accepted.</span>
+                     </p>
                  </div>
                )}
             </motion.div>

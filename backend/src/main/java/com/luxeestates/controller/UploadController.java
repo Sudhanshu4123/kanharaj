@@ -31,6 +31,18 @@ public class UploadController {
         if (files != null) {
             for (MultipartFile file : files) {
                 if (file.isEmpty()) continue;
+                
+                // File Type Validation — Only images allowed (No PDF, No Video)
+                String contentType = file.getContentType();
+                if (contentType == null || (!contentType.equals("image/jpeg") &&
+                    !contentType.equals("image/png") &&
+                    !contentType.equals("image/webp") &&
+                    !contentType.equals("image/jpg") &&
+                    !contentType.equals("image/gif"))) {
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("error", List.of("Only image files are allowed (JPG, PNG, WEBP). Videos and PDFs are not permitted.")));
+                }
+
                 try {
                     String url = cloudinaryService.uploadImage(file);
                     urls.add(url);

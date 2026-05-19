@@ -23,7 +23,7 @@ const propertyTypes = [
   'House', 'Apartment', 'Villa', 'Flat', 'Residential Project', 'Plots/Land', 'Commercial', 'PG', 'Hotel', 'Office Space', 'Shop'
 ]
 
-export function SearchBar() {
+export function SearchBar({ onTabChange }: { onTabChange?: (tab: string) => void } = {}) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabType>('buy')
   const [search, setSearch] = useState('')
@@ -70,7 +70,10 @@ export function SearchBar() {
         {tabs.map((tab) => (
           <button
             key={tab.value}
-            onClick={() => setActiveTab(tab.value)}
+            onClick={() => {
+              setActiveTab(tab.value)
+              onTabChange?.(tab.value)
+            }}
             className={cn(
               "px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all rounded-t-xl relative shrink-0 snap-start",
               activeTab === tab.value

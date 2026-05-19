@@ -38,11 +38,13 @@ interface AuthStore {
   token: string | null
   isAuthenticated: boolean
   users: User[]
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<{ message?: string } | void>
   logout: () => void
-  register: (name: string, email: string, phone: string, password: string) => Promise<void>
+  register: (name: string, email: string, phone: string, password: string) => Promise<any>
+  verifyLoginOtp: (email: string, otp: string) => Promise<void>
   setAuth: (user: any, token: string) => void
   fetchUsers: (token?: string) => Promise<void>
+  updateProfile: (data: { profileImage?: string; description?: string; experienceYears?: string; name?: string; phone?: string }) => Promise<void>
 }
 
 const defaultFilters: PropertyFilters = {
@@ -282,6 +284,10 @@ export const useAuthStore = create<AuthStore>()(
           }
 
           const data = await res.json()
+          if (data.message === 'OTP_SENT' || data.message === 'VERIFICATION_REQUIRED') {
+             return data;
+          }
+
           set({ user: data.user, token: data.token, isAuthenticated: true })
         } catch (err: any) {
           if (err?.name === 'AbortError') {
@@ -290,7 +296,51 @@ export const useAuthStore = create<AuthStore>()(
           throw err
         }
       },
+      verifyLoginOtp: async (email, otp) => {
+        try {
+          const res = await fetchWithTimeout(`${API_URL}/auth/login-verify-otp?email=${encodeURIComponent(email)}&otp=${otp}`, {
+            method: 'POST'
+          })
+          
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({ message: 'Invalid OTP' }))
+            throw new Error(errData.message || 'Invalid OTP')
+          }
+
+          const data = await res.json()
+          set({ user: data.user, token: data.token, isAuthenticated: true })
+        } catch (err: any) {
+          throw err
+        }
+      },
       logout: () => set({ user: null, token: null, isAuthenticated: false }),
+      updateProfile: async (data) => {
+        try {
+          const state = useAuthStore.getState();
+          const token = state.token;
+          const user = state.user;
+          if (!token || !user) throw new Error('Not authenticated')
+
+          const response = await fetch(`${API_URL}/users/profile`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data),
+          })
+
+          if (!response.ok) {
+            throw new Error('Failed to update profile')
+          }
+
+          const updatedUser = await response.json()
+          set({ user: { ...updatedUser, token } })
+        } catch (error) {
+          console.error('Update profile error:', error)
+          throw error
+        }
+      },
       register: async (name, email, phone, password) => {
         try {
           const res = await fetchWithTimeout(`${API_URL}/auth/register`, {
@@ -305,7 +355,7 @@ export const useAuthStore = create<AuthStore>()(
           }
           
           const data = await res.json()
-          set({ user: data.user, token: data.token, isAuthenticated: true })
+          return data
         } catch (err: any) {
           if (err?.name === 'AbortError') throw new Error('Server is offline.')
           throw err

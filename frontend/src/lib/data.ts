@@ -31,6 +31,9 @@ export interface User {
   phone: string;
   role: 'USER' | 'ADMIN' | 'SELLER' | 'user' | 'admin' | 'seller';
   avatar?: string;
+  profileImage?: string;
+  description?: string;
+  experienceYears?: string;
 }
 
 export interface Inquiry {

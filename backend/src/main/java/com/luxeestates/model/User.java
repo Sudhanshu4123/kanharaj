@@ -40,6 +40,25 @@ public class User {
     @Column(nullable = false)
     private Boolean enabled = true;
 
+    @Column(nullable = false)
+    private Boolean emailVerified = false;
+
+    private String verificationToken;
+
+    private String mobileOtp;
+
+    private LocalDateTime otpExpiry;
+
+    // Profile Additions
+    @Column(length = 255)
+    private String profileImage;
+
+    @Column(length = 1000)
+    private String description;
+
+    @Column(length = 50)
+    private String experienceYears;
+
     // Subscription & Payment Fields
     @Column(length = 20)
     private String subscriptionPlan = "NONE";

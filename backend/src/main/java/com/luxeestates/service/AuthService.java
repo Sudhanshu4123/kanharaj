@@ -51,6 +51,19 @@ public class AuthService {
                         adminEmail = adminEmail.trim();
                 if (adminPassword != null)
                         adminPassword = adminPassword.trim();
+                
+                // One-time fix for existing users (Migration)
+                try {
+                    userRepository.findAll().forEach(user -> {
+                        if (user.getEnabled() == null || !user.getEnabled()) {
+                            user.setEnabled(true);
+                            userRepository.save(user);
+                        }
+                    });
+                    System.out.println("Data Migration: All users have been enabled successfully.");
+                } catch (Exception e) {
+                    System.err.println("Migration failed: " + e.getMessage());
+                }
         }
 
         @Transactional
@@ -66,20 +79,21 @@ public class AuthService {
                                         .phone(request.getPhone())
                                         .password(passwordEncoder.encode(request.getPassword()))
                                         .role(User.Role.USER)
-                                        .enabled(true)
+                                        .enabled(true) // Enabled for authentication, but emailVerified handles access
+                                        .emailVerified(false)
+                                        .verificationToken(String.valueOf(100000 + new java.util.Random().nextInt(900000))) // 6-digit OTP
+                                        .otpExpiry(LocalDateTime.now().plusMinutes(15))
                                         .createdAt(LocalDateTime.now())
                                         .build();
 
                         user = userRepository.save(user);
 
-                        CustomUserDetails userDetails = new CustomUserDetails(user);
-                        String token = jwtTokenProvider.generateToken(userDetails);
-                        String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+                        // Send Verification Email
+                        sendVerificationEmail(user);
 
                         return AuthDto.AuthResponse.builder()
-                                        .token(token)
-                                        .refreshToken(refreshToken)
-                                        .user(getCurrentUser(user.getEmail()))
+                                        .message("Registration successful! Please check your email to verify your account.")
+                                        .user(UserDto.fromEntity(user))
                                         .build();
                 } catch (Exception e) {
                         throw new RuntimeException("Registration failed: " + e.getMessage());
@@ -92,6 +106,10 @@ public class AuthService {
 
                 System.out.println("Login attempt for: [" + email + "]");
 
+                if (!userRepository.existsByEmail(email)) {
+                        throw new RuntimeException("Email not found. Please register first.");
+                }
+
                 try {
                         Authentication authentication = authenticationManager.authenticate(
                                         new UsernamePasswordAuthenticationToken(email, password));
@@ -100,21 +118,87 @@ public class AuthService {
                         System.out.println("Authentication successful for: " + email + " with role: "
                                         + userDetails.getAuthorities());
 
-                        String token = jwtTokenProvider.generateToken(userDetails);
-                        String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
-
                         User user = userRepository.findByEmail(email)
                                         .orElseThrow(() -> new RuntimeException("User not found"));
 
+                        if (!user.getEnabled()) {
+                                throw new RuntimeException("Account is disabled. Please contact support.");
+                        }
+
+                        // Generate OTP for both new and existing users
+                        String otp = String.valueOf(100000 + new java.util.Random().nextInt(900000));
+                        user.setVerificationToken(otp);
+                        user.setOtpExpiry(LocalDateTime.now().plusMinutes(10));
+                        userRepository.save(user);
+
+                        // If not verified yet, send registration OTP template
+                        if (!user.getEmailVerified()) {
+                                sendVerificationEmail(user);
+                                return AuthDto.AuthResponse.builder()
+                                                .message("VERIFICATION_REQUIRED")
+                                                .build();
+                        }
+
+                        // Otherwise send regular login 2FA OTP
+                        sendLoginOtpEmail(user);
+
                         return AuthDto.AuthResponse.builder()
-                                        .token(token)
-                                        .refreshToken(refreshToken)
-                                        .user(getCurrentUser(user.getEmail()))
+                                        .message("OTP_SENT")
                                         .build();
                 } catch (Exception e) {
                         System.err.println("Login failed for [" + email + "]: " + e.getMessage());
+                        String errorMsg = e.getMessage();
+                        if (errorMsg != null && (errorMsg.contains("disabled") || errorMsg.contains("verified"))) {
+                                throw new RuntimeException(errorMsg);
+                        }
                         throw new RuntimeException("Invalid credentials");
                 }
+        }
+
+        @Transactional
+        public AuthDto.AuthResponse verifyLoginOtp(String email, String otp) {
+                User user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+
+                if (user.getVerificationToken() == null || !user.getVerificationToken().equals(otp)) {
+                        throw new RuntimeException("Invalid OTP code");
+                }
+
+                if (user.getOtpExpiry() != null && user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+                        throw new RuntimeException("OTP has expired. Please login again.");
+                }
+
+                // Clear OTP
+                user.setVerificationToken(null);
+                user.setOtpExpiry(null);
+                userRepository.save(user);
+
+                // Generate Tokens
+                CustomUserDetails userDetails = new CustomUserDetails(user);
+                String token = jwtTokenProvider.generateToken(userDetails);
+                String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+
+                return AuthDto.AuthResponse.builder()
+                                .token(token)
+                                .refreshToken(refreshToken)
+                                .user(getCurrentUser(user.getEmail()))
+                                .build();
+        }
+
+        private void sendLoginOtpEmail(User user) {
+                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                        String otp = user.getVerificationToken();
+                        String emailContent = "Hello " + user.getName() + ",\n\n" +
+                                        "Your login verification code for Kanharaj is:\n\n" +
+                                        "------------------------\n" +
+                                        "      " + otp + "      \n" +
+                                        "------------------------\n\n" +
+                                        "This code will expire in 10 minutes.\n\n" +
+                                        "If you didn't try to login, please secure your account.\n\n" +
+                                        "Best Regards,\nKanharaj Team";
+
+                        emailService.sendSimpleMessage(user.getEmail(), "Login Verification Code - Kanharaj", emailContent);
+                });
         }
 
         public AuthDto.AuthResponse refreshToken(AuthDto.RefreshTokenRequest request) {
@@ -212,14 +296,16 @@ public class AuthService {
                 passwordResetTokenRepository.save(resetToken);
 
                 // Send email
-                String resetLink = "http://localhost:3000/reset-password?token=" + token;
-                String emailContent = "Hello " + user.getName() + ",\n\n" +
-                                "You requested to reset your password. Click the link below to set a new password:\n" +
-                                resetLink + "\n\n" +
-                                "This link will expire in 1 hour.\n\n" +
-                                "If you didn't request this, please ignore this email.";
+                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                        String resetLink = "http://localhost:3000/reset-password?token=" + token;
+                        String emailContent = "Hello " + user.getName() + ",\n\n" +
+                                        "You requested to reset your password. Click the link below to set a new password:\n" +
+                                        resetLink + "\n\n" +
+                                        "This link will expire in 1 hour.\n\n" +
+                                        "If you didn't request this, please ignore this email.";
 
-                emailService.sendSimpleMessage(user.getEmail(), "Password Reset Request - Kanharaj", emailContent);
+                        emailService.sendSimpleMessage(user.getEmail(), "Password Reset Request - Kanharaj", emailContent);
+                });
         }
 
         @Transactional
@@ -238,5 +324,54 @@ public class AuthService {
 
                 // Delete the token after successful use
                 passwordResetTokenRepository.delete(resetToken);
+        }
+
+        @Transactional
+        public void verifyEmail(String otp) {
+                User user = userRepository.findByVerificationToken(otp)
+                                .orElseThrow(() -> new RuntimeException("Invalid OTP code"));
+
+                if (user.getOtpExpiry() != null && user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+                        throw new RuntimeException("OTP has expired. Please request a new one.");
+                }
+
+                user.setEmailVerified(true);
+                user.setEnabled(true);
+                user.setVerificationToken(null);
+                user.setOtpExpiry(null);
+                userRepository.save(user);
+        }
+
+        @Transactional
+        public void resendOtp(String email) {
+                User user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+                
+                if (user.getEmailVerified()) {
+                        throw new RuntimeException("Email is already verified");
+                }
+
+                String otp = String.valueOf(100000 + new java.util.Random().nextInt(900000));
+                user.setVerificationToken(otp);
+                user.setOtpExpiry(LocalDateTime.now().plusMinutes(15));
+                userRepository.save(user);
+
+                sendVerificationEmail(user);
+        }
+
+        private void sendVerificationEmail(User user) {
+                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                        String otp = user.getVerificationToken();
+                        String emailContent = "Hello " + user.getName() + ",\n\n" +
+                                        "Thank you for joining Kanharaj! Your email verification code is:\n\n" +
+                                        "------------------------\n" +
+                                        "      " + otp + "      \n" +
+                                        "------------------------\n\n" +
+                                        "This code will expire in 15 minutes.\n\n" +
+                                        "Enter this code on the website to activate your account.\n\n" +
+                                        "Best Regards,\nKanharaj Team";
+
+                        emailService.sendSimpleMessage(user.getEmail(), "Verification Code - Kanharaj", emailContent);
+                });
         }
 }

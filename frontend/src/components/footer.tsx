@@ -2,14 +2,10 @@
 
 import Link from 'next/link'
 import { Building, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react'
-import { Button } from './ui/button'
-import { Input } from './ui/input'
 
 const footerLinks = {
   company: [
     { label: 'About Us', href: '/about' },
-    { label: 'Press', href: '#' },
-    { label: 'Blog', href: '#' },
     { label: 'Contact Us', href: '/contact' },
   ],
   properties: [
@@ -18,17 +14,11 @@ const footerLinks = {
     { label: 'Commercial', href: '/properties?type=COMMERCIAL' },
     { label: 'Plots / Land', href: '/properties?type=PLOTS%2FLAND' },
   ],
-  services: [
-    { label: 'Seller Plans', href: '/for-sellers' },
-    { label: 'My Account', href: '/profile' },
-    { label: 'Property Valuation', href: '#' },
-    { label: 'Home Loans', href: '#' },
-    { label: 'Legal Services', href: '#' },
-  ],
+
   support: [
-    { label: 'Help Center', href: '#' },
     { label: 'Privacy Policy', href: '/privacy' },
     { label: 'Terms of Service', href: '/terms' },
+    { label: 'Give Feedback', href: '/feedback' },
   ],
 }
 
@@ -43,26 +33,6 @@ const socialLinks = [
 export function Footer() {
   return (
     <footer className="bg-slate-900 text-white pb-32 md:pb-0">
-      {/* Newsletter Section */}
-      <div className="border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-            <div className="text-center lg:text-left">
-              <h3 className="font-heading text-xl md:text-2xl font-bold">Subscribe to our newsletter</h3>
-              <p className="text-slate-400 mt-2 text-sm md:text-base">Get the latest property updates in your inbox</p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto max-w-md">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 h-12"
-              />
-              <Button className="h-12 px-8">Subscribe</Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 md:gap-8">
@@ -91,7 +61,7 @@ export function Footer() {
             <div className="space-y-4">
               <div className="flex items-start space-x-3 text-slate-400 text-sm">
                 <MapPin className="h-5 w-5 text-rose-500 flex-shrink-0 mt-0.5" />
-                <span>Kanharaj, Sector 7, Dwarka, New Delhi — 110078</span>
+                <span>2nd Floor, Vardhaman City Mall, Sector 7, Dwarka, New Delhi - 110078</span>
               </div>
               <div className="flex items-center space-x-3 text-slate-400 text-sm">
                 <Phone className="h-5 w-5 text-rose-500 flex-shrink-0" />
@@ -132,18 +102,7 @@ export function Footer() {
               </ul>
             </div>
 
-            <div>
-              <h4 className="font-bold text-slate-200 text-sm uppercase tracking-wider mb-5">Services</h4>
-              <ul className="space-y-3">
-                {footerLinks.services.map((link) => (
-                  <li key={link.label}>
-                    <Link href={link.href} className="text-slate-400 hover:text-white text-sm transition-colors block">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+
 
             <div>
               <h4 className="font-bold text-slate-200 text-sm uppercase tracking-wider mb-5">Support</h4>
