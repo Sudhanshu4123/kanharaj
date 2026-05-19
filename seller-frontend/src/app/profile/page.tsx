@@ -253,50 +253,114 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">My Profile</h1>
-          <p className="text-slate-500 mt-1 font-medium">Manage your personal and professional account details.</p>
+
+      {/* ── Profile Hero Card (Always visible - Overview) ── */}
+      <div className="bg-white rounded-[32px] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+        {/* Banner */}
+        <div className="h-28 bg-gradient-to-r from-slate-900 via-slate-800 to-rose-900 relative">
+          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
         </div>
-        
-        {!isEditing ? (
-          <button 
-            onClick={() => setIsEditing(true)}
-            className="btn-primary flex items-center gap-2 self-start md:self-auto"
-          >
-            <Edit2 size={16} />
-            Edit Profile
-          </button>
-        ) : (
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => {
-                setIsEditing(false)
-                setFormData({
-                  name: user.name || "",
-                  phone: user.phone || "",
-                  experienceYears: user.experienceYears || "",
-                  description: user.description || "",
-                  profileImage: user.profileImage || ""
-                })
-              }}
-              className="px-6 py-3 rounded-2xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all flex items-center gap-2 text-sm"
-            >
-              <X size={16} />
-              Cancel
-            </button>
-            <button 
-              onClick={handleSave}
-              disabled={saving}
-              className="btn-primary flex items-center gap-2"
-            >
-              {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
-              Save Changes
-            </button>
+
+        <div className="px-8 pb-8 -mt-14 flex flex-col md:flex-row items-start md:items-end gap-6">
+          {/* Avatar */}
+          <div className="relative shrink-0">
+            <div className="w-28 h-28 rounded-full border-4 border-white shadow-xl overflow-hidden bg-rose-50 flex items-center justify-center">
+              {formData.profileImage ? (
+                <img src={formData.profileImage} alt={user?.name} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-4xl font-black text-rose-600">{user?.name?.charAt(0)?.toUpperCase()}</span>
+              )}
+            </div>
+            {!isEditing && (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-rose-600 text-white flex items-center justify-center border-4 border-white shadow-lg hover:bg-rose-700 transition-all"
+              >
+                {uploading ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
+              </button>
+            )}
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
+          </div>
+
+          {/* Name + Info row */}
+          <div className="flex-1 pb-2">
+            <h1 className="text-2xl font-black text-slate-900">{user?.name}</h1>
+            <p className="text-slate-500 text-sm font-medium">{user?.email}</p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-rose-50 text-rose-700 rounded-full text-xs font-black uppercase tracking-wide">
+                <ShieldCheck size={12} /> Verified Seller
+              </span>
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-black uppercase tracking-wide">
+                <CreditCard size={12} /> {user?.subscriptionPlan} Plan
+              </span>
+              {user?.experienceYears && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-black uppercase tracking-wide">
+                  <Award size={12} /> {user.experienceYears} Yrs Exp
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Edit / Save / Cancel buttons */}
+          <div className="flex items-center gap-3 shrink-0 pb-2">
+            {!isEditing ? (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-2xl hover:bg-rose-600 transition-all text-sm shadow-lg"
+              >
+                <Edit2 size={16} />
+                Edit Profile
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => { setIsEditing(false); setFormData({ name: user.name || '', phone: user.phone || '', experienceYears: user.experienceYears || '', description: user.description || '', profileImage: user.profileImage || '' }) }}
+                  className="px-6 py-3 rounded-2xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all flex items-center gap-2 text-sm"
+                >
+                  <X size={16} /> Cancel
+                </button>
+                <button
+                  onClick={handleSave as any}
+                  disabled={saving}
+                  className="flex items-center gap-2 px-6 py-3 bg-rose-600 text-white font-bold rounded-2xl hover:bg-rose-700 transition-all text-sm shadow-lg"
+                >
+                  {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
+                  Save Changes
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Quick Info Bar */}
+        {!isEditing && (
+          <div className="px-8 pb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Phone</p>
+                <p className="font-bold text-slate-800 text-sm">{user?.phone || 'Not provided'}</p>
+              </div>
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Plan Expiry</p>
+                <p className="font-bold text-slate-800 text-sm">{user?.subscriptionExpiry ? new Date(user.subscriptionExpiry).toLocaleDateString('en-IN') : 'N/A'}</p>
+              </div>
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Days Left</p>
+                <p className="font-bold text-rose-600 text-sm">{daysLeft} days</p>
+              </div>
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Experience</p>
+                <p className="font-bold text-slate-800 text-sm">{user?.experienceYears || 'N/A'}</p>
+              </div>
+            </div>
           </div>
         )}
       </div>
 
+      {/* ── Edit Form (only when editing) ── */}
+      {isEditing && (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Form & Info */}
         <div className="lg:col-span-2 space-y-8">
@@ -567,6 +631,7 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      )}
     </div>
   )
 }
