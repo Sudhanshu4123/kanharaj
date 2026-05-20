@@ -32,6 +32,8 @@ services:
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
       - JWT_SECRET=${JWT_SECRET:-luxeestates-secret-key-for-jwt-token-generation-2024}
       - API_URL=${API_URL:-http://localhost:8080/api}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_live_SrVXmToc9GKOXJ}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET:-yT0gYlf3i10jc3x41PHtIIi4}
     ports:
       - "8080:8080"
     volumes:
@@ -43,7 +45,7 @@ services:
       args:
         - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
         - NEXT_PUBLIC_SELLER_URL=${SELLER_URL:-https://seller.kanharaj.com}
-        - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_test_SpDgwQDb3VVlJ9}
+        - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_live_SrVXmToc9GKOXJ}
         - INTERNAL_BACKEND_URL=http://backend:8080
     container_name: kanharaj-frontend
     restart: always
@@ -51,7 +53,7 @@ services:
       - INTERNAL_BACKEND_URL=http://backend:8080
       - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
       - NEXT_PUBLIC_SELLER_URL=${SELLER_URL:-https://seller.kanharaj.com}
-      - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_test_SpDgwQDb3VVlJ9}
+      - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_live_SrVXmToc9GKOXJ}
       - NEXTAUTH_SECRET=${JWT_SECRET:-luxeestates-secret-key-for-jwt-token-generation-2024}
       - NEXTAUTH_URL=${NEXTAUTH_URL:-https://kanharaj.com}
     ports:
@@ -65,13 +67,13 @@ services:
       args:
         - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
         - NEXT_PUBLIC_MAIN_URL=${MAIN_URL:-https://kanharaj.com}
-        - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_test_SpDgwQDb3VVlJ9}
+        - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_live_SrVXmToc9GKOXJ}
     container_name: kanharaj-seller
     restart: always
     environment:
       - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
       - NEXT_PUBLIC_MAIN_URL=${MAIN_URL:-https://kanharaj.com}
-      - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_test_SpDgwQDb3VVlJ9}
+      - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_live_SrVXmToc9GKOXJ}
       - NEXTAUTH_SECRET=${JWT_SECRET:-luxeestates-secret-key-for-jwt-token-generation-2024}
     ports:
       - "3001:3001"

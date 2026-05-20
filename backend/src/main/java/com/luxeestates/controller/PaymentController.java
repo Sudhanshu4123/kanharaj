@@ -42,10 +42,10 @@ public class PaymentController {
     @Value("${seller.url:http://localhost:3001}")
     private String sellerUrl;
 
-    @Value("${razorpay.key.id:rzp_test_SpDgwQDb3VVlJ9}")
+    @Value("${razorpay.key.id:rzp_live_SrVXmToc9GKOXJ}")
     private String razorpayKeyId;
 
-    @Value("${razorpay.key.secret:bL01i7L47qVC7afUkPj9AUPy}")
+    @Value("${razorpay.key.secret:yT0gYlf3i10jc3x41PHtIIi4}")
     private String razorpayKeySecret;
 
     // STEP 1: Create Order for Razorpay
@@ -71,10 +71,19 @@ public class PaymentController {
             Order order = razorpay.orders.create(orderRequest);
             System.out.println("Order created successfully: " + order.get("id"));
 
+            Object amtObj = order.get("amount");
+            Integer amountInPaise;
+            if (amtObj instanceof Number) {
+                amountInPaise = ((Number) amtObj).intValue();
+            } else {
+                amountInPaise = Integer.parseInt(amtObj.toString());
+            }
+
             return ResponseEntity.ok(Map.of(
                 "orderId", order.get("id"),
-                "amount", order.get("amount"),
-                "currency", order.get("currency")
+                "amount", amountInPaise,
+                "currency", order.get("currency"),
+                "keyId", razorpayKeyId
             ));
         } catch (RazorpayException e) {
             System.err.println("Razorpay Error: " + e.getMessage());
@@ -135,8 +144,13 @@ public class PaymentController {
 
             // Fetch order from Razorpay to verify the actual amount paid
             Order order = razorpay.orders.fetch(orderId);
-            Integer orderAmountInPaise = order.get("amount");
-            Double actualPaidAmount = orderAmountInPaise / 100.0;
+            Object amountObj = order.get("amount");
+            Double actualPaidAmount;
+            if (amountObj instanceof Number) {
+                actualPaidAmount = ((Number) amountObj).doubleValue() / 100.0;
+            } else {
+                actualPaidAmount = Double.parseDouble(amountObj.toString()) / 100.0;
+            }
 
             // Calculate expected price
             Double planPrice = 0.0;

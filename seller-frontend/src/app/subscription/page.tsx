@@ -14,6 +14,25 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") {
+      resolve(false);
+      return;
+    }
+    if ((window as any).Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 const plans = [
   {
     id: "basic",
@@ -120,17 +139,31 @@ export default function SubscriptionPage() {
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ amount: amount }) // Backend multiplies by 100
       })
-      const { orderId } = await orderRes.json()
+      
+      if (!orderRes.ok) {
+        const errorText = await orderRes.text()
+        console.error("Order creation failed:", orderRes.status, errorText)
+        throw new Error(`Payment error (${orderRes.status}): ${errorText || "Failed to create order"}`)
+      }
+
+      const orderData = await orderRes.json()
+      const { orderId } = orderData
 
       if (!orderId) {
         throw new Error("Failed to create payment order. Please check backend logs.")
       }
 
+      // Ensure script is loaded
+      const isScriptLoaded = await loadRazorpayScript()
+      if (!isScriptLoaded) {
+        throw new Error("Failed to load Razorpay checkout script. Please check your network connection.")
+      }
+
       // 2. Open Razorpay Checkout
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: amount * 100,
-        currency: "INR",
+        key: orderData.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: Math.round(orderData.amount), // Use the exact amount in paise returned by backend Order API
+        currency: orderData.currency || "INR",
         name: "Kanharaj",
         description: `${plan.name} - ${months} Months`,
         order_id: orderId,

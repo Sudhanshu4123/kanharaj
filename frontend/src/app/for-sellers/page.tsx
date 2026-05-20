@@ -101,6 +101,25 @@ const benefits = [
 
 import { useAuthStore } from "@/lib/store"
 
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") {
+      resolve(false);
+      return;
+    }
+    if ((window as any).Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 export default function ForSellersPage() {
   const [months, setMonths] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -138,11 +157,17 @@ export default function ForSellersPage() {
 
       const { orderId } = orderData
 
+      // Ensure script is loaded
+      const isScriptLoaded = await loadRazorpayScript()
+      if (!isScriptLoaded) {
+        throw new Error("Failed to load Razorpay checkout script. Please check your network connection.")
+      }
+
       // 2. Razorpay Popup
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: amount * 100,
-        currency: "INR",
+        key: orderData.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: Math.round(orderData.amount), // Use the exact amount in paise returned by backend Order API
+        currency: orderData.currency || "INR",
         name: "Kanharaj",
         description: `${plan.name} - ${months} Months`,
         order_id: orderId,
@@ -260,6 +285,7 @@ export default function ForSellersPage() {
                   width={800}
                   height={600}
                   className="object-cover"
+                  style={{ height: 'auto' }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
                 <div className="absolute bottom-8 left-8 right-8 bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-3xl text-white">
