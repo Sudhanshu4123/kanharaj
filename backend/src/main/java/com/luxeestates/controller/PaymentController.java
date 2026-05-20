@@ -120,6 +120,8 @@ public class PaymentController {
         }
 
         try {
+            RazorpayClient razorpay = new RazorpayClient(razorpayKeyId, razorpayKeySecret);
+
             JSONObject options = new JSONObject();
             options.put("razorpay_order_id", orderId);
             options.put("razorpay_payment_id", paymentId);
@@ -130,9 +132,36 @@ public class PaymentController {
                 System.err.println("Invalid Payment Signature for order: " + orderId);
                 return ResponseEntity.status(400).body(Map.of("message", "Invalid Payment Signature"));
             }
+
+            // Fetch order from Razorpay to verify the actual amount paid
+            Order order = razorpay.orders.fetch(orderId);
+            Integer orderAmountInPaise = order.get("amount");
+            Double actualPaidAmount = orderAmountInPaise / 100.0;
+
+            // Calculate expected price
+            Double planPrice = 0.0;
+            if ("basic".equalsIgnoreCase(plan)) {
+                planPrice = 6099.0;
+            } else if ("premium".equalsIgnoreCase(plan)) {
+                planPrice = 6599.0;
+            } else if ("super".equalsIgnoreCase(plan)) {
+                planPrice = 7299.0;
+            } else {
+                return ResponseEntity.status(400).body(Map.of("message", "Invalid Plan Name"));
+            }
+
+            Double expectedAmount = planPrice * months;
+
+            // Compare amounts
+            if (Math.abs(actualPaidAmount - expectedAmount) > 0.01) {
+                System.err.println("Payment Amount Mismatch! Expected: " + expectedAmount + ", Paid: " + actualPaidAmount);
+                return ResponseEntity.status(400).body(Map.of("message", "Payment Amount Mismatch! Expected " + expectedAmount + " but paid " + actualPaidAmount));
+            }
+
+            amount = actualPaidAmount;
         } catch (RazorpayException e) {
-            System.err.println("Signature verification failed: " + e.getMessage());
-            return ResponseEntity.status(500).body(Map.of("message", "Signature verification failed"));
+            System.err.println("Signature or amount verification failed: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("message", "Verification failed: " + e.getMessage()));
         }
 
         User user = userRepository.findById(userDetails.getId()).orElseThrow();

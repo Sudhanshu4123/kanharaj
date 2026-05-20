@@ -14,7 +14,7 @@ import { PropertyCard } from '@/components/properties/property-card'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
 
-type TabType = 'overview' | 'activity' | 'edit'
+type TabType = 'activity' | 'edit'
 
 export default function ProfilePage() {
   const { user, isAuthenticated, logout, updateProfile, token } = useAuthStore()
@@ -22,7 +22,7 @@ export default function ProfilePage() {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const [activeTab, setActiveTab] = useState<TabType>('overview')
+  const [activeTab, setActiveTab] = useState<TabType>('edit')
   const [saving, setSaving] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
@@ -171,18 +171,16 @@ export default function ProfilePage() {
           <div className="px-8 border-t border-slate-100">
             <div className="flex gap-0">
               {[
-                { id: 'overview' as TabType, label: 'Overview', icon: Shield },
                 { id: 'edit' as TabType, label: 'Edit Profile', icon: UserIcon },
                 { id: 'activity' as TabType, label: 'My Activity', icon: History },
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-all ${
-                    activeTab === tab.id
+                  className={`flex items-center gap-2 px-6 py-4 text-sm font-bold border-b-2 transition-all ${activeTab === tab.id
                       ? 'border-rose-600 text-rose-600'
                       : 'border-transparent text-slate-500 hover:text-slate-700'
-                  }`}
+                    }`}
                 >
                   <tab.icon size={16} />
                   {tab.label}
@@ -191,62 +189,6 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-
-        {/* ── Overview Tab ── */}
-        {activeTab === 'overview' && (
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="p-8">
-              <h2 className="text-2xl font-black text-slate-900 mb-8 flex items-center gap-3">
-                <Shield className="text-rose-600" />
-                Profile Overview
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Info Card 1 */}
-                <div className="space-y-6">
-                  <div>
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Full Name</label>
-                    <p className="text-lg font-bold text-slate-800">{user.name}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Email Address</label>
-                    <p className="text-lg font-bold text-slate-800">{user.email}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Phone Number</label>
-                    <p className="text-lg font-bold text-slate-800">{user.phone || 'Not provided'}</p>
-                  </div>
-                </div>
-
-                {/* Info Card 2 */}
-                <div className="space-y-6">
-                  <div>
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Account Role</label>
-                    <span className="inline-block px-3 py-1 bg-rose-50 text-rose-700 font-bold text-sm rounded-full capitalize">{user.role.toLowerCase()}</span>
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Experience</label>
-                    <p className="text-lg font-bold text-slate-800">{user.experienceYears ? `${user.experienceYears} Years` : 'Not provided'}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">About Me</label>
-                    <p className="text-sm font-medium text-slate-600 leading-relaxed">{user.description || 'No description provided.'}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-10 pt-6 border-t border-slate-100 flex justify-end">
-                <Button 
-                  onClick={() => setActiveTab('edit')}
-                  className="bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl px-8 h-12 shadow-lg shadow-rose-600/20"
-                >
-                  <Briefcase className="w-4 h-4 mr-2" />
-                  Edit Profile Information
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* ── Edit Profile Tab ── */}
         {activeTab === 'edit' && (
@@ -284,7 +226,7 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </div>
-                 {currentImage && (
+                {currentImage && (
                   <div className="flex flex-col gap-2 mt-3">
                     <button
                       onClick={() => fileRef.current?.click()}
