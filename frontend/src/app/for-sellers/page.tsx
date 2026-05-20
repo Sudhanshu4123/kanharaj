@@ -22,6 +22,10 @@ import { Button } from "@/components/ui/button"
 
 import { useState } from "react"
 
+const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
+  ? process.env.NEXT_PUBLIC_SELLER_URL
+  : "https://seller.kanharaj.com";
+
 const plans = [
   {
     id: "basic",
@@ -167,7 +171,7 @@ export default function ForSellersPage() {
 
             const verifyData = await verifyRes.json()
             alert("Payment Successful! Welcome to Seller Hub.")
-            window.location.href = `${process.env.NEXT_PUBLIC_SELLER_URL}/login?token=${token}`
+            window.location.href = `${SELLER_URL}/login?token=${token}`
           } catch (err) {
             alert("Verification connection failed. Please contact support.")
           }
@@ -189,7 +193,7 @@ export default function ForSellersPage() {
 
   // Define the dashboard link generator (still kept for general navigation)
   const getDashboardLink = (planId: string) => {
-    const baseUrl = `${process.env.NEXT_PUBLIC_SELLER_URL}/login`
+    const baseUrl = `${SELLER_URL}/login`
     if (!isAuthenticated) return "/login?redirect=/for-sellers"
     return `${baseUrl}?token=${token}`
   }
@@ -220,7 +224,7 @@ export default function ForSellersPage() {
                 Join India's most trusted property portal and connect with verified buyers directly. Whether you're an owner or an agent, we have the right tools for you.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href={`${process.env.NEXT_PUBLIC_SELLER_URL}/login`}>
+                <Link href={`${SELLER_URL}/login`}>
                   <Button size="lg" className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-8 h-14 rounded-2xl shadow-xl shadow-rose-600/20">
                     Post Property Now
                   </Button>
@@ -451,7 +455,7 @@ export default function ForSellersPage() {
                 Join thousands of successful sellers in Dwarka and start getting quality leads today.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href={`${process.env.NEXT_PUBLIC_SELLER_URL}/login`}>
+                <Link href={`${SELLER_URL}/login`}>
                   <Button size="lg" className="bg-rose-600 hover:bg-rose-700 text-white font-bold h-16 px-10 rounded-2xl text-xl shadow-2xl shadow-rose-600/20">
                     Start Selling Now
                   </Button>

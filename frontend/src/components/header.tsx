@@ -9,6 +9,10 @@ import { Button } from './ui/button'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/lib/store'
 
+const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
+  ? process.env.NEXT_PUBLIC_SELLER_URL
+  : "https://seller.kanharaj.com";
+
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/properties', label: 'Properties' },
@@ -134,7 +138,7 @@ export function Header() {
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-4">
             {mounted && isAuthenticated && (user?.role?.toUpperCase() === 'SELLER' || user?.role?.toUpperCase() === 'ADMIN') && (
-              <Link href={`${process.env.NEXT_PUBLIC_SELLER_URL}`}>
+              <Link href={SELLER_URL}>
                 <Button variant="ghost" className="text-slate-600 hover:text-rose-600 font-bold px-3 h-9 text-sm">
                   Seller Dashboard
                 </Button>
@@ -302,7 +306,7 @@ export function Header() {
 
             {mounted && isAuthenticated && (user?.role?.toUpperCase() === 'SELLER' || user?.role?.toUpperCase() === 'ADMIN') && (
               <Link
-                href={`${process.env.NEXT_PUBLIC_SELLER_URL}`}
+                href={SELLER_URL}
                 onClick={() => setIsMenuOpen(false)}
                 className="block py-2.5 px-3 text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
               >
