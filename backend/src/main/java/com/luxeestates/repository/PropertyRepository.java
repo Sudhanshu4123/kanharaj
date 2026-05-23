@@ -39,4 +39,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long>, JpaSp
     Long countByStatus(Property.Status status);
     
     Long countByFeaturedTrueAndStatus(Property.Status status);
+    
+    @Query("SELECT COUNT(DISTINCT p.city) FROM Property p WHERE p.status = :status")
+    Long countDistinctCityByStatus(Property.Status status);
 }

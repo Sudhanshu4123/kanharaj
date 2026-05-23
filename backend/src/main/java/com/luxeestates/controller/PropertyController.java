@@ -42,6 +42,11 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.getFeaturedProperties());
     }
 
+    @GetMapping("/stats")
+    public ResponseEntity<java.util.Map<String, Object>> getPlatformStats() {
+        return ResponseEntity.ok(propertyService.getPlatformStats());
+    }
+
     @GetMapping("/my")
     public ResponseEntity<List<PropertyDto>> getMyProperties(
             @AuthenticationPrincipal CustomUserDetails userDetails

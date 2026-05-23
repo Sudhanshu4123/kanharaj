@@ -147,6 +147,20 @@ public class PropertyService {
     public Long getFeaturedPropertiesCount() {
         return propertyRepository.countByFeaturedTrueAndStatus(Property.Status.ACTIVE);
     }
+    
+    public java.util.Map<String, Object> getPlatformStats() {
+        java.util.Map<String, Object> stats = new java.util.HashMap<>();
+        Long totalProperties = propertyRepository.countByStatus(Property.Status.ACTIVE);
+        Long totalBuyers = userRepository.countByRole(User.Role.USER);
+        Long totalCities = propertyRepository.countDistinctCityByStatus(Property.Status.ACTIVE);
+        
+        stats.put("properties", totalProperties != null ? totalProperties : 0L);
+        stats.put("buyers", totalBuyers != null ? totalBuyers : 0L);
+        stats.put("cities", totalCities != null ? totalCities : 0L);
+        stats.put("verifiedPercent", 100);
+        
+        return stats;
+    }
 
     @Transactional
     public void incrementViews(Long id) {

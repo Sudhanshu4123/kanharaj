@@ -14,7 +14,11 @@ const footerLinks = {
     { label: 'Commercial', href: '/properties?type=COMMERCIAL' },
     { label: 'Plots / Land', href: '/properties?type=PLOTS%2FLAND' },
   ],
-
+  calculators: [
+    { label: 'Area Unit Converter', href: '/coming-soon' },
+    { label: 'EMI Calculator', href: '/coming-soon' },
+    { label: 'Property Value Calculator', href: '/coming-soon' },
+  ],
   support: [
     { label: 'Privacy Policy', href: '/privacy' },
     { label: 'Terms of Service', href: '/terms' },
@@ -93,6 +97,19 @@ export function Footer() {
               <h4 className="font-bold text-slate-200 text-sm uppercase tracking-wider mb-5">Properties</h4>
               <ul className="space-y-3">
                 {footerLinks.properties.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="text-slate-400 hover:text-white text-sm transition-colors block">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold text-slate-200 text-sm uppercase tracking-wider mb-5">Calculators</h4>
+              <ul className="space-y-3">
+                {footerLinks.calculators.map((link) => (
                   <li key={link.label}>
                     <Link href={link.href} className="text-slate-400 hover:text-white text-sm transition-colors block">
                       {link.label}

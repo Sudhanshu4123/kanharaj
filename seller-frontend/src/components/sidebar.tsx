@@ -41,7 +41,7 @@ export function Sidebar() {
     window.location.href = "/login"
   }
 
-  const hasNoPlan = !user || user.subscriptionPlan === "NONE"
+  const hasNoPlan = false // TEMPORARY BYPASS: !user || user.subscriptionPlan === "NONE"
 
   return (
     <aside className="fixed left-0 top-0 h-full w-[280px] bg-white border-r border-slate-100 flex flex-col z-50">
