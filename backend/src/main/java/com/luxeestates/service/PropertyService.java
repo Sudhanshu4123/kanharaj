@@ -48,6 +48,20 @@ public class PropertyService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
+        // Strict Backend Validation: Active Subscription Required for Sellers
+        if (user.getRole() != User.Role.ADMIN) {
+            String plan = user.getSubscriptionPlan();
+            java.time.LocalDateTime expiry = user.getSubscriptionExpiry();
+            
+            if (plan == null || "NONE".equalsIgnoreCase(plan)) {
+                throw new RuntimeException("An active subscription plan is required to post properties.");
+            }
+            
+            if (expiry != null && expiry.isBefore(java.time.LocalDateTime.now())) {
+                throw new RuntimeException("Your subscription has expired. Please renew your subscription to post properties.");
+            }
+        }
+        
         Property property = Property.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
