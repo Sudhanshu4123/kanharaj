@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Home, Building, User, Menu, X, ChevronDown, LogOut, PlusCircle,
@@ -176,7 +176,7 @@ const mockProperties = {
       builder: 'Suraj Jaiswal Builder',
       role: 'Seller',
       location: 'Uttam Nagar, New Delhi',
-      price: '₹45.77 L - 75.57 L',
+      price: 'â‚¹45.77 L - 75.57 L',
       image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=400&q=80',
     },
     {
@@ -185,7 +185,7 @@ const mockProperties = {
       builder: 'Nikhil Choudhary',
       role: 'Seller',
       location: 'Freedom Fighter Vihar, New Delhi',
-      price: '₹45.0 L',
+      price: 'â‚¹45.0 L',
       image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=400&q=80',
     }
   ],
@@ -196,7 +196,7 @@ const mockProperties = {
       builder: 'Suraj Jaiswal Buil...',
       role: 'Seller',
       location: 'Uttam Nagar, New Delhi',
-      price: '₹45.77 L - 75.57 L',
+      price: 'â‚¹45.77 L - 75.57 L',
       image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=400&q=80',
     },
     {
@@ -205,7 +205,7 @@ const mockProperties = {
       builder: 'Nikhil Choudhary',
       role: 'Seller',
       location: 'Freedom Fighter Vihar, New Delhi',
-      price: '₹45.0 L',
+      price: 'â‚¹45.0 L',
       image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=400&q=80',
     }
   ],
@@ -216,7 +216,7 @@ const mockProperties = {
       builder: 'MD Builders',
       role: 'Agent',
       location: 'Dwarka Sector 12, New Delhi',
-      price: '₹1.25 Cr',
+      price: 'â‚¹1.25 Cr',
       image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=400&q=80',
     },
     {
@@ -224,7 +224,7 @@ const mockProperties = {
       title: 'Ready Builder Floor',
       builder: 'Owner',
       location: 'Uttam Nagar, New Delhi',
-      price: '₹35.0 L',
+      price: 'â‚¹35.0 L',
       image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80',
     }
   ],
@@ -235,7 +235,7 @@ const mockProperties = {
       builder: 'Uttam Nagar, New Delhi',
       role: 'Search',
       location: 'Ready, Zero Brokerage',
-      price: '₹30L - ₹60L',
+      price: 'â‚¹30L - â‚¹60L',
       image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80',
     },
     {
@@ -244,7 +244,7 @@ const mockProperties = {
       builder: 'Vasant Kunj, New Delhi',
       role: 'Search',
       location: '3 BHK, Fully Furnished',
-      price: '₹1.2Cr - ₹2.5Cr',
+      price: 'â‚¹1.2Cr - â‚¹2.5Cr',
       image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=400&q=80',
     }
   ]
@@ -252,12 +252,20 @@ const mockProperties = {
 
 export function Header() {
   const pathname = usePathname()
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [activeActivityTab, setActiveActivityTab] = useState<'contacted' | 'seen' | 'saved' | 'searches'>('seen')
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { isAuthenticated, user, logout } = useAuthStore()
+
+  const handleLogout = () => {
+    logout()
+    setOpenDropdown(null)
+    setIsMenuOpen(false)
+    router.push('/login')
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -268,14 +276,17 @@ export function Header() {
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (openDropdown && !target.closest('.profile-menu-container') && !target.closest('.group') && !target.closest('button')) {
-        setOpenDropdown(null);
+      const target = e.target as HTMLElement
+      if (
+        openDropdown === 'user' &&
+        !target.closest('.profile-menu-container')
+      ) {
+        setOpenDropdown(null)
       }
-    };
-    document.addEventListener('click', handleOutsideClick);
-    return () => document.removeEventListener('click', handleOutsideClick);
-  }, [openDropdown]);
+    }
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => document.removeEventListener('mousedown', handleOutsideClick)
+  }, [openDropdown])
 
   const isHome = pathname === '/'
   const isTransparent = isHome && !scrolled
@@ -677,25 +688,47 @@ export function Header() {
                           </div>
                           <div>
                             <h4 className="text-sm font-extrabold text-slate-900 leading-tight">
-                              Hello {isAuthenticated ? (user?.name || "KANHARAJ Builder!") : "KANHARAJ Builder!"}
+                              {isAuthenticated
+                                ? `Hello ${user?.name || 'there'}!`
+                                : 'Welcome to Kanharaj'}
                             </h4>
-                            <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                              {isAuthenticated ? (user?.email || "kanharaj1389@gmail.com") : "kanharaj1389@gmail.com"}
-                            </p>
-                            <p className="text-xs text-slate-500 font-semibold">
-                              {isAuthenticated ? (user?.phone || "+91-9599801767") : "+91-9599801767"}
-                            </p>
+                            {isAuthenticated ? (
+                              <>
+                                <p className="text-xs text-slate-500 font-semibold mt-0.5">
+                                  {user?.email}
+                                </p>
+                                {user?.phone && (
+                                  <p className="text-xs text-slate-500 font-semibold">
+                                    {user.phone}
+                                  </p>
+                                )}
+                              </>
+                            ) : (
+                              <p className="text-xs text-slate-500 font-semibold mt-0.5">
+                                Log in to save properties and manage your account
+                              </p>
+                            )}
                           </div>
                         </div>
-                        <Link href="/profile" onClick={() => setOpenDropdown(null)}>
-                          <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs px-3.5 py-1.5 rounded-full font-bold shadow-sm transition-colors">
-                            Edit
-                          </button>
-                        </Link>
+                        {isAuthenticated ? (
+                          <Link href="/profile" onClick={() => setOpenDropdown(null)}>
+                            <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs px-3.5 py-1.5 rounded-full font-bold shadow-sm transition-colors">
+                              Edit
+                            </button>
+                          </Link>
+                        ) : (
+                          <Link href="/login" onClick={() => setOpenDropdown(null)}>
+                            <button className="bg-[#f22b68] hover:bg-[#e01f5c] text-white text-xs px-3.5 py-1.5 rounded-full font-bold shadow-sm transition-colors">
+                              Log In
+                            </button>
+                          </Link>
+                        )}
                       </div>
 
-                      {/* My Activity Header */}
-                      <div className="flex flex-col gap-2">
+                      {isAuthenticated && (
+                        <>
+                          {/* My Activity Header */}
+                          <div className="flex flex-col gap-2">
                         <h3 className="text-sm font-black text-slate-800 tracking-tight">My Activity</h3>
                         <div className="grid grid-cols-4 gap-1.5 relative">
                           {/* Contacted Properties */}
@@ -875,6 +908,9 @@ export function Header() {
                         </Link>
                       </div>
 
+                        </>
+                      )}
+
                       {/* Visit Help Center card */}
                       <Link href="/about" onClick={() => setOpenDropdown(null)} className="block">
                         <div className="bg-[#f5f3ff] hover:bg-[#ede9fe] border border-[#e9e3ff] text-[#6d28d9] px-4 py-3 rounded-2xl flex items-center justify-between transition-all shadow-sm">
@@ -886,17 +922,35 @@ export function Header() {
                         </div>
                       </Link>
 
-                      {/* Log Out button card */}
-                      <button
-                        onClick={() => { logout(); setOpenDropdown(null) }}
-                        className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-4 py-3 rounded-2xl flex items-center justify-between transition-all shadow-sm font-extrabold text-xs w-full"
-                      >
-                        <div className="flex items-center gap-3">
-                          <LogOut className="h-4.5 w-4.5 text-slate-500" />
-                          <span>Log Out</span>
-                        </div>
-                        <ChevronRight className="h-4.5 w-4.5 text-slate-500" />
-                      </button>
+                      {isAuthenticated ? (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            handleLogout()
+                          }}
+                          className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-4 py-3 rounded-2xl flex items-center justify-between transition-all shadow-sm font-extrabold text-xs w-full"
+                        >
+                          <div className="flex items-center gap-3">
+                            <LogOut className="h-4.5 w-4.5 text-slate-500" />
+                            <span>Log Out</span>
+                          </div>
+                          <ChevronRight className="h-4.5 w-4.5 text-slate-500" />
+                        </button>
+                      ) : (
+                        <Link
+                          href="/login"
+                          onClick={() => setOpenDropdown(null)}
+                          className="bg-[#f22b68] hover:bg-[#e01f5c] text-white px-4 py-3 rounded-2xl flex items-center justify-between transition-all shadow-sm font-extrabold text-xs w-full"
+                        >
+                          <div className="flex items-center gap-3">
+                            <User className="h-4.5 w-4.5" />
+                            <span>Log In / Register</span>
+                          </div>
+                          <ChevronRight className="h-4.5 w-4.5" />
+                        </Link>
+                      )}
 
                       {/* Download App & QR block */}
                       <div className="bg-gradient-to-br from-slate-50 to-indigo-50/20 border border-slate-100 p-4 rounded-[22px] flex items-center justify-between gap-3 shadow-sm">
@@ -1309,7 +1363,7 @@ export function Header() {
                   <div className="flex items-center gap-2.5">
                     <User className="h-4.5 w-4.5 text-[#f22b68]" />
                     <span>
-                      {isAuthenticated ? (user?.name || "KANHARAJ Builder!") : "KANHARAJ Builder!"} (Dashboard)
+                      {isAuthenticated ? (user?.name || 'My Account') : 'Account'} (Dashboard)
                     </span>
                   </div>
                   <ChevronDown className={cn("h-4 w-4 transition-transform duration-200 text-slate-400", openDropdown === 'mobile-user' ? "rotate-180" : "")} />
@@ -1327,24 +1381,44 @@ export function Header() {
                       <div className="bg-[#f8fafc] border border-slate-100 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
                         <div>
                           <h4 className="text-xs font-black text-slate-900 leading-tight">
-                            {isAuthenticated ? (user?.name || "KANHARAJ Builder!") : "KANHARAJ Builder!"}
+                            {isAuthenticated ? (user?.name || 'My Account') : 'Welcome to Kanharaj'}
                           </h4>
-                          <p className="text-[10px] text-slate-500 font-bold mt-0.5">
-                            {isAuthenticated ? (user?.email || "kanharaj1389@gmail.com") : "kanharaj1389@gmail.com"}
-                          </p>
-                          <p className="text-[10px] text-slate-400 font-bold mt-0.5">
-                            {isAuthenticated ? (user?.phone || "+91-9599801767") : "+91-9599801767"}
-                          </p>
+                          {isAuthenticated ? (
+                            <>
+                              <p className="text-[10px] text-slate-500 font-bold mt-0.5">
+                                {user?.email}
+                              </p>
+                              {user?.phone && (
+                                <p className="text-[10px] text-slate-400 font-bold mt-0.5">
+                                  {user.phone}
+                                </p>
+                              )}
+                            </>
+                          ) : (
+                            <p className="text-[10px] text-slate-500 font-bold mt-0.5">
+                              Log in to access your dashboard
+                            </p>
+                          )}
                         </div>
-                        <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
-                          <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[10px] px-3 py-1 rounded-full font-bold shadow-sm transition-colors">
-                            Edit
-                          </button>
-                        </Link>
+                        {isAuthenticated ? (
+                          <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
+                            <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[10px] px-3 py-1 rounded-full font-bold shadow-sm transition-colors">
+                              Edit
+                            </button>
+                          </Link>
+                        ) : (
+                          <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                            <button className="bg-[#f22b68] hover:bg-[#e01f5c] text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-sm transition-colors">
+                              Log In
+                            </button>
+                          </Link>
+                        )}
                       </div>
 
-                      {/* Mobile Activity Tabs Grid */}
-                      <div className="flex flex-col gap-2">
+                      {isAuthenticated && (
+                        <>
+                          {/* Mobile Activity Tabs Grid */}
+                          <div className="flex flex-col gap-2">
                         <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider">My Activity</span>
                         <div className="grid grid-cols-4 gap-1.5">
                           {/* Contacted */}
@@ -1492,6 +1566,9 @@ export function Header() {
                         </Link>
                       </div>
 
+                        </>
+                      )}
+
                       {/* Actions */}
                       <div className="space-y-2 pr-2">
                         <Link href="/about" onClick={() => setIsMenuOpen(false)} className="block">
@@ -1504,16 +1581,35 @@ export function Header() {
                           </div>
                         </Link>
 
-                        <button
-                          onClick={() => { logout(); setIsMenuOpen(false) }}
-                          className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-3.5 py-2.5 rounded-xl flex items-center justify-between transition-colors font-extrabold text-xs w-full"
-                        >
-                          <div className="flex items-center gap-2">
-                            <LogOut className="h-4 w-4 text-slate-500" />
-                            <span>Log Out</span>
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-slate-500" />
-                        </button>
+                        {isAuthenticated ? (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              handleLogout()
+                            }}
+                            className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-3.5 py-2.5 rounded-xl flex items-center justify-between transition-colors font-extrabold text-xs w-full"
+                          >
+                            <div className="flex items-center gap-2">
+                              <LogOut className="h-4 w-4 text-slate-500" />
+                              <span>Log Out</span>
+                            </div>
+                            <ChevronRight className="h-4 w-4 text-slate-500" />
+                          </button>
+                        ) : (
+                          <Link
+                            href="/login"
+                            onClick={() => setIsMenuOpen(false)}
+                            className="bg-[#f22b68] hover:bg-[#e01f5c] text-white px-3.5 py-2.5 rounded-xl flex items-center justify-between transition-colors font-extrabold text-xs w-full"
+                          >
+                            <div className="flex items-center gap-2">
+                              <User className="h-4 w-4" />
+                              <span>Log In / Register</span>
+                            </div>
+                            <ChevronRight className="h-4 w-4" />
+                          </Link>
+                        )}
                       </div>
                     </motion.div>
                   )}

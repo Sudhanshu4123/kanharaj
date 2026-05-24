@@ -313,7 +313,12 @@ export const useAuthStore = create<AuthStore>()(
           throw err
         }
       },
-      logout: () => set({ user: null, token: null, isAuthenticated: false }),
+      logout: () => {
+        set({ user: null, token: null, isAuthenticated: false, users: [] })
+        if (typeof window !== 'undefined') {
+          useAuthStore.persist.clearStorage()
+        }
+      },
       updateProfile: async (data) => {
         try {
           const state = useAuthStore.getState();
@@ -377,6 +382,11 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: 'kanharaj-auth',
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 )

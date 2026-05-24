@@ -538,7 +538,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-black text-slate-800">Call Us</p>
-                  <p className="text-xs text-slate-500 font-bold mt-0.5">1800-313-4777</p>
+                  <p className="text-xs text-slate-500 font-bold mt-0.5">9599801767</p>
                 </div>
               </div>
 
@@ -549,7 +549,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-black text-slate-800">Email Us</p>
-                  <p className="text-xs text-slate-500 font-bold mt-0.5">support@kanharaj.com</p>
+                  <p className="text-xs text-slate-500 font-bold mt-0.5">kanharaj1389@gmail.com</p>
                 </div>
               </div>
             </div>

@@ -157,7 +157,11 @@ export default function ProfilePage() {
             {/* Logout */}
             <div className="pb-2 shrink-0">
               <Button
-                onClick={logout}
+                type="button"
+                onClick={() => {
+                  logout()
+                  router.push('/login')
+                }}
                 variant="ghost"
                 className="text-rose-600 hover:bg-rose-50 font-bold rounded-xl border border-rose-200 px-4"
               >

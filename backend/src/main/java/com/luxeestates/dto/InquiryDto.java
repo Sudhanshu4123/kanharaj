@@ -16,6 +16,7 @@ public class InquiryDto {
     private Long id;
     private Long propertyId;
     private String propertyTitle;
+    private String propertyLocation;
     private Long userId;
     private String name;
     private String email;
@@ -25,10 +26,19 @@ public class InquiryDto {
     private LocalDateTime createdAt;
 
     public static InquiryDto fromEntity(Inquiry inquiry) {
+        String location = null;
+        if (inquiry.getProperty() != null) {
+            String addr = inquiry.getProperty().getAddress();
+            String city = inquiry.getProperty().getCity();
+            if (addr != null && city != null) location = addr + ", " + city;
+            else if (city != null) location = city;
+            else if (addr != null) location = addr;
+        }
         return InquiryDto.builder()
                 .id(inquiry.getId())
                 .propertyId(inquiry.getProperty() != null ? inquiry.getProperty().getId() : null)
                 .propertyTitle(inquiry.getProperty() != null ? inquiry.getProperty().getTitle() : "General Inquiry")
+                .propertyLocation(location)
                 .userId(inquiry.getUser() != null ? inquiry.getUser().getId() : null)
                 .name(inquiry.getName())
                 .email(inquiry.getEmail())

@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
-import { ChevronDown, Search, Info, Menu, User, Phone, X, Shield, ArrowUpDown, Waves, Dumbbell, Car, Flame, Check } from 'lucide-react'
+import { ChevronDown, Search, Info, Menu, User, Phone, X, Shield, ArrowUpDown, Waves, Dumbbell, Car, Flame, Check, LogOut } from 'lucide-react'
 import Link from 'next/link'
 import * as Slider from '@radix-ui/react-slider'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { HousingPropertyCard } from '@/components/properties/housing-property-card'
-import { usePropertyStore } from '@/lib/store'
+import { usePropertyStore, useAuthStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
 export default function PropertiesContent() {
@@ -18,6 +18,20 @@ export default function PropertiesContent() {
 
   const [mounted, setMounted] = useState(false)
   const [search, setSearch] = useState(searchParams.get('search') || '')
+
+  // Profile dropdown and Auth store
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+  const { isAuthenticated, user, logout } = useAuthStore()
+
+  const handleLogout = () => {
+    logout()
+    setProfileDropdownOpen(false)
+    router.push('/login')
+  }
+
+  const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
+    ? process.env.NEXT_PUBLIC_SELLER_URL
+    : "http://localhost:3001";
 
   // Dropdown UI state
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
@@ -194,6 +208,7 @@ export default function PropertiesContent() {
     const urlSearch = searchParams.get('search') || ''
     const type = searchParams.get('type')
     const listing = searchParams.get('listing')?.toUpperCase()
+    const urlBhk = searchParams.get('bhk')
 
     if (urlSearch) setSearch(urlSearch)
 
@@ -204,6 +219,16 @@ export default function PropertiesContent() {
     }
     if (listing && (listing === 'BUY' || listing === 'RENT')) {
       initialFilters.listingType = listing
+    }
+    if (urlBhk) {
+      let mappedBhk = '';
+      if (urlBhk.toLowerCase() === '1rk') {
+        mappedBhk = '1 RK';
+      } else {
+        mappedBhk = `${urlBhk} BHK`;
+      }
+      setBhkTypes([mappedBhk])
+      initialFilters.bedrooms = [urlBhk.toLowerCase() === '1rk' ? 1 : parseInt(urlBhk)]
     }
 
     setFilters(initialFilters)
@@ -314,11 +339,28 @@ export default function PropertiesContent() {
   // Real-time filtering effect based on selected top filters
   useEffect(() => {
     if (mounted) {
+      // Parse search query for keywords like "3 BHK" dynamically
+      let parsedBhk = [...bhkTypes];
+      let displaySearch = search;
+      
+      const bhkPattern = /(\d)\s*(bhk|rk)/i;
+      const match = bhkPattern.exec(search);
+      if (match) {
+        const num = match[1];
+        const type = match[2].toUpperCase();
+        const detectedBhk = type === 'RK' ? `${num} RK` : `${num} BHK`;
+        if (!parsedBhk.includes(detectedBhk)) {
+          parsedBhk.push(detectedBhk);
+        }
+        // Clean search query to only look for location (e.g. "delhi")
+        displaySearch = search.replace(/(\d)\s*(bhk|rk)s?/i, '').replace(/\b(in|at|for|near)\b/gi, '').replace(/\s+/g, ' ').trim();
+      }
+
       setFilters({
-        search,
+        search: displaySearch,
         propertyType: propertyTypes.length > 0 ? propertyTypes.map(t => t.toUpperCase()) : [],
         listingType: listingMode ? listingMode.toUpperCase() as any : 'all',
-        bedrooms: bhkTypes.length > 0 ? bhkTypes.map(b => b.includes('+') ? 5 : parseInt(b.split(' ')[0])).filter(n => !isNaN(n)) : [],
+        bedrooms: parsedBhk.length > 0 ? parsedBhk.map(b => b.includes('+') ? 5 : parseInt(b.split(' ')[0])).filter(n => !isNaN(n)) : [],
         priceMin: budgetRange[0] * 10000000, // Crores to local
         priceMax: budgetRange[1] === 20 ? 10000000000 : budgetRange[1] * 10000000,
       })
@@ -371,15 +413,71 @@ export default function PropertiesContent() {
           <button className="text-sm font-bold flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded transition whitespace-nowrap">
             <Phone className="w-4 h-4" /> Download App
           </button>
-          <Button className="bg-[#00D289] hover:bg-[#00c07d] text-white font-bold rounded shadow-none h-9 px-5 whitespace-nowrap">
-            Dashboard
-          </Button>
-          <button className="flex items-center gap-2 bg-white rounded-full p-1 pl-3 shadow-sm hover:bg-slate-50 transition border border-transparent ml-1 cursor-pointer">
-            <Menu className="w-4 h-4 text-slate-700" />
-            <div className="w-7 h-7 rounded-full bg-[#6B46C1] flex items-center justify-center text-white">
-              <User className="w-4 h-4" />
-            </div>
-          </button>
+          
+          <Link href={SELLER_URL}>
+            <Button className="bg-[#00D289] hover:bg-[#00c07d] text-white font-bold rounded shadow-none h-9 px-5 whitespace-nowrap cursor-pointer">
+              Dashboard
+            </Button>
+          </Link>
+
+          {/* Profile Menu Dropdown */}
+          <div className="relative profile-menu-container">
+            <button 
+              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+              className="flex items-center gap-2 bg-white rounded-full p-1 pl-3 shadow-sm hover:bg-slate-50 transition border border-slate-200 ml-1 cursor-pointer focus:outline-none"
+            >
+              <Menu className="w-4 h-4 text-slate-700" />
+              <div className="w-7 h-7 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-[11px] font-black overflow-hidden shrink-0">
+                {isAuthenticated && user?.profileImage ? (
+                  <img src={user.profileImage} alt={user.name || "User"} className="w-full h-full object-cover" />
+                ) : isAuthenticated ? (
+                  user?.name?.charAt(0).toUpperCase()
+                ) : (
+                  <User className="w-4 h-4" />
+                )}
+              </div>
+            </button>
+
+            {profileDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setProfileDropdownOpen(false)} />
+                <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 shadow-xl rounded-xl py-1.5 z-50 overflow-hidden text-slate-800">
+                  {isAuthenticated ? (
+                    <>
+                      <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
+                        <p className="text-xs font-black text-slate-800 truncate">{user?.name || "User Account"}</p>
+                        <p className="text-[10px] text-slate-400 truncate mt-0.5">{user?.email}</p>
+                      </div>
+                      <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                        <User className="w-3.5 h-3.5 text-slate-400" /> My Profile
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          handleLogout()
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-rose-600 hover:bg-slate-50 border-t border-slate-100 transition-colors text-left cursor-pointer"
+                      >
+                        <LogOut className="w-3.5 h-3.5" /> Log Out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
+                        <p className="text-xs font-black text-slate-800">Welcome to Kanharaj</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Login to access dashboard & profile</p>
+                      </div>
+                      <Link href="/login" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                        <User className="w-3.5 h-3.5 text-slate-400" /> Log In / Register
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
