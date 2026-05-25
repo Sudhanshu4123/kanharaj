@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from 'react'
 import ContactContent from "./ContactContent"
 import { buildPageMetadata } from '@/lib/seo'
 
@@ -9,6 +10,18 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/contact',
 })
 
+function ContactLoading() {
+  return (
+    <div className="min-h-[50vh] flex items-center justify-center">
+      <div className="w-10 h-10 border-4 border-rose-600 border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
+}
+
 export default function ContactPage() {
-  return <ContactContent />
+  return (
+    <Suspense fallback={<ContactLoading />}>
+      <ContactContent />
+    </Suspense>
+  )
 }
