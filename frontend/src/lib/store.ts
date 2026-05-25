@@ -25,7 +25,7 @@ interface PropertyStore {
   resetFilters: () => void
   filteredProperties: () => Property[]
   setLoading: (loading: boolean) => void
-  fetchProperties: () => Promise<void>
+  fetchProperties: (pageSize?: number) => Promise<void>
   fetchMyProperties: (token: string) => Promise<void>
   createProperty: (prop: Partial<Property>, token?: string) => Promise<Property>
   updateProperty: (id: string, prop: Partial<Property>, token?: string) => Promise<Property>
@@ -533,7 +533,7 @@ export const useInquiryStore = create<InquiryStore>((set, get) => ({
 }))
 
 // Helper exports
-export const fetchProperties = () => usePropertyStore.getState().fetchProperties()
+export const fetchProperties = (pageSize?: number) => usePropertyStore.getState().fetchProperties(pageSize)
 export const createPropertyAPI = (prop: Partial<Property>, token?: string) => usePropertyStore.getState().createProperty(prop, token)
 export const updatePropertyAPI = (id: string, prop: Partial<Property>, token?: string) => usePropertyStore.getState().updateProperty(id, prop, token)
 export const deletePropertyAPI = (id: string, token?: string) => usePropertyStore.getState().deleteProperty(id, token)
