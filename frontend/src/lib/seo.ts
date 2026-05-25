@@ -177,12 +177,12 @@ export function buildRootMetadata(): Metadata {
     },
     icons: {
       icon: [
-        { url: '/favicon.ico', sizes: 'any' },
-        { url: '/icon.png', type: 'image/png', sizes: '32x32' },
-        { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+        { url: '/icon.png?v=5', type: 'image/png', sizes: '512x512' },
+        { url: '/favicon-32x32.png?v=5', type: 'image/png', sizes: '32x32' },
+        { url: '/favicon.ico?v=5', sizes: '48x48' },
       ],
-      shortcut: '/favicon.ico',
-      apple: '/apple-icon.png',
+      shortcut: '/icon.png?v=5',
+      apple: '/apple-icon.png?v=5',
     },
     verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
       ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
