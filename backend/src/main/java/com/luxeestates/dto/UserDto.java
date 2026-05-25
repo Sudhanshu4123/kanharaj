@@ -43,7 +43,8 @@ public class UserDto {
                 .profileImage(user.getProfileImage())
                 .description(user.getDescription())
                 .experienceYears(user.getExperienceYears())
-                .subscriptionPlan("NONE")
+                .subscriptionPlan(user.getSubscriptionPlan() != null ? user.getSubscriptionPlan() : "NONE")
+                .subscriptionExpiry(user.getSubscriptionExpiry())
                 .build();
     }
 }

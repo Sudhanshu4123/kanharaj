@@ -31,6 +31,7 @@ public class PropertyService {
                 .map(PropertyDto::fromEntity);
     }
     
+    @Cacheable(value = "featuredProperties", unless = "#result == null || #result.isEmpty()")
     public List<PropertyDto> getFeaturedProperties() {
         return propertyRepository.findByFeaturedTrueAndStatus(Property.Status.ACTIVE, Pageable.ofSize(6))
                 .map(PropertyDto::fromEntity)
@@ -44,6 +45,7 @@ public class PropertyService {
     }
     
     @Transactional
+    @CacheEvict(value = { "platformStats", "featuredProperties", "properties" }, allEntries = true)
     public PropertyDto createProperty(PropertyDto dto, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -90,6 +92,7 @@ public class PropertyService {
     }
     
     @Transactional
+    @CacheEvict(value = { "platformStats", "featuredProperties", "properties" }, allEntries = true)
     public PropertyDto updateProperty(Long id, PropertyDto dto, Long userId) {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
@@ -118,7 +121,7 @@ public class PropertyService {
     }
     
     @Transactional
-    @CacheEvict(value = "properties", allEntries = true)
+    @CacheEvict(value = { "platformStats", "featuredProperties", "properties" }, allEntries = true)
     public void deleteProperty(Long id, Long userId) {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
@@ -162,14 +165,17 @@ public class PropertyService {
         return propertyRepository.countByFeaturedTrueAndStatus(Property.Status.ACTIVE);
     }
     
+    @Cacheable(value = "platformStats", unless = "#result == null")
     public java.util.Map<String, Object> getPlatformStats() {
         java.util.Map<String, Object> stats = new java.util.HashMap<>();
         Long totalProperties = propertyRepository.countByStatus(Property.Status.ACTIVE);
         Long totalBuyers = userRepository.countByRole(User.Role.USER);
+        Long totalSellers = userRepository.countByRole(User.Role.SELLER);
         Long totalCities = propertyRepository.countDistinctCityByStatus(Property.Status.ACTIVE);
         
         stats.put("properties", totalProperties != null ? totalProperties : 0L);
         stats.put("buyers", totalBuyers != null ? totalBuyers : 0L);
+        stats.put("sellers", totalSellers != null ? totalSellers : 0L);
         stats.put("cities", totalCities != null ? totalCities : 0L);
         stats.put("verifiedPercent", 100);
         

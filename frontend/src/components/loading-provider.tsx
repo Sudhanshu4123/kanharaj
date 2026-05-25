@@ -1,17 +1,14 @@
 "use client"
 
 import { usePropertyStore } from "@/lib/store"
-import { Loader } from "@/components/ui/loader"
-import { AnimatePresence } from "framer-motion"
+import { PageLoadingBar } from "@/components/ui/page-loading-bar"
 
 export function LoadingProvider({ children }: { children: React.ReactNode }) {
   const loading = usePropertyStore((state) => state.loading)
 
   return (
     <>
-      <AnimatePresence>
-        {loading && <Loader />}
-      </AnimatePresence>
+      <PageLoadingBar active={loading} />
       {children}
     </>
   )

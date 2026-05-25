@@ -61,9 +61,19 @@ public class InquiryService {
     }
 
     @Transactional
-    public InquiryDto updateStatus(Long id, Inquiry.InquiryStatus status) {
+    public InquiryDto updateStatus(Long id, Inquiry.InquiryStatus status, Long actorUserId, boolean isAdmin) {
         Inquiry inquiry = inquiryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Inquiry not found"));
+
+        if (!isAdmin) {
+            Long sellerId = inquiry.getProperty() != null && inquiry.getProperty().getUser() != null
+                    ? inquiry.getProperty().getUser().getId()
+                    : null;
+            if (sellerId == null || !sellerId.equals(actorUserId)) {
+                throw new org.springframework.security.access.AccessDeniedException("Not allowed to update this inquiry");
+            }
+        }
+
         inquiry.setStatus(status);
         return InquiryDto.fromEntity(inquiryRepository.save(inquiry));
     }

@@ -1,6 +1,8 @@
 import type { Metadata, ResolvingMetadata } from "next"
 import PropertyDetailContent from "./PropertyDetailContent"
 import { notFound } from "next/navigation"
+import { JsonLd } from "@/components/seo/json-ld"
+import { absoluteUrl, buildPropertyJsonLd, SITE, SITE_OG_IMAGE } from "@/lib/seo"
 
 type Props = {
   params: { id: string }
@@ -32,7 +34,7 @@ async function getProperty(id: string) {
 
   try {
     const res = await fetch(fetchUrl, {
-      cache: 'no-store', // Always fetch fresh — never use cached version
+      next: { revalidate: 120 },
     });
     if (!res.ok) {
       console.error(`[PropertyPage] API returned ${res.status} for id=${id}, url=${fetchUrl}`)
@@ -68,35 +70,42 @@ export async function generateMetadata(
     ? property.images
     : (typeof property.images === 'string' ? JSON.parse(property.images || '[]') : [])
 
-  // For OpenGraph, we need absolute URLs only
-  const baseUrl = "https://kanharaj.com"
+  const pageUrl = absoluteUrl(`/property/${id}`)
   const ogImages = rawImages
     .map(normalizeImage)
-    .map(img => img.startsWith('http') ? img : `${baseUrl}${img}`)
+    .map((img) => (img.startsWith('http') ? img : absoluteUrl(img)))
+    .filter(Boolean)
     .slice(0, 1)
 
+  const ogImage = ogImages[0] || SITE_OG_IMAGE
+
   return {
-    title: property.title,
+    title: `${property.title} | ${SITE.name}`,
     description,
+    alternates: { canonical: pageUrl },
     openGraph: {
       title: property.title,
       description,
-      url: `${baseUrl}/property/${id}`,
-      siteName: "Kanharaj",
-      images: ogImages.map(url => ({
-        url,
-        width: 1200,
-        height: 630,
-        alt: property.title,
-      })),
-      type: "article",
+      url: pageUrl,
+      siteName: SITE.name,
+      locale: SITE.locale,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: property.title,
+        },
+      ],
+      type: 'website',
     },
     twitter: {
-      card: "summary_large_image",
+      card: 'summary_large_image',
       title: property.title,
       description,
-      images: ogImages,
+      images: [ogImage],
     },
+    robots: { index: true, follow: true },
   }
 }
 
@@ -122,7 +131,36 @@ export default async function PropertyDetailPage({ params }: Props) {
     description: property.description || '',
     images: rawImages.map(normalizeImage).filter(Boolean),
     amenities: rawAmenities,
+    user: property.user || (property.userId ? {
+      id: String(property.userId),
+      name: property.userName || 'Seller',
+      email: '',
+      phone: property.userPhone || '',
+      role: 'SELLER',
+      profileImage: property.userProfileImage,
+      description: property.userDescription,
+      experienceYears: property.userExperienceYears,
+    } : undefined),
   }
 
-  return <PropertyDetailContent property={transformedProperty} />
+  const jsonLd = buildPropertyJsonLd({
+    id: transformedProperty.id,
+    title: transformedProperty.title,
+    description: transformedProperty.description,
+    price: transformedProperty.price,
+    listingType: transformedProperty.listingType,
+    propertyType: transformedProperty.propertyType,
+    address: transformedProperty.address,
+    city: transformedProperty.city,
+    state: transformedProperty.state,
+    images: transformedProperty.images,
+    bhk: transformedProperty.bhk,
+  })
+
+  return (
+    <>
+      <JsonLd data={jsonLd} />
+      <PropertyDetailContent property={transformedProperty} />
+    </>
+  )
 }

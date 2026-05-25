@@ -6,6 +6,8 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Plus, ChevronDown, Menu, X, User, LogOut, FileText, Settings, ShieldAlert, Lock, Megaphone, ExternalLink } from "lucide-react"
+import { logoutFromSellerDashboard } from "@/lib/auth"
+import { normalizeProfileImageUrl } from "@/lib/profile-utils"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -65,15 +67,20 @@ export default function RootLayout({
     }
 
     fetchUser()
+
+    const onProfileUpdated = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      if (detail) setUser(detail)
+    }
+    window.addEventListener("seller-profile-updated", onProfileUpdated)
+    return () => window.removeEventListener("seller-profile-updated", onProfileUpdated)
   }, [pathname, router, isLoginPage])
 
   const handleLogout = () => {
-    localStorage.removeItem("seller_token")
-    localStorage.removeItem("seller_user")
     setUser(null)
     setProfileDropdownOpen(false)
     setMobileMenuOpen(false)
-    router.push("/login")
+    logoutFromSellerDashboard()
   }
 
   // Close dropdowns on route change
@@ -225,8 +232,16 @@ export default function RootLayout({
                       onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                       className="flex items-center gap-2 cursor-pointer focus:outline-none active:scale-95 transition-all"
                     >
-                      <div className="w-8 h-8 rounded-full bg-white/15 border border-white/25 flex items-center justify-center text-white font-bold text-sm uppercase">
-                        {user?.name?.charAt(0) || "S"}
+                      <div className="w-8 h-8 rounded-full bg-white/15 border border-white/25 flex items-center justify-center text-white font-bold text-sm uppercase overflow-hidden">
+                        {normalizeProfileImageUrl(user?.profileImage) ? (
+                          <img
+                            src={normalizeProfileImageUrl(user?.profileImage)}
+                            alt={user?.name || "Seller"}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          user?.name?.charAt(0) || "S"
+                        )}
                       </div>
                     </button>
                     {profileDropdownOpen && (

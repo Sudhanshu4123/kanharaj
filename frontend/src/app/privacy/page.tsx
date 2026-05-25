@@ -1,9 +1,13 @@
 import { Shield, Lock, Eye, FileText, Globe, Mail, Users, CreditCard, CheckCircle } from 'lucide-react'
+import type { Metadata } from 'next'
+import { buildPageMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'Privacy Policy | Kanharaj - Dwarka Real Estate',
-  description: 'Our commitment to protecting your data and ensuring a transparent real estate experience.',
-}
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Privacy Policy',
+  description: 'Kanharaj privacy policy — how we protect your data for property search, listings and payments.',
+  path: '/privacy',
+  noIndex: true,
+})
 
 export default function PrivacyPolicy() {
   const lastUpdated = 'May 15, 2024'

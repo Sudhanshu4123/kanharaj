@@ -20,7 +20,8 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { fetchPlatformStats, formatStatCount } from "@/lib/platform-data"
 
 const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
   ? process.env.NEXT_PUBLIC_SELLER_URL
@@ -123,8 +124,15 @@ const loadRazorpayScript = () => {
 export default function ForSellersPage() {
   const [months, setMonths] = useState(1)
   const [loading, setLoading] = useState(false)
-  const { token, isAuthenticated } = useAuthStore()
+  const [platformStats, setPlatformStats] = useState({ buyers: 0, sellers: 0 })
+  const { token, isAuthenticated, refreshUser } = useAuthStore()
   const router = useRouter()
+
+  useEffect(() => {
+    fetchPlatformStats().then((s) => {
+      if (s) setPlatformStats({ buyers: s.buyers, sellers: s.sellers })
+    })
+  }, [])
 
   const getPrice = (monthlyPrice: number, months: number) => {
     return monthlyPrice * months
@@ -194,7 +202,8 @@ export default function ForSellersPage() {
               return
             }
 
-            const verifyData = await verifyRes.json()
+            await verifyRes.json()
+            await refreshUser()
             alert("Payment Successful! Welcome to Seller Hub.")
             window.location.href = `${SELLER_URL}/login?token=${token}`
           } catch (err) {
@@ -254,20 +263,25 @@ export default function ForSellersPage() {
                     Post Property Now
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="border-slate-200 text-slate-700 font-bold px-8 h-14 rounded-2xl bg-white hover:bg-slate-50">
-                  <PlayCircle className="mr-2 h-5 w-5 text-rose-600" /> Watch Demo
-                </Button>
+                <Link href={`${SELLER_URL}/login`}>
+                  <Button variant="outline" size="lg" className="border-slate-200 text-slate-700 font-bold px-8 h-14 rounded-2xl bg-white hover:bg-slate-50">
+                    <PlayCircle className="mr-2 h-5 w-5 text-rose-600" /> Seller Dashboard
+                  </Button>
+                </Link>
               </div>
               <div className="mt-10 flex items-center gap-6">
                 <div className="flex -space-x-3">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
-                      <img src={`https://i.pravatar.cc/100?u=${i}`} alt="User" />
+                  {['S', 'K', 'P', 'R'].map((letter, i) => (
+                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-rose-100 text-rose-700 font-black flex items-center justify-center text-sm">
+                      {letter}
                     </div>
                   ))}
                 </div>
                 <p className="text-sm text-slate-500">
-                  <span className="font-bold text-slate-900">10,000+</span> sellers already joined
+                  <span className="font-bold text-slate-900">{platformStats.sellers > 0 ? formatStatCount(platformStats.sellers) : 'Growing'}</span> sellers on Kanharaj
+                  {platformStats.buyers > 0 && (
+                    <> · <span className="font-bold text-slate-900">{formatStatCount(platformStats.buyers)}</span> buyers registered</>
+                  )}
                 </p>
               </div>
             </motion.div>

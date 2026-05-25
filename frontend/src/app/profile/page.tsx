@@ -1,32 +1,36 @@
 "use client"
 
 import { useAuthStore, usePropertyStore } from '@/lib/store'
-import { useRouter } from 'next/navigation'
+import { MyActivityPanel, type ActivityTab } from '@/components/header/my-activity-panel'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import {
-  LogOut, Heart, History, Camera, Check, Loader2,
+  LogOut, History, Camera, Check, Loader2,
   Briefcase, FileText, ChevronRight, Shield, Mail, Phone, User as UserIcon
 } from 'lucide-react'
-import { PropertyCard } from '@/components/properties/property-card'
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
+import { normalizeProfileImageUrl, uploadProfileImage } from '@/lib/profile-utils'
+import { hasSellerDashboardAccess } from '@/lib/utils'
 
 type TabType = 'activity' | 'edit'
 
 export default function ProfilePage() {
-  const { user, isAuthenticated, logout, updateProfile, token } = useAuthStore()
-  const { properties, wishlist } = usePropertyStore()
+  const { user, isAuthenticated, logout, updateProfile, token, refreshUser } = useAuthStore()
+  const { fetchProperties } = usePropertyStore()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const fileRef = useRef<HTMLInputElement>(null)
 
+  const [authReady, setAuthReady] = useState(false)
   const [activeTab, setActiveTab] = useState<TabType>('edit')
+  const [activityTab, setActivityTab] = useState<ActivityTab>('saved')
   const [saving, setSaving] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [saveError, setSaveError] = useState('')
+  const [uploadError, setUploadError] = useState('')
 
   const [form, setForm] = useState({
     name: '',
@@ -37,74 +41,111 @@ export default function ProfilePage() {
   })
 
   useEffect(() => {
-    if (!isAuthenticated) router.push('/login')
-  }, [isAuthenticated, router])
+    const finish = () => setAuthReady(true)
+    if (useAuthStore.persist.hasHydrated()) finish()
+    else return useAuthStore.persist.onFinishHydration(finish)
+  }, [])
 
   useEffect(() => {
-    if (user) {
-      setForm({
-        name: user.name || '',
-        phone: user.phone || '',
-        description: user.description || '',
-        experienceYears: user.experienceYears || '',
-        profileImage: user.profileImage || '',
-      })
+    if (!authReady) return
+    if (!isAuthenticated) {
+      router.replace('/login?redirect=/profile')
+      return
     }
-  }, [user])
+    refreshUser()
+    fetchProperties()
+  }, [authReady, isAuthenticated, router, refreshUser, fetchProperties])
 
-  if (!isAuthenticated || !user) return null
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab === 'activity') setActiveTab('activity')
+    if (tab === 'edit') setActiveTab('edit')
+    const act = searchParams.get('activity')
+    if (act === 'contacted' || act === 'seen' || act === 'saved' || act === 'searches') {
+      setActivityTab(act)
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    if (!user) return
+    setForm({
+      name: user.name || '',
+      phone: user.phone || '',
+      description: user.description || '',
+      experienceYears: user.experienceYears || '',
+      profileImage: normalizeProfileImageUrl(user.profileImage),
+    })
+  }, [user])
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file) return
+    if (!file || !token) return
     setUploadingImage(true)
+    setUploadError('')
     try {
-      const fd = new FormData()
-      fd.append('files', file)
-      const res = await fetch(`${API_URL}/upload/images`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: fd,
-      })
-      if (!res.ok) throw new Error('Upload failed')
-      const data = await res.json()
-      const url = data.urls?.[0]
-      if (url) setForm(f => ({ ...f, profileImage: url }))
-    } catch (err) {
-      console.error('Image upload error:', err)
+      const url = await uploadProfileImage(file, token)
+      const nextForm = { ...form, profileImage: normalizeProfileImageUrl(url) }
+      setForm(nextForm)
+      await updateProfile(nextForm)
+      await refreshUser()
+      setSaveSuccess(true)
+      setTimeout(() => setSaveSuccess(false), 3000)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Upload failed'
+      setUploadError(msg)
     } finally {
       setUploadingImage(false)
+      if (fileRef.current) fileRef.current.value = ''
     }
   }
 
   const handleRemoveImage = async () => {
-    if (!confirm("Are you sure you want to remove your profile picture?")) return
+    if (!confirm('Remove your profile photo?')) return
+    setUploadError('')
     try {
-      const updatedForm = { ...form, profileImage: null as any }
-      await updateProfile(updatedForm)
-      setForm({ ...form, profileImage: '' })
-      alert("Profile picture removed successfully!")
-    } catch (err) {
-      console.error("Remove image failed", err)
-      alert("Failed to remove profile picture.")
+      const nextForm = { ...form, profileImage: '' }
+      await updateProfile(nextForm)
+      setForm(nextForm)
+      await refreshUser()
+      setSaveSuccess(true)
+      setTimeout(() => setSaveSuccess(false), 3000)
+    } catch {
+      setSaveError('Could not remove profile photo.')
     }
   }
 
   const handleSave = async () => {
+    if (!form.name.trim()) {
+      setSaveError('Name is required.')
+      return
+    }
     setSaving(true)
     setSaveError('')
     try {
       await updateProfile(form)
+      await refreshUser()
       setSaveSuccess(true)
       setTimeout(() => setSaveSuccess(false), 4000)
-    } catch (err: any) {
+    } catch {
       setSaveError('Update failed. Please try again.')
     } finally {
       setSaving(false)
     }
   }
 
-  const currentImage = form.profileImage
+  if (!authReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 pt-24">
+        <Loader2 className="w-10 h-10 animate-spin text-rose-600" />
+      </div>
+    )
+  }
+
+  if (!isAuthenticated || !user) return null
+
+  const currentImage = normalizeProfileImageUrl(form.profileImage)
+  const showSellerDashboard = hasSellerDashboardAccess(user)
+  const roleLabel = String(user.role || 'USER').replace(/_/g, ' ')
 
   return (
     <div className="min-h-screen bg-slate-50 pt-24 pb-20">
@@ -148,8 +189,13 @@ export default function ProfilePage() {
               <h1 className="text-2xl font-black text-slate-900">{user.name}</h1>
               <div className="flex flex-wrap gap-2 mt-2 items-center">
                 <span className="inline-flex items-center px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold uppercase tracking-wide">
-                  {user.role}
+                  {roleLabel}
                 </span>
+                {user.subscriptionPlan && user.subscriptionPlan !== 'NONE' && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wide">
+                    {user.subscriptionPlan} Plan
+                  </span>
+                )}
                 <span className="text-sm text-slate-500">{user.email}</span>
               </div>
             </div>
@@ -248,11 +294,27 @@ export default function ProfilePage() {
                 )}
 
                 {/* Admin Link */}
-                {(user.role === 'ADMIN' || user.role === 'admin') && (
-                  <Link href="/admin" className="mt-4 block">
+                {showSellerDashboard && (
+                  <Link
+                    href={
+                      token
+                        ? `${process.env.NEXT_PUBLIC_SELLER_URL || 'http://localhost:3001'}/login?token=${token}`
+                        : '/for-sellers'
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 block"
+                  >
                     <Button variant="outline" className="w-full rounded-xl font-bold border-slate-200 text-sm">
                       <Shield className="h-4 w-4 mr-2" />
-                      Admin Dashboard
+                      Seller Dashboard
+                    </Button>
+                  </Link>
+                )}
+                {(user.role === 'ADMIN' || user.role === 'admin') && (
+                  <Link href="/admin" className="mt-2 block">
+                    <Button variant="outline" className="w-full rounded-xl font-bold border-slate-200 text-sm">
+                      Admin Panel
                     </Button>
                   </Link>
                 )}
@@ -369,6 +431,11 @@ export default function ProfilePage() {
                       Profile updated successfully!
                     </div>
                   )}
+                  {uploadError && (
+                    <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm font-bold">
+                      {uploadError}
+                    </div>
+                  )}
                   {saveError && (
                     <div className="mt-3 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm font-bold">
                       {saveError}
@@ -383,31 +450,12 @@ export default function ProfilePage() {
         {/* ── Activity Tab ── */}
         {activeTab === 'activity' && (
           <div className="space-y-6">
-            {/* Shortlisted Properties */}
-            <div>
-              <h2 className="text-xl font-black text-slate-900 mb-4 flex items-center gap-2">
-                <Heart size={20} className="text-rose-500" /> Shortlisted Properties
-              </h2>
-              {properties.filter(p => wishlist.includes(String(p.id))).length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {properties.filter(p => wishlist.includes(String(p.id))).map(property => (
-                    <PropertyCard key={property.id} property={property} />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-200">
-                  <div className="h-16 w-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Heart className="h-8 w-8 text-rose-300" />
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900">No shortlisted properties</h3>
-                  <p className="text-slate-400 text-sm mt-1">Heart properties you like to save them here.</p>
-                  <Link href="/properties" className="mt-6 inline-block">
-                    <Button className="bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl px-8 mt-4">
-                      Browse Properties
-                    </Button>
-                  </Link>
-                </div>
-              )}
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+              <MyActivityPanel
+                variant="desktop"
+                activeTab={activityTab}
+                setActiveTab={setActivityTab}
+              />
             </div>
 
             {/* Support */}

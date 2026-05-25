@@ -25,6 +25,12 @@ import {
   Settings2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import {
+  attachInquiryCounts,
+  computeListingQualityScore,
+  fetchMyProperties,
+  fetchSellerLeads,
+} from "@/lib/seller-data"
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function lqsColor(score: number): string {
@@ -55,8 +61,7 @@ function PropertyCard({
   onEdit: (id: number) => void
   onView: (id: number) => void
 }) {
-  const lqs = prop.lqs ?? (4.5 + Math.random() * 5).toFixed(1)
-  const lqsNum = parseFloat(String(lqs))
+  const lqsNum = prop.lqs ?? computeListingQualityScore(prop)
   const imgCount = prop.images?.length || 0
   const statusColors: Record<string, string> = {
     ACTIVE:      "bg-emerald-500",
@@ -76,9 +81,11 @@ function PropertyCard({
   const badgeBg = statusColors[statusKey] || "bg-slate-400"
   const badgeLabel = statusLabel[statusKey] || prop.status
 
-  // Fake reposts left & deactivated date for demo
-  const repostsLeft = 2
-  const deactivatedOn = "17 May 2026"
+  const deactivatedOn = prop.updatedAt
+    ? new Date(prop.updatedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    : statusKey === 'INACTIVE' || statusKey === 'DEACTIVATED'
+      ? '—'
+      : 'Active'
 
   return (
     <motion.div
@@ -191,13 +198,10 @@ function PropertyCard({
 
             <div className="w-px h-6 bg-slate-200" />
 
-            {/* Reposts Left */}
-            <div className="flex flex-col items-center min-w-[60px]">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-0.5">
-                Reposts Left
-                <span className="w-3 h-3 rounded-full bg-slate-300 text-white text-[8px] flex items-center justify-center font-black">i</span>
-              </span>
-              <span className="text-xs font-black text-slate-800 mt-0.5">{repostsLeft}</span>
+            {/* Views */}
+            <div className="flex flex-col items-center min-w-[48px]">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Views</span>
+              <span className="text-xs font-black text-slate-800 mt-0.5">{prop.views ?? 0}</span>
             </div>
           </div>
 
@@ -271,7 +275,7 @@ export default function ListingsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    async function fetchMyProperties() {
+    async function loadListings() {
       const userData = localStorage.getItem("seller_user")
       if (!userData) { router.push("/login"); return }
       const user = JSON.parse(userData)
@@ -299,19 +303,16 @@ export default function ListingsPage() {
         }
         setHasSubscription(true)
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/properties/my`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        })
-        if (!res.ok) throw new Error("Failed to fetch properties")
-        const data = await res.json()
-        setProperties(data || [])
+        const rawProps = await fetchMyProperties(token!)
+        const leads = await fetchSellerLeads(token!, user.id)
+        setProperties(attachInquiryCounts(rawProps, leads))
       } catch (err) {
         console.error("Failed to fetch properties", err)
       } finally {
         setLoading(false)
       }
     }
-    fetchMyProperties()
+    loadListings()
   }, [router])
 
   // Close sort dropdown on outside click
@@ -360,7 +361,7 @@ export default function ListingsPage() {
 
   // Derived tab counts
   const activeProps     = properties.filter(p => (p.status || "").toUpperCase() === "ACTIVE")
-  const lowLqsProps     = properties.filter(p => (p.lqs ?? 5) < 5)
+  const lowLqsProps     = properties.filter(p => (p.lqs ?? computeListingQualityScore(p)) < 5)
   const noImagesProps   = properties.filter(p => !p.images || p.images.length === 0)
   const deactivatedProps= properties.filter(p => (p.status || "").toUpperCase() === "DEACTIVATED")
   const expiredProps    = properties.filter(p => (p.status || "").toUpperCase() === "EXPIRED")
@@ -371,7 +372,8 @@ export default function ListingsPage() {
     { label: "Low LQS",              count: lowLqsProps.length,      dotColor: "#ef4444" },
     { label: "No Images",            count: noImagesProps.length },
     { label: "Active",               count: activeProps.length },
-    { label: "Un-utilised Promotions", count: 0 },
+    { label: "Deactivated", count: deactivatedProps.length },
+    { label: "Expired", count: expiredProps.length },
   ]
 
   // Apply tab filter
@@ -379,7 +381,8 @@ export default function ListingsPage() {
   if (activeTab === "Low LQS")              filtered = lowLqsProps
   else if (activeTab === "No Images")       filtered = noImagesProps
   else if (activeTab === "Active")          filtered = activeProps
-  else if (activeTab === "Un-utilised Promotions") filtered = []
+  else if (activeTab === "Deactivated") filtered = deactivatedProps
+  else if (activeTab === "Expired")     filtered = expiredProps
 
   // Apply sidebar filters
   if (listingStatus.length > 0) {

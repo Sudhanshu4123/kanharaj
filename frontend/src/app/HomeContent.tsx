@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
@@ -10,67 +10,27 @@ import { Badge } from '@/components/ui/badge'
 import { SearchBar } from '@/components/home/search-bar'
 import { FeaturedCollections } from '@/components/home/featured-collections'
 import { ProjectGallery } from '@/components/home/project-gallery'
-import { PropertyCard } from '@/components/properties/property-card'
+import { PropertyGridSkeleton } from '@/components/skeletons/property-skeletons'
 import { usePropertyStore } from '@/lib/store'
-import { cn } from '@/lib/utils'
-
-const mockTestimonials = [
-  {
-    id: 1,
-    name: 'Rahul Sharma',
-    text: 'Kanharaj helped me find my dream home in Dwarka. The process was smooth and transparent.',
-    location: 'Sector 10, Dwarka',
-    avatar: 'https://i.pravatar.cc/150?u=rahul',
-    rating: 5,
-  },
-  {
-    id: 2,
-    name: 'Priya Verma',
-    text: 'Highly professional team. They understood my budget and provided the best options available.',
-    location: 'Sector 12, Dwarka',
-    avatar: 'https://i.pravatar.cc/150?u=priya',
-    rating: 5,
-  },
-  {
-    id: 3,
-    name: 'Ankit Gupta',
-    text: 'Best real estate service in Dwarka. Verified properties and direct connection with builders.',
-    location: 'Sector 22, Dwarka',
-    avatar: 'https://i.pravatar.cc/150?u=ankit',
-    rating: 5,
-  }
-]
-
-const partners = [
-  {
-    name: 'Unnati Properties',
-    phone: '7982339104',
-    address: 'E548, Ramphal Chowk Rd, Block E, Sector 7, Dwarka, Palam, New Delhi - 110075',
-    color: 'bg-blue-50 text-blue-600',
-    icon: '🏗️'
-  },
-  {
-    name: 'Shri Shyam Real Estate',
-    phone: '9136985670',
-    address: 'Shop 5, Mohit Nagar, Kakrola, Near British Hair Saloon, Dwarka, New Delhi - 110078',
-    color: 'bg-emerald-50 text-emerald-600',
-    icon: '🏠'
-  },
-  {
-    name: 'Tanisha Real Estate',
-    phone: '9310271473',
-    address: 'Shop 8, 2nd Floor, Sector 19, Ambrahi Village, Dwarka, New Delhi - 110075',
-    color: 'bg-amber-50 text-amber-600',
-    icon: '🤝'
-  }
-]
-
-const stats = [
-  { value: '10,000+', label: 'Properties Listed', icon: Building2 },
-  { value: '15+', label: 'Cities Covered', icon: MapPin },
-  { value: '50,000+', label: 'Happy Customers', icon: Users },
-  { value: '100%', label: 'Verified Listings', icon: Shield },
-]
+import { cn, formatNumber } from '@/lib/utils'
+import {
+  fetchPlatformStats,
+  fetchPublishedTestimonials,
+  getFeaturedOrLatest,
+  getProjectProperties,
+  getNewlyAdded,
+  getPopularCities,
+  getSellerPartners,
+  getPropertyImageUrl,
+  formatPropertyPriceDisplay,
+  formatRelativeTime,
+  formatAreaDisplay,
+  formatBedBath,
+  formatStatCount,
+  countByBedrooms,
+  SUPPORT_PHONE,
+  type TestimonialItem,
+} from '@/lib/platform-data'
 
 const categories = [
   { label: 'Buy Residential', icon: '🏠', href: '/properties?listing=buy', desc: 'Flats, Villas, Houses' },
@@ -81,13 +41,6 @@ const categories = [
   { label: 'PG / Hostel', icon: '🛏️', href: '/properties?listing=rent&type=PG', desc: 'Affordable stays' },
   { label: 'Hotel Rooms', icon: '🏨', href: '/properties?type=HOTEL', desc: 'Hotels & Guest Houses' },
 
-]
-
-const popularCities = [
-  { name: 'Dwarka', image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=400' },
-  { name: 'Delhi', image: 'https://images.unsplash.com/photo-1558431382-27e303142255?w=400' },
-  { name: 'Gurgaon', image: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400' },
-  { name: 'Noida', image: 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400' },
 ]
 
 const faqs = [
@@ -117,81 +70,6 @@ const heroBackgrounds: Record<string, string> = {
   plots: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920',
   pg: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=1920',
 }
-
-const prominentProjects = [
-  {
-    id: 'proj-1',
-    name: 'Shri Shyam Residency',
-    developer: 'Shri Shyam Developers',
-    location: 'Sector 19, Dwarka, New Delhi',
-    priceRange: '₹1.25 Cr - 2.50 Cr',
-    configurations: '3 & 4 BHK Apartments',
-    offer: 'Exclusive: Zero Brokerage + Free Covered Parking',
-    image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600',
-    tags: ['Ready to Move', 'RERA Approved']
-  },
-  {
-    id: 'proj-2',
-    name: 'Luxe Heights Dwarka',
-    developer: 'LuxeEstates Builders',
-    location: 'Sector 10, Dwarka, New Delhi',
-    priceRange: '₹2.10 Cr - 4.80 Cr',
-    configurations: '4 BHK Ultra-Luxury Floors',
-    offer: 'Festive Deal: ₹5 Lakh Cash Discount on Booking',
-    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600',
-    tags: ['Under Construction', 'Zero GST']
-  },
-  {
-    id: 'proj-3',
-    name: 'Expressway Premium Hub',
-    developer: 'Unnati Group',
-    location: 'Sector 22, Dwarka Expressway',
-    priceRange: '₹95 L - 1.80 Cr',
-    configurations: '2 & 3 BHK Smart Homes',
-    offer: 'Special offer: Free Modular Kitchen + Chimney',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600',
-    tags: ['New Launch', 'Modern Amenities']
-  }
-]
-
-const newlyAddedProperties = [
-  {
-    id: 'new-1',
-    title: 'Premium 3 BHK Builder Floor',
-    location: 'Sector 8, Dwarka, Delhi',
-    price: '₹1.45 Cr',
-    size: '1,850 Sq.Ft',
-    type: '3 BHK',
-    parking: '1 Covered',
-    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
-    postedTime: '2 hours ago',
-    ownerPhone: '9136985670'
-  },
-  {
-    id: 'new-2',
-    title: 'Luxury 4 BHK Semi-Furnished Floor',
-    location: 'Sector 12, Dwarka, Delhi',
-    price: '₹2.65 Cr',
-    size: '240 Sq.Yd',
-    type: '4 BHK',
-    parking: '2 Covered',
-    image: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=600',
-    postedTime: '5 hours ago',
-    ownerPhone: '7982339104'
-  },
-  {
-    id: 'new-3',
-    title: 'Cozy 2 BHK Flat Near Metro Station',
-    location: 'Sector 7, Dwarka, Delhi',
-    price: '₹85 L',
-    size: '950 Sq.Ft',
-    type: '2 BHK',
-    parking: 'Open Parking',
-    image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600',
-    postedTime: '1 day ago',
-    ownerPhone: '9310271473'
-  }
-]
 
 const convertArea = (value: number, from: string) => {
   let sqft = 0
@@ -224,11 +102,12 @@ export default function HomeContent() {
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'buy' | 'rent' | 'commercial' | 'pg' | 'plots'>('buy')
   const [platformStats, setPlatformStats] = useState({
-    properties: '10,000+',
-    buyers: '50,000+',
-    cities: '25+',
-    verifiedPercent: '100'
+    properties: '0',
+    buyers: '0',
+    cities: '0',
+    verifiedPercent: '100',
   })
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([])
 
   // Area & EMI Calculators State
   const [areaValue, setAreaValue] = useState<number>(100)
@@ -237,33 +116,32 @@ export default function HomeContent() {
   const [emiRate, setEmiRate] = useState<number>(8.6)
   const [emiTenure, setEmiTenure] = useState<number>(20)
 
-  const { properties } = usePropertyStore()
+  const { properties, loading } = usePropertyStore()
 
   useEffect(() => {
     setMounted(true)
-    usePropertyStore.getState().fetchProperties()
+    usePropertyStore.getState().fetchProperties(36)
 
-    // Fetch dynamic stats from backend
-    fetch('http://localhost:8080/api/properties/stats')
-      .then(res => res.json())
-      .then(data => {
-        if (data) {
-          setPlatformStats({
-            properties: data.properties > 0 ? new Intl.NumberFormat('en-IN').format(data.properties) : '0',
-            buyers: data.buyers > 0 ? new Intl.NumberFormat('en-IN').format(data.buyers) : '0',
-            cities: data.cities > 0 ? new Intl.NumberFormat('en-IN').format(data.cities) : '0',
-            verifiedPercent: data.verifiedPercent ? data.verifiedPercent.toString() : '100'
-          })
-        }
-      })
-      .catch(err => {
-        console.error("Failed to fetch platform stats", err)
-      })
+    fetchPlatformStats().then((data) => {
+      if (data) {
+        setPlatformStats({
+          properties: formatStatCount(data.properties),
+          buyers: formatStatCount(data.buyers),
+          cities: formatStatCount(data.cities),
+          verifiedPercent: String(data.verifiedPercent),
+        })
+      }
+    })
+    fetchPublishedTestimonials(3).then(setTestimonials)
   }, [])
 
-  const featuredProperties = properties.filter(p => p.featured).slice(0, 3)
-  const latestProperties = properties.slice(0, 6)
-  const displayProperties = featuredProperties.length > 0 ? featuredProperties : latestProperties
+  const displayProperties = useMemo(() => getFeaturedOrLatest(properties, 3), [properties])
+  const projectListings = useMemo(() => getProjectProperties(properties, 3), [properties])
+  const newlyAdded = useMemo(() => getNewlyAdded(properties, 3), [properties])
+  const popularCities = useMemo(() => getPopularCities(properties, 4), [properties])
+  const sellerPartners = useMemo(() => getSellerPartners(properties, 3), [properties])
+  const bhk2Count = useMemo(() => countByBedrooms(properties, 2), [properties])
+  const bhk3Count = useMemo(() => countByBedrooms(properties, 3), [properties])
 
   const getHeroConfig = () => {
     switch (activeTab) {
@@ -513,10 +391,13 @@ export default function HomeContent() {
             </Link>
           </div>
 
-          {displayProperties.length > 0 ? (
+          {loading && displayProperties.length === 0 ? (
+            <PropertyGridSkeleton count={3} variant="home" />
+          ) : displayProperties.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {displayProperties.map((property, index) => {
-                const hasOffer = index % 2 === 0
+                const { beds, baths } = formatBedBath(property)
+                const isVerified = property.featured || (property.images?.length ?? 0) > 0
                 return (
                   <motion.div
                     key={property.id}
@@ -529,7 +410,7 @@ export default function HomeContent() {
                     {/* Image Area */}
                     <div className="relative h-64 overflow-hidden shrink-0">
                       <img
-                        src={property.images?.[0] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'}
+                        src={getPropertyImageUrl(property)}
                         alt={property.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
@@ -537,25 +418,23 @@ export default function HomeContent() {
 
                       {/* Badges */}
                       <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                        <span className="px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-md">
-                          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                          Verified
-                        </span>
-                        <span className="px-3 py-1 rounded-full bg-gradient-to-r from-[#f22b68] to-[#4e20b1] text-white text-[10px] font-black uppercase tracking-wider shadow-md">
-                          Top Pick
-                        </span>
+                        {isVerified && (
+                          <span className="px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-md">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                            Verified
+                          </span>
+                        )}
+                        {property.featured && (
+                          <span className="px-3 py-1 rounded-full bg-gradient-to-r from-[#f22b68] to-[#4e20b1] text-white text-[10px] font-black uppercase tracking-wider shadow-md">
+                            Featured
+                          </span>
+                        )}
                       </div>
-
-                      {hasOffer && (
-                        <div className="absolute top-4 right-4 bg-yellow-400 text-slate-900 text-[10px] font-black px-2.5 py-1 rounded-full shadow-md animate-bounce uppercase">
-                          🔥 Deal
-                        </div>
-                      )}
 
                       {/* Pricing Overlay */}
                       <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between text-white">
                         <div>
-                          <p className="text-2xl font-black tracking-tight">{property.price}</p>
+                          <p className="text-2xl font-black tracking-tight">{formatPropertyPriceDisplay(property)}</p>
                           <p className="text-xs text-white/90 font-medium">{property.propertyType?.toUpperCase()} • {property.listingType?.toUpperCase()}</p>
                         </div>
                       </div>
@@ -576,20 +455,20 @@ export default function HomeContent() {
                       <div className="grid grid-cols-3 gap-2 py-4 border-y border-slate-100 text-center text-slate-600 font-bold text-xs mb-6 mt-auto">
                         <div className="bg-slate-50 py-2 rounded-xl border border-slate-100/50">
                           <p className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold mb-0.5">Beds</p>
-                          <p className="text-slate-800 font-black">{property.bedrooms || '3'} BHK</p>
+                          <p className="text-slate-800 font-black">{beds}</p>
                         </div>
                         <div className="bg-slate-50 py-2 rounded-xl border border-slate-100/50">
                           <p className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold mb-0.5">Bath</p>
-                          <p className="text-slate-800 font-black">{property.bathrooms || '3'}</p>
+                          <p className="text-slate-800 font-black">{baths}</p>
                         </div>
                         <div className="bg-slate-50 py-2 rounded-xl border border-slate-100/50">
                           <p className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold mb-0.5">Area</p>
-                          <p className="text-slate-800 font-black truncate">{property.area || '1,800'} Sq.Ft</p>
+                          <p className="text-slate-800 font-black truncate">{formatAreaDisplay(property.area)}</p>
                         </div>
                       </div>
 
                       {/* Action Button */}
-                      <Link href={`/properties/${property.id}`} className="block">
+                      <Link href={`/property/${property.id}`} className="block">
                         <Button className="w-full h-11 bg-slate-900 hover:bg-[#f22b68] text-white font-bold rounded-xl transition-all duration-300 shadow-md">
                           View Details
                         </Button>
@@ -625,78 +504,71 @@ export default function HomeContent() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {prominentProjects.map((project, index) => (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group bg-slate-50/50 rounded-[2.5rem] overflow-hidden border border-slate-100 hover:bg-white hover:border-[#f22b68]/30 hover:shadow-2xl hover:shadow-[#f22b68]/5 transition-all duration-500 flex flex-col h-full"
-              >
-                {/* Project Image */}
-                <div className="relative h-60 overflow-hidden shrink-0">
-                  <img
-                    src={project.image}
-                    alt={project.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-
-                  {/* Glowing Crimson Offer Tag */}
-                  <div className="absolute top-4 left-4 right-4 bg-gradient-to-r from-[#f22b68] to-[#4e20b1] text-white text-[10px] font-black px-4 py-2 rounded-xl shadow-lg border border-white/10 flex items-center justify-center gap-1.5 animate-pulse uppercase tracking-wider">
-                    <span className="w-2 h-2 bg-yellow-400 rounded-full animate-ping" />
-                    {project.offer}
-                  </div>
-
-                  {/* Config Overlay */}
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <span className="px-2.5 py-1 rounded-md bg-white/20 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider border border-white/10">
-                      {project.configurations}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Info block */}
-                <div className="p-8 flex flex-col flex-grow">
-                  <div className="flex flex-wrap gap-1.5 mb-3">
-                    {project.tags.map(t => (
-                      <span key={t} className="px-2 py-0.5 rounded bg-rose-50 text-[#f22b68] text-[9px] font-bold uppercase tracking-wider">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-
-                  <h3 className="text-xl font-black text-slate-900 group-hover:text-[#f22b68] transition-colors mb-1">
-                    {project.name}
-                  </h3>
-                  <p className="text-xs text-slate-400 font-extrabold uppercase tracking-wide mb-4">
-                    Developer: {project.developer}
-                  </p>
-
-                  <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold mb-6">
-                    <MapPin className="h-4 w-4 text-[#f22b68] shrink-0" />
-                    <span>{project.location}</span>
-                  </div>
-
-                  {/* Pricing and Action */}
-                  <div className="mt-auto pt-6 border-t border-slate-100 flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-widest font-extrabold">Price Range</p>
-                      <p className="text-lg font-black text-slate-900">{project.priceRange}</p>
+          {projectListings.length === 0 ? (
+            <div className="text-center py-12 text-slate-500 font-medium">No project listings yet. Browse all properties.</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {projectListings.map((project, index) => {
+                const sellerName = project.user?.name || 'Listed on Kanharaj'
+                const config =
+                  project.bedrooms > 0
+                    ? `${project.bedrooms} BHK • ${formatAreaDisplay(project.area)}`
+                    : formatAreaDisplay(project.area)
+                return (
+                  <motion.div
+                    key={project.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="group bg-slate-50/50 rounded-[2.5rem] overflow-hidden border border-slate-100 hover:bg-white hover:border-[#f22b68]/30 hover:shadow-2xl hover:shadow-[#f22b68]/5 transition-all duration-500 flex flex-col h-full"
+                  >
+                    <div className="relative h-60 overflow-hidden shrink-0">
+                      <img
+                        src={getPropertyImageUrl(project)}
+                        alt={project.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+                      {project.featured && (
+                        <div className="absolute top-4 left-4 bg-gradient-to-r from-[#f22b68] to-[#4e20b1] text-white text-[10px] font-black px-4 py-2 rounded-xl shadow-lg uppercase tracking-wider">
+                          Featured Project
+                        </div>
+                      )}
+                      <div className="absolute bottom-4 left-4 text-white">
+                        <span className="px-2.5 py-1 rounded-md bg-white/20 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider border border-white/10">
+                          {config}
+                        </span>
+                      </div>
                     </div>
-
-                    <Link href="/contact">
-                      <Button className="bg-slate-900 hover:bg-[#f22b68] text-white font-bold rounded-xl transition-all flex items-center gap-1 h-11 px-5 shadow">
-                        View Project
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                    <div className="p-8 flex flex-col flex-grow">
+                      <h3 className="text-xl font-black text-slate-900 group-hover:text-[#f22b68] transition-colors mb-1 line-clamp-2">
+                        {project.title}
+                      </h3>
+                      <p className="text-xs text-slate-400 font-extrabold uppercase tracking-wide mb-4">
+                        Listed by: {sellerName}
+                      </p>
+                      <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold mb-6">
+                        <MapPin className="h-4 w-4 text-[#f22b68] shrink-0" />
+                        <span>{[project.address, project.city].filter(Boolean).join(', ')}</span>
+                      </div>
+                      <div className="mt-auto pt-6 border-t border-slate-100 flex items-center justify-between">
+                        <div>
+                          <p className="text-[10px] text-slate-400 uppercase tracking-widest font-extrabold">Price</p>
+                          <p className="text-lg font-black text-slate-900">{formatPropertyPriceDisplay(project)}</p>
+                        </div>
+                        <Link href={`/property/${project.id}`}>
+                          <Button className="bg-slate-900 hover:bg-[#f22b68] text-white font-bold rounded-xl transition-all flex items-center gap-1 h-11 px-5 shadow">
+                            View Project
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </section>
 
@@ -719,77 +591,73 @@ export default function HomeContent() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {newlyAddedProperties.map((prop, idx) => (
-              <motion.div
-                key={prop.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className="group bg-white rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-[#f22b68]/5 hover:border-[#f22b68]/30 transition-all duration-500 flex flex-col h-full"
-              >
-                {/* Image */}
-                <div className="relative h-56 overflow-hidden shrink-0">
-                  <img
-                    src={prop.image}
-                    alt={prop.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-
-                  {/* Metric Size Badge */}
-                  <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-black px-3 py-1.5 rounded-xl border border-white/10 shadow flex items-center gap-1 uppercase tracking-wider">
-                    <Building2 className="w-3.5 h-3.5 text-[#f22b68]" />
-                    {prop.size}
-                  </div>
-
-                  <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
-                    New
-                  </div>
-
-                  {/* Price */}
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <p className="text-xl font-black tracking-tight">{prop.price}</p>
-                  </div>
-
-                  {/* Relative Posting Time */}
-                  <div className="absolute bottom-4 right-4 text-white/95 text-[10px] font-bold bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-md border border-white/10">
-                    {prop.postedTime}
-                  </div>
-                </div>
-
-                {/* Details */}
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-base font-black text-slate-900 group-hover:text-[#f22b68] transition-colors mb-2 line-clamp-1">
-                    {prop.title}
-                  </h3>
-
-                  <div className="flex items-center gap-1.5 text-slate-500 text-xs font-semibold mb-4">
-                    <MapPin className="h-4 w-4 text-[#f22b68] shrink-0" />
-                    <span className="truncate">{prop.location}</span>
-                  </div>
-
-                  {/* Specs */}
-                  <div className="flex gap-4 text-slate-500 text-xs font-bold mb-6 pt-4 border-t border-slate-100">
-                    <span className="bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-xl text-slate-700 font-extrabold">{prop.type}</span>
-                    <span className="bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-xl text-slate-700 font-extrabold">🚗 {prop.parking}</span>
-                  </div>
-
-                  {/* Action Contact Owner Button */}
-                  <a
-                    href={`tel:+91${prop.ownerPhone}`}
-                    className="w-full mt-auto"
+          {newlyAdded.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-2xl border border-slate-100 text-slate-500">No new listings yet.</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {newlyAdded.map((prop, idx) => {
+                const phone = prop.user?.phone?.replace(/\D/g, '') || SUPPORT_PHONE
+                const { beds } = formatBedBath(prop)
+                return (
+                  <motion.div
+                    key={prop.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: idx * 0.1 }}
+                    className="group bg-white rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-[#f22b68]/5 hover:border-[#f22b68]/30 transition-all duration-500 flex flex-col h-full"
                   >
-                    <Button className="w-full h-11 bg-emerald-600 hover:bg-[#4e20b1] text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md">
-                      <Phone className="w-4 h-4" />
-                      Contact Partner
-                    </Button>
-                  </a>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                    <div className="relative h-56 overflow-hidden shrink-0">
+                      <img
+                        src={getPropertyImageUrl(prop)}
+                        alt={prop.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+                      <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-black px-3 py-1.5 rounded-xl border border-white/10 shadow flex items-center gap-1 uppercase tracking-wider">
+                        <Building2 className="w-3.5 h-3.5 text-[#f22b68]" />
+                        {formatAreaDisplay(prop.area)}
+                      </div>
+                      <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+                        New
+                      </div>
+                      <div className="absolute bottom-4 left-4 text-white">
+                        <p className="text-xl font-black tracking-tight">{formatPropertyPriceDisplay(prop)}</p>
+                      </div>
+                      <div className="absolute bottom-4 right-4 text-white/95 text-[10px] font-bold bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-md border border-white/10">
+                        {formatRelativeTime(prop.createdAt)}
+                      </div>
+                    </div>
+                    <div className="p-6 flex flex-col flex-grow">
+                      <h3 className="text-base font-black text-slate-900 group-hover:text-[#f22b68] transition-colors mb-2 line-clamp-1">
+                        {prop.title}
+                      </h3>
+                      <div className="flex items-center gap-1.5 text-slate-500 text-xs font-semibold mb-4">
+                        <MapPin className="h-4 w-4 text-[#f22b68] shrink-0" />
+                        <span className="truncate">{[prop.address, prop.city].filter(Boolean).join(', ')}</span>
+                      </div>
+                      <div className="flex gap-4 text-slate-500 text-xs font-bold mb-6 pt-4 border-t border-slate-100">
+                        <span className="bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-xl text-slate-700 font-extrabold">{beds}</span>
+                        <span className="bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-xl text-slate-700 font-extrabold">{prop.propertyType}</span>
+                      </div>
+                      {phone ? (
+                        <a href={`tel:+91${phone}`} className="w-full mt-auto">
+                          <Button className="w-full h-11 bg-emerald-600 hover:bg-[#4e20b1] text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md">
+                            <Phone className="w-4 h-4" />
+                            Contact {prop.user?.name ? prop.user.name.split(' ')[0] : 'Seller'}
+                          </Button>
+                        </a>
+                      ) : (
+                        <Link href={`/property/${prop.id}`} className="w-full mt-auto block">
+                          <Button className="w-full h-11 bg-emerald-600 hover:bg-[#4e20b1] text-white font-bold rounded-xl">View Details</Button>
+                        </Link>
+                      )}
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </section>
 
@@ -827,6 +695,7 @@ export default function HomeContent() {
                     <div className="absolute bottom-4 left-4 flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-rose-400" />
                       <span className="text-white font-bold text-lg">{city.name}</span>
+                      <span className="text-white/80 text-xs font-bold">({city.count} listings)</span>
                     </div>
                     <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       <ChevronRight className="h-5 w-5 text-white" />
@@ -841,6 +710,8 @@ export default function HomeContent() {
 
       {/* Project Gallery */}
       <ProjectGallery />
+
+      <FeaturedCollections />
 
       {/* How It Works */}
       <section className="py-16 bg-slate-50">
@@ -862,7 +733,7 @@ export default function HomeContent() {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
-              { icon: '🔍', title: 'Search', description: 'Browse thousands of verified properties by location, budget & type.', step: '01' },
+              { icon: '🔍', title: 'Search', description: `Browse ${platformStats.properties} verified properties by location, budget & type.`, step: '01' },
               { icon: '❤️', title: 'Shortlist', description: 'Save your favourite properties and compare them side by side.', step: '02' },
               { icon: '📞', title: 'Connect', description: 'Contact owners or builders directly — zero brokerage.', step: '03' },
               { icon: '🏠', title: 'Move In', description: 'Complete paperwork and get the keys to your new home!', step: '04' },
@@ -885,89 +756,55 @@ export default function HomeContent() {
         </div>
       </section>
 
-      {/* Research & Insights */}
+      {/* Live inventory highlights */}
       <section className="py-16 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-            <div>
-              <span className="text-[#f22b68] text-xs font-black uppercase tracking-[0.2em] bg-rose-50 px-4 py-1.5 rounded-full inline-block">
-                Market Trends & Analysis
-              </span>
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight mt-4">
-                Research & Insights
-              </h2>
-              <p className="text-slate-500 mt-1 text-sm font-medium">
-                Keep up with the localized Dwarka & Delhi NCR real estate micro-markets
-              </p>
-            </div>
-            <Link href="/contact">
-              <Button variant="ghost" className="text-[#f22b68] hover:text-[#4e20b1] hover:bg-rose-50 font-bold flex items-center gap-1">
-                Explore Micro-Markets <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
+          <div className="text-center mb-12">
+            <span className="text-[#f22b68] text-xs font-black uppercase tracking-[0.2em] bg-rose-50 px-4 py-1.5 rounded-full inline-block">
+              Live Inventory
+            </span>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight mt-4">Browse by Configuration</h2>
+            <p className="text-slate-500 mt-2 text-sm font-medium">Counts from active listings on Kanharaj right now</p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                title: 'Dwarka Sector 8 & 12 Rate Trends',
-                category: 'Market Report',
-                date: 'May 2026',
-                description: 'Average capital value for semi-furnished 3 BHK floors has surged by 12.4% year-over-year. Connectivity to Delhi Metro remains the key driver.',
-                readTime: '3 min read',
-                image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400'
+                title: '2 BHK Properties',
+                count: bhk2Count,
+                href: '/properties?bhk=2',
+                image: newlyAdded[0] ? getPropertyImageUrl(newlyAdded[0]) : displayProperties[0] ? getPropertyImageUrl(displayProperties[0]) : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400',
               },
               {
-                title: 'Dwarka Expressway: The Luxury Frontier',
-                category: 'Investment Guide',
-                date: 'April 2026',
-                description: 'High-rise residential configurations near Sector 22 & the Expressway are drawing massive capital. RERA-approved luxury developments represent stable high ROI.',
-                readTime: '5 min read',
-                image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400'
+                title: '3 BHK Properties',
+                count: bhk3Count,
+                href: '/properties?bhk=3',
+                image: newlyAdded[1] ? getPropertyImageUrl(newlyAdded[1]) : displayProperties[1] ? getPropertyImageUrl(displayProperties[1]) : 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=400',
               },
               {
-                title: 'Builder Floors vs Society Apartments',
-                category: 'Buying Guide',
-                date: 'March 2026',
-                description: 'A comprehensive evaluation of multi-car parking layouts, gated amenities, lift access regulations, and relative pricing differences in Dwarka Delhi.',
-                readTime: '4 min read',
-                image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400'
-              }
-            ].map((insight, idx) => (
+                title: 'All Active Listings',
+                count: Number(platformStats.properties.replace(/\D/g, '')) || properties.filter((p) => p.status === 'ACTIVE').length,
+                href: '/properties',
+                image: newlyAdded[2] ? getPropertyImageUrl(newlyAdded[2]) : displayProperties[2] ? getPropertyImageUrl(displayProperties[2]) : 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=400',
+              },
+            ].map((item, idx) => (
               <motion.div
-                key={insight.title}
+                key={item.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className="group flex flex-col bg-slate-50 border border-slate-100 rounded-3xl overflow-hidden hover:bg-white hover:border-[#f22b68]/20 hover:shadow-xl transition-all duration-300"
+                transition={{ delay: idx * 0.1 }}
               >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={insight.image}
-                    alt={insight.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                  <span className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">
-                    {insight.category}
-                  </span>
-                </div>
-                <div className="p-6 flex-grow flex flex-col">
-                  <div className="flex justify-between items-center text-[10px] text-slate-400 font-extrabold uppercase mb-2">
-                    <span>{insight.date}</span>
-                    <span>{insight.readTime}</span>
+                <Link href={item.href} className="group block bg-slate-50 border border-slate-100 rounded-3xl overflow-hidden hover:shadow-xl transition-all">
+                  <div className="relative h-40">
+                    <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 to-transparent" />
+                    <span className="absolute bottom-4 left-4 text-white font-black text-lg">{item.title}</span>
                   </div>
-                  <h3 className="text-lg font-black text-slate-900 group-hover:text-[#f22b68] transition-colors mb-2 line-clamp-2">
-                    {insight.title}
-                  </h3>
-                  <p className="text-sm text-slate-500 font-medium line-clamp-3 mb-6">
-                    {insight.description}
-                  </p>
-                  <Link href="/contact" className="mt-auto block text-xs font-black text-[#f22b68] hover:text-[#4e20b1] uppercase tracking-wider flex items-center gap-1">
-                    Read Report <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
+                  <div className="p-6">
+                    <p className="text-2xl font-black text-[#f22b68]">{formatNumber(item.count)}+</p>
+                    <p className="text-xs text-slate-500 font-bold uppercase mt-1">Available now</p>
+                  </div>
+                </Link>
               </motion.div>
             ))}
           </div>
@@ -990,7 +827,11 @@ export default function HomeContent() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {mockTestimonials.map((testimonial, index) => (
+            {testimonials.length === 0 ? (
+              <p className="col-span-3 text-center text-slate-400 text-sm py-8">
+                Share your experience on our <Link href="/feedback" className="text-rose-400 font-bold hover:underline">Feedback</Link> page — reviews appear here automatically.
+              </p>
+            ) : testimonials.map((testimonial, index) => (
               <motion.div
                 key={testimonial.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -1039,45 +880,50 @@ export default function HomeContent() {
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Our Strategic Partners</h2>
             <div className="w-20 h-1.5 bg-rose-600 mx-auto mt-6 rounded-full" />
             <p className="mt-6 text-slate-500 max-w-2xl mx-auto text-lg font-medium">
-              We collaborate with the most trusted names in Dwarka real estate to bring you verified <strong>3 BHK flats in Dwarka Expressway</strong> and exclusive <strong>luxury builder floors in Dwarka Sector 8</strong> with lift and parking.
+              Verified sellers with active listings on Kanharaj — contact them directly for zero-brokerage deals.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {partners.map((partner, index) => (
-              <motion.div
-                key={partner.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="group relative bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100 hover:bg-white hover:border-rose-500 hover:shadow-2xl hover:shadow-rose-500/10 transition-all duration-500"
-              >
-                <div className={`w-16 h-16 rounded-2xl ${partner.color} flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-transform duration-500 shadow-sm`}>
-                  {partner.icon}
-                </div>
-                <h3 className="text-2xl font-black text-slate-900 mb-4 group-hover:text-rose-600 transition-colors">
-                  {partner.name}
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3 text-slate-500 group-hover:text-slate-700 transition-colors">
-                    <MapPin className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
-                    <p className="text-sm font-medium leading-relaxed">{partner.address}</p>
+          {sellerPartners.length === 0 ? (
+            <p className="text-center text-slate-500 font-medium py-8">Seller partners appear here when properties are listed on the platform.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {sellerPartners.map((partner, index) => (
+                <motion.div
+                  key={partner.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="group relative bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100 hover:bg-white hover:border-rose-500 hover:shadow-2xl hover:shadow-rose-500/10 transition-all duration-500"
+                >
+                  <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-2xl font-black mb-8 group-hover:scale-110 transition-transform duration-500 shadow-sm">
+                    {partner.name.charAt(0)}
                   </div>
-                  <div className="flex items-center gap-3 text-slate-500 group-hover:text-slate-700 transition-colors">
-                    <Phone className="h-5 w-5 text-rose-500 shrink-0" />
-                    <a href={`tel:+91${partner.phone}`} className="text-sm font-bold hover:text-rose-600 transition-colors tracking-tight">+91 {partner.phone}</a>
+                  <h3 className="text-2xl font-black text-slate-900 mb-2 group-hover:text-rose-600 transition-colors">
+                    {partner.name}
+                  </h3>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">{partner.listingCount} active listing{partner.listingCount !== 1 ? 's' : ''}</p>
+                  <div className="space-y-4">
+                    {partner.address && (
+                      <div className="flex items-start gap-3 text-slate-500">
+                        <MapPin className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
+                        <p className="text-sm font-medium leading-relaxed line-clamp-2">{partner.address}</p>
+                      </div>
+                    )}
+                    {partner.phone && (
+                      <div className="flex items-center gap-3 text-slate-500">
+                        <Phone className="h-5 w-5 text-rose-500 shrink-0" />
+                        <a href={`tel:+91${partner.phone.replace(/\D/g, '')}`} className="text-sm font-bold hover:text-rose-600 transition-colors tracking-tight">
+                          +91 {partner.phone}
+                        </a>
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className="mt-8 pt-8 border-t border-slate-200/60 flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Verified Partner</span>
-                  <div className="w-8 h-8 rounded-full bg-rose-600 text-white flex items-center justify-center scale-0 group-hover:scale-100 transition-transform duration-500">
-                    <ChevronRight size={18} />
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -1090,7 +936,7 @@ export default function HomeContent() {
               <div>
                 <Badge className="bg-rose-600 hover:bg-rose-600 border-none px-4 py-1 mb-6">Coming Soon</Badge>
                 <h2 className="text-3xl md:text-5xl font-black text-white leading-tight mb-6">
-                  Download the <span className="text-rose-500">LuxeEstates</span> <br />Mobile App
+                  Download the <span className="text-rose-500">Kanharaj</span> <br />Mobile App
                 </h2>
                 <p className="text-slate-400 text-lg mb-8 max-w-md">
                   Get personalized property alerts, direct chat with owners, and exclusive new project launches right on your phone.

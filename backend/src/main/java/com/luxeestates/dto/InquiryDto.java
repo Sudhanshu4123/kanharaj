@@ -24,6 +24,11 @@ public class InquiryDto {
     private String message;
     private Inquiry.InquiryStatus status;
     private LocalDateTime createdAt;
+    private String propertyType;
+    private String listingType;
+    private java.math.BigDecimal price;
+    private Integer area;
+    private Integer bedrooms;
 
     public static InquiryDto fromEntity(Inquiry inquiry) {
         String location = null;
@@ -46,6 +51,13 @@ public class InquiryDto {
                 .message(inquiry.getMessage())
                 .status(inquiry.getStatus())
                 .createdAt(inquiry.getCreatedAt())
+                .propertyType(inquiry.getProperty() != null && inquiry.getProperty().getPropertyType() != null
+                        ? inquiry.getProperty().getPropertyType().name() : null)
+                .listingType(inquiry.getProperty() != null && inquiry.getProperty().getListingType() != null
+                        ? inquiry.getProperty().getListingType().name() : null)
+                .price(inquiry.getProperty() != null ? inquiry.getProperty().getPrice() : null)
+                .area(inquiry.getProperty() != null ? inquiry.getProperty().getArea() : null)
+                .bedrooms(inquiry.getProperty() != null ? inquiry.getProperty().getBedrooms() : null)
                 .build();
     }
 }

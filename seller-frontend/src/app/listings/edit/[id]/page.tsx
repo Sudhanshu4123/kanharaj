@@ -19,6 +19,7 @@ import {
   Loader2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { getSellerAuthHeaders, getApiErrorMessage } from "@/lib/utils"
 
 const steps = ["Basic Info", "Location", "Specifications", "Photos"]
 
@@ -133,7 +134,8 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     }
 
     const userData = localStorage.getItem("seller_user")
-    if (!userData) {
+    const authHeaders = getSellerAuthHeaders()
+    if (!userData || !authHeaders) {
       router.push("/login")
       return
     }
@@ -152,16 +154,19 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/properties/${propertyId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify(payload)
       })
 
       if (res.ok) {
         alert("Property Updated Successfully!")
         router.push("/listings")
+      } else if (res.status === 401) {
+        alert("Session expired. Please login again.")
+        router.push("/login")
       } else {
-        const errorData = await res.json()
-        alert(`Failed to update property: ${errorData.message || 'Check your data'}`)
+        const message = await getApiErrorMessage(res, "Failed to update property")
+        alert(message)
       }
     } catch (err) {
       console.error("Submit failed", err)

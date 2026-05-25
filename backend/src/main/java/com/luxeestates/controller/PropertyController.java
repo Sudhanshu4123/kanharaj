@@ -9,7 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
+import java.util.concurrent.TimeUnit;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,9 +32,13 @@ public class PropertyController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
-        Sort sort = sortDir.equalsIgnoreCase("asc") 
-                ? Sort.by(sortBy).ascending() 
-                : Sort.by(sortBy).descending();
+        String safeSort = switch (sortBy) {
+            case "price", "createdAt", "updatedAt", "title", "views" -> sortBy;
+            default -> "createdAt";
+        };
+        Sort sort = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(safeSort).ascending()
+                : Sort.by(safeSort).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         return ResponseEntity.ok(propertyService.getAllProperties(pageable));
     }
@@ -44,7 +50,9 @@ public class PropertyController {
 
     @GetMapping("/stats")
     public ResponseEntity<java.util.Map<String, Object>> getPlatformStats() {
-        return ResponseEntity.ok(propertyService.getPlatformStats());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePublic())
+                .body(propertyService.getPlatformStats());
     }
 
     @GetMapping("/my")

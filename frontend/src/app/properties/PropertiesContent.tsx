@@ -1,15 +1,33 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
-import { ChevronDown, Search, Info, Menu, User, Phone, X, Shield, ArrowUpDown, Waves, Dumbbell, Car, Flame, Check, LogOut } from 'lucide-react'
+import { ChevronDown, Search, Info, Menu, User, Phone, X, Shield, ArrowUpDown, Waves, Dumbbell, Car, Flame, Check, LogOut, MapPin } from 'lucide-react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 import * as Slider from '@radix-ui/react-slider'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { HousingPropertyCard } from '@/components/properties/housing-property-card'
+import { HousingPropertyListSkeleton, PropertiesPageSkeleton } from '@/components/skeletons/property-skeletons'
 import { usePropertyStore, useAuthStore } from '@/lib/store'
-import { cn } from '@/lib/utils'
+import { countByBedrooms } from '@/lib/platform-data'
+import { cn, hasSellerDashboardAccess, BRAND_LOGO_SRC } from '@/lib/utils'
+import { useUserActivityStore } from '@/lib/user-activity-store'
+import { topCities, otherCities } from '@/components/home/search-bar'
+
+const BUDGET_MAX_LAKH = 100
+const BUDGET_STEP = 5
+
+function formatBudgetLabel(lakh: number) {
+  if (lakh <= 0) return '0'
+  if (lakh >= BUDGET_MAX_LAKH) return '1Cr+'
+  return `${lakh} Lakh`
+}
+
+const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
+  ? process.env.NEXT_PUBLIC_SELLER_URL
+  : 'http://localhost:3001'
 
 export default function PropertiesContent() {
   const searchParams = useSearchParams()
@@ -18,10 +36,16 @@ export default function PropertiesContent() {
 
   const [mounted, setMounted] = useState(false)
   const [search, setSearch] = useState(searchParams.get('search') || '')
+  const [selectedCity, setSelectedCity] = useState(searchParams.get('city') || '')
+  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false)
+  const [citySearchQuery, setCitySearchQuery] = useState('')
+  const cityDropdownRef = useRef<HTMLDivElement>(null)
 
   // Profile dropdown and Auth store
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
-  const { isAuthenticated, user, logout } = useAuthStore()
+  const { isAuthenticated, user, token, logout } = useAuthStore()
+  const showSellerDashboard = isAuthenticated && hasSellerDashboardAccess(user)
+  const sellerDashboardHref = token ? `${SELLER_URL}/login?token=${token}` : `${SELLER_URL}/login`
 
   const handleLogout = () => {
     logout()
@@ -29,17 +53,13 @@ export default function PropertiesContent() {
     router.push('/login')
   }
 
-  const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
-    ? process.env.NEXT_PUBLIC_SELLER_URL
-    : "http://localhost:3001";
-
   // Dropdown UI state
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
 
   // Real filter states
   const [propertyTypes, setPropertyTypes] = useState<string[]>([])
   const [bhkTypes, setBhkTypes] = useState<string[]>([])
-  const [budgetRange, setBudgetRange] = useState<[number, number]>([0, 20])
+  const [budgetRange, setBudgetRange] = useState<[number, number]>([0, BUDGET_MAX_LAKH])
   const [saleTypes, setSaleTypes] = useState<string[]>([])
   const [constructionStatus, setConstructionStatus] = useState<string[]>([])
 
@@ -71,7 +91,7 @@ export default function PropertiesContent() {
   const [tempProjectsSearch, setTempProjectsSearch] = useState('')
   const [tempPropertyTypes, setTempPropertyTypes] = useState<string[]>([])
   const [tempBhkTypes, setTempBhkTypes] = useState<string[]>([])
-  const [tempBudgetRange, setTempBudgetRange] = useState<[number, number]>([0, 20])
+  const [tempBudgetRange, setTempBudgetRange] = useState<[number, number]>([0, BUDGET_MAX_LAKH])
   const [tempSaleTypes, setTempSaleTypes] = useState<string[]>([])
   const [tempConstructionStatus, setTempConstructionStatus] = useState<string[]>([])
 
@@ -89,7 +109,7 @@ export default function PropertiesContent() {
     propertyTypes.length > 0 ||
     bhkTypes.length > 0 ||
     budgetRange[0] > 0 ||
-    budgetRange[1] < 20 ||
+    budgetRange[1] < BUDGET_MAX_LAKH ||
     saleTypes.length > 0 ||
     constructionStatus.length > 0;
 
@@ -105,7 +125,7 @@ export default function PropertiesContent() {
   if (projects.length > 0) activeMoreFiltersCount++;
   if (propertyTypes.length > 0) activeMoreFiltersCount++;
   if (bhkTypes.length > 0) activeMoreFiltersCount++;
-  if (budgetRange[0] > 0 || budgetRange[1] < 20) activeMoreFiltersCount++;
+  if (budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH) activeMoreFiltersCount++;
   if (saleTypes.length > 0) activeMoreFiltersCount++;
   if (constructionStatus.length > 0) activeMoreFiltersCount++;
 
@@ -159,7 +179,7 @@ export default function PropertiesContent() {
     setTempProjectsSearch('')
     setTempPropertyTypes([])
     setTempBhkTypes([])
-    setTempBudgetRange([0, 20])
+    setTempBudgetRange([0, BUDGET_MAX_LAKH])
     setTempSaleTypes([])
     setTempConstructionStatus([])
   }
@@ -167,12 +187,12 @@ export default function PropertiesContent() {
   // Sale/Rent type from URL param (used in header)
   const [listingMode, setListingMode] = useState(searchParams.get('listing') || '')
 
-  const hasActiveFilters = propertyTypes.length > 0 || bhkTypes.length > 0 || budgetRange[0] > 0 || budgetRange[1] < 20 || saleTypes.length > 0 || constructionStatus.length > 0 || isAnyMoreFilterActive;
+  const hasActiveFilters = propertyTypes.length > 0 || bhkTypes.length > 0 || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH || saleTypes.length > 0 || constructionStatus.length > 0 || isAnyMoreFilterActive;
 
   const handleResetFilters = () => {
     setPropertyTypes([])
     setBhkTypes([])
-    setBudgetRange([0, 20])
+    setBudgetRange([0, BUDGET_MAX_LAKH])
     setSaleTypes([])
     setConstructionStatus([])
     setListedBy([])
@@ -184,9 +204,29 @@ export default function PropertiesContent() {
     setPropertyDetails([])
     setRera(false)
     setProjects([])
+    setSelectedCity('')
   }
 
-  const { filteredProperties, setFilters, fetchProperties, filters: storeFilters } = usePropertyStore()
+  const { filteredProperties, setFilters, fetchProperties, filters: storeFilters, loading } = usePropertyStore()
+
+  const filteredTopCities = topCities.filter(city =>
+    city.toLowerCase().includes(citySearchQuery.toLowerCase())
+  )
+  const filteredOtherCities = otherCities.filter(city =>
+    city.toLowerCase().includes(citySearchQuery.toLowerCase())
+  )
+
+  const handleCitySelect = (city: string) => {
+    setSelectedCity(city)
+    setIsCityDropdownOpen(false)
+    setCitySearchQuery('')
+    const params = new URLSearchParams(searchParams.toString())
+    if (city) params.set('city', city)
+    else params.delete('city')
+    if (search) params.set('search', search)
+    else params.delete('search')
+    router.replace(`${pathname}?${params.toString()}`)
+  }
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -195,10 +235,13 @@ export default function PropertiesContent() {
       if (activeDropdown && !target.closest('.filter-dropdown-container')) {
         setActiveDropdown(null);
       }
+      if (isCityDropdownOpen && cityDropdownRef.current && !cityDropdownRef.current.contains(target)) {
+        setIsCityDropdownOpen(false)
+      }
     };
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, [activeDropdown]);
+  }, [activeDropdown, isCityDropdownOpen]);
 
   useEffect(() => {
     setMounted(true)
@@ -212,7 +255,11 @@ export default function PropertiesContent() {
 
     if (urlSearch) setSearch(urlSearch)
 
+    const urlCity = searchParams.get('city')
+    if (urlCity) setSelectedCity(urlCity)
+
     const initialFilters: any = { search: urlSearch }
+    if (urlCity) initialFilters.city = urlCity
     if (type) {
       initialFilters.propertyType = [type.toUpperCase()]
       setPropertyTypes([type.charAt(0).toUpperCase() + type.slice(1)])
@@ -232,6 +279,14 @@ export default function PropertiesContent() {
     }
 
     setFilters(initialFilters)
+
+    const qs = searchParams.toString()
+    if (qs) {
+      const label = [urlSearch, urlCity, type, listing, urlBhk ? `${urlBhk} BHK` : null]
+        .filter(Boolean)
+        .join(' · ')
+      useUserActivityStore.getState().recordSearch(label || 'Property search', `/properties?${qs}`)
+    }
   }, [searchParams, fetchProperties, setFilters])
 
   const baseProperties = filteredProperties()
@@ -361,18 +416,15 @@ export default function PropertiesContent() {
         propertyType: propertyTypes.length > 0 ? propertyTypes.map(t => t.toUpperCase()) : [],
         listingType: listingMode ? listingMode.toUpperCase() as any : 'all',
         bedrooms: parsedBhk.length > 0 ? parsedBhk.map(b => b.includes('+') ? 5 : parseInt(b.split(' ')[0])).filter(n => !isNaN(n)) : [],
-        priceMin: budgetRange[0] * 10000000, // Crores to local
-        priceMax: budgetRange[1] === 20 ? 10000000000 : budgetRange[1] * 10000000,
+        priceMin: budgetRange[0] * 100000,
+        priceMax: budgetRange[1] >= BUDGET_MAX_LAKH ? 10000000000 : budgetRange[1] * 100000,
+        ...(selectedCity ? { city: selectedCity } : { city: '' }),
       })
     }
-  }, [search, propertyTypes, listingMode, bhkTypes, budgetRange, mounted, setFilters])
+  }, [search, propertyTypes, listingMode, bhkTypes, budgetRange, selectedCity, mounted, setFilters])
 
   if (!mounted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#6B46C1] border-t-transparent" />
-      </div>
-    )
+    return <PropertiesPageSkeleton />
   }
 
   return (
@@ -385,15 +437,127 @@ export default function PropertiesContent() {
         <div className="hidden md:flex items-center gap-4 border-r border-white/20 pr-4 shrink-0">
           <Link href="/" className="flex items-center gap-2">
             <div className="relative h-7 w-7 rounded overflow-hidden flex items-center justify-center bg-white shadow-sm">
-              <img src="/logo.png" alt="Kanharaj Logo" className="h-full w-full object-cover" />
+              <img src={BRAND_LOGO_SRC} alt="Kanharaj Logo" className="h-full w-full object-cover" />
             </div>
             <span className="font-heading text-lg font-black tracking-tighter text-white flex items-baseline">
               KANHARAJ<span className="text-[9px] font-extrabold ml-0.5 opacity-85">.COM</span>
             </span>
           </Link>
           <div className="w-px h-6 bg-white/20 mx-1" />
-          <div className="flex items-center gap-1 text-sm font-semibold cursor-pointer hover:text-white/80 transition whitespace-nowrap">
-            {listingMode === 'RENT' ? 'Rent In' : 'Buy In'} {search || 'New Delhi'} <ChevronDown className="w-4 h-4 opacity-70" />
+          <div ref={cityDropdownRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+              className="flex items-center gap-1 text-sm font-semibold cursor-pointer hover:text-white/80 transition whitespace-nowrap"
+            >
+              <MapPin className="w-4 h-4 opacity-80" />
+              {listingMode === 'RENT' ? 'Rent In' : 'Buy In'} {selectedCity || 'All Cities'}
+              <ChevronDown className={cn("w-4 h-4 opacity-70 transition-transform", isCityDropdownOpen && "rotate-180")} />
+            </button>
+
+            <AnimatePresence>
+              {isCityDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute left-0 top-full mt-2 w-72 max-h-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-[60] flex flex-col overflow-hidden text-slate-800"
+                >
+                  <div className="p-2 border-b border-slate-100 flex items-center bg-slate-50 gap-1.5 shrink-0">
+                    <Search className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                    <input
+                      type="text"
+                      value={citySearchQuery}
+                      onChange={(e) => setCitySearchQuery(e.target.value)}
+                      placeholder="Search city..."
+                      className="w-full bg-transparent focus:outline-none text-xs text-slate-800 font-bold placeholder:text-slate-400 h-6 border-0 p-0"
+                      autoFocus
+                    />
+                    {citySearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setCitySearchQuery('')}
+                        className="text-[9px] text-[#6B46C1] hover:text-[#5b3ba8] font-black px-1"
+                      >
+                        CLEAR
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto max-h-60 py-1.5 text-left">
+                    <button
+                      type="button"
+                      onClick={() => handleCitySelect('')}
+                      className={cn(
+                        "w-full text-left px-3 py-2 text-xs font-bold transition-colors flex items-center justify-between border-b border-slate-100 mb-1",
+                        !selectedCity
+                          ? "bg-[#6B46C1]/5 text-[#6B46C1]"
+                          : "text-slate-700 hover:bg-slate-50"
+                      )}
+                    >
+                      <span>All Cities</span>
+                      {!selectedCity && <span className="text-[10px] font-black">✓</span>}
+                    </button>
+                    {filteredTopCities.length === 0 && filteredOtherCities.length === 0 ? (
+                      <div className="px-4 py-3 text-xs font-semibold text-slate-400 text-center">
+                        No cities found
+                      </div>
+                    ) : (
+                      <>
+                        {filteredTopCities.length > 0 && (
+                          <div>
+                            <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                              Top Cities
+                            </div>
+                            {filteredTopCities.map((city) => (
+                              <button
+                                key={city}
+                                type="button"
+                                onClick={() => handleCitySelect(city)}
+                                className={cn(
+                                  "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
+                                  selectedCity === city
+                                    ? "bg-[#6B46C1]/5 text-[#6B46C1]"
+                                    : "text-slate-700 hover:bg-slate-50"
+                                )}
+                              >
+                                <span>{city}</span>
+                                {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {filteredOtherCities.length > 0 && (
+                          <div className="mt-1">
+                            <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                              Other Cities
+                            </div>
+                            {filteredOtherCities.map((city) => (
+                              <button
+                                key={city}
+                                type="button"
+                                onClick={() => handleCitySelect(city)}
+                                className={cn(
+                                  "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
+                                  selectedCity === city
+                                    ? "bg-[#6B46C1]/5 text-[#6B46C1]"
+                                    : "text-slate-700 hover:bg-slate-50"
+                                )}
+                              >
+                                <span>{city}</span>
+                                {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
@@ -414,11 +578,13 @@ export default function PropertiesContent() {
             <Phone className="w-4 h-4" /> Download App
           </button>
           
-          <Link href={SELLER_URL}>
-            <Button className="bg-[#00D289] hover:bg-[#00c07d] text-white font-bold rounded shadow-none h-9 px-5 whitespace-nowrap cursor-pointer">
-              Dashboard
-            </Button>
-          </Link>
+          {showSellerDashboard && (
+            <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
+              <Button className="bg-[#00D289] hover:bg-[#00c07d] text-white font-bold rounded shadow-none h-9 px-5 whitespace-nowrap cursor-pointer">
+                Dashboard
+              </Button>
+            </a>
+          )}
 
           {/* Profile Menu Dropdown */}
           <div className="relative profile-menu-container">
@@ -543,22 +709,22 @@ export default function PropertiesContent() {
           <div className="relative filter-dropdown-container">
             <button
               onClick={() => setActiveDropdown(activeDropdown === 'budget' ? null : 'budget')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'budget' || budgetRange[0] > 0 || budgetRange[1] < 20 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
+              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'budget' || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
             >
-              ₹{budgetRange[0] === 0 ? '0' : budgetRange[0] + 'Cr'} - ₹{budgetRange[1] === 20 ? '20Cr+' : budgetRange[1] + 'Cr'} <ChevronDown className="w-4 h-4 opacity-70" />
+              ₹{formatBudgetLabel(budgetRange[0])} - ₹{formatBudgetLabel(budgetRange[1])} <ChevronDown className="w-4 h-4 opacity-70" />
             </button>
             {activeDropdown === 'budget' && (
               <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-6 w-[420px] z-50">
                 <div className="flex justify-between text-sm font-bold text-slate-700 mb-6">
-                  <span>₹{budgetRange[0] === 0 ? '0' : budgetRange[0] + 'Cr'}</span>
-                  <span>₹{budgetRange[1] === 20 ? '20.00Cr+' : budgetRange[1] + 'Cr'}</span>
+                  <span>₹{formatBudgetLabel(budgetRange[0])}</span>
+                  <span>₹{formatBudgetLabel(budgetRange[1])}</span>
                 </div>
 
                 <Slider.Root
                   className="relative flex items-center select-none touch-none w-full h-5"
                   value={budgetRange}
-                  max={20}
-                  step={1}
+                  max={BUDGET_MAX_LAKH}
+                  step={BUDGET_STEP}
                   onValueChange={(val: [number, number]) => setBudgetRange(val)}
                 >
                   <Slider.Track className="bg-slate-200 relative grow rounded-full h-1.5">
@@ -574,9 +740,9 @@ export default function PropertiesContent() {
 
                 <div className="flex justify-between text-xs text-slate-400 mt-2 font-medium px-2">
                   <div className="flex flex-col items-center gap-1"><span>|</span><span>₹0</span></div>
-                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹5Cr</span></div>
-                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹10Cr</span></div>
-                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹20Cr+</span></div>
+                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹25 Lakh</span></div>
+                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹50 Lakh</span></div>
+                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹1Cr+</span></div>
                 </div>
               </div>
             )}
@@ -674,7 +840,7 @@ export default function PropertiesContent() {
         {/* Breadcrumb and Timestamp */}
         <div className="flex flex-col md:flex-row md:items-center justify-between text-xs text-slate-500 mb-6">
           <div className="mb-2 md:mb-0">
-            Home / {listingMode === 'RENT' ? 'Flats for Rent' : 'Flats for Sale'} in {search || 'New Delhi'}
+            Home / {listingMode === 'RENT' ? 'Flats for Rent' : 'Flats for Sale'}{selectedCity ? ` in ${selectedCity}` : ''}
           </div>
           <div>Last Updated: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
         </div>
@@ -688,7 +854,7 @@ export default function PropertiesContent() {
               <div>
                 <p className="text-slate-600 text-sm font-medium mb-1">Showing 1 - {properties.length > 30 ? 30 : properties.length} of {properties.length}</p>
                 <h1 className="text-2xl font-bold text-slate-900">
-                  {listingMode === 'RENT' ? 'Flats for Rent' : 'Flats for Sale'} in {search || 'New Delhi'}
+                  {listingMode === 'RENT' ? 'Flats for Rent' : 'Flats for Sale'}{selectedCity ? ` in ${selectedCity}` : ''}
                 </h1>
               </div>
               <div className="mt-3 sm:mt-0 flex items-center gap-2">
@@ -700,10 +866,14 @@ export default function PropertiesContent() {
             </div>
 
             <p className="text-xs text-slate-500 mb-6 leading-relaxed hidden sm:block">
-              Looking for Property in {search || 'New Delhi'}? LuxeEstates offers {properties.length}+ Flats & 1585+ Houses/Villas. Search from 19769+ 2 & 3 BHK properties for sale ...<span className="text-[#6B46C1] cursor-pointer">read more</span>
+              Looking for Property{selectedCity ? ` in ${selectedCity}` : ''}? Kanharaj has {properties.length} active listing{properties.length !== 1 ? 's' : ''}
+              {countByBedrooms(properties, 2) > 0 ? `, including ${countByBedrooms(properties, 2)}× 2 BHK` : ''}
+              {countByBedrooms(properties, 3) > 0 ? ` and ${countByBedrooms(properties, 3)}× 3 BHK` : ''} options.
             </p>
 
-            {properties.length === 0 ? (
+            {loading && properties.length === 0 ? (
+              <HousingPropertyListSkeleton count={4} />
+            ) : properties.length === 0 ? (
               <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
                 <Search className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                 <h3 className="text-lg font-bold text-slate-900">No properties found</h3>
@@ -748,7 +918,7 @@ export default function PropertiesContent() {
                   {[
                     { key: 'PROPERTY TYPE', count: tempPropertyTypes.length },
                     { key: 'BHK TYPE', count: tempBhkTypes.length },
-                    { key: 'BUDGET RANGE', count: (tempBudgetRange[0] > 0 || tempBudgetRange[1] < 20) ? 1 : 0 },
+                    { key: 'BUDGET RANGE', count: (tempBudgetRange[0] > 0 || tempBudgetRange[1] < BUDGET_MAX_LAKH) ? 1 : 0 },
                     { key: 'SALE TYPE', count: tempSaleTypes.length },
                     { key: 'CONSTRUCTION STATUS', count: tempConstructionStatus.length },
                     { key: 'LISTED BY', count: tempListedBy.length },
@@ -822,15 +992,15 @@ export default function PropertiesContent() {
                       <div className="flex justify-between items-center">
                         <p className="text-xs text-slate-400">Set your budget range</p>
                         <span className="text-xs font-bold text-[#6B46C1]">
-                          ₹{tempBudgetRange[0] === 0 ? '0' : tempBudgetRange[0] + 'Cr'} – ₹{tempBudgetRange[1] === 20 ? '20Cr+' : tempBudgetRange[1] + 'Cr'}
+                          ₹{formatBudgetLabel(tempBudgetRange[0])} – ₹{formatBudgetLabel(tempBudgetRange[1])}
                         </span>
                       </div>
                       <div className="px-1 py-2">
                         <Slider.Root
                           className="relative flex items-center select-none touch-none w-full h-5 my-2"
                           value={tempBudgetRange}
-                          max={20}
-                          step={1}
+                          max={BUDGET_MAX_LAKH}
+                          step={BUDGET_STEP}
                           onValueChange={(val: [number, number]) => setTempBudgetRange(val)}
                         >
                           <Slider.Track className="bg-slate-200 relative grow rounded-full h-1.5">
@@ -840,14 +1010,14 @@ export default function PropertiesContent() {
                           <Slider.Thumb className="block w-4 h-4 bg-white border-2 border-[#6B46C1] rounded-full shadow focus:outline-none cursor-grab" aria-label="Max Budget" />
                         </Slider.Root>
                         <div className="flex justify-between text-[10px] text-slate-400 mt-2 font-medium">
-                          <span>₹0</span><span>₹5Cr</span><span>₹10Cr</span><span>₹15Cr</span><span>₹20Cr+</span>
+                          <span>₹0</span><span>₹25 Lakh</span><span>₹50 Lakh</span><span>₹75 Lakh</span><span>₹1Cr+</span>
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 gap-2 mt-2">
-                        {[1, 2, 3, 5, 10, 15].map(val => (
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        {[5, 10, 15, 20, 25, 30, 40, 50, 75, 100].map(val => (
                           <button key={val} type="button" onClick={() => setTempBudgetRange([0, val])}
                             className={cn("border rounded-lg px-3 py-2 text-xs font-semibold transition-all", tempBudgetRange[1] === val && tempBudgetRange[0] === 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1]" : "border-slate-200 text-slate-600 hover:bg-slate-50")}>
-                            Up to ₹{val}Cr
+                            Up to ₹{formatBudgetLabel(val)}
                           </button>
                         ))}
                       </div>

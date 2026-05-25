@@ -1,14 +1,25 @@
 import { MetadataRoute } from 'next'
+import { SITE } from '@/lib/seo'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://kanharaj.com'
-
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: ['/admin/', '/api/'],
-    },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: [
+          '/admin/',
+          '/api/',
+          '/login',
+          '/profile',
+          '/verify-email',
+          '/forgot-password',
+          '/reset-password',
+          '/properties/post',
+        ],
+      },
+    ],
+    sitemap: `${SITE.url}/sitemap.xml`,
+    host: SITE.url,
   }
 }

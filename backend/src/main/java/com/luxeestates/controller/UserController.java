@@ -32,7 +32,12 @@ public class UserController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (request.containsKey("profileImage")) {
-            user.setProfileImage(request.get("profileImage"));
+            String img = request.get("profileImage");
+            if (img == null || img.isBlank() || "null".equalsIgnoreCase(img)) {
+                user.setProfileImage(null);
+            } else {
+                user.setProfileImage(img.trim());
+            }
         }
         if (request.containsKey("description")) {
             user.setDescription(request.get("description"));

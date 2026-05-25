@@ -1,11 +1,13 @@
 import type { Metadata } from "next"
 import AboutContent from "./AboutContent"
+import { buildPageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  title: "About Us | Kanharaj - Real Estate Experts in Dwarka",
-  description: "Learn more about Kanharaj, Dwarka's leading real estate consultancy. Our mission is to provide transparent and personalized property services.",
-  keywords: "about real estate, Kanharaj, Dwarka builders, real estate story, premium property agency",
-}
+export const metadata: Metadata = buildPageMetadata({
+  title: 'About Kanharaj — Trusted Real Estate Experts in Dwarka',
+  description:
+    'Learn about Kanharaj, Dwarka\'s trusted real estate consultancy. Transparent buying, selling & renting with verified listings and expert local guidance.',
+  path: '/about',
+})
 
 export default function AboutPage() {
   return <AboutContent />

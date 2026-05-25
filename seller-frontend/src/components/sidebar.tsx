@@ -15,6 +15,7 @@ import {
   Home
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { logoutFromSellerDashboard } from "@/lib/auth"
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/" },
@@ -36,9 +37,7 @@ export function Sidebar() {
   }, [pathname])
 
   const handleLogout = () => {
-    localStorage.removeItem("seller_user")
-    localStorage.removeItem("seller_token")
-    window.location.href = "/login"
+    logoutFromSellerDashboard()
   }
 
   const hasNoPlan = false // TEMPORARY BYPASS: !user || user.subscriptionPlan === "NONE"

@@ -164,7 +164,7 @@ export default function AdminPage() {
         <div className="h-full flex flex-col">
           <div className="p-6 mb-4 flex items-center gap-3 border-b border-white/5">
             <div className="w-10 h-10 rounded-xl bg-white overflow-hidden flex items-center justify-center text-white shadow-lg shadow-rose-600/10">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
+              <img src="/logo.png?v=3" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <h1 className="text-white font-bold text-lg tracking-tight leading-none">KANHARAJ</h1>

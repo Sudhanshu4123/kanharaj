@@ -7,54 +7,18 @@ import { LoadingProvider } from "@/components/loading-provider"
 import Script from "next/script"
 
 import { AuthProvider } from "@/components/auth-provider"
+import { CrossSiteLogoutHandler } from "@/components/cross-site-logout"
+import { Suspense } from "react"
+import { buildRootMetadata } from "@/lib/seo"
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
   themeColor: "#E11D48",
 }
 
-export const metadata: Metadata = {
-  title: {
-    default: "Kanharaj | Best Real Estate Agent in Dwarka, New Delhi",
-    template: "%s | Kanharaj"
-  },
-  description: "Kanharaj is Dwarka's leading real estate consultancy. We provide verified listings for luxury flats, residential plots, and commercial spaces in Dwarka Sector 7, 10, 19 and more. Zero brokerage options available.",
-  keywords: ["property dealer in dwarka", "best real estate agent Dwarka", "real estate investing", "palam property dealer contact number", "brokers in dwarka for rent", "property dealer delhi", "property dealer near me", "dwarka broker contact number", "property dealers in dwarka", "real estate in delhi ncr dwarka", "best property dealer in dwarka expressway"],
-  authors: [{ name: "Kanharaj" }],
-  creator: "Kanharaj",
-  openGraph: {
-    type: "website",
-    locale: "en_IN",
-    url: "https://kanharaj.com",
-    title: "Kanharaj | Premium Real Estate in Dwarka",
-    description: "Verified properties in Dwarka",
-    siteName: "Kanharaj",
-    images: [{
-      url: "/og-image.jpg",
-      width: 1200,
-      height: 630,
-      alt: "Kanharaj"
-    }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Kanharaj | Premium Real Estate",
-    description: "Premium real estate listings in Dwarka, New Delhi.",
-    images: ["/logo.png"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-  icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
-  },
-}
+export const metadata: Metadata = buildRootMetadata()
 
 export default function RootLayout({
   children,
@@ -62,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -75,7 +39,6 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-
             gtag('config', 'G-SG9DCZDFPW');
           `}
         </Script>
@@ -83,6 +46,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col overflow-x-hidden">
         <AuthProvider>
+          <Suspense fallback={null}>
+            <CrossSiteLogoutHandler />
+          </Suspense>
           <LoadingProvider>
             <Header />
             <main className="flex-1 pt-20 pb-20 lg:pb-0">

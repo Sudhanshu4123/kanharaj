@@ -31,6 +31,13 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import {
+  getSellerAuthHeaders,
+  getApiErrorMessage,
+  mapSellerPropertyType,
+  mapSellerListingType,
+  parseBedroomsFromBhk,
+} from "@/lib/utils"
 
 const steps = [
   { id: 0, label: "Property Details", status: "In progress", score: "" },
@@ -261,20 +268,16 @@ export default function AddPropertyPage() {
       return
     }
     const userData = localStorage.getItem("seller_user")
-    if (!userData) {
+    const authHeaders = getSellerAuthHeaders()
+    if (!userData || !authHeaders) {
       router.push("/login")
       return
     }
-    const user = JSON.parse(userData)
 
     setIsSubmitting(true)
     try {
-      // Map UI fields to backend model
-      let mappedPropertyType = "FLAT"
-      if (propertyType === "Independent House" || propertyType === "Villa") mappedPropertyType = "HOUSE"
-      if (sector === "Commercial") mappedPropertyType = "COMMERCIAL"
-
-      const bedroomsCount = parseInt(bhk.replace(" BHK", "")) || 3
+      const mappedPropertyType = mapSellerPropertyType(propertyType, sector, lookingTo)
+      const bedroomsCount = parseBedroomsFromBhk(bhk)
       const yearBuiltVal = ageOfProperty ? (new Date().getFullYear() - parseInt(ageOfProperty)) : null
 
       const richDescription = `PROPERTY HIGHLIGHTS:
@@ -304,32 +307,37 @@ ${formData.description}`
         description: richDescription,
         price: parseFloat(formData.price) || 0,
         propertyType: mappedPropertyType,
-        listingType: lookingTo === "Rent" ? "RENT" : "BUY",
+        listingType: mapSellerListingType(lookingTo),
         address: `${buildingName}, ${formData.address}`,
         city: city,
         state: "Delhi",
         pincode: formData.pincode,
         bedrooms: bedroomsCount,
         bathrooms: bathroomCount,
-        area: parseFloat(formData.area) || 0,
+        area: parseFloat(formData.area) || parseFloat(carpetArea) || 0,
         yearBuilt: yearBuiltVal,
         status: "ACTIVE",
         images: formData.images,
         amenities: formData.amenities,
-        userId: user.id
       }
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/properties`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify(payload)
       })
 
       if (res.ok) {
         alert("Property Posted Successfully!")
         router.push("/listings")
+      } else if (res.status === 401) {
+        alert("Session expired. Please login again.")
+        router.push("/login")
+      } else if (res.status === 403) {
+        alert("Only seller accounts can post properties. Please check your account role.")
       } else {
-        alert("Failed to post property")
+        const message = await getApiErrorMessage(res, "Failed to post property")
+        alert(message)
       }
     } catch (err) {
       alert("Error connecting to server.")

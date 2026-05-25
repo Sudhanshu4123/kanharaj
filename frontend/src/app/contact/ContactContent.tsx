@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, MessageCircle } from 'lucide-react'
 import { Card } from '@/components/ui/card'
@@ -9,7 +10,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useInquiryStore } from '@/lib/store'
 
+const SUBJECT_LABELS: Record<string, string> = {
+  'unsubscribe-alerts': 'Unsubscribe from property alerts',
+  'fraud-report': 'Report suspected fraud',
+}
+
 export default function ContactContent() {
+  const searchParams = useSearchParams()
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -21,6 +28,13 @@ export default function ContactContent() {
   const [loading, setLoading] = useState(false)
 
   const { addInquiry } = useInquiryStore()
+
+  useEffect(() => {
+    const subjectKey = searchParams.get('subject')
+    if (!subjectKey) return
+    const label = SUBJECT_LABELS[subjectKey] || subjectKey.replace(/-/g, ' ')
+    setForm((f) => (f.subject ? f : { ...f, subject: label }))
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

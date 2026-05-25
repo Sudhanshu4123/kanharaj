@@ -38,7 +38,12 @@ public class PropertyDto {
     private Integer views;
     private Long userId;
     private String userName;
+    private String userPhone;
+    private String userProfileImage;
+    private String userDescription;
+    private String userExperienceYears;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     
     public static PropertyDto fromEntity(Property property) {
         return PropertyDto.builder()
@@ -65,7 +70,12 @@ public class PropertyDto {
                 .views(property.getViews())
                 .userId(property.getUser().getId())
                 .userName(property.getUser().getName())
+                .userPhone(property.getUser().getPhone())
+                .userProfileImage(property.getUser().getProfileImage())
+                .userDescription(property.getUser().getDescription())
+                .userExperienceYears(property.getUser().getExperienceYears())
                 .createdAt(property.getCreatedAt())
+                .updatedAt(property.getUpdatedAt())
                 .build();
     }
 

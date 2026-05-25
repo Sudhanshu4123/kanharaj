@@ -58,25 +58,25 @@ public class DataInitializer implements CommandLineRunner {
                     .build();
             userRepository.save(admin);
         } else {
-            // Force update existing user to be Admin with correct password
             admin.setRole(User.Role.ADMIN);
-            admin.setPassword(passwordEncoder.encode(trimmedPassword));
             admin.setEnabled(true);
             userRepository.save(admin);
         }
 
-        // Create a sample seller
-        String sellerEmail = "seller@example.com";
-        if (userRepository.findByEmail(sellerEmail).isEmpty()) {
-            User seller = User.builder()
-                    .name("Sample Seller")
-                    .email(sellerEmail)
-                    .phone("9876543210")
-                    .password(passwordEncoder.encode("seller@123"))
-                    .role(User.Role.SELLER)
-                    .enabled(true)
-                    .build();
-            userRepository.save(seller);
+        // Demo seller only when explicitly enabled (never in production by default)
+        if ("true".equalsIgnoreCase(System.getenv("SEED_DEMO_DATA"))) {
+            String sellerEmail = "seller@example.com";
+            if (userRepository.findByEmail(sellerEmail).isEmpty()) {
+                User seller = User.builder()
+                        .name("Sample Seller")
+                        .email(sellerEmail)
+                        .phone("9876543210")
+                        .password(passwordEncoder.encode("seller@123"))
+                        .role(User.Role.SELLER)
+                        .enabled(true)
+                        .build();
+                userRepository.save(seller);
+            }
         }
 
         // Add a sample property if the database is empty

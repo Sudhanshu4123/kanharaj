@@ -12,8 +12,10 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Button } from './ui/button'
-import { cn } from '@/lib/utils'
+import { cn, hasSellerDashboardAccess, BRAND_LOGO_SRC } from '@/lib/utils'
 import { useAuthStore } from '@/lib/store'
+import { normalizeProfileImageUrl } from '@/lib/profile-utils'
+import { MyActivityPanel, type ActivityTab } from '@/components/header/my-activity-panel'
 
 const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
   ? process.env.NEXT_PUBLIC_SELLER_URL
@@ -168,97 +170,17 @@ const navLinks = [
   }
 ]
 
-const mockProperties = {
-  contacted: [
-    {
-      id: 'c1',
-      title: 'Saarthi Affordable Homes',
-      builder: 'Suraj Jaiswal Builder',
-      role: 'Seller',
-      location: 'Uttam Nagar, New Delhi',
-      price: 'â‚¹45.77 L - 75.57 L',
-      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=400&q=80',
-    },
-    {
-      id: 'c2',
-      title: '2 BHK Independent House',
-      builder: 'Nikhil Choudhary',
-      role: 'Seller',
-      location: 'Freedom Fighter Vihar, New Delhi',
-      price: 'â‚¹45.0 L',
-      image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=400&q=80',
-    }
-  ],
-  seen: [
-    {
-      id: 's1',
-      title: 'Saarthi Affordable Homes',
-      builder: 'Suraj Jaiswal Buil...',
-      role: 'Seller',
-      location: 'Uttam Nagar, New Delhi',
-      price: 'â‚¹45.77 L - 75.57 L',
-      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=400&q=80',
-    },
-    {
-      id: 's2',
-      title: '2 BHK Independent House',
-      builder: 'Nikhil Choudhary',
-      role: 'Seller',
-      location: 'Freedom Fighter Vihar, New Delhi',
-      price: 'â‚¹45.0 L',
-      image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=400&q=80',
-    }
-  ],
-  saved: [
-    {
-      id: 'sv1',
-      title: 'Luxury 3 BHK Floor',
-      builder: 'MD Builders',
-      role: 'Agent',
-      location: 'Dwarka Sector 12, New Delhi',
-      price: 'â‚¹1.25 Cr',
-      image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=400&q=80',
-    },
-    {
-      id: 'sv2',
-      title: 'Ready Builder Floor',
-      builder: 'Owner',
-      location: 'Uttam Nagar, New Delhi',
-      price: 'â‚¹35.0 L',
-      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80',
-    }
-  ],
-  searches: [
-    {
-      id: 'sh1',
-      title: 'Ready 2 BHK Flats',
-      builder: 'Uttam Nagar, New Delhi',
-      role: 'Search',
-      location: 'Ready, Zero Brokerage',
-      price: 'â‚¹30L - â‚¹60L',
-      image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80',
-    },
-    {
-      id: 'sh2',
-      title: 'Independent Floors',
-      builder: 'Vasant Kunj, New Delhi',
-      role: 'Search',
-      location: '3 BHK, Fully Furnished',
-      price: 'â‚¹1.2Cr - â‚¹2.5Cr',
-      image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=400&q=80',
-    }
-  ]
-}
-
 export function Header() {
   const pathname = usePathname()
   const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
-  const [activeActivityTab, setActiveActivityTab] = useState<'contacted' | 'seen' | 'saved' | 'searches'>('seen')
+  const [activeActivityTab, setActiveActivityTab] = useState<ActivityTab>('seen')
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const { isAuthenticated, user, logout } = useAuthStore()
+  const { isAuthenticated, user, token, logout, refreshUser } = useAuthStore()
+  const showSellerDashboard = isAuthenticated && hasSellerDashboardAccess(user)
+  const sellerDashboardHref = token ? `${SELLER_URL}/login?token=${token}` : `${SELLER_URL}/login`
 
   const handleLogout = () => {
     logout()
@@ -273,6 +195,12 @@ export function Header() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  useEffect(() => {
+    if (mounted && isAuthenticated) {
+      refreshUser()
+    }
+  }, [mounted, isAuthenticated, refreshUser])
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
@@ -309,7 +237,7 @@ export function Header() {
           <Link href="/" className="flex items-center space-x-2">
             <div className="relative h-8 w-8 rounded-lg overflow-hidden flex items-center justify-center shadow-md bg-white">
               <img
-                src="/logo.png"
+                src={BRAND_LOGO_SRC}
                 alt="Kanharaj Logo"
                 className="h-full w-full object-cover"
               />
@@ -635,12 +563,13 @@ export function Header() {
               Download App
             </Link>
 
-            {/* Seller Dashboard rounded emerald green button */}
-            <Link href={SELLER_URL}>
-              <Button className="h-9 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg text-xs shadow-sm transition-all duration-300">
-                Seller Dashboard
-              </Button>
-            </Link>
+            {showSellerDashboard && (
+              <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
+                <Button className="h-9 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg text-xs shadow-sm transition-all duration-300">
+                  Seller Dashboard
+                </Button>
+              </a>
+            )}
 
             {/* Profile capsule menu block */}
             {mounted && (
@@ -656,9 +585,9 @@ export function Header() {
                 >
                   <Menu className={cn("h-4 w-4", isTransparent ? "text-white" : "text-slate-600")} />
                   <div className="w-6 h-6 rounded-full bg-[#f22b68] flex items-center justify-center text-white text-[10px] font-black shrink-0 overflow-hidden">
-                    {isAuthenticated && user?.profileImage ? (
+                    {isAuthenticated && user && normalizeProfileImageUrl(user.profileImage) ? (
                       <img
-                        src={user.profileImage}
+                        src={normalizeProfileImageUrl(user.profileImage)}
                         alt={user.name || "User"}
                         className="w-full h-full object-cover"
                       />
@@ -727,120 +656,12 @@ export function Header() {
 
                       {isAuthenticated && (
                         <>
-                          {/* My Activity Header */}
-                          <div className="flex flex-col gap-2">
-                        <h3 className="text-sm font-black text-slate-800 tracking-tight">My Activity</h3>
-                        <div className="grid grid-cols-4 gap-1.5 relative">
-                          {/* Contacted Properties */}
-                          <button
-                            onClick={() => setActiveActivityTab('contacted')}
-                            className={cn(
-                              "flex flex-col items-center justify-between p-2 rounded-xl border text-center transition-all duration-200 relative min-h-[84px]",
-                              activeActivityTab === 'contacted'
-                                ? "border-indigo-500 bg-indigo-50/20 text-indigo-700 shadow-sm"
-                                : "border-slate-100 bg-white hover:bg-slate-50 text-slate-600"
-                            )}
-                          >
-                            <div className="w-7 h-7 rounded-full bg-[#fef2f2] text-rose-500 flex items-center justify-center mb-1 shrink-0">
-                              <Phone className="h-4 w-4" />
-                            </div>
-                            <span className="text-[10px] font-black leading-tight text-slate-700">Contacted Properties</span>
-                            <span className="text-[10px] font-extrabold text-slate-600 px-2 py-0.5 bg-slate-100 rounded-full mt-1">02</span>
-                            {activeActivityTab === 'contacted' && (
-                              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-r border-b border-indigo-500 rotate-45 z-10" />
-                            )}
-                          </button>
-
-                          {/* Seen Properties */}
-                          <button
-                            onClick={() => setActiveActivityTab('seen')}
-                            className={cn(
-                              "flex flex-col items-center justify-between p-2 rounded-xl border text-center transition-all duration-200 relative min-h-[84px]",
-                              activeActivityTab === 'seen'
-                                ? "border-indigo-500 bg-indigo-50/20 text-indigo-700 shadow-sm"
-                                : "border-slate-100 bg-white hover:bg-slate-50 text-slate-600"
-                            )}
-                          >
-                            <div className="w-7 h-7 rounded-full bg-[#f5f3ff] text-indigo-500 flex items-center justify-center mb-1 shrink-0">
-                              <CheckSquare className="h-4 w-4" />
-                            </div>
-                            <span className="text-[10px] font-black leading-tight text-slate-700">Seen Properties</span>
-                            <span className="text-[10px] font-extrabold text-indigo-600 px-2 py-0.5 bg-indigo-55 rounded-full mt-1">02</span>
-                            {activeActivityTab === 'seen' && (
-                              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-r border-b border-indigo-500 rotate-45 z-10" />
-                            )}
-                          </button>
-
-                          {/* Saved Properties */}
-                          <button
-                            onClick={() => setActiveActivityTab('saved')}
-                            className={cn(
-                              "flex flex-col items-center justify-between p-2 rounded-xl border text-center transition-all duration-200 relative min-h-[84px]",
-                              activeActivityTab === 'saved'
-                                ? "border-indigo-500 bg-indigo-50/20 text-indigo-700 shadow-sm"
-                                : "border-slate-100 bg-white hover:bg-slate-50 text-slate-600"
-                            )}
-                          >
-                            <div className="w-7 h-7 rounded-full bg-[#fff1f2] text-rose-600 flex items-center justify-center mb-1 shrink-0">
-                              <Heart className="h-4 w-4 fill-rose-500 text-rose-500" />
-                            </div>
-                            <span className="text-[10px] font-black leading-tight text-slate-700">Saved Properties</span>
-                            <span className="text-[10px] font-extrabold text-slate-600 px-2 py-0.5 bg-slate-100 rounded-full mt-1">00</span>
-                            {activeActivityTab === 'saved' && (
-                              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-r border-b border-indigo-500 rotate-45 z-10" />
-                            )}
-                          </button>
-
-                          {/* Recent Searches */}
-                          <button
-                            onClick={() => setActiveActivityTab('searches')}
-                            className={cn(
-                              "flex flex-col items-center justify-between p-2 rounded-xl border text-center transition-all duration-200 relative min-h-[84px]",
-                              activeActivityTab === 'searches'
-                                ? "border-indigo-500 bg-indigo-50/20 text-indigo-700 shadow-sm"
-                                : "border-slate-100 bg-white hover:bg-slate-50 text-slate-600"
-                            )}
-                          >
-                            <div className="w-7 h-7 rounded-full bg-[#eff6ff] text-blue-500 flex items-center justify-center mb-1 shrink-0">
-                              <Clock className="h-4 w-4" />
-                            </div>
-                            <span className="text-[10px] font-black leading-tight text-slate-700">Recent Searches</span>
-                            <span className="text-[10px] font-extrabold text-slate-600 px-2 py-0.5 bg-slate-100 rounded-full mt-1">01</span>
-                            {activeActivityTab === 'searches' && (
-                              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-r border-b border-indigo-500 rotate-45 z-10" />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Active Tab Listings */}
-                      <div className="grid grid-cols-2 gap-3 mt-1 bg-slate-50/50 p-2.5 rounded-2xl border border-slate-100">
-                        {mockProperties[activeActivityTab]?.map((property) => (
-                          <div key={property.id} className="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between">
-                            <div className="relative h-24 w-full bg-slate-100">
-                              <img
-                                src={property.image}
-                                alt={property.title}
-                                className="h-full w-full object-cover"
-                              />
-                            </div>
-                            <div className="p-2 flex flex-col flex-grow">
-                              <div className="text-[13px] font-black text-slate-900 leading-tight mb-1">{property.price}</div>
-                              <h5 className="text-[10px] font-extrabold text-slate-800 leading-snug line-clamp-1">{property.title}</h5>
-                              <p className="text-[9px] font-semibold text-slate-400 mt-0.5 truncate">
-                                by {property.builder}
-                              </p>
-                              <p className="text-[9px] font-semibold text-slate-400 truncate">{property.location}</p>
-                            </div>
-                            <div className="p-1.5 pt-0">
-                              <button className="w-full h-8 bg-[#10b981] hover:bg-[#059669] text-white rounded-lg flex items-center justify-center gap-1 text-[11px] font-extrabold shadow-sm transition-colors">
-                                <PhoneCall className="h-3 w-3" />
-                                Contact
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                          <MyActivityPanel
+                            variant="desktop"
+                            activeTab={activeActivityTab}
+                            setActiveTab={setActiveActivityTab}
+                            onNavigate={() => setOpenDropdown(null)}
+                          />
 
                       {/* Navigation Links list */}
                       <div className="flex flex-col border-t border-slate-100 pt-3 gap-0.5">
@@ -857,7 +678,7 @@ export function Header() {
                         </Link>
 
                         <Link
-                          href="/profile"
+                          href="/profile?tab=activity&activity=contacted"
                           onClick={() => setOpenDropdown(null)}
                           className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm"
                         >
@@ -869,7 +690,7 @@ export function Header() {
                         </Link>
 
                         <Link
-                          href="/profile"
+                          href="/feedback"
                           onClick={() => setOpenDropdown(null)}
                           className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm"
                         >
@@ -884,7 +705,7 @@ export function Header() {
                         </Link>
 
                         <Link
-                          href="/profile"
+                          href="/contact?subject=unsubscribe-alerts"
                           onClick={() => setOpenDropdown(null)}
                           className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm"
                         >
@@ -896,7 +717,7 @@ export function Header() {
                         </Link>
 
                         <Link
-                          href="/profile"
+                          href="/contact?subject=fraud-report"
                           onClick={() => setOpenDropdown(null)}
                           className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm border-b border-slate-100 pb-3"
                         >
@@ -1348,11 +1169,19 @@ export function Header() {
             ))}
 
             <div className="pt-4 border-t border-slate-100 space-y-3">
-              <Link href={SELLER_URL} onClick={() => setIsMenuOpen(false)} className="block">
-                <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold h-11 flex items-center justify-center gap-2 rounded-xl">
-                  <span>Seller Dashboard</span>
-                </Button>
-              </Link>
+              {showSellerDashboard && (
+                <a
+                  href={sellerDashboardHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="block"
+                >
+                  <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold h-11 flex items-center justify-center gap-2 rounded-xl">
+                    <span>Seller Dashboard</span>
+                  </Button>
+                </a>
+              )}
 
               {/* Collapsible Mobile Dashboard Accordion */}
               <div className="space-y-1">
@@ -1417,88 +1246,12 @@ export function Header() {
 
                       {isAuthenticated && (
                         <>
-                          {/* Mobile Activity Tabs Grid */}
-                          <div className="flex flex-col gap-2">
-                        <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider">My Activity</span>
-                        <div className="grid grid-cols-4 gap-1.5">
-                          {/* Contacted */}
-                          <button
-                            onClick={() => setActiveActivityTab('contacted')}
-                            className={cn(
-                              "flex flex-col items-center justify-between p-1.5 rounded-lg border text-center transition-all duration-200 min-h-[76px]",
-                              activeActivityTab === 'contacted' ? "border-indigo-500 bg-indigo-50/20 text-indigo-700" : "border-slate-100 bg-white text-slate-600"
-                            )}
-                          >
-                            <Phone className="h-3.5 w-3.5 text-rose-500 mb-1" />
-                            <span className="text-[8px] font-bold leading-tight">Contacted</span>
-                            <span className="text-[9px] font-black text-slate-600 px-1.5 py-0.5 bg-slate-100 rounded-full mt-1">02</span>
-                          </button>
-
-                          {/* Seen */}
-                          <button
-                            onClick={() => setActiveActivityTab('seen')}
-                            className={cn(
-                              "flex flex-col items-center justify-between p-1.5 rounded-lg border text-center transition-all duration-200 min-h-[76px]",
-                              activeActivityTab === 'seen' ? "border-indigo-500 bg-indigo-50/20 text-indigo-700" : "border-slate-100 bg-white text-slate-600"
-                            )}
-                          >
-                            <CheckSquare className="h-3.5 w-3.5 text-indigo-500 mb-1" />
-                            <span className="text-[8px] font-bold leading-tight">Seen</span>
-                            <span className="text-[9px] font-black text-indigo-600 px-1.5 py-0.5 bg-indigo-50 rounded-full mt-1">02</span>
-                          </button>
-
-                          {/* Saved */}
-                          <button
-                            onClick={() => setActiveActivityTab('saved')}
-                            className={cn(
-                              "flex flex-col items-center justify-between p-1.5 rounded-lg border text-center transition-all duration-200 min-h-[76px]",
-                              activeActivityTab === 'saved' ? "border-indigo-500 bg-indigo-50/20 text-indigo-700" : "border-slate-100 bg-white text-slate-600"
-                            )}
-                          >
-                            <Heart className="h-3.5 w-3.5 text-rose-500 fill-rose-500 mb-1" />
-                            <span className="text-[8px] font-bold leading-tight">Saved</span>
-                            <span className="text-[9px] font-black text-slate-600 px-1.5 py-0.5 bg-slate-100 rounded-full mt-1">00</span>
-                          </button>
-
-                          {/* Searches */}
-                          <button
-                            onClick={() => setActiveActivityTab('searches')}
-                            className={cn(
-                              "flex flex-col items-center justify-between p-1.5 rounded-lg border text-center transition-all duration-200 min-h-[76px]",
-                              activeActivityTab === 'searches' ? "border-indigo-500 bg-indigo-50/20 text-indigo-700" : "border-slate-100 bg-white text-slate-600"
-                            )}
-                          >
-                            <Clock className="h-3.5 w-3.5 text-blue-500 mb-1" />
-                            <span className="text-[8px] font-bold leading-tight">Searches</span>
-                            <span className="text-[9px] font-black text-slate-600 px-1.5 py-0.5 bg-slate-100 rounded-full mt-1">01</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Dynamic Properties List for Mobile */}
-                      <div className="grid grid-cols-2 gap-2 bg-slate-50 p-2 rounded-xl border border-slate-100">
-                        {mockProperties[activeActivityTab]?.map((property) => (
-                          <div key={property.id} className="bg-white border border-slate-100 rounded-lg overflow-hidden shadow-sm flex flex-col justify-between">
-                            <div className="relative h-16 w-full bg-slate-100">
-                              <img
-                                src={property.image}
-                                alt={property.title}
-                                className="h-full w-full object-cover"
-                              />
-                            </div>
-                            <div className="p-1.5 flex flex-col flex-grow">
-                              <div className="text-[11px] font-extrabold text-slate-900 leading-tight mb-0.5">{property.price}</div>
-                              <h5 className="text-[8px] font-bold text-slate-800 leading-snug line-clamp-1">{property.title}</h5>
-                            </div>
-                            <div className="p-1 pt-0">
-                              <button className="w-full h-6.5 bg-[#10b981] hover:bg-[#059669] text-white rounded-md flex items-center justify-center gap-1 text-[9px] font-bold shadow-sm transition-colors">
-                                <PhoneCall className="h-2.5 w-2.5" />
-                                Contact
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                          <MyActivityPanel
+                            variant="mobile"
+                            activeTab={activeActivityTab}
+                            setActiveTab={setActiveActivityTab}
+                            onNavigate={() => setIsMenuOpen(false)}
+                          />
 
                       {/* Mobile Links List */}
                       <div className="flex flex-col gap-1 pr-2">
@@ -1515,7 +1268,7 @@ export function Header() {
                         </Link>
 
                         <Link
-                          href="/profile"
+                          href="/profile?tab=activity&activity=contacted"
                           onClick={() => setIsMenuOpen(false)}
                           className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
                         >
@@ -1527,7 +1280,7 @@ export function Header() {
                         </Link>
 
                         <Link
-                          href="/profile"
+                          href="/feedback"
                           onClick={() => setIsMenuOpen(false)}
                           className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
                         >
@@ -1542,7 +1295,7 @@ export function Header() {
                         </Link>
 
                         <Link
-                          href="/profile"
+                          href="/contact?subject=unsubscribe-alerts"
                           onClick={() => setIsMenuOpen(false)}
                           className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
                         >
@@ -1554,7 +1307,7 @@ export function Header() {
                         </Link>
 
                         <Link
-                          href="/profile"
+                          href="/contact?subject=fraud-report"
                           onClick={() => setIsMenuOpen(false)}
                           className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
                         >

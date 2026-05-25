@@ -1,40 +1,61 @@
 import { MetadataRoute } from 'next'
+import { SITE, absoluteUrl } from '@/lib/seo'
+
+export const revalidate = 3600
+
+function getPropertiesApiUrl(): string {
+  const base =
+    process.env.INTERNAL_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'https://kanharaj.com/api'
+  if (base.includes('/properties')) return base.replace(/\/properties.*$/, '/properties')
+  const root = base.replace(/\/api\/?$/, '')
+  return `${root}/api/properties`
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://kanharaj.com'
+  const now = new Date()
 
-  // Publicly accessible static routes only
-  const staticRoutes = [
-    '',
-    '/properties',
-    '/about',
-    '/contact',
-    '/for-sellers',
-    '/privacy',
-    '/terms',
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: route === '' ? 1 : 0.8,
-  }))
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: SITE.url, lastModified: now, changeFrequency: 'daily', priority: 1 },
+    { url: absoluteUrl('/properties'), lastModified: now, changeFrequency: 'daily', priority: 0.95 },
+    { url: absoluteUrl('/properties?listing=buy'), lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: absoluteUrl('/properties?listing=rent'), lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: absoluteUrl('/properties?type=flat&listing=buy'), lastModified: now, changeFrequency: 'daily', priority: 0.85 },
+    { url: absoluteUrl('/properties?type=house&listing=buy'), lastModified: now, changeFrequency: 'daily', priority: 0.85 },
+    { url: absoluteUrl('/properties?brokerage=zero&listing=buy'), lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: absoluteUrl('/for-sellers'), lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
+    { url: absoluteUrl('/about'), lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: absoluteUrl('/contact'), lastModified: now, changeFrequency: 'monthly', priority: 0.75 },
+    { url: absoluteUrl('/feedback'), lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
+    { url: absoluteUrl('/privacy'), lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
+    { url: absoluteUrl('/terms'), lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
+  ]
 
   try {
-    // Dynamic property routes
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/properties?size=100`)
-    if (response.ok) {
-      const data = await response.json()
-      const propertyRoutes = data.content.map((prop: any) => ({
-        url: `${baseUrl}/property/${prop.id}`,
-        lastModified: new Date(prop.updatedAt || new Date()),
-        changeFrequency: 'weekly' as const,
-        priority: 0.6,
-      }))
-      return [...staticRoutes, ...propertyRoutes]
-    }
-  } catch (error) {
-    console.error('Failed to fetch properties for sitemap:', error)
-  }
+    const fetchUrl = `${getPropertiesApiUrl()}?size=500`
+    const response = await fetch(fetchUrl, {
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(15000),
+    })
+    if (!response.ok) return staticRoutes
 
-  return staticRoutes
+    const data = await response.json()
+    const content = data?.content ?? (Array.isArray(data) ? data : [])
+    if (!Array.isArray(content)) return staticRoutes
+
+    const propertyRoutes: MetadataRoute.Sitemap = content
+      .filter((prop: { id?: number | string }) => prop?.id != null)
+      .map((prop: { id: number | string; updatedAt?: string }) => ({
+        url: absoluteUrl(`/property/${prop.id}`),
+        lastModified: prop.updatedAt ? new Date(prop.updatedAt) : now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.65,
+      }))
+
+    return [...staticRoutes, ...propertyRoutes]
+  } catch (error) {
+    console.error('Sitemap: property fetch failed, serving static routes only:', error)
+    return staticRoutes
+  }
 }

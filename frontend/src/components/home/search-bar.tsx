@@ -7,6 +7,9 @@ import { Search, MapPin, Home, DollarSign, ChevronRight, ArrowRight } from 'luci
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { cn } from '@/lib/utils'
+import { useUserActivityStore } from '@/lib/user-activity-store'
+import { usePropertyStore } from '@/lib/store'
+import { formatStatCount } from '@/lib/platform-data'
 
 type TabType = 'buy' | 'rent' | 'commercial' | 'pg' | 'plots'
 
@@ -18,7 +21,7 @@ const tabs: { value: TabType; label: string }[] = [
   { value: 'plots', label: 'PLOTS' },
 ]
 
-const topCities = [
+export const topCities = [
   "Mumbai",
   "Bengaluru",
   "Hyderabad",
@@ -33,7 +36,7 @@ const topCities = [
   "Navi Mumbai"
 ]
 
-const otherCities = [
+export const otherCities = [
   "Abohar", "Abu Dhabi", "Adilabad", "Agarmalwa", "Agartala", "Agra", "Ahmednagar", "Aizawl", "Ajman", "Ajmer", "Akola", "Alappuzha", "Alibag", "Aligarh", "Alipurduar", "Alirajpur", "Allahabad", "Almora", "Aluva", "Alwar", "Ambala", "Ambedkar Nagar", "Amethi", "Amravati", "Amreli", "Amritsar", "Amroha", "Anand", "Anantapur", "Anantnag", "Angul", "Anjaw", "Ankleshwar", "Anuppur", "Araria", "Aravalli", "Ariyalur", "Arrah", "Arwal", "Asansol", "Ashoknagar", "Auraiya", "Aurangabad", "Aurangabad, Bihar", "Ayodhya", "Azamgarh",
   "Baddi", "Badgam", "Bagalkot", "Bageshwar", "Baghpat", "Bahadurgarh", "Bahraich", "Baksa", "Balaghat", "Balangir", "Balasore", "Ballia", "Balod", "Balrampur", "Banaskantha", "Banda", "Bandipora", "Banka", "Bankura", "Banswara", "Barabanki", "Baramulla", "Baran", "Bardhaman", "Bareilly", "Bargarh", "Barmer", "Barnala", "Barpeta", "Barwani", "Bastar", "Basti", "Bathinda", "Bauda", "Beawar", "Beed", "Begusarai", "Belagavi", "Bellary", "Bemetara", "Berhampore", "Bettiah", "Betul", "Bhadohi", "Bhadrak", "Bhagalpur", "Bhandara", "Bharatpur", "Bharuch", "Bhatapara", "Bhavnagar", "Bhilai", "Bhilwara", "Bhimavaram", "Bhind", "Bhiwadi", "Bhiwani", "Bhojpur", "Bhopal", "Bhubaneswar", "Bhuj", "Bidar", "Bihar Sharif", "Bijapur", "Bijnor", "Bikaner", "Bilaspur", "Bilaspur, HP", "Bilimora", "Birbhum", "Bishnupur", "Bokaro", "Bolpur-Santiniketan", "Bongaigaon", "Botad", "Brajrajnagar", "Budaun", "Bulandshahr", "Buldhana", "Bundi", "Burhanpur", "Buxar",
   "Cachar", "Chamarajanagar", "Chamba", "Chamoli", "Champawat", "Champhai", "Chandauli", "Chandel", "Chandigarh", "Chandrapur", "Changlang", "Charkhi Dadri", "Chatra", "Chhapra", "Chhatarpur", "Chhindwara", "Chhota Udepur", "Chikkamagaluru", "Chiplun", "Chirang", "Chitradurga", "Chitrakoot", "Chittoor", "Chittorgarh", "Churachandpur", "Churu",
@@ -78,6 +81,9 @@ export function SearchBar({
   subtitle
 }: SearchBarProps = {}) {
   const router = useRouter()
+  const { properties } = usePropertyStore()
+  const activeCount = properties.filter((p) => p.status === 'ACTIVE').length
+  const propertyLabel = activeCount > 0 ? formatStatCount(activeCount) : 'live'
   const [internalActiveTab, setInternalActiveTab] = useState<TabType>('buy')
 
   const activeTab = externalActiveTab || internalActiveTab
@@ -131,7 +137,14 @@ export function SearchBar({
       params.set('listing', activeTab)
     }
 
-    router.push(`/properties?${params.toString()}`)
+    const href = `/properties?${params.toString()}`
+    const labelParts = [
+      searchTerm || null,
+      selectedCity || null,
+      activeTab === 'plots' ? 'Plots / Land' : activeTab === 'pg' ? 'PG' : activeTab === 'commercial' ? 'Commercial' : activeTab,
+    ].filter(Boolean)
+    useUserActivityStore.getState().recordSearch(labelParts.join(' · ') || 'Property search', href)
+    router.push(href)
   }
 
   // Location suggestions loop for placeholder animation
@@ -166,7 +179,7 @@ export function SearchBar({
             <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-400"></span>
           </span>
           <span className="text-white/95 text-[11px] sm:text-xs font-black tracking-wide drop-shadow-md uppercase">
-            👑 Over 30K+ verified residential properties ready to explore
+            👑 {activeCount > 0 ? `${propertyLabel} verified listings` : 'Verified residential listings'} ready to explore
           </span>
         </div>
       )}

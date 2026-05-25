@@ -47,11 +47,12 @@ public class AuthController {
         return ResponseEntity.ok(authService.refreshToken(request));
     }
 
+    /** Disabled until Google/Facebook ID token is verified server-side */
     @PostMapping("/social-login")
-    public ResponseEntity<AuthDto.AuthResponse> socialLogin(
-            @Valid @RequestBody AuthDto.SocialLoginRequest request
-    ) {
-        return ResponseEntity.ok(authService.socialLogin(request));
+    public ResponseEntity<?> socialLogin() {
+        return ResponseEntity.status(503).body(
+                java.util.Map.of("message", "Social login is temporarily disabled for security.")
+        );
     }
     
     @GetMapping("/me")

@@ -62,28 +62,12 @@ export default function PostPropertyPage() {
   if (!mounted || !isAuthenticated) return null;
 
   const handlePublish = async () => {
-    setIsSubmitting(true)
-    try {
-      const { type, ...rest } = form
-      await createProperty({
-        ...rest,
-        propertyType: type,
-        price: Number(form.price),
-        area: Number(form.area),
-        bedrooms: Number(form.bedrooms.replace('+', '')),
-        bathrooms: Number(form.bathrooms),
-        status: 'ACTIVE',
-        featured: false,
-        images: ['https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800'], // Default image for demo
-      }, token || undefined)
-      
-      alert('Property published successfully!')
-      router.push('/profile')
-    } catch (err: any) {
-      alert('Failed to publish property: ' + err.message)
-    } finally {
-      setIsSubmitting(false)
-    }
+    const sellerUrl =
+      (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
+        ? process.env.NEXT_PUBLIC_SELLER_URL
+        : 'http://localhost:3001'
+    alert('Complete your listing with photos on the Seller Dashboard.')
+    router.push(`${sellerUrl}/listings/add`)
   }
 
   return (

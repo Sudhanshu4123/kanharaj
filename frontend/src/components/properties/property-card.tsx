@@ -11,6 +11,7 @@ import { Button } from '../ui/button'
 import { Property } from '@/lib/data'
 import { usePropertyStore } from '@/lib/store'
 import { formatPrice, formatNumber, cn } from '@/lib/utils'
+import { PropertyCardSkeleton } from '@/components/skeletons/property-skeletons'
 
 interface PropertyCardProps {
   property: Property
@@ -64,9 +65,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
   const isWishlisted = isInWishlist(String(property.id))
 
   if (!mounted) {
-    return (
-      <div className="h-[400px] w-full bg-slate-100 animate-pulse rounded-xl" />
-    )
+    return <PropertyCardSkeleton />
   }
 
   return (

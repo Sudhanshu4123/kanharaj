@@ -11,7 +11,6 @@ import {
   Loader2,
   Plus,
   Star,
-  Coins,
   ChevronRight,
   ChevronDown,
   Megaphone,
@@ -24,6 +23,22 @@ import {
   ShieldCheck
 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import {
+  averageLqs,
+  attachInquiryCounts,
+  computeConversionRate,
+  countInquiriesByPeriod,
+  fetchMyProperties,
+  fetchSellerLeads,
+  fetchSellerPaymentStatus,
+  formatPlanBadge,
+  leadsToday,
+  planListingLimit,
+  SUPPORT_EMAIL,
+  SUPPORT_PHONE,
+  type SellerLead,
+  type SellerProperty,
+} from "@/lib/seller-data"
 
 // ─── Circular Progress Component ───────────────────────────────────────────────
 function CircularProgress({
@@ -76,9 +91,16 @@ export default function DashboardPage() {
     conversion: "0%"
   })
   const [loading, setLoading] = useState(true)
-  const [leadsFilter, setLeadsFilter] = useState("Last Week")
+  const [leadsFilter, setLeadsFilter] = useState<"Last Week" | "Last Month" | "Last 3 Months" | "All">("Last Week")
   const [leadsDropdown, setLeadsDropdown] = useState(false)
+  const [myProperties, setMyProperties] = useState<SellerProperty[]>([])
+  const [myLeads, setMyLeads] = useState<SellerLead[]>([])
   const router = useRouter()
+
+  const isCommercialType = (p: SellerProperty) => {
+    const t = (p.propertyType || "").toUpperCase()
+    return t.includes("COMMERCIAL") || t.includes("OFFICE") || t.includes("SHOP")
+  }
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -100,24 +122,26 @@ export default function DashboardPage() {
       }
 
       try {
-        // Fetch only MY properties
-        const propRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/properties/my`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        })
-        const myPropsData = propRes.ok ? await propRes.json() : []
-        const myPropsCount = myPropsData.length || 0
-        const totalViews = myPropsData.reduce((acc: number, p: any) => acc + (p.views || 0), 0)
-        const residentialListings = myPropsData.filter((p: any) => p.propertyType === "RESIDENTIAL" || !p.propertyType?.includes("COMMERCIAL")).length
-        const commercialListings = myPropsData.filter((p: any) => p.propertyType?.includes("COMMERCIAL")).length
+        const paymentStatus = token ? await fetchSellerPaymentStatus(token) : null
+        if (paymentStatus?.plan) {
+          parsedUser.subscriptionPlan = paymentStatus.plan
+          localStorage.setItem("seller_user", JSON.stringify(parsedUser))
+        }
 
-        // Fetch inquiries
-        const inqRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inquiries/seller?sellerId=${sellerId}`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        })
-        const inqData = inqRes.ok ? await inqRes.json() : []
-        const myInqs = inqData.length || 0
-        const residentialLeads = inqData.filter((i: any) => i.propertyType !== "COMMERCIAL").length
-        const commercialLeads = inqData.filter((i: any) => i.propertyType === "COMMERCIAL").length
+        const props = token ? await fetchMyProperties(token) : []
+        const leads = token ? await fetchSellerLeads(token, sellerId) : []
+        const withCounts = attachInquiryCounts(props, leads)
+
+        setMyProperties(withCounts)
+        setMyLeads(leads)
+
+        const myPropsCount = withCounts.length
+        const totalViews = withCounts.reduce((acc, p) => acc + (p.views || 0), 0)
+        const residentialListings = withCounts.filter((p) => !isCommercialType(p)).length
+        const commercialListings = withCounts.filter((p) => isCommercialType(p)).length
+        const residentialLeads = leads.filter((i) => !String(i.propertyType || "").includes("COMMERCIAL")).length
+        const commercialLeads = leads.filter((i) => String(i.propertyType || "").includes("COMMERCIAL")).length
+        const myInqs = leads.length
 
         setStats({
           listings: myPropsCount,
@@ -127,7 +151,7 @@ export default function DashboardPage() {
           residentialListings,
           commercialListings,
           views: totalViews,
-          conversion: myPropsCount > 0 ? ((myInqs / (myPropsCount * 10)) * 100).toFixed(1) + "%" : "0%"
+          conversion: computeConversionRate(myInqs, totalViews, myPropsCount),
         })
       } catch (err) {
         console.error("Failed to fetch data", err)
@@ -147,14 +171,20 @@ export default function DashboardPage() {
     )
   }
 
-  // subscription info
   const hasSubscription = user?.subscriptionPlan && user.subscriptionPlan !== "NONE"
-  const subscriptionName = hasSubscription ? user.subscriptionPlan : "No Plan"
-  const credits = user?.credits ?? 0
-  const maxCredits = 119
-  const maxListings = 50
-  const verifiedCount = Math.min(stats.listings, Math.ceil(stats.listings * 0.15))
-  const progressPercent = stats.listings > 0 ? (verifiedCount / stats.listings) * 100 : 0
+  const subscriptionName = formatPlanBadge(user?.subscriptionPlan)
+  const avgLqsScore = averageLqs(myProperties)
+  const maxListings = planListingLimit(user?.subscriptionPlan)
+  const verifiedCount = myProperties.filter(
+    (p) => p.featured || ((p.images?.length ?? 0) >= 3 && (p.description?.length ?? 0) >= 80)
+  ).length
+  const lowLqsCount = myProperties.filter((p) => (p.lqs ?? 0) < 5).length
+  const expiredCount = myProperties.filter((p) => (p.status || "").toUpperCase() === "EXPIRED").length
+  const filteredLeads = countInquiriesByPeriod(myLeads, leadsFilter)
+  const filteredResidentialLeads = filteredLeads.filter(
+    (i) => !String(i.propertyType || "").includes("COMMERCIAL")
+  ).length
+  const todayLeadCount = leadsToday(myLeads)
 
   return (
     <div className="space-y-0 bg-[#F5F7FA] min-h-screen">
@@ -170,9 +200,11 @@ export default function DashboardPage() {
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-xl md:text-2xl font-black tracking-tight">Hi {user?.name || "KANHARAJ"} Builder</h2>
-                <span className="bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded flex items-center gap-1 shadow-sm uppercase tracking-wide">
-                  ★ EXPERT PRO
-                </span>
+                {hasSubscription && (
+                  <span className="bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded flex items-center gap-1 shadow-sm uppercase tracking-wide">
+                    ★ {subscriptionName}
+                  </span>
+                )}
               </div>
               <p className="text-yellow-100/80 text-sm font-medium">Hope you're having a great day!</p>
             </div>
@@ -194,26 +226,26 @@ export default function DashboardPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-black text-slate-800">5</span>
+                  <span className="text-2xl font-black text-slate-800">{avgLqsScore || "—"}</span>
                   <span className="text-slate-400 text-sm font-bold">/10</span>
                 </div>
-                <p className="text-slate-500 text-xs font-bold truncate mt-0.5">Listing Quality Score</p>
-                <button className="text-[#5F3CF8] hover:text-purple-900 text-xs font-bold flex items-center gap-0.5 mt-1 transition-colors">
-                  Improve <ChevronRight className="w-3 h-3" />
-                </button>
+                <p className="text-slate-500 text-xs font-bold truncate mt-0.5">Avg Listing Quality</p>
+                <Link href="/listings" className="text-[#5F3CF8] hover:text-purple-900 text-xs font-bold flex items-center gap-0.5 mt-1 transition-colors">
+                  {lowLqsCount > 0 ? `Improve ${lowLqsCount}` : "View"} <ChevronRight className="w-3 h-3" />
+                </Link>
               </div>
             </div>
 
-            {/* Credits Available */}
+            {/* Verified listings */}
             <div className="bg-white rounded-2xl p-5 shadow-lg border border-slate-100 flex items-center gap-4 hover:shadow-xl transition-all duration-300">
               <div className="w-12 h-12 rounded-full bg-yellow-50 flex items-center justify-center shrink-0 text-yellow-600">
-                <Coins className="w-6 h-6 fill-yellow-100 text-yellow-600" />
+                <ShieldCheck className="w-6 h-6 text-yellow-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="text-2xl font-black text-slate-800">{credits}</span>
-                <p className="text-slate-500 text-xs font-bold truncate mt-0.5">Credits Available</p>
-                <Link href="/subscription" className="text-[#5F3CF8] hover:text-blue-800 text-xs font-bold flex items-center gap-0.5 mt-1 transition-colors">
-                  Earn More <ChevronRight className="w-3 h-3" />
+                <span className="text-2xl font-black text-slate-800">{verifiedCount}</span>
+                <p className="text-slate-500 text-xs font-bold truncate mt-0.5">Verified / Complete Listings</p>
+                <Link href="/listings" className="text-[#5F3CF8] hover:text-blue-800 text-xs font-bold flex items-center gap-0.5 mt-1 transition-colors">
+                  Manage <ChevronRight className="w-3 h-3" />
                 </Link>
               </div>
             </div>
@@ -282,7 +314,7 @@ export default function DashboardPage() {
                     {["Last Week", "Last Month", "Last 3 Months"].map(opt => (
                       <button
                         key={opt}
-                        onClick={() => { setLeadsFilter(opt); setLeadsDropdown(false) }}
+                        onClick={() => { setLeadsFilter(opt as typeof leadsFilter); setLeadsDropdown(false) }}
                         className={`block w-full text-left px-3 py-2 hover:bg-slate-50 transition-colors ${leadsFilter === opt ? "text-[#6C4EF2]" : ""}`}
                       >{opt}</button>
                     ))}
@@ -299,14 +331,14 @@ export default function DashboardPage() {
                     <Home className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-2xl font-black text-slate-800">{stats.residentialLeads}</p>
-                    <p className="text-xs font-bold text-slate-500">Residential</p>
+                    <p className="text-2xl font-black text-slate-800">{filteredResidentialLeads}</p>
+                    <p className="text-xs font-bold text-slate-500">Residential ({leadsFilter})</p>
                   </div>
                 </div>
-                {stats.residentialLeads > 0 && (
+                {todayLeadCount > 0 && (
                   <div className="flex items-center gap-1">
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-50 text-purple-600 border border-purple-100">
-                      {stats.residentialLeads} Today &gt;
+                      {todayLeadCount} today
                     </span>
                   </div>
                 )}
@@ -343,7 +375,7 @@ export default function DashboardPage() {
                   <p className="text-3xl font-black text-slate-800">{stats.residentialListings}</p>
                   <p className="text-xs font-bold text-slate-500 mt-0.5">Residential</p>
                 </div>
-                <CircularProgress value={stats.residentialListings} max={Math.max(stats.residentialListings + 14, 50)} label="Units" color="#6C4EF2" size={64} />
+                <CircularProgress value={stats.residentialListings} max={Math.max(stats.residentialListings, 1)} label="Live" color="#6C4EF2" size={64} />
               </div>
 
               {/* Commercial Listings */}
@@ -352,7 +384,7 @@ export default function DashboardPage() {
                   <p className="text-3xl font-black text-slate-800">{stats.commercialListings}</p>
                   <p className="text-xs font-bold text-slate-500 mt-0.5">Commercial</p>
                 </div>
-                <CircularProgress value={stats.commercialListings} max={Math.max(stats.commercialListings + 10, 20)} label="Units" color="#F59E0B" size={64} />
+                <CircularProgress value={stats.commercialListings} max={Math.max(stats.commercialListings, 1)} label="Live" color="#F59E0B" size={64} />
               </div>
             </div>
           </div>
@@ -369,8 +401,8 @@ export default function DashboardPage() {
                 <p className="text-sm font-black text-slate-800">
                   {hasSubscription ? subscriptionName.replace("_", " ") : "No Active Plan"}
                 </p>
-                <p className={`text-xs font-bold ${hasSubscription ? "text-orange-500" : "text-rose-500"}`}>
-                  {hasSubscription ? "Below Average" : "Subscribe to list properties"}
+                <p className={`text-xs font-bold ${hasSubscription ? "text-emerald-600" : "text-rose-500"}`}>
+                  {hasSubscription ? `${stats.listings} of ${maxListings} slots used` : "Subscribe to list properties"}
                 </p>
                 <Link href="/subscription">
                   <button className="mt-1 px-4 py-1.5 rounded-full border border-[#6C4EF2] text-[#6C4EF2] text-[11px] font-black hover:bg-purple-50 transition-colors">
@@ -398,9 +430,9 @@ export default function DashboardPage() {
                 </Link>
               </div>
               <CircularProgress
-                value={credits}
-                max={maxCredits}
-                label="Points"
+                value={verifiedCount}
+                max={Math.max(stats.listings, 1)}
+                label="Verified"
                 color="#F59E0B"
                 size={80}
               />
@@ -425,11 +457,17 @@ export default function DashboardPage() {
               <div className="space-y-3 pt-2">
                 <div className="flex items-start gap-2.5">
                   <div className="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-[10px] font-bold shrink-0 mt-0.5">✓</div>
-                  <p className="text-xs font-semibold text-slate-600">Verify 6 more listings &amp; earn 57 credits</p>
+                  <p className="text-xs font-semibold text-slate-600">
+                    {lowLqsCount > 0
+                      ? `Improve ${lowLqsCount} listing${lowLqsCount !== 1 ? "s" : ""} with more photos & description`
+                      : "All listings meet quality guidelines"}
+                  </p>
                 </div>
                 <div className="flex items-start gap-2.5">
                   <div className="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-[10px] font-bold shrink-0 mt-0.5">↗</div>
-                  <p className="text-xs font-semibold text-slate-600">3989 brokers in your locality have earned credits</p>
+                  <p className="text-xs font-semibold text-slate-600">
+                    {verifiedCount} of {stats.listings} listings are verified-quality on your account
+                  </p>
                 </div>
               </div>
               <button className="text-[#5F3CF8] hover:underline text-xs font-bold block pt-1">Learn More</button>
@@ -437,9 +475,11 @@ export default function DashboardPage() {
             <div className="flex items-center gap-4 border-l border-slate-100 pl-0 sm:pl-6 shrink-0">
               <div className="flex flex-col items-center text-center space-y-2">
                 <p className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full uppercase tracking-wide">
-                  Only 2% listings are verified
+                  {stats.listings > 0
+                    ? `${Math.round((verifiedCount / stats.listings) * 100)}% verified`
+                    : "No listings yet"}
                 </p>
-                <CircularProgress value={verifiedCount} max={stats.listings || 36} label="Listings" color="#5F3CF8" size={76} />
+                <CircularProgress value={verifiedCount} max={Math.max(stats.listings, 1)} label="Listings" color="#5F3CF8" size={76} />
                 <button className="text-xs font-black text-[#5F3CF8] hover:text-[#4d2ee0] flex items-center gap-0.5">
                   Verify now <ChevronRight className="w-3 h-3" />
                 </button>
@@ -467,14 +507,15 @@ export default function DashboardPage() {
                 <p className="text-2xl font-black text-slate-800 mt-1">{stats.conversion}</p>
               </div>
               <div className="p-4 bg-slate-50 rounded-xl text-center border border-slate-100">
-                <span className="text-xs font-bold text-slate-500">Local Rank</span>
-                <p className="text-2xl font-black text-slate-800 mt-1">#14</p>
+                <span className="text-xs font-bold text-slate-500">Low LQS</span>
+                <p className="text-2xl font-black text-slate-800 mt-1">{lowLqsCount}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* ── Row E: Expired Listings Warning ── */}
+        {expiredCount > 0 && (
         <div className="bg-[#FFF5F5] border border-[#FED7D7] rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-sm">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
@@ -482,16 +523,17 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-1">
               <span className="text-[10px] font-black uppercase text-red-600 bg-red-50 px-2 py-0.5 rounded tracking-wide">Listings Reduced</span>
-              <h4 className="text-base font-black text-red-900 leading-tight">Old Properties expired!</h4>
-              <p className="text-xs text-red-700/80 font-medium">Your old properties have been expired. Repost those listings now.</p>
+              <h4 className="text-base font-black text-red-900 leading-tight">{expiredCount} expired listing{expiredCount !== 1 ? "s" : ""}</h4>
+              <p className="text-xs text-red-700/80 font-medium">Re-activate or update expired properties from your listings page.</p>
             </div>
           </div>
-          <Link href="/listings/add">
+          <Link href="/listings">
             <button className="bg-[#00D289] hover:bg-[#00c07d] text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md active:scale-95 transition-all whitespace-nowrap">
-              Repost Listings
+              Manage Listings
             </button>
           </Link>
         </div>
+        )}
 
         {/* ── Row F: Answer Customer Questions ── */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
@@ -538,7 +580,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-black text-slate-800">Call Us</p>
-                  <p className="text-xs text-slate-500 font-bold mt-0.5">9599801767</p>
+                  <p className="text-xs text-slate-500 font-bold mt-0.5">{SUPPORT_PHONE}</p>
                 </div>
               </div>
 
@@ -549,7 +591,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-black text-slate-800">Email Us</p>
-                  <p className="text-xs text-slate-500 font-bold mt-0.5">kanharaj1389@gmail.com</p>
+                  <p className="text-xs text-slate-500 font-bold mt-0.5">{SUPPORT_EMAIL}</p>
                 </div>
               </div>
             </div>

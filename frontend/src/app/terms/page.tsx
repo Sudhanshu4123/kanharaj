@@ -1,9 +1,13 @@
 import { Scale, ShieldCheck, AlertCircle, FileText, Globe, Gavel, Ban, HelpCircle, Mail } from 'lucide-react'
+import type { Metadata } from 'next'
+import { buildPageMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'Terms of Service | Kanharaj',
-  description: 'The legal agreement and terms of use for the Kanharaj real estate platform.',
-}
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Terms of Service',
+  description: 'Terms of use for the Kanharaj real estate platform — listings, buyers, sellers and subscriptions.',
+  path: '/terms',
+  noIndex: true,
+})
 
 export default function TermsOfService() {
   const lastUpdated = 'May 15, 2026'

@@ -1,5 +1,12 @@
 server:
   port: 8080
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    accept-count: 100
+    max-connections: 5000
+    connection-timeout: 20000
 
 spring:
   application:
@@ -16,6 +23,13 @@ spring:
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:54321}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
   
   jpa:
     hibernate:
@@ -37,7 +51,7 @@ spring:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
     username: ${MAIL_USERNAME:kanharaj1389@gmail.com}
-    password: ${MAIL_PASSWORD:nonfivgrhpmvbdnj}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
@@ -46,25 +60,25 @@ spring:
             enable: true
 
 jwt:
-  secret: ${JWT_SECRET:luxeestates-secret-key-for-jwt-token-generation-2024}
+  secret: ${JWT_SECRET:CHANGE_ME_USE_64_CHAR_RANDOM_SECRET_IN_PRODUCTION}
   expiration: 86400000
   refresh-expiration: 604800000
 
 cloudinary:
-  cloud-name: ${CLOUDINARY_CLOUD_NAME:Root}
-  api-key: ${CLOUDINARY_API_KEY:875458451963368}
-  api-secret: ${CLOUDINARY_API_SECRET:sWLzcHw238P8KIW--9bWxip1cvc}
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+  api-key: ${CLOUDINARY_API_KEY:}
+  api-secret: ${CLOUDINARY_API_SECRET:}
 
 admin:
-  email: ${ADMIN_EMAIL:kanharaj1389@gmail.com}
-  password: ${ADMIN_PASSWORD:admin@123}
+  email: ${ADMIN_EMAIL:}
+  password: ${ADMIN_PASSWORD:}
   name: ${ADMIN_NAME:Kanharaj}
   phone: ${ADMIN_PHONE:9599801767}
 
 logging:
   level:
     root: INFO
-    com.luxeestates: DEBUG
+    com.luxeestates: INFO
     org.springframework.security: INFO
 
 upload:
@@ -72,5 +86,10 @@ upload:
 
 razorpay:
   key:
-    id: ${RAZORPAY_KEY_ID:rzp_live_SrVXmToc9GKOXJ}
-    secret: ${RAZORPAY_KEY_SECRET:yT0gYlf3i10jc3x41PHtIIi4}
+    id: ${RAZORPAY_KEY_ID:}
+    secret: ${RAZORPAY_KEY_SECRET:}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://kanharaj.com,https://www.kanharaj.com,https://seller.kanharaj.com,http://localhost:3000,http://localhost:3001}
+  frontend-url: ${FRONTEND_URL:https://kanharaj.com}

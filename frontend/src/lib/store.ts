@@ -2,6 +2,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { Property, Inquiry, User } from './data'
 import { tryParse } from './utils'
+import { buildProfileUpdateBody } from './profile-utils'
+import { useUserActivityStore } from './user-activity-store'
 
 interface PropertyFilters {
   listingType: 'BUY' | 'RENT' | 'all'
@@ -43,8 +45,9 @@ interface AuthStore {
   register: (name: string, email: string, phone: string, password: string) => Promise<any>
   verifyLoginOtp: (email: string, otp: string) => Promise<void>
   setAuth: (user: any, token: string) => void
+  refreshUser: () => Promise<void>
   fetchUsers: (token?: string) => Promise<void>
-  updateProfile: (data: { profileImage?: string; description?: string; experienceYears?: string; name?: string; phone?: string }) => Promise<void>
+  updateProfile: (data: { profileImage?: string | null; description?: string; experienceYears?: string; name?: string; phone?: string }) => Promise<void>
 }
 
 const defaultFilters: PropertyFilters = {
@@ -71,6 +74,21 @@ const fetchWithTimeout = (url: string, options: RequestInit = {}, ms = 15000) =>
 }
 
 const transformFromApi = (p: any): Property => {
+  const user =
+    p.user ||
+    (p.userId
+      ? {
+          id: String(p.userId),
+          name: p.userName || 'Seller',
+          email: '',
+          phone: p.userPhone || '',
+          role: 'SELLER' as const,
+          profileImage: p.userProfileImage,
+          description: p.userDescription,
+          experienceYears: p.userExperienceYears,
+        }
+      : undefined)
+
   return {
     ...p,
     id: String(p.id),
@@ -78,6 +96,8 @@ const transformFromApi = (p: any): Property => {
     listingType: p.listingType?.toUpperCase(),
     status: p.status?.toUpperCase(),
     price: typeof p.price === 'object' ? Number(p.price) : p.price,
+    user,
+    userId: p.userId ? String(p.userId) : p.userId,
     images: (Array.isArray(p.images) ? p.images : (p.images ? tryParse(p.images, []) : [])).map((img: string) => {
       if (!img) return ''
       if (img.startsWith('http')) return img // Cloudinary / Unsplash — keep as-is
@@ -124,7 +144,17 @@ export const usePropertyStore = create<PropertyStore>()(
           if (property.price < filters.priceMin || property.price > filters.priceMax) return false
           if (filters.bedrooms.length > 0 && !filters.bedrooms.includes(property.bedrooms)) return false
           if (filters.bathrooms.length > 0 && !filters.bathrooms.includes(property.bathrooms)) return false
-          if (filters.city && property.city?.toLowerCase() !== filters.city.toLowerCase()) return false
+          if (filters.city) {
+            const filterCity = filters.city.toLowerCase().trim()
+            const propCity = (property.city || '').toLowerCase()
+            const propAddress = (property.address || '').toLowerCase()
+            const matchesCity =
+              propCity === filterCity ||
+              propCity.includes(filterCity) ||
+              filterCity.includes(propCity) ||
+              propAddress.includes(filterCity)
+            if (!matchesCity) return false
+          }
           
           if (filters.search) {
             const s = filters.search.toLowerCase()
@@ -141,13 +171,13 @@ export const usePropertyStore = create<PropertyStore>()(
       },
       setLoading: (loading) => set({ loading }),
 
-      fetchProperties: async () => {
+      fetchProperties: async (pageSize = 36) => {
         if (get().properties.length === 0) {
           set({ loading: true })
         }
         
         try {
-          const res = await fetchWithTimeout(`${API_URL}/properties?size=100`)
+          const res = await fetchWithTimeout(`${API_URL}/properties?size=${pageSize}`)
           const data = await res.json()
           const list = data.content ?? (Array.isArray(data) ? data : null)
           if (list) {
@@ -258,7 +288,7 @@ export const usePropertyStore = create<PropertyStore>()(
     }),
     {
       name: 'shrishyam-properties',
-      partialize: (state) => ({ properties: state.properties }),
+      partialize: (state) => ({ properties: state.properties, wishlist: state.wishlist }),
     }
   )
 )
@@ -317,6 +347,14 @@ export const useAuthStore = create<AuthStore>()(
         set({ user: null, token: null, isAuthenticated: false, users: [] })
         if (typeof window !== 'undefined') {
           useAuthStore.persist.clearStorage()
+          const sellerUrl = process.env.NEXT_PUBLIC_SELLER_URL
+          if (sellerUrl && sellerUrl !== 'undefined') {
+            const iframe = document.createElement('iframe')
+            iframe.style.display = 'none'
+            iframe.src = `${sellerUrl.replace(/\/$/, '')}/auth/logout-sync`
+            document.body.appendChild(iframe)
+            setTimeout(() => iframe.remove(), 3000)
+          }
         }
       },
       updateProfile: async (data) => {
@@ -332,15 +370,16 @@ export const useAuthStore = create<AuthStore>()(
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(data),
+            body: JSON.stringify(buildProfileUpdateBody(data)),
           })
 
           if (!response.ok) {
-            throw new Error('Failed to update profile')
+            const errText = await response.text().catch(() => '')
+            throw new Error(errText || 'Failed to update profile')
           }
 
           const updatedUser = await response.json()
-          set({ user: { ...updatedUser, token } })
+          set({ user: { ...updatedUser, token: state.token } })
         } catch (error) {
           console.error('Update profile error:', error)
           throw error
@@ -367,6 +406,20 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
       setAuth: (user, token) => set({ user, token, isAuthenticated: !!token }),
+      refreshUser: async () => {
+        const token = useAuthStore.getState().token
+        if (!token) return
+        try {
+          const res = await fetchWithTimeout(`${API_URL}/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          if (!res.ok) return
+          const user = await res.json()
+          set({ user: { ...user, token } })
+        } catch (err) {
+          console.warn('Failed to refresh user profile', err)
+        }
+      },
       fetchUsers: async (token) => {
         try {
           const res = await fetchWithTimeout(`${API_URL}/admin/users`, {
@@ -418,16 +471,15 @@ export const useInquiryStore = create<InquiryStore>((set, get) => ({
     }
   },
   addInquiry: async (inquiry) => {
-    try {
-      // Sanitize for backend: propertyId must be number or null, status must be uppercase
-      const sanitized = {
-        ...inquiry,
-        propertyId: inquiry.propertyId && !isNaN(Number(inquiry.propertyId)) 
-          ? Number(inquiry.propertyId) 
-          : null,
-        status: (inquiry.status || 'PENDING').toUpperCase()
-      }
+    const sanitized = {
+      ...inquiry,
+      propertyId: inquiry.propertyId && !isNaN(Number(inquiry.propertyId))
+        ? Number(inquiry.propertyId)
+        : null,
+      status: (inquiry.status || 'PENDING').toUpperCase(),
+    }
 
+    try {
       const res = await fetchWithTimeout(`${API_URL}/inquiries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -436,11 +488,17 @@ export const useInquiryStore = create<InquiryStore>((set, get) => ({
       if (!res.ok) throw new Error('Failed to submit inquiry')
       const data = await res.json()
       set(state => ({ inquiries: [data, ...state.inquiries] }))
+      if (sanitized.propertyId) {
+        useUserActivityStore.getState().recordContacted(String(sanitized.propertyId))
+      }
     } catch (err) {
       console.error('Error adding inquiry:', err)
       // Fallback for offline usage
       const newInq = { ...inquiry, id: Math.random().toString(36).substring(7), createdAt: new Date().toISOString() } as Inquiry
       set(state => ({ inquiries: [newInq, ...state.inquiries] }))
+      if (sanitized.propertyId) {
+        useUserActivityStore.getState().recordContacted(String(sanitized.propertyId))
+      }
     }
   },
   updateInquiryStatus: async (id, status, token) => {

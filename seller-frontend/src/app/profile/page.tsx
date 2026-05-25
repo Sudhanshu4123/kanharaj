@@ -1,11 +1,23 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import Link from "next/link"
 import { 
   User, Mail, Phone, Building2, ShieldCheck, 
   CreditCard, Calendar, Clock, ArrowRight, Camera, 
   Save, Edit2, X, Loader2, Award, FileText 
 } from "lucide-react"
+import {
+  normalizeProfileImageUrl,
+  buildProfileUpdateBody,
+  uploadProfileImage,
+  syncSellerUserToStorage,
+} from "@/lib/profile-utils"
+
+function notifyProfileUpdated(user: Record<string, unknown>) {
+  if (typeof window === "undefined") return
+  window.dispatchEvent(new CustomEvent("seller-profile-updated", { detail: user }))
+}
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
@@ -52,13 +64,31 @@ export default function ProfilePage() {
       
       if (res.ok) {
         const data = await res.json()
-        setUser(data)
+        let merged = { ...data }
+        try {
+          const payRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/status`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          if (payRes.ok) {
+            const pay = await payRes.json()
+            merged = {
+              ...merged,
+              subscriptionPlan: pay.plan ?? merged.subscriptionPlan,
+              subscriptionExpiry: pay.expiry ?? merged.subscriptionExpiry,
+            }
+          }
+        } catch {
+          /* optional */
+        }
+        setUser(merged)
+        syncSellerUserToStorage(merged)
+        notifyProfileUpdated(merged)
         setFormData({
-          name: data.name || "",
-          phone: data.phone || "",
-          experienceYears: data.experienceYears || "",
-          description: data.description || "",
-          profileImage: data.profileImage || ""
+          name: merged.name || "",
+          phone: merged.phone || "",
+          experienceYears: merged.experienceYears || "",
+          description: merged.description || "",
+          profileImage: normalizeProfileImageUrl(merged.profileImage),
         })
       } else {
         const errorText = await res.text();
@@ -76,142 +106,94 @@ export default function ProfilePage() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const persistProfile = async (patch: {
+    name?: string
+    phone?: string
+    experienceYears?: string
+    description?: string
+    profileImage?: string | null
+  }) => {
+    const token = localStorage.getItem("seller_token")
+    if (!token) throw new Error("Not logged in")
+    const body = buildProfileUpdateBody({
+      name: patch.name ?? formData.name,
+      phone: patch.phone ?? formData.phone,
+      experienceYears: patch.experienceYears ?? formData.experienceYears,
+      description: patch.description ?? formData.description,
+      profileImage:
+        patch.profileImage !== undefined ? patch.profileImage : formData.profileImage,
+    })
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) throw new Error("Profile update failed")
+    const updatedUser = await res.json()
+    const merged = { ...user, ...updatedUser }
+    setUser(merged)
+    const nextForm = {
+      name: merged.name || "",
+      phone: merged.phone || "",
+      experienceYears: merged.experienceYears || "",
+      description: merged.description || "",
+      profileImage: normalizeProfileImageUrl(merged.profileImage),
+    }
+    setFormData(nextForm)
+    syncSellerUserToStorage(merged)
+    notifyProfileUpdated(merged)
+    return merged
+  }
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files || files.length === 0) return
-    
+
     const file = files[0]
     const token = localStorage.getItem("seller_token")
-    
-    // File validation
+    if (!token) return
+
     if (!file.type.startsWith("image/")) {
       alert("Only image files are allowed.")
       return
     }
-    
+
     setUploading(true)
-    const uploadData = new FormData()
-    uploadData.append("files", file)
-
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/images`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        },
-        body: uploadData
-      })
-
-      if (res.ok) {
-        const data = await res.json()
-        if (data.urls && data.urls.length > 0) {
-          const uploadedUrl = data.urls[0]
-          setFormData(prev => ({ ...prev, profileImage: uploadedUrl }))
-          
-          // Auto-save the image to user profile immediately
-          const saveRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              name: formData.name,
-              phone: formData.phone,
-              experienceYears: formData.experienceYears,
-              description: formData.description,
-              profileImage: uploadedUrl
-            })
-          })
-          
-          if (saveRes.ok) {
-            setUser((prev: any) => ({ ...prev, profileImage: uploadedUrl }))
-            // Update local user info if saved there
-            const localUser = JSON.parse(localStorage.getItem("seller_user") || "{}")
-            localUser.profileImage = uploadedUrl
-            localStorage.setItem("seller_user", JSON.stringify(localUser))
-            alert("Profile image uploaded and updated successfully!")
-          }
-        }
-      } else {
-        const errData = await res.json()
-        alert(errData.error || "Failed to upload image")
-      }
+      const uploadedUrl = await uploadProfileImage(file, token)
+      await persistProfile({ profileImage: uploadedUrl })
     } catch (err) {
       console.error(err)
-      alert("Error uploading image")
+      alert(err instanceof Error ? err.message : "Error uploading image")
     } finally {
       setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ""
     }
   }
 
   const handleRemoveImage = async () => {
     if (!confirm("Are you sure you want to remove your profile picture?")) return
-    
-    const token = localStorage.getItem("seller_token")
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          phone: formData.phone,
-          experienceYears: formData.experienceYears,
-          description: formData.description,
-          profileImage: null
-        })
-      })
-      
-      if (res.ok) {
-        setFormData(prev => ({ ...prev, profileImage: "" }))
-        setUser((prev: any) => ({ ...prev, profileImage: "" }))
-        
-        // Update local user info as well
-        const localUser = JSON.parse(localStorage.getItem("seller_user") || "{}")
-        localUser.profileImage = ""
-        localStorage.setItem("seller_user", JSON.stringify(localUser))
-        
-        alert("Profile picture removed successfully!")
-      } else {
-        alert("Failed to remove profile picture.")
-      }
+      await persistProfile({ profileImage: "" })
     } catch (err) {
       console.error("Remove image failed", err)
-      alert("Connection error.")
+      alert("Failed to remove profile picture.")
     }
   }
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!formData.name.trim()) {
+      alert("Name is required.")
+      return
+    }
     setSaving(true)
-    const token = localStorage.getItem("seller_token")
-
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      })
-
-      if (res.ok) {
-        const updatedUser = await res.json()
-        setUser(updatedUser)
-        // Also update seller_user in localStorage to keep it consistent
-        const localUser = JSON.parse(localStorage.getItem("seller_user") || "{}")
-        const newLocalUser = { ...localUser, name: updatedUser.name, phone: updatedUser.phone, profileImage: updatedUser.profileImage }
-        localStorage.setItem("seller_user", JSON.stringify(newLocalUser))
-        
-        setIsEditing(false)
-        alert("Profile updated successfully!")
-      } else {
-        alert("Failed to update profile")
-      }
+      await persistProfile(formData)
+      setIsEditing(false)
     } catch (err) {
       console.error(err)
       alert("Error saving profile changes")
@@ -250,6 +232,11 @@ export default function ProfilePage() {
   )
 
   const daysLeft = user?.subscriptionExpiry ? Math.max(0, Math.ceil((new Date(user.subscriptionExpiry).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : 0
+  const isVerifiedSeller =
+    (user?.role === "SELLER" || user?.role === "seller") &&
+    user?.subscriptionPlan &&
+    user.subscriptionPlan !== "NONE"
+  const planLabel = user?.subscriptionPlan && user.subscriptionPlan !== "NONE" ? user.subscriptionPlan : "Free"
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -289,11 +276,13 @@ export default function ProfilePage() {
             <h1 className="text-2xl font-black text-slate-900">{user?.name}</h1>
             <p className="text-slate-500 text-sm font-medium">{user?.email}</p>
             <div className="flex flex-wrap gap-2 mt-2">
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-rose-50 text-rose-700 rounded-full text-xs font-black uppercase tracking-wide">
-                <ShieldCheck size={12} /> Verified Seller
-              </span>
+              {isVerifiedSeller && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-rose-50 text-rose-700 rounded-full text-xs font-black uppercase tracking-wide">
+                  <ShieldCheck size={12} /> Verified Seller
+                </span>
+              )}
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-black uppercase tracking-wide">
-                <CreditCard size={12} /> {user?.subscriptionPlan} Plan
+                <CreditCard size={12} /> {planLabel} Plan
               </span>
               {user?.experienceYears && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-black uppercase tracking-wide">
@@ -316,7 +305,7 @@ export default function ProfilePage() {
             ) : (
               <>
                 <button
-                  onClick={() => { setIsEditing(false); setFormData({ name: user.name || '', phone: user.phone || '', experienceYears: user.experienceYears || '', description: user.description || '', profileImage: user.profileImage || '' }) }}
+                  onClick={() => { setIsEditing(false); setFormData({ name: user.name || '', phone: user.phone || '', experienceYears: user.experienceYears || '', description: user.description || '', profileImage: normalizeProfileImageUrl(user.profileImage) }) }}
                   className="px-6 py-3 rounded-2xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all flex items-center gap-2 text-sm"
                 >
                   <X size={16} /> Cancel
@@ -620,10 +609,13 @@ export default function ProfilePage() {
                   </div>
                 </div>
  
-                <button className="w-full bg-white text-slate-900 font-black py-4 rounded-2xl mt-4 hover:bg-rose-50 transition-all flex items-center justify-center gap-2 group/btn">
+                <Link
+                  href="/subscription"
+                  className="w-full bg-white text-slate-900 font-black py-4 rounded-2xl mt-4 hover:bg-rose-50 transition-all flex items-center justify-center gap-2 group/btn"
+                >
                   Manage Billing
                   <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
-                </button>
+                </Link>
               </div>
             </div>
             {/* Background Decoration */}

@@ -17,8 +17,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { formatPrice, formatNumber, cn } from '@/lib/utils'
-import { useInquiryStore } from '@/lib/store'
+import { useInquiryStore, useAuthStore } from '@/lib/store'
+import { useUserActivityStore } from '@/lib/user-activity-store'
 import { Property } from '@/lib/data'
+import { FloorPlanSchematic } from '@/components/properties/floor-plan-schematic'
+import { PropertyLocalityMap } from '@/components/properties/property-locality-map'
+import { buildFloorPlanRooms, isResidentialFloorPlan } from '@/lib/floor-plan'
+import { SUPPORT_PHONE } from '@/lib/platform-data'
 
 interface PropertyDetailContentProps {
   property: Property
@@ -34,13 +39,16 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
   const [isFavorite, setIsFavorite] = useState(false)
   const [shareTooltip, setShareTooltip] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const [selectedQuickMsg, setSelectedQuickMsg] = useState("I'm interested in this property. Please contact me with more details.")
+  const [selectedQuickMsg, setSelectedQuickMsg] = useState(
+    "I'm interested in this property. Please contact me with details."
+  )
 
   // EMI Calculator states
   const [downPaymentPercent, setDownPaymentPercent] = useState(20) // default 20%
   const [interestRate, setInterestRate] = useState(8.5) // default 8.5%
   const [tenureYears, setTenureYears] = useState(20) // default 20 years
 
+  const { isAuthenticated, user } = useAuthStore()
   const [inquiryForm, setInquiryForm] = useState({
     name: '',
     email: '',
@@ -48,6 +56,18 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     message: '',
   })
   const [submitted, setSubmitted] = useState(false)
+
+  const contactLocked = isAuthenticated && !!user
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) return
+    setInquiryForm((prev) => ({
+      ...prev,
+      name: user.name || prev.name,
+      email: user.email || prev.email,
+      phone: user.phone || prev.phone,
+    }))
+  }, [isAuthenticated, user?.id, user?.name, user?.email, user?.phone])
 
   // Track property views
   useEffect(() => {
@@ -64,6 +84,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
 
     if (property.id) {
       trackView();
+      useUserActivityStore.getState().recordSeen(String(property.id));
     }
   }, [property.id]);
 
@@ -177,8 +198,15 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
         message: msg,
         status: 'PENDING'
       })
+      useUserActivityStore.getState().recordContacted(String(property.id))
       alert('Inquiry sent successfully!')
-      setInquiryForm({ name: '', email: '', phone: '', message: '' })
+      setInquiryForm((prev) => ({
+        name: contactLocked && user ? (user.name || prev.name) : '',
+        email: contactLocked && user ? (user.email || prev.email) : '',
+        phone: contactLocked && user ? (user.phone || prev.phone) : '',
+        message: '',
+      }))
+      if (contactLocked) setSelectedQuickMsg(quickMessages[0])
     } catch (err) {
       alert('Failed to send inquiry. Please try again.')
     } finally {
@@ -193,109 +221,10 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     setTimeout(() => setShareTooltip(false), 2000);
   }
 
-  // Render Room schematic 2D Floor Plan layout
-  const renderFloorPlanLayout = () => {
-    const bhk = property.bedrooms || 2;
-    if (bhk === 1) {
-      return (
-        <div className="grid grid-cols-6 grid-rows-6 gap-1.5 h-64 border-4 border-slate-700 bg-slate-900/5 rounded-lg p-2.5 font-mono text-[9px] relative select-none">
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:16px_16px] rounded" />
-          <div className="col-span-4 row-span-4 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center relative shadow-sm">
-            <span className="font-bold text-slate-800 text-[10px]">Living Room</span>
-            <span className="text-slate-500">12'0" x 14'0"</span>
-            <div className="absolute bottom-1 right-2 text-slate-400 font-sans">Main Entry</div>
-          </div>
-          <div className="col-span-2 row-span-3 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center shadow-sm">
-            <span className="font-bold text-slate-800 text-[10px]">Kitchen</span>
-            <span className="text-slate-500">8'0" x 8'0"</span>
-          </div>
-          <div className="col-span-2 row-span-3 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center mt-1.5 shadow-sm">
-            <span className="font-bold text-slate-800 text-[10px]">Toilet</span>
-            <span className="text-slate-500">5'0" x 8'0"</span>
-          </div>
-          <div className="col-span-4 row-span-2 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center mt-1.5 shadow-sm">
-            <span className="font-bold text-slate-800 text-[10px]">Bedroom</span>
-            <span className="text-slate-500">10'0" x 12'0"</span>
-          </div>
-          <div className="col-span-2 row-span-2 border-2 border-dashed border-slate-400 rounded bg-emerald-500/5 flex flex-col items-center justify-center mt-1.5">
-            <span className="font-bold text-slate-800">Balcony</span>
-            <span className="text-slate-500">5'0" x 8'0"</span>
-          </div>
-        </div>
-      )
-    }
-
-    if (bhk === 2) {
-      return (
-        <div className="grid grid-cols-8 grid-rows-6 gap-1.5 h-64 border-4 border-slate-700 bg-slate-900/5 rounded-lg p-2.5 font-mono text-[9px] relative select-none">
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:16px_16px] rounded" />
-          <div className="col-span-4 row-span-3 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center shadow-sm">
-            <span className="font-bold text-slate-800 text-[10px]">Living Room</span>
-            <span className="text-slate-500">14'0" x 16'0"</span>
-          </div>
-          <div className="col-span-2 row-span-3 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center shadow-sm">
-            <span className="font-bold text-slate-800 text-[10px]">Kitchen</span>
-            <span className="text-slate-500">8'0" x 10'0"</span>
-          </div>
-          <div className="col-span-2 row-span-3 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center shadow-sm">
-            <span className="font-bold text-slate-800 text-[10px]">Bath 1</span>
-            <span className="text-slate-500">6'0" x 8'0"</span>
-          </div>
-          <div className="col-span-4 row-span-3 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center shadow-sm mt-1.5">
-            <span className="font-bold text-slate-800 text-[10px]">Master Bed</span>
-            <span className="text-slate-500">12'0" x 14'0"</span>
-          </div>
-          <div className="col-span-2 row-span-3 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center mt-1.5 shadow-sm">
-            <span className="font-bold text-slate-800 text-[10px]">Bed 2</span>
-            <span className="text-slate-500">10'0" x 12'0"</span>
-          </div>
-          <div className="col-span-2 row-span-3 border-2 border-dashed border-slate-400 rounded bg-emerald-500/5 flex flex-col items-center justify-center mt-1.5">
-            <span className="font-bold text-slate-800">Balcony</span>
-            <span className="text-slate-500">5'0" x 12'0"</span>
-          </div>
-        </div>
-      )
-    }
-
-    // 3 BHK or more
-    return (
-      <div className="grid grid-cols-10 grid-rows-6 gap-1.5 h-64 border-4 border-slate-700 bg-slate-900/5 rounded-lg p-2.5 font-mono text-[9px] relative select-none">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:16px_16px] rounded" />
-        <div className="col-span-4 row-span-3 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center shadow-sm">
-          <span className="font-bold text-slate-800 text-[10px]">Living / Dining</span>
-          <span className="text-slate-500">16'0" x 20'0"</span>
-        </div>
-        <div className="col-span-3 row-span-3 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center shadow-sm">
-          <span className="font-bold text-slate-800 text-[10px]">Master Bed</span>
-          <span className="text-slate-500">14'0" x 16'0"</span>
-        </div>
-        <div className="col-span-3 row-span-2 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center shadow-sm">
-          <span className="font-bold text-slate-800 text-[10px]">Kitchen</span>
-          <span className="text-slate-500">10'0" x 10'0"</span>
-        </div>
-        <div className="col-span-3 row-span-1 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center mt-1 text-[8px] shadow-sm">
-          <span className="font-bold text-slate-800">Bath 1 (Att.)</span>
-          <span className="text-slate-500">6'0" x 8'0"</span>
-        </div>
-        <div className="col-span-3 row-span-3 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center mt-1.5 shadow-sm">
-          <span className="font-bold text-slate-800 text-[10px]">Bed 2</span>
-          <span className="text-slate-500">12'0" x 14'0"</span>
-        </div>
-        <div className="col-span-3 row-span-3 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center mt-1.5 shadow-sm">
-          <span className="font-bold text-slate-800 text-[10px]">Bed 3</span>
-          <span className="text-slate-500">10'0" x 12'0"</span>
-        </div>
-        <div className="col-span-2 row-span-3 border-2 border-slate-600 rounded bg-white flex flex-col items-center justify-center mt-1.5 shadow-sm">
-          <span className="font-bold text-slate-800 text-[10px]">Bath 2</span>
-          <span className="text-slate-500">6'0" x 8'0"</span>
-        </div>
-        <div className="col-span-2 row-span-3 border-2 border-dashed border-slate-400 rounded bg-emerald-500/5 flex flex-col items-center justify-center mt-1.5">
-          <span className="font-bold text-slate-800">Balcony</span>
-          <span className="text-slate-500">5'0" x 14'0"</span>
-        </div>
-      </div>
-    )
-  };
+  const floorPlanMeta = useMemo(
+    () => (isResidentialFloorPlan(property) ? buildFloorPlanRooms(property) : null),
+    [property]
+  )
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -608,13 +537,23 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   <Building2 className="h-5 w-5 text-indigo-600" />
                   2D Layout Floor Plan
                 </h2>
-                <Button variant="outline" size="sm" className="h-8 border-slate-200 text-xs font-bold rounded-lg flex items-center gap-1.5" onClick={() => alert("Brochure with layout diagrams is being requested.")}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 border-slate-200 text-xs font-bold rounded-lg flex items-center gap-1.5"
+                  onClick={() =>
+                    alert(
+                      floorPlanMeta
+                        ? `We will share the official ${floorPlanMeta.bedrooms} BHK floor plan PDF (${formatNumber(floorPlanMeta.carpetArea)} sq.ft.) for this property shortly.`
+                        : 'Brochure with layout diagrams is being requested.'
+                    )
+                  }
+                >
                   <Download className="w-3.5 h-3.5" /> Request HD PDF
                 </Button>
               </div>
-              <p className="text-xs text-slate-500 mb-4 font-semibold">Simulated room layout schematic for {property.bedrooms} BHK configuration.</p>
 
-              {renderFloorPlanLayout()}
+              <FloorPlanSchematic property={property} />
             </Card>
 
             {/* Live Interactive Home Loan EMI Calculator */}
@@ -742,71 +681,14 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     </div>
                   ))
                 ) : (
-                  ['24/7 Security', 'Elevators/Lift', 'Reserved Parking', 'Power Backup', 'Water Storage'].map((amenity) => (
-                    <div key={amenity} className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                      <div className="w-5 h-5 rounded bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
-                        <Check className="h-3.5 w-3.5" />
-                      </div>
-                      <span className="text-sm font-bold text-slate-700">{amenity}</span>
-                    </div>
-                  ))
+                  <p className="col-span-2 text-sm text-slate-500 font-medium py-4">No amenities listed for this property.</p>
                 )}
               </div>
             </Card>
 
-            {/* Locality Advantages Nearby Landmarks */}
+            {/* Locality — real map + nearby places from OpenStreetMap */}
             <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-rose-500" />
-                  Locality & Neighborhood Connect
-                </h2>
-                <div className="text-xs font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-lg">
-                  Proximity Score: 9.4/10
-                </div>
-              </div>
-              <p className="text-xs text-slate-500 mb-6 font-semibold">Easy access to key infrastructure and transport nodes in {property.city || "New Delhi"}.</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-
-                {/* Landmarks list */}
-                <div className="space-y-3.5">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-600 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                    <span className="flex items-center gap-2"><Compass className="w-4 h-4 text-rose-500 shrink-0" /> Metro / Sub Station</span>
-                    <span className="text-[#6B46C1]">0.8 Km</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-600 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                    <span className="flex items-center gap-2"><School className="w-4 h-4 text-blue-500 shrink-0" /> Public Schools</span>
-                    <span className="text-[#6B46C1]">1.2 Km</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-600 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                    <span className="flex items-center gap-2"><Activity className="w-4 h-4 text-emerald-500 shrink-0" /> Multi Specialty Hospital</span>
-                    <span className="text-[#6B46C1]">1.5 Km</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-600 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                    <span className="flex items-center gap-2"><Building2 className="w-4 h-4 text-indigo-500 shrink-0" /> City Shopping Plaza</span>
-                    <span className="text-[#6B46C1]">2.1 Km</span>
-                  </div>
-                </div>
-
-                {/* Simulated Google Maps layout */}
-                <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 relative flex items-center justify-center shadow-inner">
-                  <div className="absolute inset-0 opacity-80" style={{
-                    backgroundImage: 'radial-gradient(circle, #e2e8f0 10%, transparent 11%), radial-gradient(circle, #e2e8f0 10%, transparent 11%)',
-                    backgroundSize: '20px 20px',
-                    backgroundPosition: '0 0, 10px 10px'
-                  }} />
-                  <div className="absolute w-24 h-24 bg-emerald-500/10 rounded-full border border-emerald-500/20" />
-                  <div className="absolute w-12 h-12 bg-rose-500/10 rounded-full border border-rose-500/20" />
-                  <div className="flex flex-col items-center justify-center z-10 text-center p-4">
-                    <MapPin className="h-8 w-8 text-rose-600 drop-shadow-md animate-bounce" />
-                    <span className="text-xs font-black text-slate-800 bg-white/95 border border-slate-200 shadow px-3 py-1 rounded-full mt-2">
-                      {property.address}
-                    </span>
-                  </div>
-                </div>
-
-              </div>
+              <PropertyLocalityMap property={property} />
             </Card>
 
             {/* Collapsible Accordion FAQs */}
@@ -857,7 +739,17 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
 
             {/* Inquiry Send card */}
             <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl">
-              <h3 className="text-lg font-black text-slate-900 mb-4">Send Property Inquiry</h3>
+              <h3 className="text-lg font-black text-slate-900 mb-1">Send Property Inquiry</h3>
+              {contactLocked && (
+                <p className="text-[11px] text-emerald-700 font-semibold mb-4 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2">
+                  Logged in as {user?.name} — your details are filled. Pick a message (optional) and tap Request Callback.
+                </p>
+              )}
+              {!contactLocked && (
+                <p className="text-xs text-slate-500 font-medium mb-4">
+                  <Link href="/login" className="text-[#6B46C1] font-bold hover:underline">Log in</Link> to auto-fill your name, email and phone.
+                </p>
+              )}
 
               <form onSubmit={handleInquiry} className="space-y-4">
                 <div>
@@ -869,8 +761,12 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     placeholder="Enter your name"
                     value={inquiryForm.name}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInquiryForm({ ...inquiryForm, name: e.target.value })}
+                    readOnly={contactLocked}
                     required
-                    className="bg-slate-50/50 border-slate-200 focus-visible:ring-[#6B46C1] rounded-xl h-10 mt-1"
+                    className={cn(
+                      "bg-slate-50/50 border-slate-200 focus-visible:ring-[#6B46C1] rounded-xl h-10 mt-1",
+                      contactLocked && "bg-slate-100 cursor-default text-slate-700"
+                    )}
                   />
                 </div>
                 <div>
@@ -883,8 +779,12 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     placeholder="Enter your email"
                     value={inquiryForm.email}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInquiryForm({ ...inquiryForm, email: e.target.value })}
+                    readOnly={contactLocked}
                     required
-                    className="bg-slate-50/50 border-slate-200 focus-visible:ring-[#6B46C1] rounded-xl h-10 mt-1"
+                    className={cn(
+                      "bg-slate-50/50 border-slate-200 focus-visible:ring-[#6B46C1] rounded-xl h-10 mt-1",
+                      contactLocked && "bg-slate-100 cursor-default text-slate-700"
+                    )}
                   />
                 </div>
                 <div>
@@ -897,8 +797,12 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     placeholder="Your mobile number"
                     value={inquiryForm.phone}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
+                    readOnly={contactLocked}
                     required
-                    className="bg-slate-50/50 border-slate-200 focus-visible:ring-[#6B46C1] rounded-xl h-10 mt-1"
+                    className={cn(
+                      "bg-slate-50/50 border-slate-200 focus-visible:ring-[#6B46C1] rounded-xl h-10 mt-1",
+                      contactLocked && "bg-slate-100 cursor-default text-slate-700"
+                    )}
                   />
                 </div>
 
@@ -950,33 +854,39 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
               </form>
             </Card>
 
-            {/* Agent builder profile card */}
+            {/* Listed by seller */}
             <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl">
-              <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest block mb-4">Listed By Builder</span>
+              <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest block mb-4">Listed By</span>
 
               <div className="flex items-center gap-4.5">
-                <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-2xl font-black shadow-md shrink-0">
-                  K
-                </div>
+                {property.user?.profileImage ? (
+                  <img
+                    src={property.user.profileImage}
+                    alt={property.user.name}
+                    className="w-14 h-14 rounded-2xl object-cover shadow-md shrink-0"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-2xl font-black shadow-md shrink-0">
+                    {(property.user?.name || 'K').charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div>
                   <h4 className="font-extrabold text-slate-900 text-lg flex items-center gap-1.5">
-                    Kanharaj Builders
+                    {property.user?.name || 'Kanharaj Seller'}
                     <ShieldCheck className="h-4 w-4 text-emerald-500" />
                   </h4>
-                  <p className="text-xs text-slate-500 font-semibold mt-0.5">Principal Dwarka Builder</p>
-
-                  {/* Rating */}
-                  <div className="flex items-center gap-1 mt-1 text-[11px] font-bold text-amber-500">
-                    <Star className="w-3.5 h-3.5 fill-current" />
-                    <span>4.9 / 5.0</span>
-                    <span className="text-slate-400 font-semibold">(248 Deals Done)</span>
-                  </div>
+                  {property.user?.experienceYears && (
+                    <p className="text-xs text-slate-500 font-semibold mt-0.5">{property.user.experienceYears} experience</p>
+                  )}
+                  {property.user?.description && (
+                    <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">{property.user.description}</p>
+                  )}
                 </div>
               </div>
 
               <div className="mt-6 pt-5 border-t border-slate-100 flex items-center gap-3">
                 <a
-                  href={`tel:${property.user?.phone || '9599801767'}`}
+                  href={`tel:+91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}
                   className="flex-1"
                 >
                   <Button variant="outline" className="w-full h-11 border-slate-200 text-slate-700 font-bold rounded-xl flex items-center justify-center gap-1.5">
@@ -984,7 +894,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   </Button>
                 </a>
                 <a
-                  href={`https://wa.me/${property.user?.phone || '9599801767'}`}
+                  href={`https://wa.me/91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}
                   target="_blank"
                   rel="noreferrer"
                   className="flex-1"
@@ -1076,11 +986,11 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
       {/* Sticky Mobile Call Actions bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 p-3.5 block sm:hidden shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
         <div className="flex gap-3">
-          <Button variant="outline" className="flex-1 h-12 rounded-xl border-slate-200 font-bold text-slate-700" onClick={() => window.location.href = `tel:${property.user?.phone || '9599801767'}`}>
+          <Button variant="outline" className="flex-1 h-12 rounded-xl border-slate-200 font-bold text-slate-700" onClick={() => window.location.href = `tel:+91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}>
             <Phone className="h-4.5 w-4.5 mr-2 text-rose-500" />
             CALL
           </Button>
-          <Button className="flex-1 h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-500/10" onClick={() => window.location.href = `https://wa.me/${property.user?.phone || '9599801767'}`}>
+          <Button className="flex-1 h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-500/10" onClick={() => window.location.href = `https://wa.me/91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}>
             <MessageCircle className="h-4.5 w-4.5 mr-2" />
             WHATSAPP
           </Button>

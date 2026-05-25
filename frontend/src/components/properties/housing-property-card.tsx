@@ -1,206 +1,23 @@
 'use client'
 import { useState } from 'react'
 import { Property } from '@/lib/data'
-import { Heart, ChevronLeft, ChevronRight, Home, X, Phone, User, MessageCircle, CheckCircle, Loader2 } from 'lucide-react'
+import { Heart, ChevronLeft, ChevronRight, Home } from 'lucide-react'
 import { Button } from '../ui/button'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { API_URL } from '@/lib/store'
+import { usePropertyStore } from '@/lib/store'
+import { ContactSellerModal } from '@/components/properties/contact-seller-modal'
 
 interface HousingPropertyCardProps {
   property: Property
-}
-
-// ─── Contact Modal ────────────────────────────────────────────────────────────
-function ContactModal({
-  property,
-  onClose,
-}: {
-  property: Property
-  onClose: () => void
-}) {
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!name.trim() || !phone.trim()) {
-      setError('Please enter your name and phone number.')
-      return
-    }
-    if (!/^[6-9]\d{9}$/.test(phone.replace(/\s/g, ''))) {
-      setError('Please enter a valid 10-digit Indian mobile number.')
-      return
-    }
-
-    setLoading(true)
-    setError('')
-
-    try {
-      const payload = {
-        propertyId: Number(property.id),
-        name: name.trim(),
-        phone: phone.trim(),
-        email: 'buyer@noemail.com', // email is required by backend
-        message: `Buyer is interested in: ${property.title}`,
-        status: 'PENDING',
-      }
-
-      const res = await fetch(`${API_URL}/inquiries`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-
-      if (!res.ok) {
-        const errText = await res.text().catch(() => 'Server error')
-        throw new Error(errText)
-      }
-
-      setSuccess(true)
-    } catch (err: any) {
-      setError('Could not send inquiry. Please try again.')
-      console.error('Inquiry error:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    // Overlay
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-    >
-      {/* Blur backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-
-      {/* Modal Card */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden z-10 animate-in fade-in zoom-in duration-200">
-
-        {/* Purple top accent */}
-        <div className="bg-gradient-to-r from-[#6B46C1] to-[#9B59B6] px-6 py-5">
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-white font-bold text-lg">Contact Seller</h2>
-              <p className="text-purple-200 text-sm mt-0.5 line-clamp-1">{property.title}</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-purple-200 hover:text-white transition-colors ml-4 mt-0.5"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        <div className="p-6">
-          {success ? (
-            // ── Success State ──
-            <div className="flex flex-col items-center text-center py-4 gap-3">
-              <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-9 h-9 text-green-500" />
-              </div>
-              <h3 className="text-slate-800 font-bold text-lg">Request Sent!</h3>
-              <p className="text-slate-500 text-sm max-w-xs">
-                Your details have been shared with the seller. They will contact you soon at <span className="font-semibold text-slate-700">{phone}</span>.
-              </p>
-              <Button
-                onClick={onClose}
-                className="mt-3 bg-[#6B46C1] hover:bg-[#553C9A] text-white px-8 h-10 rounded-xl font-bold"
-              >
-                Done
-              </Button>
-            </div>
-          ) : (
-            // ── Form State ──
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <p className="text-slate-500 text-sm">
-                Share your details and the seller will call you back.
-              </p>
-
-              {/* Name */}
-              <div>
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">
-                  Your Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Rahul Sharma"
-                    required
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#6B46C1]/30 focus:border-[#6B46C1] bg-slate-50 transition"
-                  />
-                </div>
-              </div>
-
-              {/* Phone */}
-              <div>
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">
-                  Mobile Number
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="e.g. 9876543210"
-                    maxLength={10}
-                    required
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#6B46C1]/30 focus:border-[#6B46C1] bg-slate-50 transition"
-                  />
-                </div>
-              </div>
-
-              {/* Error */}
-              {error && (
-                <p className="text-red-500 text-xs font-medium bg-red-50 border border-red-100 px-3 py-2 rounded-lg">
-                  {error}
-                </p>
-              )}
-
-              {/* Disclaimer */}
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                By clicking "Send Request", you agree that your name and phone number will be shared with the property seller as a lead.
-              </p>
-
-              {/* Submit */}
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-[#6B46C1] hover:bg-[#553C9A] text-white h-11 rounded-xl font-bold text-sm shadow-md disabled:opacity-60 flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <MessageCircle className="w-4 h-4" />
-                    Send Request to Seller
-                  </>
-                )}
-              </Button>
-            </form>
-          )}
-        </div>
-      </div>
-    </div>
-  )
 }
 
 // ─── Property Card ────────────────────────────────────────────────────────────
 export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
   const [currentImageIdx, setCurrentImageIdx] = useState(0)
   const [contactOpen, setContactOpen] = useState(false)
+  const { toggleWishlist, isInWishlist } = usePropertyStore()
+  const isWishlisted = isInWishlist(String(property.id))
 
   const images = property.images && property.images.length > 0
     ? property.images
@@ -310,10 +127,21 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
             {/* Action Buttons */}
             <div className="mt-4 sm:mt-0 sm:absolute sm:bottom-5 sm:right-5 flex items-center gap-3">
               <button
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:border-rose-200 transition-colors bg-white"
+                type="button"
+                aria-label={isWishlisted ? 'Remove from saved' : 'Save property'}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  toggleWishlist(String(property.id))
+                }}
+                className={cn(
+                  'w-10 h-10 rounded-full border flex items-center justify-center transition-colors bg-white shadow-sm',
+                  isWishlisted
+                    ? 'border-rose-300 bg-rose-50 text-rose-600'
+                    : 'border-slate-200 text-slate-400 hover:text-rose-500 hover:border-rose-200'
+                )}
               >
-                <Heart className="w-5 h-5" />
+                <Heart className={cn('w-5 h-5', isWishlisted && 'fill-current')} />
               </button>
               <Button
                 onClick={(e) => {
@@ -332,7 +160,7 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
 
       {/* Contact Modal (rendered outside the Link) */}
       {contactOpen && (
-        <ContactModal
+        <ContactSellerModal
           property={property}
           onClose={() => setContactOpen(false)}
         />

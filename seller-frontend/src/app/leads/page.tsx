@@ -20,6 +20,13 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
+import {
+  fetchSellerLeads,
+  fetchSellerPaymentStatus,
+  mapInquiryStatusToLabel,
+  mapLabelToInquiryStatus,
+} from "@/lib/seller-data"
+import { getSellerAuthHeaders } from "@/lib/utils"
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function timeAgo(dateStr: string) {
@@ -39,15 +46,25 @@ const PROPERTY_TYPES = [
   "Showroom", "Commercial Plot", "Warehouse", "Others"
 ]
 
-const LEAD_STATUS_OPTIONS = ["Open", "New", "Replied", "Closed"]
+const LEAD_STATUS_OPTIONS = ["New", "Replied", "Closed"]
 
 // ─── Lead Card ───────────────────────────────────────────────────────────────
-function LeadCard({ lead, index, hasSubscription }: { lead: any, index: number, hasSubscription: boolean }) {
+function LeadCard({
+  lead,
+  index,
+  hasSubscription,
+  onStatusChange,
+}: {
+  lead: any
+  index: number
+  hasSubscription: boolean
+  onStatusChange: (id: number, label: string) => Promise<void>
+}) {
   const [expanded, setExpanded] = useState(false)
   const [statusOpen, setStatusOpen] = useState(false)
-  const [status, setStatus] = useState(lead.status || "Open")
+  const [status, setStatus] = useState(mapInquiryStatusToLabel(lead.status))
+  const [savingStatus, setSavingStatus] = useState(false)
   const [notesOpen, setNotesOpen] = useState(false)
-  const [note, setNote] = useState("")
   const statusRef = useRef<HTMLDivElement>(null)
 
   // Close status dropdown on outside click
@@ -61,7 +78,6 @@ function LeadCard({ lead, index, hasSubscription }: { lead: any, index: number, 
 
   const statusColors: Record<string, string> = {
     New: "bg-[#6C4EF2] text-white",
-    Open: "bg-white text-slate-700 border border-slate-200",
     Replied: "bg-emerald-50 text-emerald-700 border border-emerald-200",
     Closed: "bg-slate-100 text-slate-500 border border-slate-200",
   }
@@ -97,24 +113,37 @@ function LeadCard({ lead, index, hasSubscription }: { lead: any, index: number, 
 
         {/* Middle: Property details */}
         <div className="flex-1 min-w-0 border-l border-slate-100 pl-4">
-          <p className="text-sm font-black text-slate-900 truncate">{lead.propertyTitle || "3 BHK Apartment"}</p>
-          <p className="text-xs text-slate-500 mt-0.5 truncate">{lead.propertyLocation || "Sector 7 Dwarka"}</p>
+          <p className="text-sm font-black text-slate-900 truncate">
+            {lead.propertyTitle || "General inquiry"}
+          </p>
+          <p className="text-xs text-slate-500 mt-0.5 truncate">
+            {lead.propertyLocation || "—"}
+          </p>
           <div className="flex items-center gap-2 mt-2 flex-wrap">
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 uppercase tracking-wide">
-              {lead.purpose || "rent"}
+              {lead.listingType === "RENT" ? "rent" : lead.listingType === "BUY" ? "buy" : "inquiry"}
             </span>
-            {lead.budget && (
+            {lead.price != null && Number(lead.price) > 0 && (
               <span className="text-[11px] font-bold text-slate-700">
-                ₹{Number(lead.budget).toLocaleString("en-IN")}
+                ₹{Number(lead.price).toLocaleString("en-IN")}
               </span>
             )}
-            {lead.area && (
+            {lead.bedrooms != null && lead.bedrooms > 0 && (
+              <span className="text-[11px] font-bold text-slate-500">{lead.bedrooms} BHK</span>
+            )}
+            {lead.area != null && lead.area > 0 && (
               <span className="text-[11px] font-bold text-slate-500">{lead.area} sq.ft.</span>
             )}
             {lead.propertyId && (
-              <button className="text-slate-400 hover:text-[#6C4EF2] transition-colors" title="View property">
+              <a
+                href={`${process.env.NEXT_PUBLIC_MAIN_URL || "http://localhost:3000"}/property/${lead.propertyId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-[#6C4EF2] transition-colors"
+                title="View property"
+              >
                 <ExternalLink className="w-3.5 h-3.5" />
-              </button>
+              </a>
             )}
           </div>
         </div>
@@ -167,7 +196,7 @@ function LeadCard({ lead, index, hasSubscription }: { lead: any, index: number, 
           <div className="relative mt-1" ref={statusRef}>
             <button
               onClick={() => setStatusOpen(!statusOpen)}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-black transition-all ${statusColors[status] || statusColors.Open}`}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-black transition-all ${statusColors[status] || statusColors.New}`}
             >
               {status}
               <ChevronDown className="w-3 h-3" />
@@ -183,7 +212,14 @@ function LeadCard({ lead, index, hasSubscription }: { lead: any, index: number, 
                   {LEAD_STATUS_OPTIONS.map(opt => (
                     <button
                       key={opt}
-                      onClick={() => { setStatus(opt); setStatusOpen(false) }}
+                      disabled={savingStatus}
+                      onClick={async () => {
+                        setSavingStatus(true)
+                        await onStatusChange(lead.id, opt)
+                        setStatus(opt)
+                        setStatusOpen(false)
+                        setSavingStatus(false)
+                      }}
                       className={`block w-full text-left px-3 py-2 text-[11px] font-bold hover:bg-slate-50 transition-colors ${status === opt ? "text-[#6C4EF2]" : "text-slate-700"}`}
                     >
                       {opt}
@@ -210,12 +246,14 @@ function LeadCard({ lead, index, hasSubscription }: { lead: any, index: number, 
               <div>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Budget</p>
                 <p className="text-sm font-black text-slate-800">
-                  ₹{lead.budget ? Number(lead.budget).toLocaleString("en-IN") : "N/A"}
+                  {lead.price != null && Number(lead.price) > 0
+                    ? `₹${Number(lead.price).toLocaleString("en-IN")}`
+                    : "N/A"}
                 </p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Properties Contacted</p>
-                <p className="text-sm font-black text-slate-800">{lead.propertiesContacted || 1}</p>
+                <p className="text-sm font-black text-slate-800">1</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Localities Interested In</p>
@@ -238,23 +276,15 @@ function LeadCard({ lead, index, hasSubscription }: { lead: any, index: number, 
           >
             <div className="px-4 py-3 bg-purple-50/30">
               <p className="text-[11px] font-bold text-slate-600 mb-2">Add a note for this lead</p>
-              <textarea
-                value={note}
-                onChange={e => setNote(e.target.value)}
-                rows={2}
-                placeholder="Type your note here..."
-                className="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-[#6C4EF2]/30 bg-white"
-              />
-              <div className="flex justify-end gap-2 mt-2">
-                <button
-                  onClick={() => setNotesOpen(false)}
-                  className="text-[11px] font-bold text-slate-500 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
-                >Cancel</button>
-                <button
-                  onClick={() => setNotesOpen(false)}
-                  className="text-[11px] font-bold text-white bg-[#6C4EF2] px-3 py-1.5 rounded-lg hover:bg-[#5a3fd4] transition-colors"
-                >Save</button>
-              </div>
+              <p className="text-xs text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-2 whitespace-pre-wrap">
+                {lead.message?.trim() || "No message from buyer."}
+              </p>
+              <button
+                onClick={() => setNotesOpen(false)}
+                className="text-[11px] font-bold text-slate-500 mt-2 hover:underline"
+              >
+                Close
+              </button>
             </div>
           </motion.div>
         )}
@@ -287,27 +317,60 @@ export default function LeadsPage() {
   const monthName = today.toLocaleString("en-IN", { month: "short" }) + " '" + String(today.getFullYear()).slice(2)
 
   useEffect(() => {
-    const userData = localStorage.getItem("seller_user")
-    if (!userData) { router.push("/login"); return }
-    const user = JSON.parse(userData)
-    const sub = user.subscriptionPlan && user.subscriptionPlan !== "NONE"
-    setHasSubscription(sub)
-    if (!sub) { setLoading(false); return }
+    async function load() {
+      const userData = localStorage.getItem("seller_user")
+      if (!userData) {
+        router.push("/login")
+        return
+      }
+      const user = JSON.parse(userData)
+      const token = localStorage.getItem("seller_token")
+      if (!token) {
+        router.push("/login")
+        return
+      }
 
-    const sellerId = user.id
-    async function fetchLeads() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inquiries/seller?sellerId=${sellerId}`)
-        const data = await res.json()
-        setLeads(data || [])
+        const statusData = await fetchSellerPaymentStatus(token)
+        const plan = statusData?.plan || user.subscriptionPlan
+        const sub = plan && plan !== "NONE"
+        setHasSubscription(!!sub)
+        if (statusData?.plan) {
+          localStorage.setItem("seller_user", JSON.stringify({ ...user, subscriptionPlan: plan }))
+        }
+        if (!sub) {
+          setLoading(false)
+          return
+        }
+        const data = await fetchSellerLeads(token, user.id)
+        setLeads(data)
       } catch (err) {
         console.error("Failed to fetch leads", err)
       } finally {
         setLoading(false)
       }
     }
-    fetchLeads()
+    load()
   }, [router])
+
+  const handleStatusChange = async (id: number, label: string) => {
+    const headers = getSellerAuthHeaders()
+    if (!headers) return
+    const apiStatus = mapLabelToInquiryStatus(label)
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/inquiries/${id}/status?status=${apiStatus}`,
+        { method: "PATCH", headers }
+      )
+      if (res.ok) {
+        setLeads((prev) =>
+          prev.map((l) => (l.id === id ? { ...l, status: apiStatus } : l))
+        )
+      }
+    } catch (err) {
+      console.error("Failed to update lead status", err)
+    }
+  }
 
   // Tab counts
   const now = Date.now()
@@ -315,7 +378,7 @@ export default function LeadsPage() {
   const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
   const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1)
 
-  const newLeads = leads.filter(l => (l.status || "New") === "New")
+  const newLeads = leads.filter(l => mapInquiryStatusToLabel(l.status) === "New")
   const todayLeads = leads.filter(l => new Date(l.createdAt) >= todayStart)
   const monthLeads = leads.filter(l => new Date(l.createdAt) >= monthStart)
   const lastMonthLeads = leads.filter(l => {
@@ -345,7 +408,7 @@ export default function LeadsPage() {
     )
   }
   if (leadStatus.length > 0) {
-    filteredLeads = filteredLeads.filter(l => leadStatus.includes(l.status || "Open"))
+    filteredLeads = filteredLeads.filter(l => leadStatus.includes(mapInquiryStatusToLabel(l.status)))
   }
   if (locality) {
     filteredLeads = filteredLeads.filter(l =>
@@ -380,8 +443,7 @@ export default function LeadsPage() {
     )
   }
 
-  // ─── No subscription state ───
-  if (false && !hasSubscription) { // TEMPORARY BYPASS
+  if (!hasSubscription) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-4">
         <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center text-[#6C4EF2]">
@@ -659,7 +721,13 @@ export default function LeadsPage() {
         <div className="space-y-3">
           {filteredLeads.length > 0 ? (
             filteredLeads.map((lead, i) => (
-              <LeadCard key={lead.id || i} lead={lead} index={i} hasSubscription={hasSubscription} />
+              <LeadCard
+                key={lead.id || i}
+                lead={lead}
+                index={i}
+                hasSubscription={hasSubscription}
+                onStatusChange={handleStatusChange}
+              />
             ))
           ) : (
             <div className="bg-white rounded-xl border border-dashed border-slate-200 p-16 text-center">

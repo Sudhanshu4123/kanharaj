@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Building, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react'
+import { BRAND_LOGO_SRC } from '@/lib/utils'
 
 const footerLinks = {
   company: [
@@ -10,9 +11,11 @@ const footerLinks = {
   ],
   properties: [
     { label: 'All Properties', href: '/properties' },
-    { label: 'Residential', href: '/properties?type=RESIDENTIAL' },
-    { label: 'Commercial', href: '/properties?type=COMMERCIAL' },
-    { label: 'Plots / Land', href: '/properties?type=PLOTS%2FLAND' },
+    { label: 'Buy Property', href: '/properties?listing=buy' },
+    { label: 'Rent Property', href: '/properties?listing=rent' },
+    { label: 'Zero Brokerage', href: '/properties?brokerage=zero&listing=buy' },
+    { label: 'Flats in Dwarka', href: '/properties?type=flat&listing=buy' },
+    { label: 'List Your Property', href: '/for-sellers' },
   ],
   calculators: [
     { label: 'Area Unit Converter', href: '/coming-soon' },
@@ -45,7 +48,7 @@ export function Footer() {
             <Link href="/" className="flex items-center space-x-2">
               <div className="relative h-10 w-10 flex items-center justify-center overflow-hidden rounded-full border border-slate-700 bg-white">
                 <img
-                  src="/logo.png"
+                  src={BRAND_LOGO_SRC}
                   alt="Kanharaj Logo"
                   className="h-full w-full object-cover"
                   onError={(e) => {
@@ -98,7 +101,12 @@ export function Footer() {
               <ul className="space-y-3">
                 {footerLinks.properties.map((link) => (
                   <li key={link.label}>
-                    <Link href={link.href} className="text-slate-400 hover:text-white text-sm transition-colors block">
+                    <Link
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-400 hover:text-white text-sm transition-colors block"
+                    >
                       {link.label}
                     </Link>
                   </li>
