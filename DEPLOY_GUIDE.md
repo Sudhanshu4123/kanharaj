@@ -85,6 +85,14 @@ CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 
+# Gmail OTP emails (REQUIRED for login/register verification)
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=kanharaj1389@gmail.com
+MAIL_PASSWORD=your_gmail_app_password_16_chars
+MAIL_FROM=kanharaj1389@gmail.com
+FRONTEND_URL=https://kanharaj.com
+
 # IMPORTANT: Use your domain (recommended) or VPS IP
 # If you have a domain with Nginx:
 API_URL=https://kanharaj.com/api

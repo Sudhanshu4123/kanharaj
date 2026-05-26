@@ -38,7 +38,7 @@ services:
       - SPRING_MAIL_PORT=${MAIL_PORT:-587}
       - SPRING_MAIL_USERNAME=${MAIL_USERNAME:-kanharaj1389@gmail.com}
       - SPRING_MAIL_PASSWORD=${MAIL_PASSWORD}
-      - MAIL_FROM=${MAIL_FROM:-${MAIL_USERNAME:-kanharaj1389@gmail.com}}
+      - MAIL_FROM=${MAIL_FROM:-kanharaj1389@gmail.com}
     ports:
       - "8080:8080"
     volumes:
