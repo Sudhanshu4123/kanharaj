@@ -45,6 +45,9 @@ public class AuthService {
         @Value("${admin.phone}")
         private String adminPhone;
 
+        @Value("${app.frontend-url:https://kanharaj.com}")
+        private String frontendUrl;
+
         @PostConstruct
         public void postConstruct() {
                 if (adminEmail != null)
@@ -145,13 +148,13 @@ public class AuthService {
                         return AuthDto.AuthResponse.builder()
                                         .message("OTP_SENT")
                                         .build();
+                } catch (org.springframework.security.core.AuthenticationException e) {
+                        throw new RuntimeException("Invalid credentials");
+                } catch (RuntimeException e) {
+                        throw e;
                 } catch (Exception e) {
                         System.err.println("Login failed for [" + email + "]: " + e.getMessage());
-                        String errorMsg = e.getMessage();
-                        if (errorMsg != null && (errorMsg.contains("disabled") || errorMsg.contains("verified"))) {
-                                throw new RuntimeException(errorMsg);
-                        }
-                        throw new RuntimeException("Invalid credentials");
+                        throw new RuntimeException("Login failed. Please try again.");
                 }
         }
 
@@ -186,19 +189,17 @@ public class AuthService {
         }
 
         private void sendLoginOtpEmail(User user) {
-                java.util.concurrent.CompletableFuture.runAsync(() -> {
-                        String otp = user.getVerificationToken();
-                        String emailContent = "Hello " + user.getName() + ",\n\n" +
-                                        "Your login verification code for Kanharaj is:\n\n" +
-                                        "------------------------\n" +
-                                        "      " + otp + "      \n" +
-                                        "------------------------\n\n" +
-                                        "This code will expire in 10 minutes.\n\n" +
-                                        "If you didn't try to login, please secure your account.\n\n" +
-                                        "Best Regards,\nKanharaj Team";
+                String otp = user.getVerificationToken();
+                String emailContent = "Hello " + user.getName() + ",\n\n" +
+                                "Your login verification code for Kanharaj is:\n\n" +
+                                "------------------------\n" +
+                                "      " + otp + "      \n" +
+                                "------------------------\n\n" +
+                                "This code will expire in 10 minutes.\n\n" +
+                                "If you didn't try to login, please secure your account.\n\n" +
+                                "Best Regards,\nKanharaj Team";
 
-                        emailService.sendSimpleMessage(user.getEmail(), "Login Verification Code - Kanharaj", emailContent);
-                });
+                emailService.sendSimpleMessage(user.getEmail(), "Login Verification Code - Kanharaj", emailContent);
         }
 
         public AuthDto.AuthResponse refreshToken(AuthDto.RefreshTokenRequest request) {
@@ -295,17 +296,15 @@ public class AuthService {
 
                 passwordResetTokenRepository.save(resetToken);
 
-                // Send email
-                java.util.concurrent.CompletableFuture.runAsync(() -> {
-                        String resetLink = "http://localhost:3000/reset-password?token=" + token;
-                        String emailContent = "Hello " + user.getName() + ",\n\n" +
-                                        "You requested to reset your password. Click the link below to set a new password:\n" +
-                                        resetLink + "\n\n" +
-                                        "This link will expire in 1 hour.\n\n" +
-                                        "If you didn't request this, please ignore this email.";
+                String baseUrl = frontendUrl != null ? frontendUrl.replaceAll("/$", "") : "https://kanharaj.com";
+                String resetLink = baseUrl + "/reset-password?token=" + token;
+                String emailContent = "Hello " + user.getName() + ",\n\n" +
+                                "You requested to reset your password. Click the link below to set a new password:\n" +
+                                resetLink + "\n\n" +
+                                "This link will expire in 1 hour.\n\n" +
+                                "If you didn't request this, please ignore this email.";
 
-                        emailService.sendSimpleMessage(user.getEmail(), "Password Reset Request - Kanharaj", emailContent);
-                });
+                emailService.sendSimpleMessage(user.getEmail(), "Password Reset Request - Kanharaj", emailContent);
         }
 
         @Transactional
@@ -360,18 +359,16 @@ public class AuthService {
         }
 
         private void sendVerificationEmail(User user) {
-                java.util.concurrent.CompletableFuture.runAsync(() -> {
-                        String otp = user.getVerificationToken();
-                        String emailContent = "Hello " + user.getName() + ",\n\n" +
-                                        "Thank you for joining Kanharaj! Your email verification code is:\n\n" +
-                                        "------------------------\n" +
-                                        "      " + otp + "      \n" +
-                                        "------------------------\n\n" +
-                                        "This code will expire in 15 minutes.\n\n" +
-                                        "Enter this code on the website to activate your account.\n\n" +
-                                        "Best Regards,\nKanharaj Team";
+                String otp = user.getVerificationToken();
+                String emailContent = "Hello " + user.getName() + ",\n\n" +
+                                "Thank you for joining Kanharaj! Your email verification code is:\n\n" +
+                                "------------------------\n" +
+                                "      " + otp + "      \n" +
+                                "------------------------\n\n" +
+                                "This code will expire in 15 minutes.\n\n" +
+                                "Enter this code on the website to activate your account.\n\n" +
+                                "Best Regards,\nKanharaj Team";
 
-                        emailService.sendSimpleMessage(user.getEmail(), "Verification Code - Kanharaj", emailContent);
-                });
+                emailService.sendSimpleMessage(user.getEmail(), "Verification Code - Kanharaj", emailContent);
         }
 }
