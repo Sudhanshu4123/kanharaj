@@ -1,8 +1,8 @@
 package com.luxeestates.service;
 
+import com.luxeestates.config.MailCredentials;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -13,30 +13,20 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     private final JavaMailSender mailSender;
-
-    @Value("${spring.mail.username:}")
-    private String mailUsername;
-
-    @Value("${spring.mail.password:}")
-    private String mailPassword;
-
-    /** Gmail requires From to match the authenticated account */
-    @Value("${app.mail.from:}")
-    private String mailFrom;
+    private final MailCredentials mailCredentials;
 
     public boolean isConfigured() {
-        return mailUsername != null && !mailUsername.isBlank()
-                && mailPassword != null && !mailPassword.isBlank();
+        return mailCredentials.isConfigured();
     }
 
     public void sendSimpleMessage(String to, String subject, String text) {
         if (!isConfigured()) {
-            log.error("MAIL_USERNAME or MAIL_PASSWORD is missing — OTP emails cannot be sent");
+            log.error("MAIL_PASSWORD or MAIL_USERNAME missing in server environment — OTP cannot be sent");
             throw new IllegalStateException(
-                    "Email is not configured on the server. Please set MAIL_USERNAME and MAIL_PASSWORD (Gmail App Password).");
+                    "Email is not configured on the server. Please set MAIL_USERNAME and MAIL_PASSWORD (Gmail App Password) in .env and restart the backend container.");
         }
 
-        String from = (mailFrom != null && !mailFrom.isBlank()) ? mailFrom.trim() : mailUsername.trim();
+        String from = mailCredentials.getFrom();
 
         try {
             SimpleMailMessage message = new SimpleMailMessage();

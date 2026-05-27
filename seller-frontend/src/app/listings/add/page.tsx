@@ -1430,7 +1430,7 @@ ${formData.description}`
                         <button
                           type="button"
                           onClick={() => removeImage(i)}
-                          className="absolute top-2 right-2 bg-white/90 backdrop-blur-md p-1.5 rounded-lg text-rose-600 opacity-0 group-hover:opacity-100 transition-all shadow-sm"
+                          className="absolute top-2 right-2 bg-white/90 backdrop-blur-md p-1.5 rounded-lg text-rose-600 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all shadow-sm touch-target"
                         >
                           <X size={14} />
                         </button>

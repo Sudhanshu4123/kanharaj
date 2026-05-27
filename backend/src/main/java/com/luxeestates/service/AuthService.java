@@ -107,8 +107,6 @@ public class AuthService {
                 String email = request.getEmail() != null ? request.getEmail().trim() : "";
                 String password = request.getPassword() != null ? request.getPassword().trim() : "";
 
-                System.out.println("Login attempt for: [" + email + "]");
-
                 if (!userRepository.existsByEmail(email)) {
                         throw new RuntimeException("Email not found. Please register first.");
                 }
@@ -118,9 +116,6 @@ public class AuthService {
                                         new UsernamePasswordAuthenticationToken(email, password));
 
                         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-                        System.out.println("Authentication successful for: " + email + " with role: "
-                                        + userDetails.getAuthorities());
-
                         User user = userRepository.findByEmail(email)
                                         .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -128,25 +123,23 @@ public class AuthService {
                                 throw new RuntimeException("Account is disabled. Please contact support.");
                         }
 
-                        // Generate OTP for both new and existing users
-                        String otp = String.valueOf(100000 + new java.util.Random().nextInt(900000));
-                        user.setVerificationToken(otp);
-                        user.setOtpExpiry(LocalDateTime.now().plusMinutes(10));
-                        userRepository.save(user);
-
-                        // If not verified yet, send registration OTP template
+                        // Auto-verify email upon successful password entry
                         if (!user.getEmailVerified()) {
-                                sendVerificationEmail(user);
-                                return AuthDto.AuthResponse.builder()
-                                                .message("VERIFICATION_REQUIRED")
-                                                .build();
+                                user.setEmailVerified(true);
+                                user.setVerificationToken(null);
+                                user.setOtpExpiry(null);
+                                userRepository.save(user);
                         }
 
-                        // Otherwise send regular login 2FA OTP
-                        sendLoginOtpEmail(user);
+                        // Generate Tokens for direct login
+                        String token = jwtTokenProvider.generateToken(userDetails);
+                        String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
 
                         return AuthDto.AuthResponse.builder()
-                                        .message("OTP_SENT")
+                                        .token(token)
+                                        .refreshToken(refreshToken)
+                                        .user(getCurrentUser(user.getEmail()))
+                                        .message("LOGIN_SUCCESS")
                                         .build();
                 } catch (org.springframework.security.core.AuthenticationException e) {
                         throw new RuntimeException("Invalid credentials");

@@ -51,7 +51,7 @@ export default function AdminPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [msg, setMsg] = useState('')
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [mounted, setMounted] = useState(false)
   const [uploadingImages, setUploadingImages] = useState(false)
@@ -698,7 +698,7 @@ export default function AdminPage() {
                               const updated = (propForm.images as string[]).filter((_, i) => i !== idx)
                               setPropForm({ ...propForm, images: updated })
                             }}
-                            className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600"
+                            className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600 touch-target"
                           >
                             <X size={12} />
                           </button>

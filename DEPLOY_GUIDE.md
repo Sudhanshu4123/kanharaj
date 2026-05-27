@@ -104,6 +104,26 @@ API_URL=https://kanharaj.com/api
 > This ensures images load without mixed-content errors.
 > If no domain, set it to `http://YOUR_IP:3000/api` (port 3000, not 8080)
 
+**Common `.env` mistakes on VPS:**
+
+| Mistake | Fix |
+|--------|-----|
+| `.env` not in same folder as `docker-compose.yml` | File must be at `shrishyam/.env` (project root) |
+| `ADMIN_EMAIL=` left empty | Set `ADMIN_EMAIL=kanharaj1389@gmail.com` (no spaces around `=`) |
+| `MAIL_HOST=stmp.gmail.com` | Typo — must be `MAIL_HOST=smtp.gmail.com` |
+| Changed `.env` but OTP still fails | Recreate backend: `docker compose up -d --build --force-recreate backend` then check logs for `passwordSet=true` |
+| Login says email not configured | Ensure `.env` has `MAIL_PASSWORD=your_16_char_app_password` (no quotes/spaces). Do **not** leave `MAIL_PASSWORD=` empty |
+
+After editing `.env`:
+
+```bash
+cd shrishyam
+docker compose up -d --force-recreate backend
+docker logs kanharaj-backend --tail 30
+```
+
+You should **NOT** see `Warning: ADMIN_EMAIL is not configured!` after a successful restart.
+
 ---
 
 ## Step 4: Open Firewall Ports (Hostinger Panel)
@@ -195,6 +215,29 @@ sudo ln -s /etc/nginx/sites-available/shrishyam /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl restart nginx
 ```
+
+---
+
+## Mobile Apps
+
+### Main website (Play Store APK)
+- Native Android project: `frontend/android/` (Capacitor)
+- App name: **Kanharaj**, package: `com.kanharaj.properties`
+- Loads live site: `https://kanharaj.com`
+
+Build APK on your PC:
+
+```bash
+cd frontend
+npm run build
+npx cap sync android
+# Open Android Studio → frontend/android → Build → Generate Signed Bundle/APK
+```
+
+### Seller dashboard — PWA only (no separate Android app)
+- Seller uses **Add to Home Screen** from `https://seller.kanharaj.com`
+- Already has: `manifest.webmanifest`, mobile bottom nav, install banner
+- A separate Play Store seller app is **not required**
 
 ---
 

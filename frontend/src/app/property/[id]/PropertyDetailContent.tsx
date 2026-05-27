@@ -297,7 +297,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
         {/* Main Title Section */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex-1 min-w-[280px]">
+            <div className="flex-1 min-w-0 w-full">
 
               {/* Badges Row */}
               <div className="flex flex-wrap gap-2 mb-3">
@@ -984,7 +984,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
       </AnimatePresence>
 
       {/* Sticky Mobile Call Actions bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 p-3.5 block sm:hidden shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
+      <div className="fixed bottom-mobile-nav left-0 right-0 z-40 bg-white border-t border-slate-200 p-3.5 pb-safe block lg:hidden shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
         <div className="flex gap-3">
           <Button variant="outline" className="flex-1 h-12 rounded-xl border-slate-200 font-bold text-slate-700" onClick={() => window.location.href = `tel:+91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}>
             <Phone className="h-4.5 w-4.5 mr-2 text-rose-500" />

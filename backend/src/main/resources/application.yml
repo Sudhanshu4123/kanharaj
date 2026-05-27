@@ -48,8 +48,9 @@ spring:
     time-zone: GMT+5:30
 
   mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
+    # Actual SMTP is configured in MailConfig.java from MAIL_* env vars (.env / Docker env_file)
+    host: smtp.gmail.com
+    port: 587
     username: ${MAIL_USERNAME:kanharaj1389@gmail.com}
     password: ${MAIL_PASSWORD:}
     properties:
@@ -74,8 +75,8 @@ cloudinary:
   api-secret: ${CLOUDINARY_API_SECRET:}
 
 admin:
-  email: ${ADMIN_EMAIL:}
-  password: ${ADMIN_PASSWORD:}
+  email: ${ADMIN_EMAIL:kanharaj1389@gmail.com}
+  password: ${ADMIN_PASSWORD:admin@123}
   name: ${ADMIN_NAME:Kanharaj}
   phone: ${ADMIN_PHONE:9599801767}
 

@@ -15,6 +15,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: "cover",
   themeColor: "#E11D48",
 }
 
@@ -51,7 +52,7 @@ export default function RootLayout({
           </Suspense>
           <LoadingProvider>
             <Header />
-            <main className="flex-1 pt-20 pb-20 lg:pb-0">
+            <main className="flex-1 pt-16 sm:pt-20 pb-mobile-nav lg:pb-0 min-w-0">
               {children}
             </main>
             <MobileNav />

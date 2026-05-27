@@ -375,7 +375,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                             <img src={url} alt="" className="w-full h-full object-cover" />
                             <button 
                               onClick={() => removeImage(i)}
-                              className="absolute top-2 right-2 bg-white/80 backdrop-blur-md p-1.5 rounded-full text-rose-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="absolute top-2 right-2 bg-white/80 backdrop-blur-md p-1.5 rounded-full text-rose-600 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-target"
                             >
                                <X size={14} />
                             </button>

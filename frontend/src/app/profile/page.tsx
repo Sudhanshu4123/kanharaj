@@ -146,9 +146,8 @@ export default function ProfilePage() {
   const currentImage = normalizeProfileImageUrl(form.profileImage)
   const showSellerDashboard = hasSellerDashboardAccess(user)
   const roleLabel = String(user.role || 'USER').replace(/_/g, ' ')
-
   return (
-    <div className="min-h-screen bg-slate-50 pt-24 pb-20">
+    <div className="min-h-screen bg-slate-50 pt-4 sm:pt-24 pb-20">
       <div className="max-w-5xl mx-auto px-4">
 
         {/* ── Profile Header Card ── */}
@@ -161,7 +160,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Avatar + Name Row */}
-          <div className="px-8 pb-6 -mt-16 flex flex-col sm:flex-row items-start sm:items-end gap-4">
+          <div className="px-4 sm:px-8 pb-6 -mt-16 flex flex-col sm:flex-row items-start sm:items-end gap-4">
             {/* Avatar */}
             <div className="relative shrink-0">
               <div className="w-28 h-28 rounded-2xl border-4 border-white shadow-xl overflow-hidden bg-slate-100 flex items-center justify-center">
@@ -218,8 +217,8 @@ export default function ProfilePage() {
           </div>
 
           {/* Tabs */}
-          <div className="px-8 border-t border-slate-100">
-            <div className="flex gap-0">
+          <div className="px-4 sm:px-8 border-t border-slate-100 overflow-x-auto">
+            <div className="flex gap-0 min-w-max sm:min-w-0">
               {[
                 { id: 'edit' as TabType, label: 'Edit Profile', icon: UserIcon },
                 { id: 'activity' as TabType, label: 'My Activity', icon: History },
@@ -258,7 +257,7 @@ export default function ProfilePage() {
                   {currentImage ? (
                     <>
                       <Image src={currentImage} alt="Profile" fill className="object-cover" />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/40 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <Camera size={32} className="text-white" />
                       </div>
                     </>
@@ -452,7 +451,7 @@ export default function ProfilePage() {
           <div className="space-y-6">
             <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
               <MyActivityPanel
-                variant="desktop"
+                variant="mobile"
                 activeTab={activityTab}
                 setActiveTab={setActivityTab}
               />

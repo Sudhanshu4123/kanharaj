@@ -37,13 +37,20 @@ public class DataInitializer implements CommandLineRunner {
         } catch (Exception e) {
             System.out.println("Table alter failed (might already be VARCHAR or different DB): " + e.getMessage());
         }
-        if (adminEmail == null || adminEmail.isEmpty()) {
+        String resolvedEmail = resolveAdminEmail();
+        if (resolvedEmail == null || resolvedEmail.isBlank()) {
             System.err.println("Warning: ADMIN_EMAIL is not configured!");
             return;
         }
         
-        String trimmedEmail = adminEmail.trim();
-        String trimmedPassword = adminPassword.trim();
+        String trimmedEmail = resolvedEmail.trim();
+        String trimmedPassword = (adminPassword == null || adminPassword.isBlank()
+                ? System.getenv("ADMIN_PASSWORD")
+                : adminPassword);
+        if (trimmedPassword == null || trimmedPassword.isBlank()) {
+            trimmedPassword = "admin@123";
+        }
+        trimmedPassword = trimmedPassword.trim();
         User admin = userRepository.findByEmail(trimmedEmail).orElse(null);
         
         if (admin == null) {
@@ -123,5 +130,16 @@ public class DataInitializer implements CommandLineRunner {
             propertyRepository.save(sample2);
             System.out.println("Second sample property created.");
         }
+    }
+
+    private String resolveAdminEmail() {
+        if (adminEmail != null && !adminEmail.isBlank()) {
+            return adminEmail.trim();
+        }
+        String fromEnv = System.getenv("ADMIN_EMAIL");
+        if (fromEnv != null && !fromEnv.isBlank()) {
+            return fromEnv.trim();
+        }
+        return "kanharaj1389@gmail.com";
     }
 }

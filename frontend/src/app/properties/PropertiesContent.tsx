@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
-import { ChevronDown, Search, Info, Menu, User, Phone, X, Shield, ArrowUpDown, Waves, Dumbbell, Car, Flame, Check, LogOut, MapPin } from 'lucide-react'
+import { ChevronDown, Search, Info, Menu, User, Phone, X, Shield, ArrowUpDown, Waves, Dumbbell, Car, Flame, Check, LogOut, MapPin, Bell, SlidersHorizontal } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import * as Slider from '@radix-ui/react-slider'
@@ -428,13 +428,13 @@ export default function PropertiesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] -mt-20">
+    <div className="min-h-screen bg-[#F5F7FA]">
 
-      {/* Housing.com style Top Purple Header */}
-      <div className="bg-[#6B46C1] text-white py-2 px-4 md:px-6 flex items-center gap-3 md:gap-5 sticky top-0 z-50">
+      {/* Properties search bar — same on phone & desktop (responsive website) */}
+      <div className="flex bg-[#6B46C1] text-white py-2 px-3 sm:px-4 md:px-6 flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-5 sticky top-16 z-40">
 
-        {/* Logo and Location Selector (Desktop) */}
-        <div className="hidden md:flex items-center gap-4 border-r border-white/20 pr-4 shrink-0">
+        {/* Logo and Location Selector */}
+        <div className="flex items-center gap-2 sm:gap-4 md:border-r border-white/20 md:pr-4 shrink-0 pb-2 md:pb-0 border-b border-white/15 md:border-b-0">
           <Link href="/" className="flex items-center gap-2">
             <div className="relative h-7 w-7 rounded overflow-hidden flex items-center justify-center bg-white shadow-sm">
               <img src={BRAND_LOGO_SRC} alt="Kanharaj Logo" className="h-full w-full object-cover" />
@@ -448,7 +448,7 @@ export default function PropertiesContent() {
             <button
               type="button"
               onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
-              className="flex items-center gap-1 text-sm font-semibold cursor-pointer hover:text-white/80 transition whitespace-nowrap"
+              className="flex items-center gap-1 text-xs sm:text-sm font-semibold cursor-pointer hover:text-white/80 transition whitespace-nowrap max-w-[140px] sm:max-w-none truncate"
             >
               <MapPin className="w-4 h-4 opacity-80" />
               {listingMode === 'RENT' ? 'Rent In' : 'Buy In'} {selectedCity || 'All Cities'}
@@ -462,7 +462,7 @@ export default function PropertiesContent() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute left-0 top-full mt-2 w-72 max-h-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-[60] flex flex-col overflow-hidden text-slate-800"
+                  className="absolute left-0 top-full mt-2 w-[min(18rem,calc(100vw-1.5rem))] sm:w-72 max-h-[70vh] sm:max-h-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-[60] flex flex-col overflow-hidden text-slate-800"
                 >
                   <div className="p-2 border-b border-slate-100 flex items-center bg-slate-50 gap-1.5 shrink-0">
                     <Search className="h-3.5 w-3.5 text-slate-400 shrink-0" />
@@ -562,7 +562,7 @@ export default function PropertiesContent() {
         </div>
 
         {/* Search Bar */}
-        <div className="flex-1 max-w-[800px] relative">
+        <div className="flex-1 w-full min-w-0 max-w-[800px] relative order-3 md:order-none">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#6B46C1]" />
           <Input
             placeholder="Enter Locality, Landmark, Project or builder"
@@ -572,11 +572,11 @@ export default function PropertiesContent() {
           />
         </div>
 
-        {/* Desktop Right Actions */}
-        <div className="hidden lg:flex gap-4 items-center ml-auto shrink-0">
-          <button className="text-sm font-bold flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded transition whitespace-nowrap">
-            <Phone className="w-4 h-4" /> Download App
-          </button>
+        {/* Right Actions */}
+        <div className="flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-wrap">
+          <Link href="/contact" className="text-xs sm:text-sm font-bold flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded transition whitespace-nowrap">
+            <Phone className="w-4 h-4" /> Contact
+          </Link>
           
           {showSellerDashboard && (
             <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
@@ -647,9 +647,9 @@ export default function PropertiesContent() {
         </div>
       </div>
 
-      {/* Secondary White Filter Bar */}
-      <div className="bg-white border-b border-slate-200 sticky top-[58px] z-40 shadow-sm">
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-2 flex items-center gap-3 flex-wrap">
+      {/* Filter bar — same website UI, scrollable on small screens */}
+      <div className="bg-white border-b border-slate-200 sticky top-[7.5rem] sm:top-[7.75rem] z-30 shadow-sm">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-2 flex items-center gap-3 flex-nowrap lg:flex-wrap overflow-x-auto no-scrollbar">
 
           {/* Property Type Dropdown */}
           <div className="relative filter-dropdown-container">
@@ -660,7 +660,7 @@ export default function PropertiesContent() {
               {propertyTypes.length > 0 ? `Property Type (${propertyTypes.length})` : 'Property Type'} <ChevronDown className="w-4 h-4 opacity-70" />
             </button>
             {activeDropdown === 'property' && (
-              <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-[480px] z-50">
+              <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(480px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
                 <div className="flex flex-wrap gap-3">
                   {['Apartment', 'Independent House', 'Independent Floor', 'Plot', 'Studio', 'Duplex', 'Penthouse', 'Villa', 'Agricultural Land'].map(type => (
                     <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
@@ -687,7 +687,7 @@ export default function PropertiesContent() {
               {bhkTypes.length > 0 ? `BHK Type (${bhkTypes.length})` : 'BHK Type'} <ChevronDown className="w-4 h-4 opacity-70" />
             </button>
             {activeDropdown === 'bhk' && (
-              <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-[380px] z-50">
+              <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(380px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
                 <div className="flex flex-wrap gap-3">
                   {['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK', '5 BHK', '5+ BHK'].map(type => (
                     <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
@@ -714,7 +714,7 @@ export default function PropertiesContent() {
               ₹{formatBudgetLabel(budgetRange[0])} - ₹{formatBudgetLabel(budgetRange[1])} <ChevronDown className="w-4 h-4 opacity-70" />
             </button>
             {activeDropdown === 'budget' && (
-              <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-6 w-[420px] z-50">
+              <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 sm:p-6 w-full sm:w-[min(420px,calc(100vw-2rem))] max-h-[85vh] overflow-y-auto z-50">
                 <div className="flex justify-between text-sm font-bold text-slate-700 mb-6">
                   <span>₹{formatBudgetLabel(budgetRange[0])}</span>
                   <span>₹{formatBudgetLabel(budgetRange[1])}</span>
@@ -850,22 +850,25 @@ export default function PropertiesContent() {
 
           {/* Left Column - Properties List */}
           <div className="lg:col-span-12">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-              <div>
-                <p className="text-slate-600 text-sm font-medium mb-1">Showing 1 - {properties.length > 30 ? 30 : properties.length} of {properties.length}</p>
-                <h1 className="text-2xl font-bold text-slate-900">
-                  {listingMode === 'RENT' ? 'Flats for Rent' : 'Flats for Sale'}{selectedCity ? ` in ${selectedCity}` : ''}
+            <div className="lg:flex flex-col sm:flex-row sm:items-center justify-between mb-4 px-4 sm:px-0">
+              <div className="mb-4 sm:mb-0 pt-4 sm:pt-0">
+                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Showing results for</p>
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900 leading-tight">
+                  Properties{selectedCity ? ` in ${selectedCity}` : ' in Dwarka'}
                 </h1>
+                <p className="text-slate-400 text-xs font-bold mt-1">{properties.length} Properties Found</p>
               </div>
-              <div className="mt-3 sm:mt-0 flex items-center gap-2">
-                <span className="text-sm text-slate-600">Sort by:</span>
-                <button className="border border-slate-200 rounded px-3 py-1.5 text-sm bg-white flex items-center gap-4 hover:bg-slate-50">
-                  Relevance <ChevronDown className="w-4 h-4 text-slate-400" />
-                </button>
+              <div className="mt-3 sm:mt-0 flex items-center justify-end gap-2 border-t sm:border-t-0 pt-3 sm:pt-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-600 hidden sm:inline">Sort by:</span>
+                  <button type="button" className="border border-slate-200 rounded px-3 py-1.5 text-sm bg-white flex items-center gap-2 hover:bg-slate-50">
+                    Relevance <ChevronDown className="w-4 h-4 text-slate-400" />
+                  </button>
+                </div>
               </div>
             </div>
 
-            <p className="text-xs text-slate-500 mb-6 leading-relaxed hidden sm:block">
+            <p className="text-xs text-slate-500 mb-6 leading-relaxed">
               Looking for Property{selectedCity ? ` in ${selectedCity}` : ''}? Kanharaj has {properties.length} active listing{properties.length !== 1 ? 's' : ''}
               {countByBedrooms(properties, 2) > 0 ? `, including ${countByBedrooms(properties, 2)}× 2 BHK` : ''}
               {countByBedrooms(properties, 3) > 0 ? ` and ${countByBedrooms(properties, 3)}× 3 BHK` : ''} options.
@@ -899,8 +902,8 @@ export default function PropertiesContent() {
             className="fixed inset-0 z-40"
             onClick={() => setIsMoreFiltersOpen(false)}
           />
-          <div className="fixed left-1/2 -translate-x-1/2 top-[104px] z-50 w-[calc(100vw-32px)] max-w-[760px]">
-            <div className="relative bg-white rounded-lg shadow-2xl border border-slate-200 flex flex-col" style={{ height: '480px' }}>
+          <div className="fixed inset-0 z-50 sm:inset-auto sm:left-1/2 sm:-translate-x-1/2 sm:top-[104px] sm:w-[calc(100vw-32px)] sm:max-w-[760px] sm:bottom-auto">
+            <div className="relative bg-white sm:rounded-lg shadow-2xl border border-slate-200 flex flex-col h-[100dvh] sm:h-[min(480px,85vh)] sm:max-h-[85vh]">
 
               {/* No header — Housing.com popover has no title bar, just a close X in corner */}
               <button
@@ -911,10 +914,10 @@ export default function PropertiesContent() {
               </button>
 
               {/* Modal Body - Left Sidebar + Right Content */}
-              <div className="flex flex-1 min-h-0 overflow-hidden">
+              <div className="flex flex-col sm:flex-row flex-1 min-h-0 overflow-hidden pt-10 sm:pt-0">
 
                 {/* LEFT SIDEBAR - Tab Navigation */}
-                <div className="w-[200px] shrink-0 border-r border-slate-100 bg-slate-50 overflow-y-auto max-h-[400px]">
+                <div className="w-full sm:w-[200px] shrink-0 border-b sm:border-b-0 sm:border-r border-slate-100 bg-slate-50 overflow-x-auto sm:overflow-y-auto sm:max-h-[400px] flex sm:flex-col flex-row gap-0 sm:gap-0 max-h-[120px] sm:max-h-[400px]">
                   {[
                     { key: 'PROPERTY TYPE', count: tempPropertyTypes.length },
                     { key: 'BHK TYPE', count: tempBhkTypes.length },
@@ -935,7 +938,7 @@ export default function PropertiesContent() {
                       key={key}
                       onClick={() => setActiveFilterTab(key)}
                       className={cn(
-                        "w-full text-left px-4 py-3 text-[11px] font-semibold tracking-wide border-l-2 transition-all",
+                        "shrink-0 sm:w-full text-left px-4 py-3 text-[11px] font-semibold tracking-wide border-l-2 sm:border-l-2 border-b-2 sm:border-b-0 transition-all whitespace-nowrap",
                         activeFilterTab === key
                           ? "border-[#6B46C1] bg-white text-[#6B46C1]"
                           : "border-transparent text-slate-500 hover:bg-white hover:text-slate-700"

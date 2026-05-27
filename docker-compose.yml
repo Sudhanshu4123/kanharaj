@@ -17,6 +17,8 @@ services:
     build: ./backend
     container_name: kanharaj-backend
     restart: always
+    env_file:
+      - .env
     depends_on:
       - mysql
     environment:
@@ -34,11 +36,7 @@ services:
       - API_URL=${API_URL:-http://localhost:8080/api}
       - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_live_SrVXmToc9GKOXJ}
       - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET:-yT0gYlf3i10jc3x41PHtIIi4}
-      - SPRING_MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
-      - SPRING_MAIL_PORT=${MAIL_PORT:-587}
-      - SPRING_MAIL_USERNAME=${MAIL_USERNAME:-kanharaj1389@gmail.com}
-      - SPRING_MAIL_PASSWORD=${MAIL_PASSWORD}
-      - MAIL_FROM=${MAIL_FROM:-kanharaj1389@gmail.com}
+      # MAIL_* comes from env_file (.env) — do not duplicate here (empty override breaks OTP)
     ports:
       - "8080:8080"
     volumes:

@@ -188,6 +188,14 @@ export function buildRootMetadata(): Metadata {
       ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
       : undefined,
     category: 'Real Estate',
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'default',
+      title: SITE.name,
+    },
+    other: {
+      'mobile-web-app-capable': 'yes',
+    },
   }
 }
 

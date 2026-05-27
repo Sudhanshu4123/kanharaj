@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Search, Phone, Building2, User } from 'lucide-react'
+import { Home, Search, Phone, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/lib/store'
 
@@ -18,17 +18,18 @@ export function MobileNav() {
 
   const navItems = [
     { label: 'Home', icon: Home, href: '/' },
-    { label: 'Search', icon: Search, href: '/properties' },
+    { label: 'Properties', icon: Search, href: '/properties' },
     { label: 'Contact', icon: Phone, href: '/contact' },
-    { label: mounted && isAuthenticated ? 'Profile' : 'Login', icon: User, href: mounted ? (isAuthenticated ? '/profile' : '/login') : '/login' },
+    { label: 'Profile', icon: User, href: mounted ? (isAuthenticated ? '/profile' : '/login') : '/login' },
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 block lg:hidden bg-white border-t border-slate-200 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-      <div className="flex items-center justify-around h-16">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 block lg:hidden bg-white border-t border-slate-100 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+      <div className="flex items-center justify-around h-14">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href.split('?')[0]))
-          const highlight = (item as any).highlight
+          const isActive =
+            pathname === item.href ||
+            (item.href !== '/' && pathname.startsWith(item.href.split('?')[0]))
 
           return (
             <Link
@@ -36,29 +37,13 @@ export function MobileNav() {
               href={item.href}
               className={cn(
                 "flex flex-col items-center justify-center relative w-full h-full transition-all",
-                highlight
-                  ? "text-white"
-                  : isActive
-                  ? "text-rose-600"
-                  : "text-slate-500 hover:text-slate-900"
+                isActive
+                  ? "text-[#A21133]"
+                  : "text-slate-400 hover:text-slate-900"
               )}
             >
-              {highlight ? (
-                <div className="flex flex-col items-center -mt-4">
-                  <div className="w-14 h-14 rounded-full bg-rose-600 flex items-center justify-center shadow-lg shadow-rose-600/40 border-4 border-white">
-                    <item.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-[10px] font-bold text-rose-600 mt-0.5 leading-none">Sell Property</span>
-                </div>
-              ) : (
-                <>
-                  <item.icon className={cn("h-5 w-5 transition-transform", isActive && "scale-110")} />
-                  <span className="text-[10px] font-medium leading-none mt-1">{item.label}</span>
-                  {isActive && (
-                    <div className="absolute top-0 w-8 h-0.5 bg-rose-600 rounded-b-full" />
-                  )}
-                </>
-              )}
+              <item.icon className={cn("h-5 w-5", isActive && "fill-current")} />
+              <span className="text-[10px] font-bold leading-none mt-1">{item.label}</span>
             </Link>
           )
         })}

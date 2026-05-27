@@ -8,6 +8,7 @@ import Link from "next/link"
 import { Plus, ChevronDown, Menu, X, User, LogOut, FileText, Settings, ShieldAlert, Lock, Megaphone, ExternalLink } from "lucide-react"
 import { logoutFromSellerDashboard } from "@/lib/auth"
 import { normalizeProfileImageUrl } from "@/lib/profile-utils"
+import { MobileNav } from "@/components/mobile-nav"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -90,8 +91,15 @@ export default function RootLayout({
   }, [pathname])
 
   return (
-    <html lang="en">
-      <body className={`${inter.className} antialiased bg-[#F5F7FA] text-slate-800`}>
+    <html lang="en-IN">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+        <meta name="theme-color" content="#4a3b1e" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="Kanharaj Seller" />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
+      <body className={`${inter.className} antialiased bg-[#F5F7FA] text-slate-800 overflow-x-hidden`}>
         {loading && !isLoginPage ? (
           <div className="min-h-screen flex items-center justify-center bg-[#F5F7FA] font-bold text-slate-400">
             <div className="flex flex-col items-center gap-4">
@@ -298,11 +306,16 @@ export default function RootLayout({
             )}
 
             {/* Main Content Area */}
-            <main className="flex-1">
-              <div className={!isLoginPage ? "w-full" : ""}>
+            <main className={`flex-1 min-w-0 ${!isLoginPage ? 'pb-20 lg:pb-6' : ''}`}>
+              <div className={!isLoginPage ? "w-full max-w-full overflow-x-hidden px-3 sm:px-4 md:px-6 py-4" : ""}>
                 {children}
               </div>
             </main>
+            {!isLoginPage && (
+              <>
+                <MobileNav />
+              </>
+            )}
           </div>
         )}
         <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>

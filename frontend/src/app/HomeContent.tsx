@@ -195,7 +195,7 @@ export default function HomeContent() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative min-h-[500px] flex items-center pt-24 pb-12">
+      <section className="relative min-h-[420px] sm:min-h-[500px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12">
         <div className="absolute inset-0 overflow-hidden">
           <AnimatePresence initial={false} mode="wait">
             <motion.div
@@ -348,9 +348,8 @@ export default function HomeContent() {
               { title: 'Rental Management', icon: Home, desc: 'Top <strong>brokers in Dwarka for rent</strong> to help you find verified tenants or dream rentals.' },
               { title: 'Investment Advisory', icon: Star, desc: 'High-ROI <strong>real estate investing</strong> opportunities in Dwarka Expressway & Delhi NCR.' },
             ].map((service, index) => (
-              <Link href={`/services/coming-soon?title=${encodeURIComponent(service.title)}`} className="block">
+              <Link key={service.title} href={`/services/coming-soon?title=${encodeURIComponent(service.title)}`} className="block">
                 <motion.div
-                  key={service.title}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -697,7 +696,7 @@ export default function HomeContent() {
                       <span className="text-white font-bold text-lg">{city.name}</span>
                       <span className="text-white/80 text-xs font-bold">({city.count} listings)</span>
                     </div>
-                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute top-3 right-3 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       <ChevronRight className="h-5 w-5 text-white" />
                     </div>
                   </div>

@@ -1,24 +1,20 @@
 import type { MetadataRoute } from 'next'
-import { SITE } from '@/lib/seo'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${SITE.name} — Real Estate in Dwarka`,
-    short_name: SITE.name,
-    description: SITE.description,
+    name: 'Kanharaj Seller Dashboard',
+    short_name: 'Kanharaj Seller',
+    description: 'Manage listings, leads and subscription on Kanharaj',
     start_url: '/',
     display: 'standalone',
     scope: '/',
-    id: '/',
     prefer_related_applications: false,
-    background_color: '#ffffff',
-    theme_color: '#E11D48',
+    background_color: '#F5F7FA',
+    theme_color: '#4a3b1e',
     lang: 'en-IN',
     orientation: 'portrait',
-    categories: ['business', 'real estate'],
     icons: [
       { src: '/icon.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-      { src: '/apple-icon.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
     ],
   }
 }
