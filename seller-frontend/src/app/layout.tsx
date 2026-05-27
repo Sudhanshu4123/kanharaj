@@ -98,8 +98,25 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="Kanharaj Seller" />
         <meta name="mobile-web-app-capable" content="yes" />
+        {/* Google Tag Manager */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-5B965PZW');` }} />
+        {/* End Google Tag Manager */}
       </head>
       <body className={`${inter.className} antialiased bg-[#F5F7FA] text-slate-800 overflow-x-hidden`}>
+        {/* Google Tag Manager (noscript) */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-5B965PZW"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
+        {/* End Google Tag Manager (noscript) */}
         {loading && !isLoginPage ? (
           <div className="min-h-screen flex items-center justify-center bg-[#F5F7FA] font-bold text-slate-400">
             <div className="flex flex-col items-center gap-4">
