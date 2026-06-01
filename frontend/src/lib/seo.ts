@@ -5,9 +5,9 @@ export const SITE = {
   name: 'Kanharaj',
   legalName: 'Kanharaj Real Estate',
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://kanharaj.com',
-  tagline: 'Buy/Sell/Rent Property Online in Dwarka, Delhi',
+  tagline: 'Buy/Sell/Rent Property Online in All india',
   description:
-    "Dwarka's trusted real estate platform. Buy, rent & sell verified flats, builder floors, plots & villas in Dwarka Sector 7, 10, 19 and more. Zero brokerage options. Expert guidance for home loans.",
+    "Your trusted real estate platform. Buy, rent & sell verified flats, builder floors, plots & villas in All india. Zero brokerage options. Expert guidance for home loans.",
   keywords: [
     'property dealer in dwarka',
     'best real estate agent dwarka',
@@ -48,15 +48,15 @@ export const SITE_OG_IMAGE = `${SITE.url}${SITE.ogImagePath}`
 /** Main navigation — helps Google understand sitelinks structure */
 export const SITE_NAV_LINKS = [
   {
-    name: 'Kanharaj — Verified Properties in Dwarka',
+    name: 'Kanharaj — Verified Properties All india',
     description:
-      'Explore verified flats, apartments & builder floors on Kanharaj. Start your home search in Dwarka, Delhi.',
+      'Explore verified flats, apartments & builder floors on Kanharaj. Start your home search in All india.',
     url: SITE.url,
   },
   {
     name: 'Flats, Plots & Villas for Sale',
     description:
-      'Buy your dream home with Kanharaj. Browse verified residential & commercial listings in Dwarka.',
+      'Buy your dream home with Kanharaj. Browse verified residential & commercial listings in All india.',
     url: `${SITE.url}/properties?listing=buy`,
   },
   {
@@ -68,9 +68,14 @@ export const SITE_NAV_LINKS = [
   {
     name: 'Sell or List Your Property',
     description:
-      'List your property on Kanharaj. Reach serious buyers & tenants across Dwarka and Delhi NCR.',
+      'List your property on Kanharaj. Reach serious buyers & tenants across All india.',
     url: `${SITE.url}/for-sellers`,
   },
+  {
+    name: 'Find Home on kanharaj.com ',
+    description: 'Buy Your Dream Home with kanharaj.com.Verified Listings.',
+    url: `${SITE.url}/properties`,
+  }
 ] as const
 
 export function absoluteUrl(path: string): string {
@@ -366,8 +371,8 @@ export function buildPropertyJsonLd(property: {
     },
     ...(property.bhk
       ? {
-          numberOfRooms: property.bhk,
-        }
+        numberOfRooms: property.bhk,
+      }
       : {}),
     potentialAction: {
       '@type': offerType,
