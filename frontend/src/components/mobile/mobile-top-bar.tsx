@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link'
-import { Menu, Bell } from 'lucide-react'
+import { Menu, Phone } from 'lucide-react'
 import { BRAND_LOGO_SRC } from '@/lib/utils'
 
 type MobileTopBarProps = {
@@ -24,9 +24,9 @@ export function MobileTopBar({ onMenuClick }: MobileTopBarProps) {
           <img src={BRAND_LOGO_SRC} alt="Kanharaj" className="w-7 h-7 rounded-lg object-cover" />
           <span className="text-xl font-black text-[#A21133] tracking-tight font-serif">Kanharaj</span>
         </Link>
-        <Link href="/contact" className="p-1 -mr-1 text-[#A21133] touch-target" aria-label="Notifications">
-          <Bell className="w-6 h-6" />
-        </Link>
+        <a href="tel:+919599801767" className="p-1 -mr-1 text-[#A21133] touch-target" aria-label="Call Support">
+          <Phone className="w-6 h-6" />
+        </a>
       </div>
     </div>
   )

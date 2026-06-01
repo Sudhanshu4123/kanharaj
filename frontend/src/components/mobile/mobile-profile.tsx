@@ -39,8 +39,8 @@ export function MobileProfile({ onEditProfile, onChangePassword }: MobileProfile
     { label: 'Personal Information', icon: User, onClick: onEditProfile },
     { label: 'Change Password', icon: Lock, onClick: onChangePassword },
     { label: 'Notification Settings', icon: Bell, href: '/profile?tab=edit' },
-    { label: 'Payment Methods', icon: CreditCard, href: '/contact' },
-    { label: 'Help & Support', icon: HelpCircle, href: '/contact' },
+    { label: 'Payment Methods', icon: CreditCard, href: 'mailto:kanharaj1389@gmail.com?subject=Payment%20Methods' },
+    { label: 'Help & Support', icon: HelpCircle, href: 'tel:+919599801767' },
   ]
 
   return (
