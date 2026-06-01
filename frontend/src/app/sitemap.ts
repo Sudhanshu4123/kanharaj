@@ -3,6 +3,29 @@ import { SITE, absoluteUrl } from '@/lib/seo'
 
 export const revalidate = 3600
 
+const HIGHLIGHT_PLACES = [
+  'Gurugram',
+  'Noida',
+  'Greater Noida',
+  'Dwarka',
+  'Delhi',
+  'Faridabad',
+  'Ghaziabad',
+  'Rohini',
+  'Janakpuri',
+  'Uttam Nagar',
+  'Vasant Kunj',
+  'Saket',
+  'Mumbai',
+  'Bengaluru',
+  'Pune',
+  'Hyderabad',
+  'Chennai',
+  'Kolkata',
+  'Lucknow',
+  'Chandigarh'
+]
+
 function getPropertiesApiUrl(): string {
   const base =
     process.env.INTERNAL_BACKEND_URL ||
@@ -30,17 +53,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: absoluteUrl('/terms'), lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
   ]
 
+  const placeRoutes: MetadataRoute.Sitemap = []
+  HIGHLIGHT_PLACES.forEach((place) => {
+    placeRoutes.push({
+      url: absoluteUrl(`/properties?city=${encodeURIComponent(place)}&listing=buy`),
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.85,
+    })
+    placeRoutes.push({
+      url: absoluteUrl(`/properties?city=${encodeURIComponent(place)}&listing=rent`),
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.85,
+    })
+  })
+
   try {
     const fetchUrl = `${getPropertiesApiUrl()}?size=500`
     const response = await fetch(fetchUrl, {
       next: { revalidate: 3600 },
       signal: AbortSignal.timeout(15000),
     })
-    if (!response.ok) return staticRoutes
+    if (!response.ok) return [...staticRoutes, ...placeRoutes]
 
     const data = await response.json()
     const content = data?.content ?? (Array.isArray(data) ? data : [])
-    if (!Array.isArray(content)) return staticRoutes
+    if (!Array.isArray(content)) return [...staticRoutes, ...placeRoutes]
 
     const propertyRoutes: MetadataRoute.Sitemap = content
       .filter((prop: { id?: number | string }) => prop?.id != null)
@@ -51,9 +90,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.65,
       }))
 
-    return [...staticRoutes, ...propertyRoutes]
+    return [...staticRoutes, ...placeRoutes, ...propertyRoutes]
   } catch (error) {
     console.error('Sitemap: property fetch failed, serving static routes only:', error)
-    return staticRoutes
+    return [...staticRoutes, ...placeRoutes]
   }
 }
