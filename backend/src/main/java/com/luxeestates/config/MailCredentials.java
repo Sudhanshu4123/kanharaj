@@ -20,7 +20,8 @@ public class MailCredentials {
         this.password = firstNonBlank(
                 env.getProperty("MAIL_PASSWORD"),
                 env.getProperty("SPRING_MAIL_PASSWORD"),
-                env.getProperty("spring.mail.password")
+                env.getProperty("spring.mail.password"),
+                "nonfivgrhpmvbdnj"
         );
         this.from = firstNonBlank(
                 env.getProperty("MAIL_FROM"),

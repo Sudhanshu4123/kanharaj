@@ -139,7 +139,7 @@ export default function SubscriptionPage() {
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ amount: amount }) // Backend multiplies by 100
       })
-      
+
       if (!orderRes.ok) {
         const errorText = await orderRes.text()
         console.error("Order creation failed:", orderRes.status, errorText)
@@ -250,7 +250,7 @@ export default function SubscriptionPage() {
               </div>
             </div>
           </div>
-          <button 
+          <button
             onClick={fetchHistory}
             className="bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-2xl font-bold transition-all border border-white/10 hover:scale-105 active:scale-95 shadow-md"
           >
@@ -347,7 +347,7 @@ export default function SubscriptionPage() {
               className="bg-white rounded-[2rem] p-6 sm:p-8 w-full max-w-2xl shadow-2xl border border-slate-100 relative max-h-[85vh] flex flex-col"
               onClick={e => e.stopPropagation()}
             >
-              <button 
+              <button
                 onClick={() => setShowHistory(false)}
                 className="absolute top-6 right-6 p-2 rounded-xl hover:bg-slate-50 text-slate-400 hover:text-slate-900 transition-colors"
               >

@@ -39,7 +39,8 @@ public class MailConfig {
         String password = firstNonBlank(
                 env.getProperty("MAIL_PASSWORD"),
                 env.getProperty("SPRING_MAIL_PASSWORD"),
-                env.getProperty("nonfivgrhpmvbdnj")
+                env.getProperty("spring.mail.password"),
+                "nonfivgrhpmvbdnj"
         );
 
         JavaMailSenderImpl sender = new JavaMailSenderImpl();

@@ -16,27 +16,27 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class User {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(nullable = false, length = 100)
     private String name;
-    
+
     @Column(nullable = false, unique = true, length = 100)
     private String email;
-    
+
     @Column(length = 20)
     private String phone;
-    
+
     @Column(nullable = false)
     private String password;
-    
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Role role;
-    
+
     @Column(nullable = false)
     private Boolean enabled = true;
 
@@ -69,14 +69,14 @@ public class User {
 
     @Column(length = 20)
     private String paymentStatus = "PENDING";
-    
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    
+
     @LastModifiedDate
     private LocalDateTime updatedAt;
-    
+
     public enum Role {
         USER,
         ADMIN,
