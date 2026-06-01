@@ -802,17 +802,62 @@ export default function PropertiesContent() {
             )}
           </div>
 
-          <button className="flex items-center gap-1.5 border border-slate-200 rounded px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 whitespace-nowrap">
+          <button
+            onClick={() => setVerified(!verified)}
+            className={cn(
+              "flex items-center gap-1.5 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+              verified ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
+            )}
+          >
             Verified <Info className="w-3.5 h-3.5 text-slate-400" />
           </button>
 
-          <button className="flex items-center gap-2 border border-slate-200 rounded px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 whitespace-nowrap">
-            Project
-          </button>
+          {/* Project Dropdown */}
+          <div className="relative filter-dropdown-container">
+            <button
+              onClick={() => setActiveDropdown(activeDropdown === 'project' ? null : 'project')}
+              className={cn(
+                "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+                activeDropdown === 'project' || projects.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
+              )}
+            >
+              {projects.length > 0 ? `Projects (${projects.length})` : 'Project'} <ChevronDown className="w-4 h-4 opacity-70" />
+            </button>
+            {activeDropdown === 'project' && (
+              <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(380px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
+                <div className="flex flex-col gap-2">
+                  {[
+                    'Vaibhav Builders Floors', 'Goyal Smart Housing', 'Are Infra Rana Ji Enclave',
+                    'ARE Riviera Luxury Floors', 'G3 Builder Floors I', 'Manish Luxurious Floors',
+                    'Tulip Afford', 'Suraj Uttan', 'Goyal Prem'
+                  ].map(proj => (
+                    <label key={proj} className={cn("flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full", projects.includes(proj) ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200")}>
+                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", projects.includes(proj) ? "bg-[#6B46C1] border-[#6B46C1] text-white" : "border-slate-300 bg-white")}>
+                        {projects.includes(proj) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                      </div>
+                      <input type="checkbox" className="hidden" checked={projects.includes(proj)} onChange={() => {
+                        setProjects(prev => prev.includes(proj) ? prev.filter(p => p !== proj) : [...prev, proj])
+                      }} />
+                      <span className="text-sm font-medium text-slate-700 select-none">{proj}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
-          <button className="flex items-center gap-1.5 border border-slate-200 rounded px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 whitespace-nowrap">
+          <button
+            onClick={() => {
+              setListedBy(prev => prev.includes('Featured Agents') ? prev.filter(x => x !== 'Featured Agents') : [...prev, 'Featured Agents'])
+            }}
+            className={cn(
+              "flex items-center gap-1.5 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+              listedBy.includes('Featured Agents') ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
+            )}
+          >
             ⭐ Featured Agents
           </button>
+
 
           <button
             onClick={handleOpenMoreFilters}
