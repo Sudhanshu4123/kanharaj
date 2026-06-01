@@ -70,6 +70,9 @@ public class User {
     @Column(length = 20)
     private String paymentStatus = "PENDING";
 
+    @Column(nullable = false)
+    private Integer freePostsUsed = 0;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

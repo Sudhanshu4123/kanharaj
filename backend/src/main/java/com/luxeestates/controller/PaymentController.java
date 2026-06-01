@@ -259,7 +259,9 @@ public class PaymentController {
         return ResponseEntity.ok(Map.of(
             "plan", plan,
             "status", status,
-            "expiry", expiry != null ? expiry : "NONE"
+            "expiry", expiry != null ? expiry : "NONE",
+            "freePostsUsed", user.getFreePostsUsed() != null ? user.getFreePostsUsed() : 0,
+            "freePostsLimit", 3
         ));
     }
 

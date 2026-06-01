@@ -36,6 +36,7 @@ export interface User {
   experienceYears?: string;
   subscriptionPlan?: string;
   subscriptionExpiry?: string;
+  freePostsUsed?: number;
 }
 
 export interface Inquiry {

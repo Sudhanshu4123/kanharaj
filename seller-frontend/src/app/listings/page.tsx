@@ -296,11 +296,6 @@ export default function ListingsPage() {
           localStorage.setItem("seller_user", JSON.stringify(updatedUser))
         }
 
-        if (activePlan === "NONE") {
-          setHasSubscription(false)
-          setLoading(false)
-          return
-        }
         setHasSubscription(true)
 
         const rawProps = await fetchMyProperties(token!)

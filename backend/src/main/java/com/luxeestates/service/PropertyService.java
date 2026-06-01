@@ -50,17 +50,28 @@ public class PropertyService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
-        // Strict Backend Validation: Active Subscription Required for Sellers
+        // Strict Backend Validation: Active Subscription Required for Sellers, or Free Posts limit (3 posts)
         if (user.getRole() != User.Role.ADMIN) {
             String plan = user.getSubscriptionPlan();
             java.time.LocalDateTime expiry = user.getSubscriptionExpiry();
             
-            if (plan == null || "NONE".equalsIgnoreCase(plan)) {
-                throw new RuntimeException("An active subscription plan is required to post properties.");
+            boolean hasActiveSubscription = false;
+            if (plan != null && !"NONE".equalsIgnoreCase(plan)) {
+                if (expiry == null || expiry.isAfter(java.time.LocalDateTime.now())) {
+                    hasActiveSubscription = true;
+                }
             }
             
-            if (expiry != null && expiry.isBefore(java.time.LocalDateTime.now())) {
-                throw new RuntimeException("Your subscription has expired. Please renew your subscription to post properties.");
+            if (!hasActiveSubscription) {
+                // Check free posts count
+                int used = user.getFreePostsUsed() != null ? user.getFreePostsUsed() : 0;
+                if (used >= 3) {
+                    throw new RuntimeException("You have used all 3 free posts. Please purchase a subscription plan to continue posting.");
+                }
+                
+                // Allow posting and increment free posts count
+                user.setFreePostsUsed(used + 1);
+                userRepository.save(user);
             }
         }
         

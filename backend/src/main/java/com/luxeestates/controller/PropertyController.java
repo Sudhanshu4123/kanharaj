@@ -101,9 +101,9 @@ public class PropertyController {
             return ResponseEntity.status(401).build();
         }
         
-        // Restrict to SELLER or ADMIN only
+        // Restrict to USER, SELLER, or ADMIN only (so normal users can use their free posts)
         boolean isAuthorized = userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_SELLER") || a.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_SELLER") || a.getAuthority().equals("ROLE_ADMIN"));
         
         if (!isAuthorized) {
             return ResponseEntity.status(403).build();

@@ -38,7 +38,7 @@ export default function PostPropertyPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { createProperty } = usePropertyStore()
-  const { token, isAuthenticated, user } = useAuthStore()
+  const { token, isAuthenticated, user, refreshUser } = useAuthStore()
   const router = useRouter()
 
   const [mounted, setMounted] = useState(false)
@@ -49,12 +49,32 @@ export default function PostPropertyPage() {
       if (!isAuthenticated) {
         alert('Please login to post a property.')
         router.push('/login?redirect=/properties/post')
-      } else if (user && user.role !== 'SELLER' && user.role !== 'ADMIN' && user.role !== 'seller' && user.role !== 'admin') {
-        alert('Only Sellers can post properties. Please upgrade your account.')
+      } else {
+        refreshUser()
+      }
+    }
+  }, [isAuthenticated, router, mounted, refreshUser])
+
+  useEffect(() => {
+    if (mounted && isAuthenticated && user) {
+      const role = String(user.role).toUpperCase()
+      const isAllowedRole = ['USER', 'SELLER', 'ADMIN'].includes(role)
+      if (!isAllowedRole) {
+        alert('Unauthorized account role.')
+        router.push('/')
+        return
+      }
+
+      const plan = String(user.subscriptionPlan || 'NONE').toUpperCase()
+      const freePostsUsed = user.freePostsUsed ?? 0
+      const isAdmin = role === 'ADMIN'
+
+      if (!isAdmin && plan === 'NONE' && freePostsUsed >= 3) {
+        alert('You have used all 3 free posts. Please purchase a subscription to continue.')
         router.push('/for-sellers')
       }
     }
-  }, [isAuthenticated, router, mounted, user])
+  }, [mounted, isAuthenticated, user, router])
 
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1))
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0))

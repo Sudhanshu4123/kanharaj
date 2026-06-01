@@ -30,6 +30,7 @@ public class UserDto {
     // Subscription Info (Source of truth: Seller table)
     private String subscriptionPlan;
     private LocalDateTime subscriptionExpiry;
+    private Integer freePostsUsed;
     
     public static UserDto fromEntity(User user) {
         return UserDto.builder()
@@ -45,6 +46,7 @@ public class UserDto {
                 .experienceYears(user.getExperienceYears())
                 .subscriptionPlan(user.getSubscriptionPlan() != null ? user.getSubscriptionPlan() : "NONE")
                 .subscriptionExpiry(user.getSubscriptionExpiry())
+                .freePostsUsed(user.getFreePostsUsed() != null ? user.getFreePostsUsed() : 0)
                 .build();
     }
 }

@@ -115,12 +115,7 @@ export default function DashboardPage() {
       const sellerId = parsedUser.id
       const token = localStorage.getItem("seller_token")
 
-      // If no subscription, still show the dashboard with zeroes
-      if (parsedUser.subscriptionPlan === "NONE") {
-        setLoading(false)
-        return
-      }
-
+      // If no subscription, still fetch user properties and leads to show their free post stats
       try {
         const paymentStatus = token ? await fetchSellerPaymentStatus(token) : null
         if (paymentStatus?.plan) {

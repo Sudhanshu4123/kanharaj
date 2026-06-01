@@ -52,6 +52,9 @@ export default function AddPropertyPage() {
 
   const [loadingSubscription, setLoadingSubscription] = useState(true)
   const [hasSubscription, setHasSubscription] = useState(false)
+  const [freePostsUsed, setFreePostsUsed] = useState(0)
+  const [freePostsLimit, setFreePostsLimit] = useState(3)
+  const [subscriptionPlan, setSubscriptionPlan] = useState("NONE")
 
   useEffect(() => {
     async function checkSubscription() {
@@ -70,16 +73,24 @@ export default function AddPropertyPage() {
         })
         
         let plan = user.subscriptionPlan
+        let postsUsed = 0
+        let postsLimit = 3
         if (res.ok) {
           const statusData = await res.json()
           plan = statusData.plan
+          postsUsed = statusData.freePostsUsed ?? 0
+          postsLimit = statusData.freePostsLimit ?? 3
+          
+          setFreePostsUsed(postsUsed)
+          setFreePostsLimit(postsLimit)
+          setSubscriptionPlan(plan)
           
           // Keep local storage synchronized
           const updatedUser = { ...user, subscriptionPlan: plan }
           localStorage.setItem("seller_user", JSON.stringify(updatedUser))
         }
         
-        if (plan === "NONE") {
+        if (plan === "NONE" && postsUsed >= postsLimit) {
           setHasSubscription(false)
         } else {
           setHasSubscription(true)
@@ -412,6 +423,12 @@ ${formData.description}`
 
           <h1 className="text-xl font-black text-slate-900 leading-tight">Post your property</h1>
           <p className="text-sm font-medium text-slate-500 mb-6">Sell or rent your property</p>
+
+          {subscriptionPlan === "NONE" && (
+            <div className="bg-rose-50 text-rose-600 text-xs font-bold p-3 rounded-xl mb-4 border border-rose-100">
+              Free Listing: {freePostsLimit - freePostsUsed} of {freePostsLimit} free posts remaining.
+            </div>
+          )}
 
           <div className="flex items-center gap-2 mb-8">
             <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
