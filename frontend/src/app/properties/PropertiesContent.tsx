@@ -651,156 +651,75 @@ export default function PropertiesContent() {
       <div className="bg-white border-b border-slate-200 sticky top-[7.5rem] sm:top-[7.75rem] z-30 shadow-sm">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-2 flex items-center gap-3 flex-nowrap lg:flex-wrap overflow-x-auto no-scrollbar">
 
-          {/* Property Type Dropdown */}
-          <div className="relative filter-dropdown-container">
-            <button
-              onClick={() => setActiveDropdown(activeDropdown === 'property' ? null : 'property')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'property' || propertyTypes.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
-            >
-              {propertyTypes.length > 0 ? `Property Type (${propertyTypes.length})` : 'Property Type'} <ChevronDown className="w-4 h-4 opacity-70" />
-            </button>
-            {activeDropdown === 'property' && (
-              <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(480px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
-                <div className="flex flex-wrap gap-3">
-                  {['Apartment', 'Independent House', 'Independent Floor', 'Plot', 'Studio', 'Duplex', 'Penthouse', 'Villa', 'Agricultural Land'].map(type => (
-                    <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", propertyTypes.includes(type) ? "bg-[#6B46C1] border-[#6B46C1] text-white" : "border-slate-300 bg-white")}>
-                        {propertyTypes.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                      </div>
-                      <input type="checkbox" className="hidden" checked={propertyTypes.includes(type)} onChange={() => {
-                        setPropertyTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
-                      }} />
-                      <span className="text-sm font-medium text-slate-700 select-none">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+          {/* Property Type Button */}
+          <button
+            onClick={() => {
+              setActiveFilterTab('PROPERTY TYPE')
+              handleOpenMoreFilters()
+            }}
+            className={cn(
+              "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+              propertyTypes.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
             )}
-          </div>
+          >
+            {propertyTypes.length > 0 ? `Property Type (${propertyTypes.length})` : 'Property Type'} <ChevronDown className="w-4 h-4 opacity-70" />
+          </button>
 
-          {/* BHK Type Dropdown */}
-          <div className="relative filter-dropdown-container">
-            <button
-              onClick={() => setActiveDropdown(activeDropdown === 'bhk' ? null : 'bhk')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'bhk' || bhkTypes.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
-            >
-              {bhkTypes.length > 0 ? `BHK Type (${bhkTypes.length})` : 'BHK Type'} <ChevronDown className="w-4 h-4 opacity-70" />
-            </button>
-            {activeDropdown === 'bhk' && (
-              <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(380px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
-                <div className="flex flex-wrap gap-3">
-                  {['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK', '5 BHK', '5+ BHK'].map(type => (
-                    <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", bhkTypes.includes(type) ? "bg-[#6B46C1] border-[#6B46C1] text-white" : "border-slate-300 bg-white")}>
-                        {bhkTypes.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                      </div>
-                      <input type="checkbox" className="hidden" checked={bhkTypes.includes(type)} onChange={() => {
-                        setBhkTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
-                      }} />
-                      <span className="text-sm font-medium text-slate-700 select-none">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+          {/* BHK Type Button */}
+          <button
+            onClick={() => {
+              setActiveFilterTab('BHK TYPE')
+              handleOpenMoreFilters()
+            }}
+            className={cn(
+              "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+              bhkTypes.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
             )}
-          </div>
+          >
+            {bhkTypes.length > 0 ? `BHK Type (${bhkTypes.length})` : 'BHK Type'} <ChevronDown className="w-4 h-4 opacity-70" />
+          </button>
 
-          {/* Budget Dropdown */}
-          <div className="relative filter-dropdown-container">
-            <button
-              onClick={() => setActiveDropdown(activeDropdown === 'budget' ? null : 'budget')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'budget' || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
-            >
-              ₹{formatBudgetLabel(budgetRange[0])} - ₹{formatBudgetLabel(budgetRange[1])} <ChevronDown className="w-4 h-4 opacity-70" />
-            </button>
-            {activeDropdown === 'budget' && (
-              <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 sm:p-6 w-full sm:w-[min(420px,calc(100vw-2rem))] max-h-[85vh] overflow-y-auto z-50">
-                <div className="flex justify-between text-sm font-bold text-slate-700 mb-6">
-                  <span>₹{formatBudgetLabel(budgetRange[0])}</span>
-                  <span>₹{formatBudgetLabel(budgetRange[1])}</span>
-                </div>
-
-                <Slider.Root
-                  className="relative flex items-center select-none touch-none w-full h-5"
-                  value={budgetRange}
-                  max={BUDGET_MAX_LAKH}
-                  step={BUDGET_STEP}
-                  onValueChange={(val: [number, number]) => setBudgetRange(val)}
-                >
-                  <Slider.Track className="bg-slate-200 relative grow rounded-full h-1.5">
-                    <Slider.Range className="absolute bg-[#6B46C1] rounded-full h-full" />
-                  </Slider.Track>
-                  <Slider.Thumb className="block w-5 h-5 bg-[#E6E1F4] border-2 border-[#6B46C1] rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-[#6B46C1]/50 flex items-center justify-center cursor-grab">
-                    <div className="w-2 h-2 bg-[#6B46C1] rounded-full" />
-                  </Slider.Thumb>
-                  <Slider.Thumb className="block w-5 h-5 bg-[#E6E1F4] border-2 border-[#6B46C1] rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-[#6B46C1]/50 flex items-center justify-center cursor-grab">
-                    <div className="w-2 h-2 bg-[#6B46C1] rounded-full" />
-                  </Slider.Thumb>
-                </Slider.Root>
-
-                <div className="flex justify-between text-xs text-slate-400 mt-2 font-medium px-2">
-                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹0</span></div>
-                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹25 Lakh</span></div>
-                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹50 Lakh</span></div>
-                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹1Cr+</span></div>
-                </div>
-              </div>
+          {/* Budget Button */}
+          <button
+            onClick={() => {
+              setActiveFilterTab('BUDGET RANGE')
+              handleOpenMoreFilters()
+            }}
+            className={cn(
+              "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+              budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
             )}
-          </div>
+          >
+            {budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH ? `₹${formatBudgetLabel(budgetRange[0])} - ₹${formatBudgetLabel(budgetRange[1])}` : 'Budget'} <ChevronDown className="w-4 h-4 opacity-70" />
+          </button>
 
-          {/* Sale Type Dropdown */}
-          <div className="relative filter-dropdown-container">
-            <button
-              onClick={() => setActiveDropdown(activeDropdown === 'sale' ? null : 'sale')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'sale' || saleTypes.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
-            >
-              {saleTypes.length > 0 ? `Sale Type (${saleTypes.length})` : 'Sale Type'} <ChevronDown className="w-4 h-4 opacity-70" />
-            </button>
-            {activeDropdown === 'sale' && (
-              <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-[240px] z-50">
-                <div className="flex flex-col gap-3">
-                  {['New Bookings', 'Resale'].map(type => (
-                    <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full">
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", saleTypes.includes(type) ? "bg-[#6B46C1] border-[#6B46C1] text-white" : "border-slate-300 bg-white")}>
-                        {saleTypes.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                      </div>
-                      <input type="checkbox" className="hidden" checked={saleTypes.includes(type)} onChange={() => {
-                        setSaleTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
-                      }} />
-                      <span className="text-sm font-medium text-slate-700 select-none">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+          {/* Sale Type Button */}
+          <button
+            onClick={() => {
+              setActiveFilterTab('SALE TYPE')
+              handleOpenMoreFilters()
+            }}
+            className={cn(
+              "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+              saleTypes.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
             )}
-          </div>
+          >
+            {saleTypes.length > 0 ? `Sale Type (${saleTypes.length})` : 'Sale Type'} <ChevronDown className="w-4 h-4 opacity-70" />
+          </button>
 
-          {/* Construction Status Dropdown */}
-          <div className="relative filter-dropdown-container">
-            <button
-              onClick={() => setActiveDropdown(activeDropdown === 'construction' ? null : 'construction')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'construction' || constructionStatus.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
-            >
-              {constructionStatus.length > 0 ? `Construction St... (${constructionStatus.length})` : 'Construction St...'} <ChevronDown className="w-4 h-4 opacity-70" />
-            </button>
-            {activeDropdown === 'construction' && (
-              <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-[240px] z-50">
-                <div className="flex flex-col gap-3">
-                  {['Ready to move', 'Under Construction'].map(type => (
-                    <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full">
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", constructionStatus.includes(type) ? "bg-[#6B46C1] border-[#6B46C1] text-white" : "border-slate-300 bg-white")}>
-                        {constructionStatus.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                      </div>
-                      <input type="checkbox" className="hidden" checked={constructionStatus.includes(type)} onChange={() => {
-                        setConstructionStatus(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
-                      }} />
-                      <span className="text-sm font-medium text-slate-700 select-none">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+          {/* Construction Status Button */}
+          <button
+            onClick={() => {
+              setActiveFilterTab('CONSTRUCTION STATUS')
+              handleOpenMoreFilters()
+            }}
+            className={cn(
+              "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+              constructionStatus.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
             )}
-          </div>
+          >
+            {constructionStatus.length > 0 ? `Construction Status (${constructionStatus.length})` : 'Construction Status'} <ChevronDown className="w-4 h-4 opacity-70" />
+          </button>
 
           <button
             onClick={() => setVerified(!verified)}
@@ -812,39 +731,19 @@ export default function PropertiesContent() {
             Verified <Info className="w-3.5 h-3.5 text-slate-400" />
           </button>
 
-          {/* Project Dropdown */}
-          <div className="relative filter-dropdown-container">
-            <button
-              onClick={() => setActiveDropdown(activeDropdown === 'project' ? null : 'project')}
-              className={cn(
-                "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
-                activeDropdown === 'project' || projects.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
-              )}
-            >
-              {projects.length > 0 ? `Projects (${projects.length})` : 'Project'} <ChevronDown className="w-4 h-4 opacity-70" />
-            </button>
-            {activeDropdown === 'project' && (
-              <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(380px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
-                <div className="flex flex-col gap-2">
-                  {[
-                    'Vaibhav Builders Floors', 'Goyal Smart Housing', 'Are Infra Rana Ji Enclave',
-                    'ARE Riviera Luxury Floors', 'G3 Builder Floors I', 'Manish Luxurious Floors',
-                    'Tulip Afford', 'Suraj Uttan', 'Goyal Prem'
-                  ].map(proj => (
-                    <label key={proj} className={cn("flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full", projects.includes(proj) ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200")}>
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", projects.includes(proj) ? "bg-[#6B46C1] border-[#6B46C1] text-white" : "border-slate-300 bg-white")}>
-                        {projects.includes(proj) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                      </div>
-                      <input type="checkbox" className="hidden" checked={projects.includes(proj)} onChange={() => {
-                        setProjects(prev => prev.includes(proj) ? prev.filter(p => p !== proj) : [...prev, proj])
-                      }} />
-                      <span className="text-sm font-medium text-slate-700 select-none">{proj}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+          {/* Project Button */}
+          <button
+            onClick={() => {
+              setActiveFilterTab('NEW PROJECTS/SOCIETIES')
+              handleOpenMoreFilters()
+            }}
+            className={cn(
+              "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+              projects.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
             )}
-          </div>
+          >
+            {projects.length > 0 ? `Projects (${projects.length})` : 'Project'} <ChevronDown className="w-4 h-4 opacity-70" />
+          </button>
 
           <button
             onClick={() => {
