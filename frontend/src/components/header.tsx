@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -149,8 +149,7 @@ const navLinks = [
   {
     label: 'For Sellers',
     subLinks: [
-      { href: '/for-sellers', label: 'Post Property FREE' },
-      { href: '/about', label: 'Seller Guide' }
+      { href: '/for-sellers', label: 'Post Property FREE' }
     ]
   },
   {
@@ -700,8 +699,8 @@ export function Header() {
                           <ChevronRight className="h-4 w-4 text-slate-400" />
                         </Link>
 
-                        <Link
-                          href="/contact?subject=unsubscribe-alerts"
+                        <a
+                          href="mailto:kanharaj1389@gmail.com?subject=Unsubscribe%20Alerts"
                           onClick={() => setOpenDropdown(null)}
                           className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm"
                         >
@@ -710,10 +709,10 @@ export function Header() {
                             <span>Unsubscribe Alerts</span>
                           </div>
                           <ChevronRight className="h-4 w-4 text-slate-400" />
-                        </Link>
+                        </a>
 
-                        <Link
-                          href="/contact?subject=fraud-report"
+                        <a
+                          href="mailto:kanharaj1389@gmail.com?subject=Report%20Fraud"
                           onClick={() => setOpenDropdown(null)}
                           className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm border-b border-slate-100 pb-3"
                         >
@@ -722,22 +721,11 @@ export function Header() {
                             <span>Report a Fraud</span>
                           </div>
                           <ChevronRight className="h-4 w-4 text-slate-400" />
-                        </Link>
+                        </a>
                       </div>
 
                         </>
                       )}
-
-                      {/* Visit Help Center card */}
-                      <Link href="/about" onClick={() => setOpenDropdown(null)} className="block">
-                        <div className="bg-[#f5f3ff] hover:bg-[#ede9fe] border border-[#e9e3ff] text-[#6d28d9] px-4 py-3 rounded-2xl flex items-center justify-between transition-all shadow-sm">
-                          <div className="flex items-center gap-3 font-extrabold text-xs">
-                            <HelpCircle className="h-4.5 w-4.5 text-[#6d28d9]" />
-                            <span>Visit Help Center</span>
-                          </div>
-                          <ChevronRight className="h-4.5 w-4.5 text-[#6d28d9]" />
-                        </div>
-                      </Link>
 
                       {isAuthenticated ? (
                         <button
@@ -1290,8 +1278,8 @@ export function Header() {
                           <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
                         </Link>
 
-                        <Link
-                          href="/contact?subject=unsubscribe-alerts"
+                        <a
+                          href="mailto:kanharaj1389@gmail.com?subject=Unsubscribe%20Alerts"
                           onClick={() => setIsMenuOpen(false)}
                           className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
                         >
@@ -1300,10 +1288,10 @@ export function Header() {
                             <span>Unsubscribe Alerts</span>
                           </div>
                           <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                        </Link>
+                        </a>
 
-                        <Link
-                          href="/contact?subject=fraud-report"
+                        <a
+                          href="mailto:kanharaj1389@gmail.com?subject=Report%20Fraud"
                           onClick={() => setIsMenuOpen(false)}
                           className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
                         >
@@ -1312,7 +1300,7 @@ export function Header() {
                             <span>Report a Fraud</span>
                           </div>
                           <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                        </Link>
+                        </a>
                       </div>
 
                         </>
@@ -1320,15 +1308,6 @@ export function Header() {
 
                       {/* Actions */}
                       <div className="space-y-2 pr-2">
-                        <Link href="/about" onClick={() => setIsMenuOpen(false)} className="block">
-                          <div className="bg-[#f5f3ff] hover:bg-[#ede9fe] border border-[#e9e3ff] text-[#6d28d9] px-3.5 py-2.5 rounded-xl flex items-center justify-between transition-colors font-extrabold text-xs">
-                            <div className="flex items-center gap-2">
-                              <HelpCircle className="h-4 w-4 text-[#6d28d9]" />
-                              <span>Visit Help Center</span>
-                            </div>
-                            <ChevronRight className="h-4 w-4 text-[#6d28d9]" />
-                          </div>
-                        </Link>
 
                         {isAuthenticated ? (
                           <button

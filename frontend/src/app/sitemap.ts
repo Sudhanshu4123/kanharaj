@@ -25,8 +25,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: absoluteUrl('/properties?type=house&listing=buy'), lastModified: now, changeFrequency: 'daily', priority: 0.85 },
     { url: absoluteUrl('/properties?brokerage=zero&listing=buy'), lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: absoluteUrl('/for-sellers'), lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
-    { url: absoluteUrl('/about'), lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: absoluteUrl('/contact'), lastModified: now, changeFrequency: 'monthly', priority: 0.75 },
     { url: absoluteUrl('/feedback'), lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
     { url: absoluteUrl('/privacy'), lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
     { url: absoluteUrl('/terms'), lastModified: now, changeFrequency: 'yearly', priority: 0.3 },

@@ -19,7 +19,7 @@ export function MobileNav() {
   const navItems = [
     { label: 'Home', icon: Home, href: '/' },
     { label: 'Properties', icon: Search, href: '/properties' },
-    { label: 'Contact', icon: Phone, href: '/contact' },
+    { label: 'Call Us', icon: Phone, href: 'tel:+919599801767' },
     { label: 'Profile', icon: User, href: mounted ? (isAuthenticated ? '/profile' : '/login') : '/login' },
   ]
 

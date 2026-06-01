@@ -5,10 +5,6 @@ import { Building, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, 
 import { BRAND_LOGO_SRC } from '@/lib/utils'
 
 const footerLinks = {
-  company: [
-    { label: 'About Us', href: '/about' },
-    { label: 'Contact Us', href: '/contact' },
-  ],
   properties: [
     { label: 'All Properties', href: '/properties' },
     { label: 'Buy Property', href: '/properties?listing=buy' },
@@ -82,19 +78,7 @@ export function Footer() {
           </div>
 
           {/* Quick Links Group */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:col-span-3">
-            <div>
-              <h4 className="font-bold text-slate-200 text-sm uppercase tracking-wider mb-5">Company</h4>
-              <ul className="space-y-3">
-                {footerLinks.company.map((link) => (
-                  <li key={link.label}>
-                    <Link href={link.href} className="text-slate-400 hover:text-white text-sm transition-colors block">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-8 lg:col-span-3">
 
             <div>
               <h4 className="font-bold text-slate-200 text-sm uppercase tracking-wider mb-5">Properties</h4>

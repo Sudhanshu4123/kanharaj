@@ -463,11 +463,11 @@ export default function ProfilePage() {
                 <h4 className="font-bold text-slate-900">Need Help?</h4>
                 <p className="text-sm text-slate-500 mt-1">Contact our support team for account or listing queries.</p>
               </div>
-              <Link href="/contact" className="shrink-0">
+              <a href="tel:+919599801767" className="shrink-0">
                 <Button className="bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800">
-                  Contact Support <ChevronRight size={14} className="ml-1" />
+                  Call Support <ChevronRight size={14} className="ml-1" />
                 </Button>
-              </Link>
+              </a>
             </div>
           </div>
         )}

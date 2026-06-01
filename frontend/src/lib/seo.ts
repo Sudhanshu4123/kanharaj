@@ -71,12 +71,6 @@ export const SITE_NAV_LINKS = [
       'List your property on Kanharaj. Reach serious buyers & tenants across Dwarka and Delhi NCR.',
     url: `${SITE.url}/for-sellers`,
   },
-  {
-    name: 'Contact Kanharaj',
-    description:
-      'Call, WhatsApp or email Kanharaj for property buying, renting and selling in Dwarka.',
-    url: `${SITE.url}/contact`,
-  },
 ] as const
 
 export function absoluteUrl(path: string): string {

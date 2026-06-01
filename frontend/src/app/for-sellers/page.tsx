@@ -450,7 +450,7 @@ export default function ForSellersPage() {
           <div className="mt-16 text-center">
             <p className="text-slate-500 text-sm">
               All plans include basic features. Prices are inclusive of taxes. <br className="hidden md:block" />
-              Need a custom plan? <Link href="/contact" className="text-rose-600 font-bold hover:underline">Contact our sales team</Link>
+              Need a custom plan? <a href="tel:+919599801767" className="text-rose-600 font-bold hover:underline">Contact our sales team</a>
             </p>
           </div>
         </div>
@@ -500,11 +500,11 @@ export default function ForSellersPage() {
                     Start Selling Now
                   </Button>
                 </Link>
-                <Link href="/contact">
+                <a href="tel:+919599801767">
                   <Button size="lg" variant="outline" className="border-slate-700 text-white hover:bg-white/10 font-bold h-16 px-10 rounded-2xl text-xl">
                     Talk to an Expert
                   </Button>
-                </Link>
+                </a>
               </div>
               <div className="mt-12 flex items-center justify-center gap-8 text-slate-500 text-sm font-bold uppercase tracking-widest">
                 <span className="flex items-center gap-2"><Check size={16} className="text-rose-500" /> No Hidden Fees</span>
