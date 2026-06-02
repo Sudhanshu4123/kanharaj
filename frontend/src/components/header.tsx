@@ -172,6 +172,11 @@ const navLinks = [
 export function Header() {
   const pathname = usePathname()
   const router = useRouter()
+
+  if (pathname === '/properties') {
+    return null
+  }
+
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [activeActivityTab, setActiveActivityTab] = useState<ActivityTab>('seen')
@@ -186,6 +191,27 @@ export function Header() {
     setOpenDropdown(null)
     setIsMenuOpen(false)
     router.push('/login')
+  }
+
+  const handlePostPropertyFreeClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (!isAuthenticated) {
+      alert('Please login to post a property.')
+      router.push('/login?redirect=/properties/post')
+      return
+    }
+
+    const role = String(user?.role || '').toUpperCase()
+    const plan = String(user?.subscriptionPlan || 'NONE').toUpperCase()
+    const freePostsUsed = user?.freePostsUsed ?? 0
+    const isAdmin = role === 'ADMIN'
+
+    if (!isAdmin && plan === 'NONE' && freePostsUsed >= 3) {
+      alert('You have used all 3 free posts. Please purchase a subscription to continue.')
+      router.push('/for-sellers')
+    } else {
+      router.push('/properties/post')
+    }
   }
 
   useEffect(() => {
@@ -229,7 +255,7 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-1.5 shrink-0">
             <div className="relative h-8 w-8 rounded-lg overflow-hidden flex items-center justify-center shadow-md bg-white">
               <img
                 src={BRAND_LOGO_SRC}
@@ -247,7 +273,7 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation - Centered Dropdowns */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-0.5 ml-4">
             {navLinks.map((link) => (
               <div
                 key={link.label}
@@ -546,7 +572,7 @@ export function Header() {
           </nav>
 
           {/* Desktop Actions - Right Aligned */}
-          <div className="hidden lg:flex items-center gap-5">
+          <div className="hidden lg:flex items-center gap-3">
             {/* Download App text link */}
             <Link
               href="/#download"
@@ -557,6 +583,19 @@ export function Header() {
             >
               Download App
             </Link>
+
+            <button
+              onClick={handlePostPropertyFreeClick}
+              className={cn(
+                "h-8 px-3 font-black rounded-full text-[11px] shadow-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1",
+                isTransparent
+                  ? "bg-white text-slate-900 hover:bg-white/90 shadow-white/10"
+                  : "bg-gradient-to-r from-[#f22b68] to-[#e01f5c] text-white hover:shadow-md hover:shadow-rose-500/10"
+              )}
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              Post Property <span className="bg-yellow-300 text-slate-900 text-[9px] px-1 rounded-sm uppercase tracking-wide">FREE</span>
+            </button>
 
             {showSellerDashboard && (
               <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
@@ -1153,6 +1192,17 @@ export function Header() {
             ))}
 
             <div className="pt-4 border-t border-slate-100 space-y-3">
+              <button
+                onClick={(e) => {
+                  setIsMenuOpen(false)
+                  handlePostPropertyFreeClick(e)
+                }}
+                className="w-full bg-gradient-to-r from-[#f22b68] to-[#e01f5c] text-white font-extrabold h-11 flex items-center justify-center gap-2 rounded-xl hover:opacity-95 shadow-sm active:scale-95 transition-all text-sm"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>Post Property FREE</span>
+              </button>
+
               {showSellerDashboard && (
                 <a
                   href={sellerDashboardHref}

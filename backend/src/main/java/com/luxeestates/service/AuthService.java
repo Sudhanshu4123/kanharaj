@@ -273,11 +273,17 @@ public class AuthService {
 
         @Transactional
         public void forgotPassword(AuthDto.ForgotPasswordRequest request) {
-                User user = userRepository.findByEmail(request.getEmail())
-                                .orElseThrow(() -> new RuntimeException("User not found with email"));
+                String email = request.getEmail() != null ? request.getEmail().trim() : "";
+                User user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
                 // Delete any existing tokens for this user
-                passwordResetTokenRepository.deleteByUser(user);
+                try {
+                        passwordResetTokenRepository.deleteByUser(user);
+                        passwordResetTokenRepository.flush();
+                } catch (Exception e) {
+                        System.err.println("Error deleting existing reset tokens: " + e.getMessage());
+                }
 
                 // Create new token
                 String token = java.util.UUID.randomUUID().toString();
@@ -297,7 +303,18 @@ public class AuthService {
                                 "This link will expire in 1 hour.\n\n" +
                                 "If you didn't request this, please ignore this email.";
 
-                emailService.sendSimpleMessage(user.getEmail(), "Password Reset Request - Kanharaj", emailContent);
+                System.out.println("=================================================");
+                System.out.println("GENERATED PASSWORD RESET LINK FOR: " + email);
+                System.out.println("Reset Link: " + resetLink);
+                System.out.println("=================================================");
+
+                try {
+                        emailService.sendSimpleMessage(user.getEmail(), "Password Reset Request - Kanharaj", emailContent);
+                } catch (Exception e) {
+                        System.err.println("Failed to send reset email via SMTP, but generated link successfully: " + e.getMessage());
+                        // Catching email sending failure for local/development robustness so the request still succeeds
+                        // and developer can copy the link from the console.
+                }
         }
 
         @Transactional
@@ -362,6 +379,15 @@ public class AuthService {
                                 "Enter this code on the website to activate your account.\n\n" +
                                 "Best Regards,\nKanharaj Team";
 
-                emailService.sendSimpleMessage(user.getEmail(), "Verification Code - Kanharaj", emailContent);
+                System.out.println("=================================================");
+                System.out.println("REGISTRATION OTP GENERATED FOR: " + user.getEmail());
+                System.out.println("OTP Verification Code: " + otp);
+                System.out.println("=================================================");
+
+                try {
+                        emailService.sendSimpleMessage(user.getEmail(), "Verification Code - Kanharaj", emailContent);
+                } catch (Exception e) {
+                        System.err.println("Failed to send verification email via SMTP: " + e.getMessage());
+                }
         }
 }

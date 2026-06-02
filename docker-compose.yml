@@ -25,10 +25,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/luxeestates?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-54321}
-      - ADMIN_EMAIL=${ADMIN_EMAIL:-kanharaj1389@gmail.com}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin@123}
-      - ADMIN_NAME=${ADMIN_NAME:-Kanharaj}
-      - ADMIN_PHONE=${ADMIN_PHONE:-9599801767}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-change_me@email.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-change_me_password}
+      - ADMIN_NAME=${ADMIN_NAME:-Admin}
+      - ADMIN_PHONE=${ADMIN_PHONE:-change_me_phone}
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
@@ -48,7 +48,7 @@ services:
       args:
         - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
         - NEXT_PUBLIC_SELLER_URL=${SELLER_URL:-https://seller.kanharaj.com}
-        - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_live_SrVXmToc9GKOXJ}
+        - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-}
         - INTERNAL_BACKEND_URL=http://backend:8080
     container_name: kanharaj-frontend
     restart: always
@@ -56,7 +56,7 @@ services:
       - INTERNAL_BACKEND_URL=http://backend:8080
       - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
       - NEXT_PUBLIC_SELLER_URL=${SELLER_URL:-https://seller.kanharaj.com}
-      - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_live_SrVXmToc9GKOXJ}
+      - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-}
       - NEXTAUTH_SECRET=${JWT_SECRET:-luxeestates-secret-key-for-jwt-token-generation-2024}
       - NEXTAUTH_URL=${NEXTAUTH_URL:-https://kanharaj.com}
     ports:
@@ -70,13 +70,13 @@ services:
       args:
         - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
         - NEXT_PUBLIC_MAIN_URL=${MAIN_URL:-https://kanharaj.com}
-        - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_live_SrVXmToc9GKOXJ}
+        - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-}
     container_name: kanharaj-seller
     restart: always
     environment:
       - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
       - NEXT_PUBLIC_MAIN_URL=${MAIN_URL:-https://kanharaj.com}
-      - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_live_SrVXmToc9GKOXJ}
+      - NEXT_PUBLIC_RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-}
       - NEXTAUTH_SECRET=${JWT_SECRET:-luxeestates-secret-key-for-jwt-token-generation-2024}
     ports:
       - "3001:3001"

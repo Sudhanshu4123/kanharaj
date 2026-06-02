@@ -91,8 +91,8 @@ upload:
 
 razorpay:
   key:
-    id: ${RAZORPAY_KEY_ID:}
-    secret: ${RAZORPAY_KEY_SECRET:}
+    id: ${RAZORPAY_KEY_ID:rzp_live_SrVXmToc9GKOXJ}
+    secret: ${RAZORPAY_KEY_SECRET:yT0gYlf3i10jc3x41PHtIIi4}
 
 app:
   cors:
