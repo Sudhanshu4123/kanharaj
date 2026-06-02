@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Search, Phone, User } from 'lucide-react'
+import { Home, Search, Lightbulb, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/lib/store'
 
@@ -19,7 +19,7 @@ export function MobileNav() {
   const navItems = [
     { label: 'Home', icon: Home, href: '/' },
     { label: 'Properties', icon: Search, href: '/properties' },
-    { label: 'Call Us', icon: Phone, href: 'tel:+919599801767' },
+    { label: 'Suggestion', icon: Lightbulb, href: '/suggestions' },
     { label: 'Profile', icon: User, href: mounted ? (isAuthenticated ? '/profile' : '/login') : '/login' },
   ]
 
