@@ -155,6 +155,13 @@ export default async function PropertyDetailPage({ params }: Props) {
     state: transformedProperty.state,
     images: transformedProperty.images,
     bhk: transformedProperty.bhk,
+    area: transformedProperty.area,
+    bedrooms: transformedProperty.bedrooms,
+    bathrooms: transformedProperty.bathrooms,
+    yearBuilt: transformedProperty.yearBuilt,
+    amenities: transformedProperty.amenities,
+    latitude: transformedProperty.latitude,
+    longitude: transformedProperty.longitude,
   })
 
   return (

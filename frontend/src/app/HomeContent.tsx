@@ -13,6 +13,7 @@ import { ProjectGallery } from '@/components/home/project-gallery'
 import { PropertyGridSkeleton } from '@/components/skeletons/property-skeletons'
 import { usePropertyStore } from '@/lib/store'
 import { cn, formatNumber } from '@/lib/utils'
+import { HOME_FAQS } from '@/lib/seo'
 import {
   fetchPlatformStats,
   fetchPublishedTestimonials,
@@ -43,24 +44,7 @@ const categories = [
 
 ]
 
-const faqs = [
-  {
-    question: 'How to buy a property in Dwarka, Delhi?',
-    answer: 'To buy a property in Dwarka, start by browsing our verified listings. Once you find a property, contact us for a site visit. We assist with documentation and direct connection with builders for a smooth transaction.'
-  },
-  {
-    question: 'What is the average price of 3 BHK flats in Dwarka?',
-    answer: 'The price of 3 BHK flats in Dwarka depends on the sector and amenities. On average, prices range from ₹1.2 Cr to ₹2.5 Cr. Sector 7, 10, and 12 are among the most premium areas.'
-  },
-  {
-    question: 'Does Kanharaj Properties provide zero brokerage options?',
-    answer: 'Yes, we have many direct-from-builder listings where you can save on brokerage. Look for the "Verified" and "Direct" badges on our property listings.'
-  },
-  {
-    question: 'Are the properties on your website verified?',
-    answer: 'Absolutely. Every property listed on Kanharaj Properties undergoes a verification process to ensure authenticity of details, price, and ownership.'
-  }
-]
+const faqs = HOME_FAQS
 
 const heroBackgrounds: Record<string, string> = {
   buy: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920',

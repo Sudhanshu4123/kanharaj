@@ -78,6 +78,43 @@ export const SITE_NAV_LINKS = [
   }
 ] as const
 
+/**
+ * Centralized FAQ list used for BOTH the homepage UI and FAQPage schema.
+ * Keeping them in sync ensures AI models always get the same answer that users see.
+ */
+export const HOME_FAQS = [
+  {
+    question: 'How to buy a property in Dwarka, Delhi?',
+    answer:
+      'To buy a property in Dwarka, browse our verified listings on Kanharaj, shortlist your preferred flat or floor, schedule a free site visit, and we will guide you through documentation, home-loan paperwork, and registry for a smooth, hassle-free purchase.',
+  },
+  {
+    question: 'What is the average price of a 3 BHK flat in Dwarka, Delhi?',
+    answer:
+      'A 3 BHK flat in Dwarka typically ranges from \u20b91.2 Cr to \u20b92.5 Cr depending on the sector, floor, and amenities. Sectors 7, 10, 12, and 22 command the highest premiums. Contact Kanharaj for the latest market prices.',
+  },
+  {
+    question: 'Does Kanharaj offer zero-brokerage properties?',
+    answer:
+      'Yes. Many listings on Kanharaj.com are direct-from-builder or direct-from-owner, saving you the standard 1-2% brokerage fee. Look for the Zero Brokerage or Verified Direct badge on the listing cards.',
+  },
+  {
+    question: 'Are all properties on Kanharaj verified?',
+    answer:
+      'Every listing undergoes a manual verification process including document checks, ownership confirmation, and on-site photo verification before going live on Kanharaj.com.',
+  },
+  {
+    question: 'Can I get a home loan for properties listed on Kanharaj?',
+    answer:
+      'Yes. Kanharaj has tie-ups with leading banks and NBFCs to offer competitive home-loan rates starting at 8.5% p.a. Our advisors assist with eligibility checks, documentation, and end-to-end processing at no extra charge.',
+  },
+  {
+    question: 'How do I list my property for sale or rent on Kanharaj?',
+    answer:
+      'Visit the Sell / List Your Property page, fill in the property details including photos, price, and location, and submit. Our team verifies and activates your listing within 24 hours. You reach thousands of active buyers and tenants every day.',
+  },
+] as const
+
 export function absoluteUrl(path: string): string {
   if (path.startsWith('http')) return path
   return `${SITE.url}${path.startsWith('/') ? path : `/${path}`}`
@@ -326,6 +363,34 @@ export function buildSiteNavigationJsonLd() {
   }
 }
 
+/** Build a Google-compliant FAQPage JSON-LD for AEO / voice search optimization */
+export function buildFaqJsonLd(faqs: ReadonlyArray<{ question: string; answer: string }>) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  }
+}
+
+/** Resolve the schema.org @type from our property type string */
+function resolveAccommodationType(propertyType?: string): string {
+  const t = (propertyType || '').toUpperCase()
+  if (t === 'APARTMENT' || t === 'FLAT') return 'Apartment'
+  if (t === 'VILLA') return 'House'
+  if (t === 'HOUSE' || t.includes('INDEPENDENT')) return 'SingleFamilyResidence'
+  if (t === 'HOTEL') return 'LodgingBusiness'
+  if (t.includes('PLOT') || t.includes('LAND')) return 'LandOrLotProperty'
+  if (t === 'COMMERCIAL') return 'CommercialProperty'
+  return 'Accommodation'
+}
+
 export function buildPropertyJsonLd(property: {
   id: string | number
   title: string
@@ -338,6 +403,14 @@ export function buildPropertyJsonLd(property: {
   state?: string
   images?: string[]
   bhk?: string | number
+  /** Extra rich fields for GEO / AEO */
+  area?: number
+  bedrooms?: number
+  bathrooms?: number
+  yearBuilt?: number
+  amenities?: string[]
+  latitude?: number
+  longitude?: number
 }) {
   const pageUrl = absoluteUrl(`/property/${property.id}`)
   const images = (property.images || [])
@@ -346,6 +419,14 @@ export function buildPropertyJsonLd(property: {
 
   const offerType =
     property.listingType?.toLowerCase() === 'rent' ? 'RentAction' : 'SellAction'
+
+  const accommodationType = resolveAccommodationType(property.propertyType)
+
+  const amenityFeatures = (property.amenities || []).map((a) => ({
+    '@type': 'LocationFeatureSpecification',
+    name: a,
+    value: true,
+  }))
 
   return {
     '@context': 'https://schema.org',
@@ -369,14 +450,34 @@ export function buildPropertyJsonLd(property: {
       addressRegion: property.state || 'Delhi',
       addressCountry: 'IN',
     },
-    ...(property.bhk
-      ? {
-        numberOfRooms: property.bhk,
-      }
+    ...(property.latitude && property.longitude
+      ? { geo: { '@type': 'GeoCoordinates', latitude: property.latitude, longitude: property.longitude } }
       : {}),
     potentialAction: {
       '@type': offerType,
       target: pageUrl,
+    },
+    containedInPlace: {
+      '@type': accommodationType,
+      name: property.title,
+      description: property.description || property.title,
+      url: pageUrl,
+      image: images.length ? images : [SITE_OG_IMAGE],
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: property.address || 'Dwarka',
+        addressLocality: property.city || 'New Delhi',
+        addressRegion: property.state || 'Delhi',
+        addressCountry: 'IN',
+      },
+      ...(property.bedrooms ? { numberOfRooms: property.bedrooms } : {}),
+      ...(property.bathrooms ? { numberOfBathroomsTotal: property.bathrooms } : {}),
+      ...(property.area ? { floorSize: { '@type': 'QuantitativeValue', value: property.area, unitCode: 'FTK' } } : {}),
+      ...(property.yearBuilt ? { yearBuilt: property.yearBuilt } : {}),
+      ...(amenityFeatures.length ? { amenityFeature: amenityFeatures } : {}),
+      ...(property.latitude && property.longitude
+        ? { geo: { '@type': 'GeoCoordinates', latitude: property.latitude, longitude: property.longitude } }
+        : {}),
     },
   }
 }

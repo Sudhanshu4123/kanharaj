@@ -8,6 +8,8 @@ import {
   buildOrganizationJsonLd,
   buildRealEstateAgentJsonLd,
   buildSiteNavigationJsonLd,
+  buildFaqJsonLd,
+  HOME_FAQS,
 } from "@/lib/seo"
 
 export const metadata: Metadata = buildPageMetadata({
@@ -25,6 +27,7 @@ export default function HomePage() {
           buildOrganizationJsonLd(),
           buildRealEstateAgentJsonLd(),
           buildSiteNavigationJsonLd(),
+          buildFaqJsonLd(HOME_FAQS),
         ]}
       />
       <HomeContent />
