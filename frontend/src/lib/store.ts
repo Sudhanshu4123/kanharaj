@@ -13,6 +13,7 @@ interface PropertyFilters {
   bedrooms: number[]
   bathrooms: number[]
   city: string
+  state: string
   search: string
 }
 
@@ -58,6 +59,7 @@ const defaultFilters: PropertyFilters = {
   bedrooms: [],
   bathrooms: [],
   city: '',
+  state: '',
   search: '',
 }
 
@@ -154,6 +156,15 @@ export const usePropertyStore = create<PropertyStore>()(
               filterCity.includes(propCity) ||
               propAddress.includes(filterCity)
             if (!matchesCity) return false
+          }
+          if (filters.state) {
+            const filterState = filters.state.toLowerCase().trim()
+            const propState = (property.state || '').toLowerCase()
+            const matchesState =
+              propState === filterState ||
+              propState.includes(filterState) ||
+              filterState.includes(propState)
+            if (!matchesState) return false
           }
           
           if (filters.search) {

@@ -15,6 +15,21 @@ const nextConfig = {
   // Required for Docker deployments
   output: 'standalone',
 
+  async redirects() {
+    return [
+      {
+        source: '/about',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/contact',
+        destination: '/',
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {

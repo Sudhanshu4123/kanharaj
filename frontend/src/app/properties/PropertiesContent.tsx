@@ -37,6 +37,7 @@ export default function PropertiesContent() {
   const [mounted, setMounted] = useState(false)
   const [search, setSearch] = useState(searchParams.get('search') || '')
   const [selectedCity, setSelectedCity] = useState(searchParams.get('city') || '')
+  const [selectedState, setSelectedState] = useState(searchParams.get('state') || '')
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false)
   const [citySearchQuery, setCitySearchQuery] = useState('')
   const cityDropdownRef = useRef<HTMLDivElement>(null)
@@ -205,6 +206,7 @@ export default function PropertiesContent() {
     setRera(false)
     setProjects([])
     setSelectedCity('')
+    setSelectedState('')
   }
 
   const { filteredProperties, setFilters, fetchProperties, filters: storeFilters, loading } = usePropertyStore()
@@ -258,8 +260,12 @@ export default function PropertiesContent() {
     const urlCity = searchParams.get('city')
     if (urlCity) setSelectedCity(urlCity)
 
+    const urlState = searchParams.get('state')
+    if (urlState) setSelectedState(urlState)
+
     const initialFilters: any = { search: urlSearch }
     if (urlCity) initialFilters.city = urlCity
+    if (urlState) initialFilters.state = urlState
     if (type) {
       initialFilters.propertyType = [type.toUpperCase()]
       setPropertyTypes([type.charAt(0).toUpperCase() + type.slice(1)])
@@ -419,9 +425,10 @@ export default function PropertiesContent() {
         priceMin: budgetRange[0] * 100000,
         priceMax: budgetRange[1] >= BUDGET_MAX_LAKH ? 10000000000 : budgetRange[1] * 100000,
         ...(selectedCity ? { city: selectedCity } : { city: '' }),
+        ...(selectedState ? { state: selectedState } : { state: '' }),
       })
     }
-  }, [search, propertyTypes, listingMode, bhkTypes, budgetRange, selectedCity, mounted, setFilters])
+  }, [search, propertyTypes, listingMode, bhkTypes, budgetRange, selectedCity, selectedState, mounted, setFilters])
 
   if (!mounted) {
     return <PropertiesPageSkeleton />

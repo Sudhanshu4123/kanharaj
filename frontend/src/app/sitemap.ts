@@ -1,21 +1,15 @@
 import { MetadataRoute } from 'next'
 import { SITE, absoluteUrl } from '@/lib/seo'
+import { INDIAN_STATES, DELHI_FAMOUS_PLACES } from '@/lib/location-data'
 
 export const revalidate = 3600
 
-const HIGHLIGHT_PLACES = [
+const HIGHLIGHT_CITIES = [
   'Gurugram',
   'Noida',
   'Greater Noida',
-  'Dwarka',
-  'Delhi',
   'Faridabad',
   'Ghaziabad',
-  'Rohini',
-  'Janakpuri',
-  'Uttam Nagar',
-  'Vasant Kunj',
-  'Saket',
   'Mumbai',
   'Bengaluru',
   'Pune',
@@ -25,6 +19,8 @@ const HIGHLIGHT_PLACES = [
   'Lucknow',
   'Chandigarh'
 ]
+
+const ALL_CITIES = Array.from(new Set([...DELHI_FAMOUS_PLACES, ...HIGHLIGHT_CITIES]))
 
 function getPropertiesApiUrl(): string {
   const base =
@@ -54,7 +50,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   const placeRoutes: MetadataRoute.Sitemap = []
-  HIGHLIGHT_PLACES.forEach((place) => {
+  
+  // Localities & Cities Buy/Rent Routes
+  ALL_CITIES.forEach((place) => {
     placeRoutes.push({
       url: absoluteUrl(`/properties?city=${encodeURIComponent(place)}&listing=buy`),
       lastModified: now,
@@ -66,6 +64,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: 'daily',
       priority: 0.85,
+    })
+  })
+
+  // Indian States Buy/Rent Routes
+  INDIAN_STATES.forEach((state) => {
+    placeRoutes.push({
+      url: absoluteUrl(`/properties?state=${encodeURIComponent(state)}&listing=buy`),
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.8,
+    })
+    placeRoutes.push({
+      url: absoluteUrl(`/properties?state=${encodeURIComponent(state)}&listing=rent`),
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.8,
     })
   })
 
