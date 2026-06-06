@@ -83,30 +83,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
   })
 
+  let routes: MetadataRoute.Sitemap = []
+
   try {
     const fetchUrl = `${getPropertiesApiUrl()}?size=500`
     const response = await fetch(fetchUrl, {
       next: { revalidate: 3600 },
       signal: AbortSignal.timeout(15000),
     })
-    if (!response.ok) return [...staticRoutes, ...placeRoutes]
+    if (!response.ok) {
+      routes = [...staticRoutes, ...placeRoutes]
+    } else {
+      const data = await response.json()
+      const content = data?.content ?? (Array.isArray(data) ? data : [])
+      if (!Array.isArray(content)) {
+        routes = [...staticRoutes, ...placeRoutes]
+      } else {
+        const propertyRoutes: MetadataRoute.Sitemap = content
+          .filter((prop: { id?: number | string }) => prop?.id != null)
+          .map((prop: { id: number | string; updatedAt?: string }) => ({
+            url: absoluteUrl(`/property/${prop.id}`),
+            lastModified: prop.updatedAt ? new Date(prop.updatedAt) : now,
+            changeFrequency: 'weekly' as const,
+            priority: 0.65,
+          }))
 
-    const data = await response.json()
-    const content = data?.content ?? (Array.isArray(data) ? data : [])
-    if (!Array.isArray(content)) return [...staticRoutes, ...placeRoutes]
-
-    const propertyRoutes: MetadataRoute.Sitemap = content
-      .filter((prop: { id?: number | string }) => prop?.id != null)
-      .map((prop: { id: number | string; updatedAt?: string }) => ({
-        url: absoluteUrl(`/property/${prop.id}`),
-        lastModified: prop.updatedAt ? new Date(prop.updatedAt) : now,
-        changeFrequency: 'weekly' as const,
-        priority: 0.65,
-      }))
-
-    return [...staticRoutes, ...placeRoutes, ...propertyRoutes]
+        routes = [...staticRoutes, ...placeRoutes, ...propertyRoutes]
+      }
+    }
   } catch (error) {
     console.error('Sitemap: property fetch failed, serving static routes only:', error)
-    return [...staticRoutes, ...placeRoutes]
+    routes = [...staticRoutes, ...placeRoutes]
   }
+
+  // XML requires ampersands in URLs to be escaped as &amp;
+  return routes.map((route) => ({
+    ...route,
+    url: route.url.replace(/&(?!amp;)/g, '&amp;'),
+  }))
 }
