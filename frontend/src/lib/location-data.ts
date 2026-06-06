@@ -85,3 +85,13 @@ export const DELHI_FAMOUS_PLACES = [
   'East of Kailash',
   'New Friends Colony'
 ] as const
+
+export const NCR_CITIES = [
+  'Gurugram',
+  'Gurgaon',
+  'Noida',
+  'Greater Noida',
+  'Faridabad',
+  'Ghaziabad'
+] as const
+

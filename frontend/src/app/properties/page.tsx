@@ -4,7 +4,7 @@ import PropertiesContent from "./PropertiesContent"
 import { PropertiesPageSkeleton } from '@/components/skeletons/property-skeletons'
 import { buildPageMetadata, buildFaqJsonLd } from '@/lib/seo'
 import { JsonLd } from '@/components/seo/json-ld'
-import { INDIAN_STATES, DELHI_FAMOUS_PLACES } from '@/lib/location-data'
+import { INDIAN_STATES, DELHI_FAMOUS_PLACES, NCR_CITIES } from '@/lib/location-data'
 
 type Props = {
   searchParams: { [key: string]: string | string[] | undefined }
@@ -40,6 +40,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   let description = ''
   
   const isDelhiPlace = DELHI_FAMOUS_PLACES.some(p => p.toLowerCase() === place.toLowerCase())
+  const isNcrCity = NCR_CITIES.some(c => c.toLowerCase() === place.toLowerCase())
   const isIndianState = INDIAN_STATES.some(s => s.toLowerCase() === place.toLowerCase())
 
   if (isDelhiPlace) {
@@ -47,6 +48,11 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       ? `${listingLabel} in ${place}, Delhi | Premium Listings - Kanharaj`
       : `${typeLabel} for ${listing === 'rent' ? 'Rent' : 'Sale'} in ${place}, Delhi | Kanharaj`
     description = `Looking for ${typeLabel.toLowerCase()} in ${place}, Delhi? Discover verified properties, flats, luxury apartments, and builder floors for ${listing === 'rent' ? 'rent' : 'sale'} with zero brokerage options on Kanharaj.`
+  } else if (isNcrCity) {
+    title = typeLabel === 'Properties'
+      ? `${listingLabel} in ${place}, Delhi NCR | Verified Listings - Kanharaj`
+      : `${typeLabel} for ${listing === 'rent' ? 'Rent' : 'Sale'} in ${place}, Delhi NCR | Kanharaj`
+    description = `Searching for ${typeLabel.toLowerCase()} in ${place}, Delhi NCR? Explore verified properties, flats, builder floors, plots & villas for ${listing === 'rent' ? 'rent' : 'sale'} with zero brokerage on Kanharaj.`
   } else if (isIndianState) {
     title = typeLabel === 'Properties'
       ? `${listingLabel} in ${place} | Real Estate Listings - Kanharaj`

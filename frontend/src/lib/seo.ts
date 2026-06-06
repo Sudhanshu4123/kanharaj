@@ -18,6 +18,16 @@ export const SITE = {
     'builder floor dwarka',
     'property dealer near me',
     'real estate dwarka delhi',
+    'property dealer in gurugram',
+    'property dealer in noida',
+    'real estate agent in gurugram',
+    'real estate agent in noida',
+    'flats for sale in gurugram',
+    'flats for sale in noida',
+    'kanharaj gurugram',
+    'kanharaj noida',
+    'kanharaj delhi ncr',
+    'kanharaj dwarka',
     'kanharaj',
   ],
   phone: '+919599801767',
@@ -92,6 +102,16 @@ export const HOME_FAQS = [
     question: 'What is the average price of a 3 BHK flat in Dwarka, Delhi?',
     answer:
       'A 3 BHK flat in Dwarka typically ranges from \u20b91.2 Cr to \u20b92.5 Cr depending on the sector, floor, and amenities. Sectors 7, 10, 12, and 22 command the highest premiums. Contact Kanharaj for the latest market prices.',
+  },
+  {
+    question: 'Does Kanharaj have properties in Noida and Gurugram?',
+    answer:
+      'Yes. Kanharaj lists premium residential flats, apartments, commercial spaces, and plots in Noida, Gurugram, Greater Noida, Ghaziabad, Faridabad, and other parts of Delhi NCR. Use our search filters to browse verified listings in these regions.',
+  },
+  {
+    question: 'How do I find zero brokerage options in Gurugram or Noida?',
+    answer:
+      'Many listings in Gurugram and Noida are direct-from-builder or direct-from-owner, which carry zero brokerage. Simply select the city (Gurugram or Noida) and apply the Zero Brokerage filter to view commission-free properties.',
   },
   {
     question: 'Does Kanharaj offer zero-brokerage properties?',
@@ -337,10 +357,24 @@ export function buildRealEstateAgentJsonLd() {
       opens: SITE.hours.opens,
       closes: SITE.hours.closes,
     },
-    areaServed: {
-      '@type': 'City',
-      name: 'Dwarka, New Delhi',
-    },
+    areaServed: [
+      {
+        '@type': 'City',
+        name: 'Dwarka, New Delhi',
+      },
+      {
+        '@type': 'City',
+        name: 'Gurugram',
+      },
+      {
+        '@type': 'City',
+        name: 'Noida',
+      },
+      {
+        '@type': 'City',
+        name: 'Delhi NCR',
+      }
+    ],
   }
 }
 

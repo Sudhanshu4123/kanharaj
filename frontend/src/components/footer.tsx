@@ -59,7 +59,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-              Your trusted partner in finding the perfect property. We connect buyers with their dream homes across premium locations in Dwarka and beyond.
+              Your trusted partner in finding the perfect property. We connect buyers with their dream homes across premium locations in All India.
             </p>
             <div className="space-y-4">
               <div className="flex items-start space-x-3 text-slate-400 text-sm">
@@ -128,10 +128,43 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Popular Locations Links for SEO */}
+        <div className="mt-12 pt-8 border-t border-slate-800">
+          <h4 className="font-bold text-slate-200 text-xs uppercase tracking-[0.2em] mb-4">Properties in Popular Locations</h4>
+          <div className="flex flex-wrap gap-x-6 gap-y-3">
+            {[
+              { name: 'Properties in Gurugram', href: '/properties?city=Gurugram' },
+              { name: 'Properties in Noida', href: '/properties?city=Noida' },
+              { name: 'Properties in Greater Noida', href: '/properties?city=Greater%20Noida' },
+              { name: 'Properties in Faridabad', href: '/properties?city=Faridabad' },
+              { name: 'Properties in Ghaziabad', href: '/properties?city=Ghaziabad' },
+              { name: 'Flats in Dwarka', href: '/properties?city=Dwarka' },
+              { name: 'Flats in Dwarka Mor', href: '/properties?city=Dwarka%20Mor' },
+              { name: 'Flats in Uttam Nagar', href: '/properties?city=Uttam%20Nagar' },
+              { name: 'Flats in Saket', href: '/properties?city=Saket' },
+              { name: 'Flats in Rohini', href: '/properties?city=Rohini' },
+              { name: 'Flats in Janakpuri', href: '/properties?city=Janakpuri' },
+              { name: 'Flats in Vasant Kunj', href: '/properties?city=Vasant%20Kunj' },
+              { name: 'Properties in Chhattarpur', href: '/properties?city=Chhattarpur' },
+              { name: 'Properties in Paschim Vihar', href: '/properties?city=Paschim%20Vihar' },
+              { name: 'Properties in Karol Bagh', href: '/properties?city=Karol%20Bagh' },
+              { name: 'Properties in Lajpat Nagar', href: '/properties?city=Lajpat%20Nagar' },
+            ].map((loc) => (
+              <Link
+                key={loc.name}
+                href={loc.href}
+                className="text-slate-400 hover:text-white text-xs transition-colors hover:underline font-medium"
+              >
+                {loc.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+
         {/* Social & Copyright */}
-        <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="mt-8 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
           <p className="text-slate-400 text-sm text-center md:text-left order-2 md:order-1">
-            © {new Date().getFullYear()} Kanharaj. Dwarka's Most Trusted Developer.
+            © {new Date().getFullYear()} Kanharaj. All India's Most Trusted Real Estate Partner.
           </p>
           <div className="flex items-center space-x-4 order-1 md:order-2">
             {socialLinks.map((social) => (

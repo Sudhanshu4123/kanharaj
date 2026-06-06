@@ -130,14 +130,14 @@ export default function HomeContent() {
     switch (activeTab) {
       case 'buy':
         return {
-          title: 'Find Your Perfect Property in Dwarka',
+          title: 'Find Your Perfect Property in All india',
           subtitle: 'Verified flats, builder floors, and luxury homes directly from partners & builders.',
           bgImage: heroBackgrounds.buy,
           gradientClass: 'from-slate-950/70 via-slate-900/50 to-slate-900/10',
         }
       case 'rent':
         return {
-          title: 'Rental Properties in Dwarka',
+          title: 'Rental Properties in All India',
           subtitle: 'Ready-to-move-in flats and houses at direct prices.',
           bgImage: heroBackgrounds.rent,
           gradientClass: 'from-indigo-950/70 via-indigo-900/50 to-indigo-900/10',
@@ -203,7 +203,7 @@ export default function HomeContent() {
           </AnimatePresence>
           <div className="absolute inset-0 bg-slate-950/45 z-10" />
           <div className={cn("absolute inset-0 bg-gradient-to-b via-transparent to-slate-50/90 z-10", currentTheme.gradientClass)} />
-          
+
           {/* Subtle Grid Overlay for Tech-Premium Aesthetics */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))] z-10 pointer-events-none" />
         </div>
@@ -246,7 +246,7 @@ export default function HomeContent() {
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-rose-600 text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1 rounded-full shadow-md z-20">
                   Search Gateway
                 </div>
-                
+
                 <SearchBar
                   activeTab={activeTab}
                   setActiveTab={setActiveTab}
@@ -271,8 +271,8 @@ export default function HomeContent() {
               { value: `${platformStats.verifiedPercent}%`, label: 'Partner Verified', color: 'border-emerald-500/20' },
               { value: platformStats.cities, label: 'Prime Regions', color: 'border-amber-500/20' },
             ].map((s) => (
-              <div 
-                key={s.label} 
+              <div
+                key={s.label}
                 className={cn(
                   "text-center p-4 rounded-2xl bg-slate-900/60 backdrop-blur-md border border-white/10 min-w-[130px] flex-1 transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:bg-slate-900/80 shadow-md",
                   s.color
@@ -316,11 +316,11 @@ export default function HomeContent() {
                   <div className="h-full flex flex-col items-center p-6 rounded-3xl border-2 border-slate-100 hover:border-rose-500/50 hover:bg-gradient-to-b hover:from-rose-50/30 hover:to-rose-50/50 hover:shadow-xl hover:shadow-rose-600/5 transition-all duration-300 cursor-pointer text-center relative overflow-hidden group-hover:-translate-y-1.5">
                     {/* Glowing highlight in background */}
                     <div className="absolute top-0 right-0 w-24 h-24 bg-rose-400/5 rounded-full blur-xl group-hover:bg-rose-500/10 transition-colors" />
-                    
+
                     <span className="text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300 block">{cat.icon}</span>
                     <h3 className="font-bold text-slate-800 text-sm group-hover:text-rose-600 transition-colors leading-tight mb-2">{cat.label}</h3>
                     <p className="text-[11px] text-slate-400 font-medium group-hover:text-slate-500 transition-colors leading-snug">{cat.desc}</p>
-                    
+
                     {/* Tiny visual cue trigger */}
                     <span className="text-[10px] font-bold text-rose-500 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 mt-3 flex items-center gap-0.5">
                       Explore <ArrowRight className="w-3 h-3" />
@@ -351,18 +351,18 @@ export default function HomeContent() {
             <h2 className="text-3xl md:text-5xl font-serif font-black text-slate-900 mt-4 leading-tight">Our Premium Services</h2>
             <div className="w-16 h-1.5 bg-rose-600 mx-auto mt-6 rounded-full" />
             <p className="mt-6 text-slate-600 max-w-2xl mx-auto text-base sm:text-lg font-medium leading-relaxed">
-              We provide end-to-end guidance and verified assistance for all your <strong>real estate requirements in Delhi NCR and Dwarka</strong>.
+              We provide end-to-end guidance and verified assistance for all your <strong>real estate requirements in Delhi NCR, Dwarka, Gurugram, and Noida</strong>.
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { title: 'Property Buying & Selling', icon: Building2, desc: 'Find the best 3 BHK flats and luxury builder floors in Dwarka with expert guidance.' },
-              { title: 'Legal & Documentation', icon: Shield, desc: 'Hassle-free registry and documentation support for all property transactions in Delhi.' },
-              { title: 'Property Valuation', icon: MapPin, desc: 'Professional assessment of your property market value in Dwarka sectors.' },
-              { title: 'Rental Management', icon: Home, desc: 'Top <strong>brokers in Dwarka for rent</strong> to help you find verified tenants or dream rentals.' },
-              { title: 'Investment Advisory', icon: Star, desc: 'High-ROI <strong>real estate investing</strong> opportunities in Dwarka Expressway & Delhi NCR.' },
-              { title: 'Personalized Relocation', icon: Compass, desc: 'End-to-end support for moving families or businesses to premium Dwarka sectors.' },
+              { title: 'Property Buying & Selling', icon: Building2, desc: 'Find the best 3 BHK flats and luxury builder floors in Dwarka, Gurugram, and Noida with expert guidance.' },
+              { title: 'Legal & Documentation', icon: Shield, desc: 'Hassle-free registry and documentation support for all property transactions in Delhi NCR.' },
+              { title: 'Property Valuation', icon: MapPin, desc: 'Professional assessment of your property market value in Dwarka, Noida, and Gurugram sectors.' },
+              { title: 'Rental Management', icon: Home, desc: 'Top <strong>brokers in Delhi NCR for rent</strong> to help you find verified tenants or dream rentals.' },
+              { title: 'Investment Advisory', icon: Star, desc: 'High-ROI <strong>real estate investing</strong> opportunities in Noida, Gurugram, and Delhi NCR.' },
+              { title: 'Personalized Relocation', icon: Compass, desc: 'End-to-end support for moving families or businesses to premium NCR sectors.' },
             ].map((service, index) => (
               <Link key={service.title} href={`/services/coming-soon?title=${encodeURIComponent(service.title)}`} className="block group">
                 <motion.div
@@ -377,7 +377,7 @@ export default function HomeContent() {
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-rose-600 transition-colors">{service.title}</h3>
                   <p className="text-slate-500 text-sm leading-relaxed mb-6" dangerouslySetInnerHTML={{ __html: service.desc }} />
-                  
+
                   <div className="mt-auto text-xs font-bold text-slate-800 group-hover:text-rose-600 transition-colors flex items-center gap-1">
                     Learn More <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform" />
                   </div>
@@ -401,7 +401,7 @@ export default function HomeContent() {
                 Handpicked Premium Properties
               </span>
               <h2 className="text-3xl sm:text-4xl font-serif font-black text-slate-900 tracking-tight mt-3">Housing's Top Picks</h2>
-              <p className="text-slate-500 mt-2 text-sm font-medium">Dwarka's most premium and highly recommended properties with direct builder contact.</p>
+              <p className="text-slate-500 mt-2 text-sm font-medium">Dwarka, Gurugram, and Noida's most premium and highly recommended properties with direct builder contact.</p>
             </div>
             <Link href="/properties">
               <Button className="bg-slate-950 hover:bg-rose-600 hover:shadow-lg hover:shadow-rose-600/20 text-white font-bold rounded-2xl flex items-center gap-1.5 h-12 px-6 shadow-md transition-all">
@@ -528,7 +528,7 @@ export default function HomeContent() {
             </h2>
             <div className="w-14 h-1.5 bg-rose-500 mx-auto mt-6 rounded-full" />
             <p className="mt-4 text-slate-400 max-w-2xl mx-auto text-sm sm:text-base font-medium">
-              Discover flagship complexes, luxury towers, and major builder floor configurations under development in Dwarka Delhi.
+              Discover flagship complexes, luxury towers, and major builder floor configurations under development in Dwarka, Gurugram, Noida, and across Delhi NCR.
             </p>
           </div>
 
@@ -558,7 +558,7 @@ export default function HomeContent() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-90"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-                      
+
                       {project.featured && (
                         <div className="absolute top-4 left-4 bg-gradient-to-r from-rose-600 to-pink-600 text-white text-[9px] font-black px-4 py-2 rounded-xl shadow-lg uppercase tracking-wider">
                           Premium Project
@@ -578,7 +578,7 @@ export default function HomeContent() {
                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-4">
                         Developer: <span className="text-slate-300 font-extrabold">{sellerName}</span>
                       </p>
-                      
+
                       <div className="flex items-center gap-2 text-slate-400 text-xs font-semibold mb-6">
                         <MapPin className="h-4 w-4 text-rose-500 shrink-0" />
                         <span className="truncate">{[project.address, project.city].filter(Boolean).join(', ')}</span>
@@ -614,7 +614,7 @@ export default function HomeContent() {
                 Live Postings Today
               </span>
               <h2 className="text-3xl sm:text-4xl font-serif font-black text-slate-900 tracking-tight mt-3">Newly-Added Properties</h2>
-              <p className="text-slate-500 mt-2 text-sm font-medium">Freshly listed residential apartments and builder floors in Dwarka sectors.</p>
+              <p className="text-slate-500 mt-2 text-sm font-medium">Freshly listed residential apartments and builder floors in Dwarka, Noida, and Gurugram sectors.</p>
             </div>
             <Link href="/properties">
               <Button variant="outline" className="border-slate-300 hover:border-rose-500 hover:text-rose-600 font-bold rounded-2xl flex items-center gap-1.5 h-12 px-6 shadow-sm transition-all bg-white">
@@ -646,20 +646,20 @@ export default function HomeContent() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
-                      
+
                       <div className="absolute top-4 left-4 bg-slate-950/85 backdrop-blur-md text-white text-[10px] font-black px-3.5 py-1.5 rounded-xl border border-white/10 shadow flex items-center gap-1.5 uppercase tracking-wider">
                         <Building2 className="w-3.5 h-3.5 text-rose-500" />
                         {formatAreaDisplay(prop.area)}
                       </div>
-                      
+
                       <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase shadow">
                         Just In
                       </div>
-                      
+
                       <div className="absolute bottom-4 left-5 text-white">
                         <p className="text-2xl font-black tracking-tight">{formatPropertyPriceDisplay(prop)}</p>
                       </div>
-                      
+
                       <div className="absolute bottom-4 right-5 text-white/95 text-[10px] font-black bg-slate-950/45 backdrop-blur-sm px-3 py-1 rounded-lg border border-white/10">
                         {formatRelativeTime(prop.createdAt)}
                       </div>
@@ -669,7 +669,7 @@ export default function HomeContent() {
                       <h3 className="text-lg font-bold text-slate-900 group-hover:text-rose-600 transition-colors mb-2 line-clamp-1">
                         {prop.title}
                       </h3>
-                      
+
                       <div className="flex items-center gap-1.5 text-slate-500 text-xs font-semibold mb-5">
                         <MapPin className="h-4 w-4 text-rose-500 shrink-0" />
                         <span className="truncate">{[prop.address, prop.city].filter(Boolean).join(', ')}</span>
@@ -740,7 +740,7 @@ export default function HomeContent() {
                       sizes="(max-width: 768px) 50vw, 25vw"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-                    
+
                     <div className="absolute bottom-5 left-5 flex flex-col gap-0.5 text-white">
                       <div className="flex items-center gap-1.5">
                         <MapPin className="h-4.5 w-4.5 text-rose-500" />
@@ -815,7 +815,7 @@ export default function HomeContent() {
                 <div className="w-20 h-20 rounded-[2rem] bg-rose-50 flex items-center justify-center text-4xl mb-6 relative z-10 group-hover:scale-105 transition-transform duration-300 shadow-sm">
                   {item.icon}
                 </div>
-                
+
                 <h3 className="text-xl font-bold text-slate-900 mb-3 relative z-10">{item.title}</h3>
                 <p className="text-slate-500 text-sm leading-relaxed relative z-10">{item.description}</p>
               </motion.div>
@@ -923,7 +923,7 @@ export default function HomeContent() {
                   </div>
                   <p className="text-slate-300 text-sm italic leading-relaxed font-medium">"{testimonial.text}"</p>
                 </div>
-                
+
                 <div className="mt-8 flex items-center gap-4 pt-6 border-t border-white/5">
                   <Image
                     src={testimonial.avatar}
@@ -988,7 +988,7 @@ export default function HomeContent() {
                       {partner.listingCount} active listing{partner.listingCount !== 1 ? 's' : ''}
                     </Badge>
                   </div>
-                  
+
                   <div className="space-y-4 pt-6 border-t border-slate-100/80">
                     {partner.address && (
                       <div className="flex items-start gap-3 text-slate-500">
@@ -1018,7 +1018,7 @@ export default function HomeContent() {
           <div className="bg-gradient-to-br from-slate-900 to-slate-950 rounded-[3rem] p-8 md:p-16 relative overflow-hidden shadow-2xl border border-white/5">
             <div className="absolute top-0 right-0 w-1/2 h-full bg-rose-600/10 skew-x-12 translate-x-1/4" />
             <div className="absolute -left-12 -top-12 w-44 h-44 bg-rose-500/5 rounded-full blur-3xl" />
-            
+
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
                 <Badge className="bg-rose-600 text-white border-none px-4 py-1.5 mb-6 text-[10px] tracking-widest uppercase font-extrabold">Coming Soon</Badge>
@@ -1026,7 +1026,7 @@ export default function HomeContent() {
                   Download the <span className="text-rose-500">Kanharaj</span> <br />Mobile Platform
                 </h2>
                 <p className="text-slate-400 text-base sm:text-lg mb-8 max-w-md leading-relaxed">
-                  Stay updated with instant alert pings, direct whatsapp connections, and premium listing collections from verified agents in Dwarka sectors.
+                  Stay updated with instant alert pings, direct whatsapp connections, and premium listing collections from verified agents in Delhi NCR, Dwarka, Noida, and Gurugram.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <div className="bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex items-center gap-3 cursor-not-allowed grayscale">
@@ -1077,7 +1077,7 @@ export default function HomeContent() {
             </span>
             <h2 className="text-3xl md:text-4xl font-serif font-black text-slate-900 mt-4">Frequently Asked Questions</h2>
             <div className="w-12 h-1 bg-rose-600 mx-auto mt-4 rounded-full" />
-            <p className="mt-4 text-slate-500 max-w-xl mx-auto text-sm sm:text-base font-medium">Find answers to queries regarding listings, builder floor configurations, and transactions in Dwarka.</p>
+            <p className="mt-4 text-slate-500 max-w-xl mx-auto text-sm sm:text-base font-medium">Find answers to queries regarding listings, builder floor configurations, and transactions in Dwarka, Noida, Gurugram, and across Delhi NCR.</p>
           </motion.div>
 
           <div className="space-y-4">
@@ -1117,10 +1117,10 @@ export default function HomeContent() {
           >
             <div>
               <h2 className="font-serif text-3xl sm:text-4xl font-black text-white leading-tight">
-                Own a property in Dwarka? <br />List it <span className="underline decoration-2 underline-offset-4">FREE</span> Now
+                Own a property in All India? List it <span className="underline decoration-2 underline-offset-4">FREE</span> Now
               </h2>
               <p className="mt-4 text-white/90 text-sm sm:text-base max-w-xl leading-relaxed">
-                Connect directly with thousands of verified clients searching for properties in Delhi NCR. Zero middleman fees.
+                Connect directly with thousands of verified clients searching for properties in All India. Zero middleman fees.
               </p>
               <div className="mt-6 flex flex-wrap items-center gap-4 text-white text-xs font-bold uppercase tracking-wider">
                 <span className="flex items-center gap-1.5"><CheckCircle className="h-4.5 w-4.5 text-white" /> Verified Buyers</span>
