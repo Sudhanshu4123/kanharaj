@@ -8,7 +8,7 @@ import {
   Building2, Grid, Compass, Store, Phone, CheckSquare, Heart,
   Search, Clock, Gem, CreditCard, Star, Bell, ShieldAlert,
   HelpCircle, ChevronRight, QrCode, Facebook, Instagram, Twitter,
-  Linkedin, Youtube, PhoneCall
+  Linkedin, Youtube, PhoneCall, Key, LayoutGrid, Tag, Newspaper
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Button } from './ui/button'
@@ -133,6 +133,7 @@ const newsMegaData = {
 const navLinks = [
   {
     label: 'For Buyers',
+    icon: Home,
     subLinks: [
       { href: '/properties?listing=buy', label: 'Buy Residential' },
       { href: '/properties?type=RESIDENTIAL+PROJECT&listing=buy', label: 'New Projects' },
@@ -141,6 +142,7 @@ const navLinks = [
   },
   {
     label: 'For Tenants',
+    icon: Key,
     subLinks: [
       { href: '/properties?listing=rent', label: 'Rent Residential' },
       { href: '/properties?listing=rent&type=PG', label: 'PG / Co-Living' }
@@ -148,12 +150,14 @@ const navLinks = [
   },
   {
     label: 'For Sellers',
+    icon: Tag,
     subLinks: [
       { href: '/for-sellers', label: 'Post Property FREE' }
     ]
   },
   {
     label: 'Services',
+    icon: LayoutGrid,
     subLinks: [
       { href: '/coming-soon', label: 'Home Loans' },
       { href: '/coming-soon', label: 'Rent Agreement' },
@@ -162,6 +166,7 @@ const navLinks = [
   },
   {
     label: 'News & Guide',
+    icon: Newspaper,
     subLinks: [
       { href: '/#research-insights', label: 'Research & Insights' },
       { href: '/#news', label: 'Real Estate News' }
@@ -241,661 +246,496 @@ export function Header() {
     return () => document.removeEventListener('mousedown', handleOutsideClick)
   }, [openDropdown])
 
-  const isHome = pathname === '/'
-  const isTransparent = isHome && !scrolled
-
   return (
     <header className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-      isTransparent
-        ? "bg-black/35 backdrop-blur-md border-b border-white/10"
-        : "bg-white shadow-md border-b border-slate-100"
+      "fixed top-4 left-4 right-4 z-50 transition-all duration-300 max-w-7xl mx-auto rounded-[20px] bg-white shadow-lg border border-slate-200/80 h-[76px] flex items-center pr-4 pl-0 justify-between",
+      pathname === '/properties' && "hidden"
     )}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-1.5 shrink-0">
-            <div className="relative h-8 w-8 rounded-lg overflow-hidden flex items-center justify-center shadow-md bg-white">
+      <div className="relative h-full w-[180px] sm:w-[240px] md:w-[280px] bg-[#0a2540] rounded-l-[18px] flex items-center pl-3 shrink-0 select-none z-10">
+        <div className="absolute right-[-39px] top-0 bottom-0 w-10 h-full z-10 pointer-events-none">
+          <svg className="w-full h-full" viewBox="0 0 40 100" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 0 0 L 10 0 C 30 10, 10 90, 40 100 L 0 100 Z" fill="#0a2540" />
+            <path d="M 10 0 C 30 10, 10 90, 40 100" stroke="#dfa127" strokeWidth="3" />
+          </svg>
+        </div>
+        <div className="absolute left-2.5 sm:left-3 top-[10px] bottom-[10px] right-[-15px] sm:right-[-20px] bg-white rounded-l-full flex items-center pl-1.5 sm:pl-2 z-20 border-y border-l border-slate-100/55 shadow-sm">
+          <Link href="/" className="flex items-center">
+            <div className="relative h-9 w-9 sm:h-10 sm:w-10 rounded-full overflow-hidden flex items-center justify-center bg-[#0d233a] border border-[#dfa127] shrink-0 shadow-sm">
               <img
                 src={BRAND_LOGO_SRC}
                 alt="Kanharaj Logo"
-                className="h-full w-full object-cover"
+                className="h-6 w-6 sm:h-7 sm:w-7 object-contain"
               />
             </div>
-            <span className={cn(
-              "font-heading text-xl font-black tracking-tighter transition-colors flex items-baseline select-none",
-              isTransparent ? "text-white" : "text-slate-900"
-            )}>
-              KANHARAJ
-              <span className="text-[10px] font-extrabold ml-0.5 tracking-normal opacity-85">.COM</span>
-            </span>
+            <div className="ml-2 flex flex-col justify-center leading-none">
+              <div className="flex items-baseline">
+                <span className="font-sans font-black text-sm md:text-lg text-[#0a2540] tracking-tighter leading-none">KANHARAJ</span>
+                <span className="text-[9px] md:text-[10px] font-black text-[#dfa127] ml-0.5 leading-none">.COM</span>
+              </div>
+              <span className="hidden sm:block text-[8px] font-bold text-slate-500 mt-1 uppercase tracking-wide whitespace-nowrap">Dream Property. Right Place.</span>
+            </div>
           </Link>
-
-          {/* Desktop Navigation - Centered Dropdowns */}
-          <nav className="hidden lg:flex items-center gap-0.5 ml-4">
-            {navLinks.map((link) => (
-              <div
-                key={link.label}
-                className="relative group py-2"
-                onMouseEnter={() => setOpenDropdown(link.label)}
-                onMouseLeave={() => setOpenDropdown(null)}
-              >
-                <button
-                  className={cn(
-                    "px-3 py-1.5 text-xs sm:text-sm font-semibold transition-colors rounded-lg flex items-center gap-1",
-                    isTransparent
-                      ? "text-white/90 hover:text-white group-hover:text-white"
-                      : "text-slate-700 hover:text-[#f22b68] group-hover:text-[#f22b68]"
-                  )}
-                >
-                  {link.label}
-                  <ChevronDown className={cn(
-                    "h-3.5 w-3.5 transition-transform duration-200 opacity-70",
-                    openDropdown === link.label ? "rotate-180" : ""
-                  )} />
-                </button>
-
-                {link.subLinks && (
-                  <AnimatePresence>
-                    {openDropdown === link.label && (
-                      link.label === 'For Buyers' ? (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute top-full left-1/2 -translate-x-[25%] mt-1 w-[820px] bg-white border border-slate-100 shadow-2xl rounded-2xl p-6 grid grid-cols-4 gap-6 z-50 text-slate-800 border-t-4 border-[#f22b68] pointer-events-auto"
-                        >
-                          {/* Column 1: Property Type */}
-                          <div>
-                            <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Property type</span>
-                            <div className="space-y-1">
-                              {buyersMegaData.propertyTypes.map((item) => {
-                                const Icon = item.icon;
-                                return (
-                                  <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    onClick={() => setOpenDropdown(null)}
-                                    className="flex items-center gap-3 py-2 px-2.5 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-rose-600 transition-colors font-bold text-sm group"
-                                  >
-                                    <Icon className="h-4.5 w-4.5 text-slate-400 shrink-0 group-hover:text-[#f22b68] transition-colors" />
-                                    {item.label}
-                                  </Link>
-                                );
-                              })}
-                            </div>
-                          </div>
-
-                          {/* Column 2: Popular Areas */}
-                          <div>
-                            <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Popular areas</span>
-                            <div className="space-y-2">
-                              {buyersMegaData.popularAreas.map((item) => (
-                                <Link
-                                  key={item.label}
-                                  href={item.href}
-                                  onClick={() => setOpenDropdown(null)}
-                                  className="block py-0.5 px-1 font-semibold text-slate-600 hover:text-[#f22b68] text-sm transition-colors"
-                                >
-                                  {item.label}
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Column 3: Search by BHK */}
-                          <div>
-                            <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Search by BHK</span>
-                            <div className="space-y-2">
-                              {buyersMegaData.byBhk.map((item) => (
-                                <Link
-                                  key={item.label}
-                                  href={item.href}
-                                  onClick={() => setOpenDropdown(null)}
-                                  className="block py-0.5 px-1 font-semibold text-slate-600 hover:text-[#f22b68] text-sm transition-colors"
-                                >
-                                  {item.label}
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Column 4: Popular Searches */}
-                          <div>
-                            <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Popular searches</span>
-                            <div className="space-y-2">
-                              {buyersMegaData.popularSearches.map((item) => (
-                                <Link
-                                  key={item.label}
-                                  href={item.href}
-                                  onClick={() => setOpenDropdown(null)}
-                                  className="block py-0.5 px-1 font-semibold text-slate-600 hover:text-[#f22b68] text-sm transition-colors"
-                                >
-                                  {item.label}
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-                        </motion.div>
-                      ) : link.label === 'For Tenants' ? (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute top-full left-1/2 -translate-x-[40%] mt-1 w-[820px] bg-white border border-slate-100 shadow-2xl rounded-2xl p-6 grid grid-cols-4 gap-6 z-50 text-slate-800 border-t-4 border-[#f22b68] pointer-events-auto"
-                        >
-                          {/* Column 1: Property Type */}
-                          <div>
-                            <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Property type</span>
-                            <div className="space-y-1">
-                              {tenantsMegaData.propertyTypes.map((item) => {
-                                const Icon = item.icon;
-                                return (
-                                  <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    onClick={() => setOpenDropdown(null)}
-                                    className="flex items-center gap-3 py-2 px-2.5 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-rose-600 transition-colors font-bold text-sm group"
-                                  >
-                                    <Icon className="h-4.5 w-4.5 text-slate-400 shrink-0 group-hover:text-[#f22b68] transition-colors" />
-                                    {item.label}
-                                  </Link>
-                                );
-                              })}
-                            </div>
-                          </div>
-
-                          {/* Column 2: Popular Areas */}
-                          <div>
-                            <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Popular areas</span>
-                            <div className="space-y-2">
-                              {tenantsMegaData.popularAreas.map((item) => (
-                                <Link
-                                  key={item.label}
-                                  href={item.href}
-                                  onClick={() => setOpenDropdown(null)}
-                                  className="block py-0.5 px-1 font-semibold text-slate-600 hover:text-[#f22b68] text-sm transition-colors"
-                                >
-                                  {item.label}
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Column 3: Search by BHK */}
-                          <div>
-                            <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Search by BHK</span>
-                            <div className="space-y-2">
-                              {tenantsMegaData.byBhk.map((item) => (
-                                <Link
-                                  key={item.label}
-                                  href={item.href}
-                                  onClick={() => setOpenDropdown(null)}
-                                  className="block py-0.5 px-1 font-semibold text-slate-600 hover:text-[#f22b68] text-sm transition-colors"
-                                >
-                                  {item.label}
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Column 4: Popular Searches */}
-                          <div>
-                            <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Popular searches</span>
-                            <div className="space-y-2">
-                              {tenantsMegaData.popularSearches.map((item) => (
-                                <Link
-                                  key={item.label}
-                                  href={item.href}
-                                  onClick={() => setOpenDropdown(null)}
-                                  className="block py-0.5 px-1 font-semibold text-slate-600 hover:text-[#f22b68] text-sm transition-colors"
-                                >
-                                  {item.label}
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-                        </motion.div>
-                      ) : link.label === 'For Sellers' ? (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute top-full left-0 mt-1 w-64 bg-white border border-slate-100 shadow-2xl rounded-2xl p-4 z-50 text-slate-800 border-t-4 border-[#f22b68] pointer-events-auto"
-                        >
-                          <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3 px-2 block">{sellersMegaData.title}</span>
-                          <div className="space-y-1">
-                            {sellersMegaData.items.map((item) => (
-                              <Link
-                                key={item.label}
-                                href={item.href}
-                                onClick={() => setOpenDropdown(null)}
-                                className="block p-2 rounded-xl hover:bg-slate-50 group transition-colors"
-                              >
-                                <span className="text-slate-900 text-sm font-bold block group-hover:text-slate-900 transition-colors">{item.label}</span>
-                                <span className="text-slate-400 text-xs font-semibold block mt-0.5">{item.description}</span>
-                              </Link>
-                            ))}
-                          </div>
-                        </motion.div>
-                      ) : link.label === 'Services' ? (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute top-full left-0 mt-1 w-[420px] bg-white border border-slate-100 shadow-2xl rounded-2xl p-5 grid grid-cols-2 gap-6 z-50 text-slate-800 border-t-4 border-[#f22b68] pointer-events-auto"
-                        >
-                          <div>
-                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3 block">{servicesMegaData.edge.title}</span>
-                            <div className="space-y-2">
-                              {servicesMegaData.edge.items.map((item) => (
-                                <Link
-                                  key={item.label}
-                                  href={item.href}
-                                  onClick={() => setOpenDropdown(null)}
-                                  className="block font-bold text-slate-700 hover:text-[#f22b68] text-sm transition-colors py-0.5 px-1 rounded-md hover:bg-slate-50"
-                                >
-                                  {item.label}
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-                          <div>
-                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3 block">{servicesMegaData.tools.title}</span>
-                            <div className="space-y-2">
-                              {servicesMegaData.tools.items.map((item) => (
-                                <Link
-                                  key={item.label}
-                                  href={item.href}
-                                  onClick={() => setOpenDropdown(null)}
-                                  className="block font-bold text-slate-700 hover:text-[#f22b68] text-sm transition-colors py-0.5 px-1 rounded-md hover:bg-slate-50"
-                                >
-                                  {item.label}
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-                        </motion.div>
-                      ) : link.label === 'News & Guide' ? (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute top-full left-1/2 -translate-x-[60%] mt-1 w-[290px] bg-white border border-slate-100 shadow-2xl rounded-2xl p-4 z-50 text-slate-800 border-t-4 border-[#f22b68] pointer-events-auto"
-                        >
-                          <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3 px-2 block">{newsMegaData.title}</span>
-                          <div className="space-y-1">
-                            {newsMegaData.items.map((item) => (
-                              <Link
-                                key={item.label}
-                                href={item.href}
-                                onClick={() => setOpenDropdown(null)}
-                                className="block p-2 rounded-xl hover:bg-slate-50 group transition-colors"
-                              >
-                                <span className="text-slate-900 text-sm font-bold block group-hover:text-slate-900 transition-colors">{item.label}</span>
-                                <span className="text-slate-400 text-xs font-semibold block mt-0.5">{item.description}</span>
-                              </Link>
-                            ))}
-                          </div>
-                        </motion.div>
-                      ) : (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute top-full left-0 mt-1 w-52 bg-white border border-slate-100 shadow-xl rounded-xl py-2 overflow-hidden z-50 text-slate-800"
-                        >
-                          {link.subLinks.map(sub => (
-                            <Link
-                              key={sub.href}
-                              href={sub.href}
-                              onClick={() => setOpenDropdown(null)}
-                              className="block px-4 py-2 text-sm font-semibold text-slate-700 hover:text-rose-600 hover:bg-slate-50 transition-colors"
-                            >
-                              {sub.label}
-                            </Link>
-                          ))}
-                        </motion.div>
-                      )
-                    )}
-                  </AnimatePresence>
-                )}
-              </div>
-            ))}
-          </nav>
-
-          {/* Desktop Actions - Right Aligned */}
-          <div className="hidden lg:flex items-center gap-3">
-            {/* Download App text link */}
-            <Link
-              href="/#download"
-              className={cn(
-                "text-sm font-bold transition-colors",
-                isTransparent ? "text-white/90 hover:text-white" : "text-slate-600 hover:text-[#f22b68]"
-              )}
-            >
-              Download App
-            </Link>
-
-            <button
-              onClick={handlePostPropertyFreeClick}
-              className={cn(
-                "h-8 px-3 font-black rounded-full text-[11px] shadow-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1",
-                isTransparent
-                  ? "bg-white text-slate-900 hover:bg-white/90 shadow-white/10"
-                  : "bg-gradient-to-r from-[#f22b68] to-[#e01f5c] text-white hover:shadow-md hover:shadow-rose-500/10"
-              )}
-            >
-              <PlusCircle className="w-3.5 h-3.5" />
-              Post Property <span className="bg-yellow-300 text-slate-900 text-[9px] px-1 rounded-sm uppercase tracking-wide">FREE</span>
-            </button>
-
-            {showSellerDashboard && (
-              <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
-                <Button className="h-9 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg text-xs shadow-sm transition-all duration-300">
-                  Seller Dashboard
-                </Button>
-              </a>
-            )}
-
-            {/* Profile capsule menu block */}
-            {mounted && (
-              <div className="relative profile-menu-container">
-                <button
-                  onClick={() => setOpenDropdown(openDropdown === 'user' ? null : 'user')}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-1.5 rounded-full border transition-all duration-300 shadow-sm",
-                    isTransparent
-                      ? "bg-white/10 border-white/20 hover:bg-white/20"
-                      : "bg-white border-slate-200 hover:shadow-md"
-                  )}
-                >
-                  <Menu className={cn("h-4 w-4", isTransparent ? "text-white" : "text-slate-600")} />
-                  <div className="w-6 h-6 rounded-full bg-[#f22b68] flex items-center justify-center text-white text-[10px] font-black shrink-0 overflow-hidden">
-                    {isAuthenticated && user && normalizeProfileImageUrl(user.profileImage) ? (
-                      <img
-                        src={normalizeProfileImageUrl(user.profileImage)}
-                        alt={user.name || "User"}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : isAuthenticated ? (
-                      user?.name?.charAt(0).toUpperCase()
-                    ) : (
-                      "K"
-                    )}
-                  </div>
-                </button>
-
-                <AnimatePresence>
-                  {openDropdown === 'user' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 12, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 12, scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute right-0 top-full mt-3 w-[390px] sm:w-[420px] max-h-[85vh] bg-white border border-slate-200 shadow-2xl rounded-[28px] overflow-y-auto p-5 z-50 text-slate-800 flex flex-col gap-5 scrollbar-thin scrollbar-thumb-slate-200 pointer-events-auto"
-                    >
-                      {/* Hello KANHARAJ Builder card */}
-                      <div className="bg-[#f8fafc] border border-slate-100 p-4 rounded-2xl flex items-center justify-between shadow-sm">
-                        <div className="flex items-center gap-3">
-                          {/* Purple / Indigo Gradient Avatar */}
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-md">
-                            <User className="h-6 w-6 text-white" />
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-extrabold text-slate-900 leading-tight">
-                              {isAuthenticated
-                                ? `Hello ${user?.name || 'there'}!`
-                                : 'Welcome to Kanharaj'}
-                            </h4>
-                            {isAuthenticated ? (
-                              <>
-                                <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                                  {user?.email}
-                                </p>
-                                {user?.phone && (
-                                  <p className="text-xs text-slate-500 font-semibold">
-                                    {user.phone}
-                                  </p>
-                                )}
-                              </>
-                            ) : (
-                              <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                                Log in to save properties and manage your account
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        {isAuthenticated ? (
-                          <Link href="/profile" onClick={() => setOpenDropdown(null)}>
-                            <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs px-3.5 py-1.5 rounded-full font-bold shadow-sm transition-colors">
-                              Edit
-                            </button>
-                          </Link>
-                        ) : (
-                          <Link href="/login" onClick={() => setOpenDropdown(null)}>
-                            <button className="bg-[#f22b68] hover:bg-[#e01f5c] text-white text-xs px-3.5 py-1.5 rounded-full font-bold shadow-sm transition-colors">
-                              Log In
-                            </button>
-                          </Link>
-                        )}
-                      </div>
-
-                      {isAuthenticated && (
-                        <>
-                          <MyActivityPanel
-                            variant="desktop"
-                            activeTab={activeActivityTab}
-                            setActiveTab={setActiveActivityTab}
-                            onNavigate={() => setOpenDropdown(null)}
-                          />
-
-                      {/* Navigation Links list */}
-                      <div className="flex flex-col border-t border-slate-100 pt-3 gap-0.5">
-                        <Link
-                          href="/properties?brokerage=zero"
-                          onClick={() => setOpenDropdown(null)}
-                          className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm"
-                        >
-                          <div className="flex items-center gap-3">
-                            <Gem className="h-4.5 w-4.5 text-amber-500 shrink-0" />
-                            <span>Zero Brokerage Properties</span>
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-slate-400" />
-                        </Link>
-
-                        <Link
-                          href="/profile?tab=activity&activity=contacted"
-                          onClick={() => setOpenDropdown(null)}
-                          className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm"
-                        >
-                          <div className="flex items-center gap-3">
-                            <CreditCard className="h-4.5 w-4.5 text-blue-500 shrink-0" />
-                            <span>My Transactions</span>
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-slate-400" />
-                        </Link>
-
-                        <Link
-                          href="/feedback"
-                          onClick={() => setOpenDropdown(null)}
-                          className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm"
-                        >
-                          <div className="flex items-center gap-3">
-                            <Star className="h-4.5 w-4.5 text-yellow-500 shrink-0" />
-                            <div className="flex items-center">
-                              <span>My Reviews</span>
-                              <span className="ml-2 px-2 py-0.5 text-[8px] font-black tracking-wider bg-[#ff007f] text-white rounded-full uppercase leading-none">NEW</span>
-                            </div>
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-slate-400" />
-                        </Link>
-
-                        <a
-                          href="mailto:kanharaj1389@gmail.com?subject=Unsubscribe%20Alerts"
-                          onClick={() => setOpenDropdown(null)}
-                          className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm"
-                        >
-                          <div className="flex items-center gap-3">
-                            <Bell className="h-4.5 w-4.5 text-rose-500 shrink-0" />
-                            <span>Unsubscribe Alerts</span>
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-slate-400" />
-                        </a>
-
-                        <a
-                          href="mailto:kanharaj1389@gmail.com?subject=Report%20Fraud"
-                          onClick={() => setOpenDropdown(null)}
-                          className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm border-b border-slate-100 pb-3"
-                        >
-                          <div className="flex items-center gap-3">
-                            <ShieldAlert className="h-4.5 w-4.5 text-red-500 shrink-0" />
-                            <span>Report a Fraud</span>
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-slate-400" />
-                        </a>
-                      </div>
-
-                        </>
-                      )}
-
-                      {isAuthenticated ? (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            handleLogout()
-                          }}
-                          className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-4 py-3 rounded-2xl flex items-center justify-between transition-all shadow-sm font-extrabold text-xs w-full"
-                        >
-                          <div className="flex items-center gap-3">
-                            <LogOut className="h-4.5 w-4.5 text-slate-500" />
-                            <span>Log Out</span>
-                          </div>
-                          <ChevronRight className="h-4.5 w-4.5 text-slate-500" />
-                        </button>
-                      ) : (
-                        <Link
-                          href="/login"
-                          onClick={() => setOpenDropdown(null)}
-                          className="bg-[#f22b68] hover:bg-[#e01f5c] text-white px-4 py-3 rounded-2xl flex items-center justify-between transition-all shadow-sm font-extrabold text-xs w-full"
-                        >
-                          <div className="flex items-center gap-3">
-                            <User className="h-4.5 w-4.5" />
-                            <span>Log In / Register</span>
-                          </div>
-                          <ChevronRight className="h-4.5 w-4.5" />
-                        </Link>
-                      )}
-
-                      {/* Download App & QR block */}
-                      <div className="bg-gradient-to-br from-slate-50 to-indigo-50/20 border border-slate-100 p-4 rounded-[22px] flex items-center justify-between gap-3 shadow-sm">
-                        <div className="flex flex-col gap-2 flex-grow">
-                          <h4 className="text-[11px] font-black text-slate-800 leading-tight">Download Housing App</h4>
-                          <div className="flex flex-col gap-1.5">
-                            {/* App Store button */}
-                            <a href="#" className="h-7 w-[100px] hover:opacity-90 transition-opacity">
-                              <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
-                                alt="App Store"
-                                className="h-full w-full object-contain"
-                              />
-                            </a>
-                            {/* Play Store button */}
-                            <a href="#" className="h-7 w-[100px] hover:opacity-90 transition-opacity">
-                              <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
-                                alt="Google Play"
-                                className="h-full w-full object-contain"
-                              />
-                            </a>
-                          </div>
-                        </div>
-                        {/* Simulated QR Code SVG */}
-                        <div className="bg-white p-2 rounded-xl border border-slate-200 shrink-0 shadow-sm flex items-center justify-center">
-                          <svg className="w-16 h-16 text-slate-800" viewBox="0 0 100 100" fill="currentColor">
-                            {/* Outer square */}
-                            <path d="M5,5 h30 v30 h-30 z M15,15 h10 v10 h-10 z" />
-                            <path d="M65,5 h30 v30 h-30 z M75,15 h10 v10 h-10 z" />
-                            <path d="M5,65 h30 v30 h-30 z M15,75 h10 v10 h-10 z" />
-                            {/* Mini squares for complexity */}
-                            <rect x="45" y="10" width="8" height="8" />
-                            <rect x="45" y="25" width="8" height="8" />
-                            <rect x="45" y="45" width="8" height="8" />
-                            <rect x="10" y="45" width="8" height="8" />
-                            <rect x="25" y="45" width="8" height="8" />
-                            <rect x="65" y="45" width="8" height="8" />
-                            <rect x="80" y="45" width="8" height="8" />
-                            <rect x="45" y="65" width="8" height="8" />
-                            <rect x="45" y="80" width="8" height="8" />
-                            <rect x="65" y="65" width="10" height="10" />
-                            <rect x="80" y="65" width="10" height="10" />
-                            <rect x="65" y="80" width="10" height="10" />
-                            <rect x="80" y="80" width="15" height="15" />
-                          </svg>
-                        </div>
-                      </div>
-
-                      {/* Footer Socials */}
-                      <div className="flex items-center justify-between px-1 text-slate-400">
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Follow on</span>
-                        <div className="flex items-center gap-2">
-                          <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#1877f2] flex items-center justify-center transition-colors">
-                            <Facebook className="w-3.5 h-3.5" />
-                          </a>
-                          <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#c13584] flex items-center justify-center transition-colors">
-                            <Instagram className="w-3.5 h-3.5" />
-                          </a>
-                          <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#1da1f2] flex items-center justify-center transition-colors">
-                            <Twitter className="w-3.5 h-3.5" />
-                          </a>
-                          <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#0077b5] flex items-center justify-center transition-colors">
-                            <Linkedin className="w-3.5 h-3.5" />
-                          </a>
-                          <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#ff0000] flex items-center justify-center transition-colors">
-                            <Youtube className="w-3.5 h-3.5" />
-                          </a>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className={cn(
-              "lg:hidden p-2 rounded-lg transition-colors",
-              isTransparent ? "hover:bg-white/10 text-white" : "hover:bg-slate-100 text-slate-900"
-            )}
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          >
-            {isMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      <nav className="hidden lg:flex items-center gap-2 xl:gap-4 ml-auto mr-4">
+        {navLinks.map((link) => (
+          <div
+            key={link.label}
+            className="relative group py-2"
+            onMouseEnter={() => setOpenDropdown(link.label)}
+            onMouseLeave={() => setOpenDropdown(null)}
+          >
+            <button
+              className="px-2.5 py-1.5 text-xs sm:text-sm font-bold text-[#0a2540] hover:text-[#dfa127] group-hover:text-[#dfa127] transition-colors flex items-center gap-1.5 rounded-lg"
+            >
+              {link.icon && <link.icon className="h-4 w-4 text-[#0a2540]/70 group-hover:text-[#dfa127] transition-colors" />}
+              <span>{link.label}</span>
+              <ChevronDown className={cn(
+                "h-3.5 w-3.5 transition-transform duration-200 opacity-70",
+                openDropdown === link.label ? "rotate-180" : ""
+              )} />
+            </button>
+
+            {link.subLinks && (
+              <AnimatePresence>
+                {openDropdown === link.label && (
+                  link.label === 'For Buyers' ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-full left-1/2 -translate-x-[25%] mt-1 w-[820px] bg-white border border-slate-100 shadow-2xl rounded-2xl p-6 grid grid-cols-4 gap-6 z-50 text-slate-800 border-t-4 border-[#f22b68] pointer-events-auto"
+                    >
+                      <div>
+                        <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Property type</span>
+                        <div className="space-y-1">
+                          {buyersMegaData.propertyTypes.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                              <Link
+                                key={item.label}
+                                href={item.href}
+                                onClick={() => setOpenDropdown(null)}
+                                className="flex items-center gap-3 py-2 px-2.5 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-rose-600 transition-colors font-bold text-sm group"
+                              >
+                                <Icon className="h-4.5 w-4.5 text-slate-400 shrink-0 group-hover:text-[#f22b68] transition-colors" />
+                                {item.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Popular areas</span>
+                        <div className="space-y-2">
+                          {buyersMegaData.popularAreas.map((item) => (
+                            <Link
+                              key={item.label}
+                              href={item.href}
+                              onClick={() => setOpenDropdown(null)}
+                              className="block py-0.5 px-1 font-semibold text-slate-600 hover:text-[#f22b68] text-sm transition-colors"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Search by BHK</span>
+                        <div className="space-y-2">
+                          {buyersMegaData.byBhk.map((item) => (
+                            <Link
+                              key={item.label}
+                              href={item.href}
+                              onClick={() => setOpenDropdown(null)}
+                              className="block py-0.5 px-1 font-semibold text-slate-600 hover:text-[#f22b68] text-sm transition-colors"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Popular searches</span>
+                        <div className="space-y-2">
+                          {buyersMegaData.popularSearches.map((item) => (
+                            <Link
+                              key={item.label}
+                              href={item.href}
+                              onClick={() => setOpenDropdown(null)}
+                              className="block py-0.5 px-1 font-semibold text-slate-600 hover:text-[#f22b68] text-sm transition-colors"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : link.label === 'For Tenants' ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-full left-1/2 -translate-x-[40%] mt-1 w-[820px] bg-white border border-slate-100 shadow-2xl rounded-2xl p-6 grid grid-cols-4 gap-6 z-50 text-slate-800 border-t-4 border-[#f22b68] pointer-events-auto"
+                    >
+                      <div>
+                        <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Property type</span>
+                        <div className="space-y-1">
+                          {tenantsMegaData.propertyTypes.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                              <Link
+                                key={item.label}
+                                href={item.href}
+                                onClick={() => setOpenDropdown(null)}
+                                className="flex items-center gap-3 py-2 px-2.5 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-rose-600 transition-colors font-bold text-sm group"
+                              >
+                                <Icon className="h-4.5 w-4.5 text-slate-400 shrink-0 group-hover:text-[#f22b68] transition-colors" />
+                                {item.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Popular areas</span>
+                        <div className="space-y-2">
+                          {tenantsMegaData.popularAreas.map((item) => (
+                            <Link
+                              key={item.label}
+                              href={item.href}
+                              onClick={() => setOpenDropdown(null)}
+                              className="block py-0.5 px-1 font-semibold text-slate-600 hover:text-[#f22b68] text-sm transition-colors"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Search by BHK</span>
+                        <div className="space-y-2">
+                          {tenantsMegaData.byBhk.map((item) => (
+                            <Link
+                              key={item.label}
+                              href={item.href}
+                              onClick={() => setOpenDropdown(null)}
+                              className="block py-0.5 px-1 font-semibold text-slate-600 hover:text-[#f22b68] text-sm transition-colors"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-4 block">Popular searches</span>
+                        <div className="space-y-2">
+                          {tenantsMegaData.popularSearches.map((item) => (
+                            <Link
+                              key={item.label}
+                              href={item.href}
+                              onClick={() => setOpenDropdown(null)}
+                              className="block py-0.5 px-1 font-semibold text-slate-600 hover:text-[#f22b68] text-sm transition-colors"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : link.label === 'For Sellers' ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-full left-0 mt-1 w-64 bg-white border border-slate-100 shadow-2xl rounded-2xl p-4 z-50 text-slate-800 border-t-4 border-[#f22b68] pointer-events-auto"
+                    >
+                      <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3 px-2 block">{sellersMegaData.title}</span>
+                      <div className="space-y-1">
+                        {sellersMegaData.items.map((item) => (
+                          <Link
+                            key={item.label}
+                            href={item.href}
+                            onClick={() => setOpenDropdown(null)}
+                            className="block p-2 rounded-xl hover:bg-slate-50 group transition-colors"
+                          >
+                            <span className="text-slate-900 text-sm font-bold block group-hover:text-slate-900 transition-colors">{item.label}</span>
+                            <span className="text-slate-400 text-xs font-semibold block mt-0.5">{item.description}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </motion.div>
+                  ) : link.label === 'Services' ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-full left-0 mt-1 w-[420px] bg-white border border-slate-100 shadow-2xl rounded-2xl p-5 grid grid-cols-2 gap-6 z-50 text-slate-800 border-t-4 border-[#f22b68] pointer-events-auto"
+                    >
+                      <div>
+                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3 block">{servicesMegaData.edge.title}</span>
+                        <div className="space-y-2">
+                          {servicesMegaData.edge.items.map((item) => (
+                            <Link
+                              key={item.label}
+                              href={item.href}
+                              onClick={() => setOpenDropdown(null)}
+                              className="block font-bold text-slate-700 hover:text-[#f22b68] text-sm transition-colors py-0.5 px-1 rounded-md hover:bg-slate-50"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3 block">{servicesMegaData.tools.title}</span>
+                        <div className="space-y-2">
+                          {servicesMegaData.tools.items.map((item) => (
+                            <Link
+                              key={item.label}
+                              href={item.href}
+                              onClick={() => setOpenDropdown(null)}
+                              className="block font-bold text-slate-700 hover:text-[#f22b68] text-sm transition-colors py-0.5 px-1 rounded-md hover:bg-slate-50"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : link.label === 'News & Guide' ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-full left-1/2 -translate-x-[60%] mt-1 w-[290px] bg-white border border-slate-100 shadow-2xl rounded-2xl p-4 z-50 text-slate-800 border-t-4 border-[#f22b68] pointer-events-auto"
+                    >
+                      <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3 px-2 block">{newsMegaData.title}</span>
+                      <div className="space-y-1">
+                        {newsMegaData.items.map((item) => (
+                          <Link
+                            key={item.label}
+                            href={item.href}
+                            onClick={() => setOpenDropdown(null)}
+                            className="block p-2 rounded-xl hover:bg-slate-50 group transition-colors"
+                          >
+                            <span className="text-slate-900 text-sm font-bold block group-hover:text-slate-900 transition-colors">{item.label}</span>
+                            <span className="text-slate-400 text-xs font-semibold block mt-0.5">{item.description}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-full left-0 mt-1 w-52 bg-white border border-slate-100 shadow-xl rounded-xl py-2 overflow-hidden z-50 text-slate-800"
+                    >
+                      {link.subLinks.map(sub => (
+                        <Link
+                          key={sub.href}
+                          href={sub.href}
+                          onClick={() => setOpenDropdown(null)}
+                          className="block px-4 py-2 text-sm font-semibold text-slate-700 hover:text-rose-600 hover:bg-slate-50 transition-colors"
+                        >
+                          {sub.label}
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )
+                )}
+              </AnimatePresence>
+            )}
+          </div>
+        ))}
+      </nav>
+
+      <div className="hidden lg:flex items-center gap-3 shrink-0">
+        {showSellerDashboard && (
+          <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
+            <Button className="h-9 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg text-xs shadow-sm transition-all duration-300">
+              Seller Dashboard
+            </Button>
+          </a>
+        )}
+
+        <button
+          onClick={handlePostPropertyFreeClick}
+          className="h-11 px-5 bg-[#0a2540] hover:bg-[#143d66] text-white font-extrabold rounded-full text-xs shadow-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 border border-white/10 shrink-0"
+        >
+          <span className="flex items-center justify-center w-4 h-4 rounded-full border border-white text-white font-bold text-[10px] leading-none shrink-0">+</span>
+          <span>Post Property</span>
+          <span className="bg-[#ffbe1a] text-[#0a2540] text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider leading-none">FREE</span>
+        </button>
+
+        {mounted && (
+          <div className="relative profile-menu-container flex items-center gap-2.5">
+            <button
+              onClick={() => setOpenDropdown(openDropdown === 'user' ? null : 'user')}
+              className="w-11 h-11 rounded-full border border-slate-200 bg-white hover:bg-slate-50 hover:shadow-md flex items-center justify-center text-[#0a2540] transition-all shrink-0 shadow-sm"
+              aria-label="Menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+
+            <button
+              onClick={() => setOpenDropdown(openDropdown === 'user' ? null : 'user')}
+              className="w-11 h-11 rounded-full bg-[#dfa127] hover:bg-[#c29224] flex items-center justify-center text-white transition-all shrink-0 shadow-sm overflow-hidden"
+              aria-label="User profile"
+            >
+              {isAuthenticated && user && normalizeProfileImageUrl(user.profileImage) ? (
+                <img
+                  src={normalizeProfileImageUrl(user.profileImage)}
+                  alt={user.name || "User"}
+                  className="w-full h-full object-cover"
+                />
+              ) : isAuthenticated ? (
+                <span className="text-sm font-black">{user?.name?.charAt(0).toUpperCase()}</span>
+              ) : (
+                <User className="h-5 w-5 text-white" />
+              )}
+            </button>
+
+            <AnimatePresence>
+              {openDropdown === 'user' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 12, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 top-full mt-3 w-[390px] sm:w-[420px] max-h-[85vh] bg-white border border-slate-200 shadow-2xl rounded-[28px] overflow-y-auto p-5 z-50 text-slate-800 flex flex-col gap-5 scrollbar-thin scrollbar-thumb-slate-200 pointer-events-auto"
+                >
+                  <div className="bg-[#f8fafc] border border-slate-100 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-md">
+                        <User className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-extrabold text-slate-900 leading-tight">
+                          {isAuthenticated ? `Hello ${user?.name || 'there'}!` : 'Welcome to Kanharaj'}
+                        </h4>
+                        {isAuthenticated ? (
+                          <>
+                            <p className="text-xs text-slate-500 font-semibold mt-0.5">{user?.email}</p>
+                            {user?.phone && <p className="text-xs text-slate-500 font-semibold">{user.phone}</p>}
+                          </>
+                        ) : (
+                          <p className="text-xs text-slate-500 font-semibold mt-0.5">Log in to save properties and manage your account</p>
+                        )}
+                      </div>
+                    </div>
+                    {isAuthenticated ? (
+                      <Link href="/profile" onClick={() => setOpenDropdown(null)}>
+                        <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs px-3.5 py-1.5 rounded-full font-bold shadow-sm transition-colors">Edit</button>
+                      </Link>
+                    ) : (
+                      <Link href="/login" onClick={() => setOpenDropdown(null)}>
+                        <button className="bg-[#f22b68] hover:bg-[#e01f5c] text-white text-xs px-3.5 py-1.5 rounded-full font-bold shadow-sm transition-colors">Log In</button>
+                      </Link>
+                    )}
+                  </div>
+
+                  {isAuthenticated && (
+                    <>
+                      <MyActivityPanel
+                        variant="desktop"
+                        activeTab={activeActivityTab}
+                        setActiveTab={setActiveActivityTab}
+                        onNavigate={() => setOpenDropdown(null)}
+                      />
+                      <div className="flex flex-col border-t border-slate-100 pt-3 gap-0.5">
+                        <Link href="/properties?brokerage=zero" onClick={() => setOpenDropdown(null)} className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm">
+                          <div className="flex items-center gap-3"><Gem className="h-4.5 w-4.5 text-amber-500 shrink-0" /><span>Zero Brokerage Properties</span></div>
+                          <ChevronRight className="h-4 w-4 text-slate-400" />
+                        </Link>
+                        <Link href="/profile?tab=activity&activity=contacted" onClick={() => setOpenDropdown(null)} className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm">
+                          <div className="flex items-center gap-3"><CreditCard className="h-4.5 w-4.5 text-blue-500 shrink-0" /><span>My Transactions</span></div>
+                          <ChevronRight className="h-4 w-4 text-slate-400" />
+                        </Link>
+                        <Link href="/feedback" onClick={() => setOpenDropdown(null)} className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm">
+                          <div className="flex items-center gap-3"><Star className="h-4.5 w-4.5 text-yellow-500 shrink-0" /><span>My Reviews</span><span className="ml-2 px-2 py-0.5 text-[8px] font-black tracking-wider bg-[#ff007f] text-white rounded-full uppercase leading-none">NEW</span></div>
+                          <ChevronRight className="h-4 w-4 text-slate-400" />
+                        </Link>
+                        <a href="mailto:kanharaj1389@gmail.com?subject=Unsubscribe%20Alerts" onClick={() => setOpenDropdown(null)} className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm">
+                          <div className="flex items-center gap-3"><Bell className="h-4.5 w-4.5 text-rose-500 shrink-0" /><span>Unsubscribe Alerts</span></div>
+                          <ChevronRight className="h-4 w-4 text-slate-400" />
+                        </a>
+                        <a href="mailto:kanharaj1389@gmail.com?subject=Report%20Fraud" onClick={() => setOpenDropdown(null)} className="flex items-center justify-between p-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors font-bold text-sm border-b border-slate-100 pb-3">
+                          <div className="flex items-center gap-3"><ShieldAlert className="h-4.5 w-4.5 text-red-500 shrink-0" /><span>Report a Fraud</span></div>
+                          <ChevronRight className="h-4 w-4 text-slate-400" />
+                        </a>
+                      </div>
+                    </>
+                  )}
+
+                  {isAuthenticated ? (
+                    <button type="button" onClick={() => handleLogout()} className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-4 py-3 rounded-2xl flex items-center justify-between transition-all shadow-sm font-extrabold text-xs w-full">
+                      <div className="flex items-center gap-3"><LogOut className="h-4.5 w-4.5 text-slate-500" /><span>Log Out</span></div>
+                      <ChevronRight className="h-4.5 w-4.5 text-slate-500" />
+                    </button>
+                  ) : (
+                    <Link href="/login" onClick={() => setOpenDropdown(null)} className="bg-[#f22b68] hover:bg-[#e01f5c] text-white px-4 py-3 rounded-2xl flex items-center justify-between transition-all shadow-sm font-extrabold text-xs w-full">
+                      <div className="flex items-center gap-3"><User className="h-4.5 w-4.5" /><span>Log In / Register</span></div>
+                      <ChevronRight className="h-4.5 w-4.5" />
+                    </Link>
+                  )}
+
+                  <div className="bg-gradient-to-br from-slate-50 to-indigo-50/20 border border-slate-100 p-4 rounded-[22px] flex items-center justify-between gap-3 shadow-sm">
+                    <div className="flex flex-col gap-2 flex-grow">
+                      <h4 className="text-[11px] font-black text-slate-800 leading-tight">Download Housing App</h4>
+                      <div className="flex flex-col gap-1.5">
+                        <a href="#" className="h-7 w-[100px] hover:opacity-90 transition-opacity"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" className="h-full w-full object-contain" /></a>
+                        <a href="#" className="h-7 w-[100px] hover:opacity-90 transition-opacity"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" className="h-full w-full object-contain" /></a>
+                      </div>
+                    </div>
+                    <div className="bg-white p-2 rounded-xl border border-slate-200 shrink-0 shadow-sm flex items-center justify-center">
+                      <svg className="w-16 h-16 text-slate-800" viewBox="0 0 100 100" fill="currentColor">
+                        <path d="M5,5 h30 v30 h-30 z M15,15 h10 v10 h-10 z" />
+                        <path d="M65,5 h30 v30 h-30 z M75,15 h10 v10 h-10 z" />
+                        <path d="M5,65 h30 v30 h-30 z M15,75 h10 v10 h-10 z" />
+                        <rect x="45" y="10" width="8" height="8" /><rect x="45" y="25" width="8" height="8" /><rect x="45" y="45" width="8" height="8" /><rect x="10" y="45" width="8" height="8" /><rect x="25" y="45" width="8" height="8" /><rect x="65" y="45" width="8" height="8" /><rect x="80" y="45" width="8" height="8" /><rect x="45" y="65" width="8" height="8" /><rect x="45" y="80" width="8" height="8" /><rect x="65" y="65" width="10" height="10" /><rect x="80" y="65" width="10" height="10" /><rect x="65" y="80" width="10" height="10" /><rect x="80" y="80" width="15" height="15" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between px-1 text-slate-400">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Follow on</span>
+                    <div className="flex items-center gap-2">
+                      <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#1877f2] flex items-center justify-center transition-colors"><Facebook className="w-3.5 h-3.5" /></a>
+                      <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#c13584] flex items-center justify-center transition-colors"><Instagram className="w-3.5 h-3.5" /></a>
+                      <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#1da1f2] flex items-center justify-center transition-colors"><Twitter className="w-3.5 h-3.5" /></a>
+                      <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#0077b5] flex items-center justify-center transition-colors"><Linkedin className="w-3.5 h-3.5" /></a>
+                      <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#ff0000] flex items-center justify-center transition-colors"><Youtube className="w-3.5 h-3.5" /></a>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+      </div>
+
+      <button
+        className="lg:hidden w-11 h-11 rounded-full border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-[#0a2540] transition-colors shrink-0 shadow-sm"
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+      >
+        {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </button>
+
       {isMenuOpen && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="lg:hidden bg-white border-b border-slate-200 shadow-xl text-slate-800"
+          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          className="lg:hidden absolute top-[84px] left-0 right-0 bg-white border border-slate-200 shadow-2xl rounded-2xl p-4 max-h-[75vh] overflow-y-auto z-50 text-slate-800 flex flex-col gap-4"
         >
           <div className="px-4 py-4 space-y-1">
             {navLinks.map((link) => (
