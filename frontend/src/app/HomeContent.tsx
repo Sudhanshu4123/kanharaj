@@ -265,7 +265,7 @@ export default function HomeContent() {
       </section>
 
       {/* Our Services Section */}
-      <section className="py-14 bg-slate-50 relative overflow-hidden">
+      <section className="py-8 sm:py-14 bg-slate-50 relative overflow-hidden">
         {/* Subtle grid backdrop */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30 pointer-events-none" />
 
@@ -274,19 +274,19 @@ export default function HomeContent() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-10"
+            className="text-center mb-6 sm:mb-10"
           >
-            <span className="text-rose-600 text-xs font-black uppercase tracking-[0.2em] bg-rose-50 px-4 py-1.5 rounded-full inline-block">
+            <span className="text-rose-600 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] bg-rose-50 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full inline-block">
               Expert Solutions
             </span>
-            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 mt-3 leading-tight">Our Premium Services</h2>
-            <div className="w-10 h-1 bg-rose-600 mx-auto mt-4 rounded-full" />
-            <p className="mt-3 text-slate-500 max-w-xl mx-auto text-sm font-medium leading-relaxed">
+            <h2 className="text-base sm:text-xl md:text-2xl font-bold tracking-tight text-slate-900 mt-2.5 leading-tight">Our Premium Services</h2>
+            <div className="w-8 sm:w-10 h-1 bg-rose-600 mx-auto mt-3 sm:mt-4 rounded-full" />
+            <p className="mt-2.5 text-slate-500 max-w-xl mx-auto text-xs sm:text-sm font-medium leading-relaxed">
               End-to-end guidance for all your <strong>real estate requirements in Delhi NCR</strong>.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {[
               { title: 'Property Buying & Selling', icon: Building2, desc: 'Find the best 3 BHK flats and luxury builder floors in Dwarka, Gurugram, and Noida with expert guidance.' },
               { title: 'Legal & Documentation', icon: Shield, desc: 'Hassle-free registry and documentation support for all property transactions in Delhi NCR.' },
@@ -301,16 +301,16 @@ export default function HomeContent() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
-                  className="h-full bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:border-rose-500 hover:shadow-lg hover:shadow-rose-500/10 transition-all duration-300 flex flex-col group-hover:-translate-y-1"
+                  className="h-full bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-100 shadow-sm hover:border-rose-500 hover:shadow-lg hover:shadow-rose-500/10 transition-all duration-300 flex flex-col group-hover:-translate-y-1"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-4 group-hover:bg-rose-600 group-hover:text-white transition-all duration-300 shadow-sm">
-                    <service.icon size={18} />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-2.5 sm:mb-4 group-hover:bg-rose-600 group-hover:text-white transition-all duration-300 shadow-sm shrink-0">
+                    <service.icon size={16} className="sm:w-[18px] sm:h-[18px]" />
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 mb-1.5 group-hover:text-rose-600 transition-colors">{service.title}</h3>
-                  <p className="text-slate-500 text-xs leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: service.desc }} />
+                  <h3 className="text-xs sm:text-base font-bold text-slate-900 mb-1 sm:mb-1.5 group-hover:text-rose-600 transition-colors">{service.title}</h3>
+                  <p className="text-slate-500 text-[10px] sm:text-xs leading-relaxed mb-2 sm:mb-4 line-clamp-3 sm:line-clamp-none" dangerouslySetInnerHTML={{ __html: service.desc }} />
 
-                  <div className="mt-auto text-[11px] font-bold text-slate-700 group-hover:text-rose-600 transition-colors flex items-center gap-1">
-                    Learn More <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                  <div className="mt-auto text-[9px] sm:text-[11px] font-bold text-slate-700 group-hover:text-rose-600 transition-colors flex items-center gap-1">
+                    Learn More <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </motion.div>
               </Link>
@@ -449,23 +449,23 @@ export default function HomeContent() {
       </section>
 
       {/* Search by City - Elegant Photo Gallery Card Grid */}
-      <section className="py-24 bg-white relative">
+      <section className="py-10 sm:py-24 bg-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-16"
           >
-            <span className="text-rose-600 text-xs font-black uppercase tracking-[0.2em] bg-rose-50 px-4 py-1.5 rounded-full inline-block">
+            <span className="text-rose-600 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] bg-rose-50 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full inline-block">
               Regional Highlights
             </span>
-            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 mt-4">Popular Hubs to Explore</h2>
-            <div className="w-12 h-1 bg-rose-600 mx-auto mt-4 rounded-full" />
-            <p className="text-slate-500 mt-3 text-sm sm:text-base max-w-xl mx-auto font-medium">Browse verified listings sorted by premium residential and commercial sectors.</p>
+            <h2 className="text-base sm:text-xl md:text-2xl font-bold tracking-tight text-slate-900 mt-2.5 sm:mt-4">Popular Hubs to Explore</h2>
+            <div className="w-10 sm:w-12 h-1 bg-rose-600 mx-auto mt-3 sm:mt-4 rounded-full" />
+            <p className="text-slate-500 mt-2.5 text-xs sm:text-base max-w-xl mx-auto font-medium">Browse verified listings sorted by premium residential and commercial sectors.</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
             {popularCities.map((city, i) => (
               <motion.div
                 key={city.name}
@@ -473,10 +473,10 @@ export default function HomeContent() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.06 }}
-                className="h-44"
+                className="h-28 sm:h-44"
               >
                 <Link href={`/properties?search=${city.name}`}>
-                  <div className="relative rounded-3xl overflow-hidden h-full group cursor-pointer border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300">
+                  <div className="relative rounded-xl sm:rounded-3xl overflow-hidden h-full group cursor-pointer border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300">
                     <Image
                       src={city.image}
                       alt={`Real estate properties in ${city.name}`}
@@ -486,18 +486,18 @@ export default function HomeContent() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
 
-                    <div className="absolute bottom-5 left-5 flex flex-col gap-0.5 text-white">
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="h-4.5 w-4.5 text-rose-500" />
-                        <span className="font-bold text-lg tracking-tight">{city.name}</span>
+                    <div className="absolute bottom-2.5 sm:bottom-5 left-2.5 sm:left-5 flex flex-col gap-0.5 text-white">
+                      <div className="flex items-center gap-1 sm:gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 text-rose-500" />
+                        <span className="font-bold text-xs sm:text-lg tracking-tight">{city.name}</span>
                       </div>
-                      <span className="text-slate-300 text-[11px] font-bold uppercase tracking-widest pl-6">
+                      <span className="text-slate-300 text-[8px] sm:text-[11px] font-bold uppercase tracking-widest pl-4 sm:pl-6">
                         {city.count} verified listings
                       </span>
                     </div>
 
-                    <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300 shadow">
-                      <ChevronRight className="h-5 w-5" />
+                    <div className="absolute top-2 right-2 w-6 h-6 sm:top-4 sm:right-4 sm:w-8 sm:h-8 rounded-full bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300 shadow">
+                      <ChevronRight className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                     </div>
                   </div>
                 </Link>
@@ -512,27 +512,27 @@ export default function HomeContent() {
       <FeaturedCollections />
 
       {/* How It Works - Visual Timeline */}
-      <section className="py-24 bg-slate-50 relative overflow-hidden">
+      <section className="py-10 sm:py-24 bg-slate-50 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-20"
+            className="text-center mb-8 sm:mb-20"
           >
-            <span className="text-rose-600 text-xs font-black uppercase tracking-[0.2em] bg-rose-50 px-4 py-1.5 rounded-full inline-block">
+            <span className="text-rose-600 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] bg-rose-50 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full inline-block">
               Seamless Workflow
             </span>
-            <h2 className="text-xl md:text-3xl font-bold tracking-tight text-slate-900 mt-4">
+            <h2 className="text-base sm:text-xl md:text-3xl font-bold tracking-tight text-slate-900 mt-2.5 sm:mt-4">
               How It Works
             </h2>
-            <div className="w-14 h-1.5 bg-rose-600 mx-auto mt-6 rounded-full" />
-            <p className="mt-4 text-slate-500 max-w-xl mx-auto text-sm sm:text-base font-medium">
+            <div className="w-10 sm:w-14 h-1 sm:h-1.5 bg-rose-600 mx-auto mt-3 sm:mt-6 rounded-full" />
+            <p className="mt-2.5 sm:mt-4 text-slate-500 max-w-xl mx-auto text-xs sm:text-base font-medium">
               Find, verify, and secure your next home in four simple steps.
             </p>
           </motion.div>
 
-          <div className="relative grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="relative grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-8">
             {/* Connection line for desktop */}
             <div className="absolute top-[75px] left-[12%] right-[12%] h-0.5 border-t-2 border-dashed border-rose-600/20 hidden md:block z-0" />
 
@@ -548,19 +548,19 @@ export default function HomeContent() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="relative bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-lg transition-all z-10 flex flex-col items-center text-center group"
+                className="relative bg-white rounded-xl sm:rounded-3xl p-4 sm:p-8 border border-slate-100 shadow-sm hover:shadow-lg transition-all z-10 flex flex-col items-center text-center group"
               >
                 {/* Floating Big Index Watermark */}
-                <span className="absolute top-4 right-6 text-5xl font-black text-slate-100 group-hover:text-rose-50 transition-colors leading-none font-serif z-0 select-none">
+                <span className="absolute top-2 right-3 sm:top-4 sm:right-6 text-2xl sm:text-5xl font-black text-slate-100 group-hover:text-rose-50 transition-colors leading-none font-serif z-0 select-none">
                   {item.step}
                 </span>
 
-                <div className="w-20 h-20 rounded-[2rem] bg-rose-50 flex items-center justify-center text-4xl mb-6 relative z-10 group-hover:scale-105 transition-transform duration-300 shadow-sm">
+                <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-xl sm:rounded-[2rem] bg-rose-50 flex items-center justify-center text-xl sm:text-4xl mb-3 sm:mb-6 relative z-10 group-hover:scale-105 transition-transform duration-300 shadow-sm shrink-0">
                   {item.icon}
                 </div>
 
-                <h3 className="text-xl font-bold text-slate-900 mb-3 relative z-10">{item.title}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed relative z-10">{item.description}</p>
+                <h3 className="text-xs sm:text-xl font-bold text-slate-900 mb-1.5 sm:mb-3 relative z-10">{item.title}</h3>
+                <p className="text-slate-500 text-[10px] sm:text-sm leading-relaxed relative z-10">{item.description}</p>
               </motion.div>
             ))}
           </div>
@@ -569,20 +569,20 @@ export default function HomeContent() {
 
 
       {/* Collaboration Section */}
-      <section className="py-24 bg-white relative">
+      <section className="py-10 sm:py-24 bg-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-16"
           >
-            <span className="text-rose-600 text-xs font-black uppercase tracking-[0.2em] bg-rose-50 px-4 py-1.5 rounded-full inline-block">
+            <span className="text-rose-600 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] bg-rose-50 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full inline-block">
               Network Excellence
             </span>
-            <h2 className="text-xl md:text-3xl font-bold tracking-tight text-slate-900 mt-4 leading-tight">Our Strategic Partners</h2>
-            <div className="w-16 h-1.5 bg-rose-600 mx-auto mt-6 rounded-full" />
-            <p className="mt-6 text-slate-500 max-w-2xl mx-auto text-base sm:text-lg font-medium">
+            <h2 className="text-base sm:text-xl md:text-3xl font-bold tracking-tight text-slate-900 mt-2.5 sm:mt-4 leading-tight">Our Strategic Partners</h2>
+            <div className="w-10 sm:w-16 h-1 sm:h-1.5 bg-rose-600 mx-auto mt-3 sm:mt-6 rounded-full" />
+            <p className="mt-3 sm:mt-6 text-slate-500 max-w-2xl mx-auto text-xs sm:text-lg font-medium">
               Verified agents and brokers with active listings on Kanharaj — contact directly for zero-brokerage listings.
             </p>
           </motion.div>
@@ -590,7 +590,7 @@ export default function HomeContent() {
           {sellerPartners.length === 0 ? (
             <p className="text-center text-slate-400 font-medium py-8 bg-slate-50 rounded-2xl border">Registered seller brokers will display here.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8">
               {sellerPartners.map((partner, index) => (
                 <motion.div
                   key={partner.id}
@@ -598,32 +598,32 @@ export default function HomeContent() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.08 }}
-                  className="group bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100 hover:bg-white hover:border-rose-500 hover:shadow-2xl hover:shadow-rose-500/10 transition-all duration-500 flex flex-col justify-between"
+                  className="group bg-slate-50 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-8 border border-slate-100 hover:bg-white hover:border-rose-500 hover:shadow-2xl hover:shadow-rose-500/10 transition-all duration-500 flex flex-col justify-between"
                 >
                   <div>
-                    <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-2xl font-black mb-8 group-hover:bg-rose-600 group-hover:text-white transition-all duration-500 shadow-sm border border-rose-100">
+                    <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-base sm:text-2xl font-black mb-4 sm:mb-8 group-hover:bg-rose-600 group-hover:text-white transition-all duration-500 shadow-sm border border-rose-100">
                       {partner.name.charAt(0)}
                     </div>
-                    <h3 className="text-2xl font-black text-slate-900 mb-2 group-hover:text-rose-600 transition-colors">
+                    <h3 className="text-lg sm:text-2xl font-black text-slate-900 mb-1 sm:mb-2 group-hover:text-rose-600 transition-colors">
                       {partner.name}
                     </h3>
-                    <Badge variant="secondary" className="bg-rose-50 text-rose-600 border border-rose-100 font-extrabold uppercase text-[10px] tracking-wider mb-6">
+                    <Badge variant="secondary" className="bg-rose-50 text-rose-600 border border-rose-100 font-extrabold uppercase text-[8px] sm:text-[10px] tracking-wider mb-4 sm:mb-6">
                       {partner.listingCount} active listing{partner.listingCount !== 1 ? 's' : ''}
                     </Badge>
                   </div>
 
-                  <div className="space-y-4 pt-6 border-t border-slate-100/80">
+                  <div className="space-y-2.5 sm:space-y-4 pt-4 sm:pt-6 border-t border-slate-100/80">
                     {partner.address && (
-                      <div className="flex items-start gap-3 text-slate-500">
-                        <MapPin className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
-                        <p className="text-sm font-medium leading-relaxed line-clamp-2">{partner.address}</p>
+                      <div className="flex items-start gap-2 sm:gap-3 text-slate-500">
+                        <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-rose-500 shrink-0 mt-0.5" />
+                        <p className="text-xs sm:text-sm font-medium leading-relaxed line-clamp-2">{partner.address}</p>
                       </div>
                     )}
                     {partner.phone && (
-                      <div className="flex items-center gap-3 text-slate-500">
-                        <Phone className="h-5 w-5 text-rose-500 shrink-0" />
-                        <a href={`tel:+91${partner.phone.replace(/\D/g, '')}`} className="text-sm font-black hover:text-rose-600 transition-colors tracking-tight">
-                          +91 {partner.phone}
+                      <div className="flex items-center gap-2 sm:gap-3 text-slate-500">
+                        <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-rose-500 shrink-0" />
+                        <a href={`tel:+91${partner.phone.replace(/\D/g, '')}`} className="text-xs sm:text-sm font-black hover:text-rose-600 transition-colors tracking-tight">
+                           +91 {partner.phone}
                         </a>
                       </div>
                     )}
