@@ -509,64 +509,6 @@ export default function HomeContent() {
       {/* Featured Collections */}
       <FeaturedCollections />
 
-      {/* How It Works - Visual Timeline */}
-      <section className="py-10 sm:py-24 bg-slate-50 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-8 sm:mb-20"
-          >
-            <span className="text-rose-600 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] bg-rose-50 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full inline-block">
-              Seamless Workflow
-            </span>
-            <h2 className="text-base sm:text-xl md:text-3xl font-bold tracking-tight text-slate-900 mt-2.5 sm:mt-4">
-              How It Works
-            </h2>
-            <div className="w-10 sm:w-14 h-1 sm:h-1.5 bg-rose-600 mx-auto mt-3 sm:mt-6 rounded-full" />
-            <p className="mt-2.5 sm:mt-4 text-slate-500 max-w-xl mx-auto text-xs sm:text-base font-medium">
-              Find, verify, and secure your next home in four simple steps.
-            </p>
-          </motion.div>
-
-          <div className="relative grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-8">
-            {/* Connection line for desktop */}
-            <div className="absolute top-[75px] left-[12%] right-[12%] h-0.5 border-t-2 border-dashed border-rose-600/20 hidden md:block z-0" />
-
-            {[
-              { icon: '🔍', title: 'Smart Search', description: `Browse over ${platformStats.properties} listings filtered by budget and sectors.`, step: '01' },
-              { icon: '❤️', title: 'Compare Favorites', description: 'Bookmark flats and inspect attributes side-by-side easily.', step: '02' },
-              { icon: '📞', title: 'Direct Contact', description: 'Reach owners and trusted partner agents directly with zero hassle.', step: '03' },
-              { icon: '🔑', title: 'Acquire & Move', description: 'Finalize agreements and step right into your premium new home.', step: '04' },
-            ].map((item, index) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="relative bg-white rounded-xl sm:rounded-3xl p-4 sm:p-8 border border-slate-100 shadow-sm hover:shadow-lg transition-all z-10 flex flex-col items-center text-center group"
-              >
-                {/* Floating Big Index Watermark */}
-                <span className="absolute top-2 right-3 sm:top-4 sm:right-6 text-2xl sm:text-5xl font-black text-slate-100 group-hover:text-rose-50 transition-colors leading-none font-serif z-0 select-none">
-                  {item.step}
-                </span>
-
-                <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-xl sm:rounded-[2rem] bg-rose-50 flex items-center justify-center text-xl sm:text-4xl mb-3 sm:mb-6 relative z-10 group-hover:scale-105 transition-transform duration-300 shadow-sm shrink-0">
-                  {item.icon}
-                </div>
-
-                <h3 className="text-xs sm:text-xl font-bold text-slate-900 mb-1.5 sm:mb-3 relative z-10">{item.title}</h3>
-                <p className="text-slate-500 text-[10px] sm:text-sm leading-relaxed relative z-10">{item.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-   
-      </section>
-
-
       {/* FAQ Section for SEO */}
       <section className="py-12 bg-slate-50 relative">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
