@@ -149,7 +149,7 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
                   e.stopPropagation()
                   setContactOpen(true)
                 }}
-                className="bg-[#6B46C1] hover:bg-[#553C9A] text-white px-6 h-10 rounded-lg font-bold text-sm shadow-md"
+                className="bg-[#0a2540] hover:bg-[#07192c] text-white px-6 h-10 rounded-lg font-bold text-sm shadow-md"
               >
                 Contact
               </Button>

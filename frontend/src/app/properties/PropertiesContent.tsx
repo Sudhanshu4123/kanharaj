@@ -438,7 +438,7 @@ export default function PropertiesContent() {
     <div className="min-h-screen bg-[#F5F7FA] -mt-16 sm:-mt-20">
 
       {/* Properties search bar — same on phone & desktop (responsive website) */}
-      <div className="flex bg-[#6B46C1] text-white py-2 px-3 sm:px-4 md:px-6 flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-5 sticky top-0 z-40">
+      <div className="flex bg-[#0a2540] text-white py-2 px-3 sm:px-4 md:px-6 flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-5 sticky top-0 z-40">
 
         {/* Logo and Location Selector */}
         <div className="flex items-center gap-2 sm:gap-4 md:border-r border-white/20 md:pr-4 shrink-0 pb-2 md:pb-0 border-b border-white/15 md:border-b-0">
@@ -485,7 +485,7 @@ export default function PropertiesContent() {
                       <button
                         type="button"
                         onClick={() => setCitySearchQuery('')}
-                        className="text-[9px] text-[#6B46C1] hover:text-[#5b3ba8] font-black px-1"
+                        className="text-[9px] text-[#0a2540] hover:text-[#07192c] font-black px-1"
                       >
                         CLEAR
                       </button>
@@ -499,7 +499,7 @@ export default function PropertiesContent() {
                       className={cn(
                         "w-full text-left px-3 py-2 text-xs font-bold transition-colors flex items-center justify-between border-b border-slate-100 mb-1",
                         !selectedCity
-                          ? "bg-[#6B46C1]/5 text-[#6B46C1]"
+                          ? "bg-[#0a2540]/5 text-[#0a2540]"
                           : "text-slate-700 hover:bg-slate-50"
                       )}
                     >
@@ -525,7 +525,7 @@ export default function PropertiesContent() {
                                 className={cn(
                                   "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
                                   selectedCity === city
-                                    ? "bg-[#6B46C1]/5 text-[#6B46C1]"
+                                    ? "bg-[#0a2540]/5 text-[#0a2540]"
                                     : "text-slate-700 hover:bg-slate-50"
                                 )}
                               >
@@ -549,7 +549,7 @@ export default function PropertiesContent() {
                                 className={cn(
                                   "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
                                   selectedCity === city
-                                    ? "bg-[#6B46C1]/5 text-[#6B46C1]"
+                                    ? "bg-[#0a2540]/5 text-[#0a2540]"
                                     : "text-slate-700 hover:bg-slate-50"
                                 )}
                               >
@@ -570,7 +570,7 @@ export default function PropertiesContent() {
 
         {/* Search Bar */}
         <div className="flex-1 w-full min-w-0 max-w-[800px] relative order-3 md:order-none">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#6B46C1]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#0a2540]" />
           <Input
             placeholder="Enter Locality, Landmark, Project or builder"
             value={search}
@@ -600,7 +600,7 @@ export default function PropertiesContent() {
               className="flex items-center gap-2 bg-white rounded-full p-1 pl-3 shadow-sm hover:bg-slate-50 transition border border-slate-200 ml-1 cursor-pointer focus:outline-none"
             >
               <Menu className="w-4 h-4 text-slate-700" />
-              <div className="w-7 h-7 rounded-full bg-[#6B46C1] flex items-center justify-center text-white text-[11px] font-black overflow-hidden shrink-0">
+              <div className="w-7 h-7 rounded-full bg-[#0a2540] flex items-center justify-center text-white text-[11px] font-black overflow-hidden shrink-0">
                 {isAuthenticated && user?.profileImage ? (
                   <img src={user.profileImage} alt={user.name || "User"} className="w-full h-full object-cover" />
                 ) : isAuthenticated ? (
@@ -665,7 +665,7 @@ export default function PropertiesContent() {
           <div className="relative filter-dropdown-container">
             <button
               onClick={() => setActiveDropdown(activeDropdown === 'property' ? null : 'property')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'property' || propertyTypes.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
+              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'property' || propertyTypes.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
             >
               {propertyTypes.length > 0 ? `Property Type (${propertyTypes.length})` : 'Property Type'} <ChevronDown className="w-4 h-4 opacity-70" />
             </button>
@@ -674,7 +674,7 @@ export default function PropertiesContent() {
                 <div className="flex flex-wrap gap-3">
                   {['Apartment', 'Independent House', 'Independent Floor', 'Plot', 'Studio', 'Duplex', 'Penthouse', 'Villa', 'Agricultural Land'].map(type => (
                     <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", propertyTypes.includes(type) ? "bg-[#6B46C1] border-[#6B46C1] text-white" : "border-slate-300 bg-white")}>
+                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", propertyTypes.includes(type) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
                         {propertyTypes.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                       </div>
                       <input type="checkbox" className="hidden" checked={propertyTypes.includes(type)} onChange={() => {
@@ -692,7 +692,7 @@ export default function PropertiesContent() {
           <div className="relative filter-dropdown-container">
             <button
               onClick={() => setActiveDropdown(activeDropdown === 'bhk' ? null : 'bhk')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'bhk' || bhkTypes.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
+              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'bhk' || bhkTypes.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
             >
               {bhkTypes.length > 0 ? `BHK Type (${bhkTypes.length})` : 'BHK Type'} <ChevronDown className="w-4 h-4 opacity-70" />
             </button>
@@ -701,7 +701,7 @@ export default function PropertiesContent() {
                 <div className="flex flex-wrap gap-3">
                   {['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK', '5 BHK', '5+ BHK'].map(type => (
                     <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", bhkTypes.includes(type) ? "bg-[#6B46C1] border-[#6B46C1] text-white" : "border-slate-300 bg-white")}>
+                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", bhkTypes.includes(type) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
                         {bhkTypes.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                       </div>
                       <input type="checkbox" className="hidden" checked={bhkTypes.includes(type)} onChange={() => {
@@ -719,7 +719,7 @@ export default function PropertiesContent() {
           <div className="relative filter-dropdown-container">
             <button
               onClick={() => setActiveDropdown(activeDropdown === 'budget' ? null : 'budget')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'budget' || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
+              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'budget' || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
             >
               ₹{formatBudgetLabel(budgetRange[0])} - ₹{formatBudgetLabel(budgetRange[1])} <ChevronDown className="w-4 h-4 opacity-70" />
             </button>
@@ -738,13 +738,13 @@ export default function PropertiesContent() {
                   onValueChange={(val: [number, number]) => setBudgetRange(val)}
                 >
                   <Slider.Track className="bg-slate-200 relative grow rounded-full h-1.5">
-                    <Slider.Range className="absolute bg-[#6B46C1] rounded-full h-full" />
+                    <Slider.Range className="absolute bg-[#0a2540] rounded-full h-full" />
                   </Slider.Track>
-                  <Slider.Thumb className="block w-5 h-5 bg-[#E6E1F4] border-2 border-[#6B46C1] rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-[#6B46C1]/50 flex items-center justify-center cursor-grab">
-                    <div className="w-2 h-2 bg-[#6B46C1] rounded-full" />
+                  <Slider.Thumb className="block w-5 h-5 bg-[#f1f5f9] border-2 border-[#0a2540] rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-[#0a2540]/50 flex items-center justify-center cursor-grab">
+                    <div className="w-2 h-2 bg-[#0a2540] rounded-full" />
                   </Slider.Thumb>
-                  <Slider.Thumb className="block w-5 h-5 bg-[#E6E1F4] border-2 border-[#6B46C1] rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-[#6B46C1]/50 flex items-center justify-center cursor-grab">
-                    <div className="w-2 h-2 bg-[#6B46C1] rounded-full" />
+                  <Slider.Thumb className="block w-5 h-5 bg-[#f1f5f9] border-2 border-[#0a2540] rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-[#0a2540]/50 flex items-center justify-center cursor-grab">
+                    <div className="w-2 h-2 bg-[#0a2540] rounded-full" />
                   </Slider.Thumb>
                 </Slider.Root>
 
@@ -762,7 +762,7 @@ export default function PropertiesContent() {
           <div className="relative filter-dropdown-container">
             <button
               onClick={() => setActiveDropdown(activeDropdown === 'sale' ? null : 'sale')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'sale' || saleTypes.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
+              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'sale' || saleTypes.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
             >
               {saleTypes.length > 0 ? `Sale Type (${saleTypes.length})` : 'Sale Type'} <ChevronDown className="w-4 h-4 opacity-70" />
             </button>
@@ -771,7 +771,7 @@ export default function PropertiesContent() {
                 <div className="flex flex-col gap-3">
                   {['New Bookings', 'Resale'].map(type => (
                     <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full">
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", saleTypes.includes(type) ? "bg-[#6B46C1] border-[#6B46C1] text-white" : "border-slate-300 bg-white")}>
+                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", saleTypes.includes(type) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
                         {saleTypes.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                       </div>
                       <input type="checkbox" className="hidden" checked={saleTypes.includes(type)} onChange={() => {
@@ -789,7 +789,7 @@ export default function PropertiesContent() {
           <div className="relative filter-dropdown-container">
             <button
               onClick={() => setActiveDropdown(activeDropdown === 'construction' ? null : 'construction')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'construction' || constructionStatus.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
+              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'construction' || constructionStatus.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
             >
               {constructionStatus.length > 0 ? `Construction St... (${constructionStatus.length})` : 'Construction St...'} <ChevronDown className="w-4 h-4 opacity-70" />
             </button>
@@ -798,7 +798,7 @@ export default function PropertiesContent() {
                 <div className="flex flex-col gap-3">
                   {['Ready to move', 'Under Construction'].map(type => (
                     <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full">
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", constructionStatus.includes(type) ? "bg-[#6B46C1] border-[#6B46C1] text-white" : "border-slate-300 bg-white")}>
+                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", constructionStatus.includes(type) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
                         {constructionStatus.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                       </div>
                       <input type="checkbox" className="hidden" checked={constructionStatus.includes(type)} onChange={() => {
@@ -816,7 +816,7 @@ export default function PropertiesContent() {
             onClick={() => setVerified(!verified)}
             className={cn(
               "flex items-center gap-1.5 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
-              verified ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
+              verified ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
             )}
           >
             Verified <Info className="w-3.5 h-3.5 text-slate-400" />
@@ -828,7 +828,7 @@ export default function PropertiesContent() {
               onClick={() => setActiveDropdown(activeDropdown === 'project' ? null : 'project')}
               className={cn(
                 "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
-                activeDropdown === 'project' || projects.length > 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
+                activeDropdown === 'project' || projects.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
               )}
             >
               {projects.length > 0 ? `Projects (${projects.length})` : 'Project'} <ChevronDown className="w-4 h-4 opacity-70" />
@@ -841,8 +841,8 @@ export default function PropertiesContent() {
                     'ARE Riviera Luxury Floors', 'G3 Builder Floors I', 'Manish Luxurious Floors',
                     'Tulip Afford', 'Suraj Uttan', 'Goyal Prem'
                   ].map(proj => (
-                    <label key={proj} className={cn("flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full", projects.includes(proj) ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200")}>
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", projects.includes(proj) ? "bg-[#6B46C1] border-[#6B46C1] text-white" : "border-slate-300 bg-white")}>
+                    <label key={proj} className={cn("flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full", projects.includes(proj) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
+                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", projects.includes(proj) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
                         {projects.includes(proj) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                       </div>
                       <input type="checkbox" className="hidden" checked={projects.includes(proj)} onChange={() => {
@@ -862,7 +862,7 @@ export default function PropertiesContent() {
             }}
             className={cn(
               "flex items-center gap-1.5 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
-              listedBy.includes('Featured Agents') ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
+              listedBy.includes('Featured Agents') ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
             )}
           >
             ⭐ Featured Agents
@@ -873,7 +873,7 @@ export default function PropertiesContent() {
             onClick={handleOpenMoreFilters}
             className={cn(
               "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
-              isAnyMoreFilterActive ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
+              isAnyMoreFilterActive ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
             )}
           >
             More Filters {activeMoreFiltersCount > 0 ? `(${activeMoreFiltersCount})` : ''} <ChevronDown className="w-4 h-4 text-slate-400" />
@@ -995,14 +995,14 @@ export default function PropertiesContent() {
                       className={cn(
                         "shrink-0 sm:w-full text-left px-4 py-3 text-[11px] font-semibold tracking-wide border-l-2 sm:border-l-2 border-b-2 sm:border-b-0 transition-all whitespace-nowrap",
                         activeFilterTab === key
-                          ? "border-[#6B46C1] bg-white text-[#6B46C1]"
+                          ? "border-[#0a2540] bg-white text-[#0a2540]"
                           : "border-transparent text-slate-500 hover:bg-white hover:text-slate-700"
                       )}
                     >
                       <span className="flex items-center justify-between gap-1">
                         <span className="leading-tight">{key}</span>
                         {count > 0 && (
-                          <span className="shrink-0 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[#6B46C1] text-white text-[9px] font-bold px-1">
+                          <span className="shrink-0 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[#0a2540] text-white text-[9px] font-bold px-1">
                             {count}
                           </span>
                         )}
@@ -1019,8 +1019,8 @@ export default function PropertiesContent() {
                     <div className="space-y-2 h-[400px] overflow-y-auto">
                       <p className="text-xs text-slate-400 mb-3">Select property type(s)</p>
                       {['Apartment', 'Independent House', 'Independent Floor', 'Plot', 'Studio', 'Duplex', 'Penthouse', 'Villa', 'Agricultural Land'].map(type => (
-                        <label key={type} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempPropertyTypes.includes(type) ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200")}>
-                          <input type="checkbox" className="w-4 h-4 rounded text-[#6B46C1] border-slate-300 focus:ring-[#6B46C1] shrink-0" checked={tempPropertyTypes.includes(type)} onChange={() => {
+                        <label key={type} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempPropertyTypes.includes(type) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
+                          <input type="checkbox" className="w-4 h-4 rounded text-[#0a2540] border-slate-300 focus:ring-[#0a2540] shrink-0" checked={tempPropertyTypes.includes(type)} onChange={() => {
                             setTempPropertyTypes(prev => prev.includes(type) ? prev.filter((t: string) => t !== type) : [...prev, type])
                           }} />
                           <span className="text-sm font-medium text-slate-700">{type}</span>
@@ -1034,8 +1034,8 @@ export default function PropertiesContent() {
                     <div className="space-y-2 max-h-[400px] overflow-y-auto">
                       <p className="text-xs text-slate-400 mb-3">Select BHK configuration(s)</p>
                       {['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK', '5 BHK', '5+ BHK'].map(type => (
-                        <label key={type} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempBhkTypes.includes(type) ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200")}>
-                          <input type="checkbox" className="w-4 h-4 rounded text-[#6B46C1] border-slate-300 focus:ring-[#6B46C1] shrink-0" checked={tempBhkTypes.includes(type)} onChange={() => {
+                        <label key={type} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempBhkTypes.includes(type) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
+                          <input type="checkbox" className="w-4 h-4 rounded text-[#0a2540] border-slate-300 focus:ring-[#0a2540] shrink-0" checked={tempBhkTypes.includes(type)} onChange={() => {
                             setTempBhkTypes(prev => prev.includes(type) ? prev.filter((t: string) => t !== type) : [...prev, type])
                           }} />
                           <span className="text-sm font-medium text-slate-700">{type}</span>
@@ -1049,7 +1049,7 @@ export default function PropertiesContent() {
                     <div className="space-y-4 max-h-[400px] overflow-y-auto">
                       <div className="flex justify-between items-center">
                         <p className="text-xs text-slate-400">Set your budget range</p>
-                        <span className="text-xs font-bold text-[#6B46C1]">
+                        <span className="text-xs font-bold text-[#0a2540]">
                           ₹{formatBudgetLabel(tempBudgetRange[0])} – ₹{formatBudgetLabel(tempBudgetRange[1])}
                         </span>
                       </div>
@@ -1062,10 +1062,10 @@ export default function PropertiesContent() {
                           onValueChange={(val: [number, number]) => setTempBudgetRange(val)}
                         >
                           <Slider.Track className="bg-slate-200 relative grow rounded-full h-1.5">
-                            <Slider.Range className="absolute bg-[#6B46C1] rounded-full h-full" />
+                            <Slider.Range className="absolute bg-[#0a2540] rounded-full h-full" />
                           </Slider.Track>
-                          <Slider.Thumb className="block w-4 h-4 bg-white border-2 border-[#6B46C1] rounded-full shadow focus:outline-none cursor-grab" aria-label="Min Budget" />
-                          <Slider.Thumb className="block w-4 h-4 bg-white border-2 border-[#6B46C1] rounded-full shadow focus:outline-none cursor-grab" aria-label="Max Budget" />
+                          <Slider.Thumb className="block w-4 h-4 bg-white border-2 border-[#0a2540] rounded-full shadow focus:outline-none cursor-grab" aria-label="Min Budget" />
+                          <Slider.Thumb className="block w-4 h-4 bg-white border-2 border-[#0a2540] rounded-full shadow focus:outline-none cursor-grab" aria-label="Max Budget" />
                         </Slider.Root>
                         <div className="flex justify-between text-[10px] text-slate-400 mt-2 font-medium">
                           <span>₹0</span><span>₹25 Lakh</span><span>₹50 Lakh</span><span>₹75 Lakh</span><span>₹1Cr+</span>
@@ -1074,7 +1074,7 @@ export default function PropertiesContent() {
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         {[5, 10, 15, 20, 25, 30, 40, 50, 75, 100].map(val => (
                           <button key={val} type="button" onClick={() => setTempBudgetRange([0, val])}
-                            className={cn("border rounded-lg px-3 py-2 text-xs font-semibold transition-all", tempBudgetRange[1] === val && tempBudgetRange[0] === 0 ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1]" : "border-slate-200 text-slate-600 hover:bg-slate-50")}>
+                            className={cn("border rounded-lg px-3 py-2 text-xs font-semibold transition-all", tempBudgetRange[1] === val && tempBudgetRange[0] === 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540]" : "border-slate-200 text-slate-600 hover:bg-slate-50")}>
                             Up to ₹{formatBudgetLabel(val)}
                           </button>
                         ))}
@@ -1087,8 +1087,8 @@ export default function PropertiesContent() {
                     <div className="space-y-2 max-h-[250px] overflow-y-auto">
                       <p className="text-xs text-slate-400 mb-3">Select sale type(s)</p>
                       {['New Bookings', 'Resale'].map(type => (
-                        <label key={type} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempSaleTypes.includes(type) ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200")}>
-                          <input type="checkbox" className="w-4 h-4 rounded text-[#6B46C1] border-slate-300 focus:ring-[#6B46C1] shrink-0" checked={tempSaleTypes.includes(type)} onChange={() => {
+                        <label key={type} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempSaleTypes.includes(type) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
+                          <input type="checkbox" className="w-4 h-4 rounded text-[#0a2540] border-slate-300 focus:ring-[#0a2540] shrink-0" checked={tempSaleTypes.includes(type)} onChange={() => {
                             setTempSaleTypes(prev => prev.includes(type) ? prev.filter((t: string) => t !== type) : [...prev, type])
                           }} />
                           <span className="text-sm font-medium text-slate-700">{type}</span>
@@ -1102,8 +1102,8 @@ export default function PropertiesContent() {
                     <div className="space-y-2 max-h-[250px] overflow-y-auto">
                       <p className="text-xs text-slate-400 mb-3">Select construction status</p>
                       {['Ready to move', 'Under Construction'].map(type => (
-                        <label key={type} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempConstructionStatus.includes(type) ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200")}>
-                          <input type="checkbox" className="w-4 h-4 rounded text-[#6B46C1] border-slate-300 focus:ring-[#6B46C1] shrink-0" checked={tempConstructionStatus.includes(type)} onChange={() => {
+                        <label key={type} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempConstructionStatus.includes(type) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
+                          <input type="checkbox" className="w-4 h-4 rounded text-[#0a2540] border-slate-300 focus:ring-[#0a2540] shrink-0" checked={tempConstructionStatus.includes(type)} onChange={() => {
                             setTempConstructionStatus(prev => prev.includes(type) ? prev.filter((t: string) => t !== type) : [...prev, type])
                           }} />
                           <span className="text-sm font-medium text-slate-700">{type}</span>
@@ -1117,10 +1117,10 @@ export default function PropertiesContent() {
                     <div className="space-y-2 max-h-[250px] overflow-y-auto">
                       <p className="text-xs text-slate-400 mb-3">Filter by listing source</p>
                       {['Agent', 'Owner', 'Developer', 'Featured Agents'].map(option => (
-                        <label key={option} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempListedBy.includes(option) ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200")}>
+                        <label key={option} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempListedBy.includes(option) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
                           <input type="checkbox" checked={tempListedBy.includes(option)} onChange={() => {
                             setTempListedBy(prev => prev.includes(option) ? prev.filter((x: string) => x !== option) : [...prev, option])
-                          }} className="w-4 h-4 rounded text-[#6B46C1] border-slate-300 focus:ring-[#6B46C1] shrink-0" />
+                          }} className="w-4 h-4 rounded text-[#0a2540] border-slate-300 focus:ring-[#0a2540] shrink-0" />
                           <span className="text-sm font-medium text-slate-700">{option}</span>
                         </label>
                       ))}
@@ -1131,10 +1131,10 @@ export default function PropertiesContent() {
                   {activeFilterTab === 'VERIFIED' && (
                     <div className="space-y-3">
                       <p className="text-xs text-slate-400 mb-3">Show only verified properties</p>
-                      <div className={cn("border rounded-xl p-4 flex items-center justify-between gap-4 cursor-pointer transition-colors", tempVerified ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200 hover:bg-slate-50")}
+                      <div className={cn("border rounded-xl p-4 flex items-center justify-between gap-4 cursor-pointer transition-colors", tempVerified ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200 hover:bg-slate-50")}
                         onClick={() => setTempVerified(v => !v)}>
                         <div className="flex items-start gap-3">
-                          <div className="p-2 bg-[#E6E1F4] rounded-lg text-[#6B46C1] mt-0.5">
+                          <div className="p-2 bg-[#f1f5f9] rounded-lg text-[#0a2540] mt-0.5">
                             <Shield className="w-4 h-4" />
                           </div>
                           <div>
@@ -1145,7 +1145,7 @@ export default function PropertiesContent() {
                             <p className="text-xs text-slate-500 mt-0.5">Properties with verified images & location</p>
                           </div>
                         </div>
-                        <div className={cn("w-10 h-5 rounded-full relative transition-colors shrink-0", tempVerified ? "bg-[#6B46C1]" : "bg-slate-200")}>
+                        <div className={cn("w-10 h-5 rounded-full relative transition-colors shrink-0", tempVerified ? "bg-[#0a2540]" : "bg-slate-200")}>
                           <div className={cn("absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all", tempVerified ? "left-5" : "left-0.5")} />
                         </div>
                       </div>
@@ -1157,7 +1157,7 @@ export default function PropertiesContent() {
                     <div className="space-y-4 max-h-[400px] overflow-y-auto">
                       <div className="flex justify-between items-center">
                         <p className="text-xs text-slate-400">Set built-up area range</p>
-                        <span className="text-xs font-bold text-[#6B46C1]">
+                        <span className="text-xs font-bold text-[#0a2540]">
                           {tempAreaRange[0]} – {tempAreaRange[1] === 5000 ? '5000+ sq.ft.' : tempAreaRange[1] + ' sq.ft.'}
                         </span>
                       </div>
@@ -1170,10 +1170,10 @@ export default function PropertiesContent() {
                           onValueChange={(val: [number, number]) => setTempAreaRange(val)}
                         >
                           <Slider.Track className="bg-slate-200 relative grow rounded-full h-1.5">
-                            <Slider.Range className="absolute bg-[#6B46C1] rounded-full h-full" />
+                            <Slider.Range className="absolute bg-[#0a2540] rounded-full h-full" />
                           </Slider.Track>
-                          <Slider.Thumb className="block w-4 h-4 bg-white border-2 border-[#6B46C1] rounded-full shadow focus:outline-none cursor-grab" aria-label="Min Area" />
-                          <Slider.Thumb className="block w-4 h-4 bg-white border-2 border-[#6B46C1] rounded-full shadow focus:outline-none cursor-grab" aria-label="Max Area" />
+                          <Slider.Thumb className="block w-4 h-4 bg-white border-2 border-[#0a2540] rounded-full shadow focus:outline-none cursor-grab" aria-label="Min Area" />
+                          <Slider.Thumb className="block w-4 h-4 bg-white border-2 border-[#0a2540] rounded-full shadow focus:outline-none cursor-grab" aria-label="Max Area" />
                         </Slider.Root>
                         <div className="flex justify-between text-[10px] text-slate-400 mt-2 font-medium">
                           <span>0</span><span>1k</span><span>2k</span><span>3k</span><span>4k</span><span>5k+</span>
@@ -1182,7 +1182,7 @@ export default function PropertiesContent() {
                       <div className="grid grid-cols-1 gap-2 mt-2">
                         {[[0, 500], [0, 1000], [0, 2000], [0, 3000]].map(([min, max]) => (
                           <button key={max} type="button" onClick={() => setTempAreaRange([min, max])}
-                            className={cn("border rounded-lg px-3 py-2 text-xs font-semibold transition-all", tempAreaRange[0] === min && tempAreaRange[1] === max ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1]" : "border-slate-200 text-slate-600 hover:bg-slate-50")}>
+                            className={cn("border rounded-lg px-3 py-2 text-xs font-semibold transition-all", tempAreaRange[0] === min && tempAreaRange[1] === max ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540]" : "border-slate-200 text-slate-600 hover:bg-slate-50")}>
                             Up to {max} sq.ft.
                           </button>
                         ))}
@@ -1205,11 +1205,11 @@ export default function PropertiesContent() {
                         const Icon = item.icon;
                         const isSelected = tempAmenities.includes(item.name);
                         return (
-                          <label key={item.name} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", isSelected ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200")}>
+                          <label key={item.name} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", isSelected ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
                             <input type="checkbox" checked={isSelected} onChange={() => {
                               setTempAmenities(prev => prev.includes(item.name) ? prev.filter((x: string) => x !== item.name) : [...prev, item.name])
-                            }} className="w-4 h-4 rounded text-[#6B46C1] border-slate-300 focus:ring-[#6B46C1] shrink-0" />
-                            <Icon className={cn("w-4 h-4 shrink-0", isSelected ? "text-[#6B46C1]" : "text-slate-400")} />
+                            }} className="w-4 h-4 rounded text-[#0a2540] border-slate-300 focus:ring-[#0a2540] shrink-0" />
+                            <Icon className={cn("w-4 h-4 shrink-0", isSelected ? "text-[#0a2540]" : "text-slate-400")} />
                             <span className="text-sm font-medium text-slate-700">{item.name}</span>
                           </label>
                         );
@@ -1225,7 +1225,7 @@ export default function PropertiesContent() {
                         const isSelected = tempAge === option;
                         return (
                           <button key={option} type="button" onClick={() => setTempAge(isSelected ? null : option)}
-                            className={cn("w-full text-left border rounded-lg px-3 py-2.5 text-sm font-medium transition-all", isSelected ? "border-[#6B46C1] bg-[#6B46C1]/5 text-[#6B46C1] font-semibold" : "border-slate-200 text-slate-700 hover:bg-slate-50")}>
+                            className={cn("w-full text-left border rounded-lg px-3 py-2.5 text-sm font-medium transition-all", isSelected ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-semibold" : "border-slate-200 text-slate-700 hover:bg-slate-50")}>
                             {option}
                           </button>
                         );
@@ -1238,10 +1238,10 @@ export default function PropertiesContent() {
                     <div className="space-y-2 max-h-[250px] overflow-y-auto">
                       <p className="text-xs text-slate-400 mb-3">Select property facing direction(s)</p>
                       {['North', 'East', 'West', 'South', 'North - East', 'North - West', 'South - East', 'South - West'].map(option => (
-                        <label key={option} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempFacing.includes(option) ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200")}>
+                        <label key={option} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempFacing.includes(option) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
                           <input type="checkbox" checked={tempFacing.includes(option)} onChange={() => {
                             setTempFacing(prev => prev.includes(option) ? prev.filter((x: string) => x !== option) : [...prev, option])
-                          }} className="w-4 h-4 rounded text-[#6B46C1] border-slate-300 focus:ring-[#6B46C1] shrink-0" />
+                          }} className="w-4 h-4 rounded text-[#0a2540] border-slate-300 focus:ring-[#0a2540] shrink-0" />
                           <span className="text-sm font-medium text-slate-700">{option}</span>
                         </label>
                       ))}
@@ -1253,10 +1253,10 @@ export default function PropertiesContent() {
                     <div className="space-y-2 max-h-[250px] overflow-y-auto">
                       <p className="text-xs text-slate-400 mb-3">Select property characteristics</p>
                       {['Corner Property', 'Boundary Wall Present'].map(option => (
-                        <label key={option} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempPropertyDetails.includes(option) ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200")}>
+                        <label key={option} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempPropertyDetails.includes(option) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
                           <input type="checkbox" checked={tempPropertyDetails.includes(option)} onChange={() => {
                             setTempPropertyDetails(prev => prev.includes(option) ? prev.filter((x: string) => x !== option) : [...prev, option])
-                          }} className="w-4 h-4 rounded text-[#6B46C1] border-slate-300 focus:ring-[#6B46C1] shrink-0" />
+                          }} className="w-4 h-4 rounded text-[#0a2540] border-slate-300 focus:ring-[#0a2540] shrink-0" />
                           <span className="text-sm font-medium text-slate-700">{option}</span>
                         </label>
                       ))}
@@ -1267,10 +1267,10 @@ export default function PropertiesContent() {
                   {activeFilterTab === 'RERA COMPLIANT' && (
                     <div className="space-y-3 max-h-[400px] overflow-y-auto">
                       <p className="text-xs text-slate-400 mb-3">Show only RERA compliant properties</p>
-                      <div className={cn("border rounded-xl p-4 flex items-center justify-between gap-4 cursor-pointer transition-colors", tempRera ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200 hover:bg-slate-50")}
+                      <div className={cn("border rounded-xl p-4 flex items-center justify-between gap-4 cursor-pointer transition-colors", tempRera ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200 hover:bg-slate-50")}
                         onClick={() => setTempRera(v => !v)}>
                         <div className="flex items-start gap-3">
-                          <div className="p-2 bg-[#E6E1F4] rounded-lg text-[#6B46C1] mt-0.5">
+                          <div className="p-2 bg-[#f1f5f9] rounded-lg text-[#0a2540] mt-0.5">
                             <Shield className="w-4 h-4" />
                           </div>
                           <div>
@@ -1278,7 +1278,7 @@ export default function PropertiesContent() {
                             <p className="text-xs text-slate-500 mt-0.5">Show only RERA registered properties</p>
                           </div>
                         </div>
-                        <div className={cn("w-10 h-5 rounded-full relative transition-colors shrink-0", tempRera ? "bg-[#6B46C1]" : "bg-slate-200")}>
+                        <div className={cn("w-10 h-5 rounded-full relative transition-colors shrink-0", tempRera ? "bg-[#0a2540]" : "bg-slate-200")}>
                           <div className={cn("absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all", tempRera ? "left-5" : "left-0.5")} />
                         </div>
                       </div>
@@ -1291,7 +1291,7 @@ export default function PropertiesContent() {
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                         <Input placeholder="Search projects..." value={tempProjectsSearch} onChange={(e) => setTempProjectsSearch(e.target.value)}
-                          className="pl-8 text-sm h-8 border-slate-200 focus-visible:ring-[#6B46C1] rounded-lg" />
+                          className="pl-8 text-sm h-8 border-slate-200 focus-visible:ring-[#0a2540] rounded-lg" />
                       </div>
                       <p className="text-xs text-slate-400">Select projects/societies</p>
                       <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
@@ -1301,10 +1301,10 @@ export default function PropertiesContent() {
                           'Tulip Afford', 'Suraj Uttan', 'Goyal Prem'
                         ].filter(project => project.toLowerCase().includes(tempProjectsSearch.toLowerCase()))
                           .map(option => (
-                            <label key={option} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempProjects.includes(option) ? "border-[#6B46C1] bg-[#6B46C1]/5" : "border-slate-200")}>
+                            <label key={option} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempProjects.includes(option) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
                               <input type="checkbox" checked={tempProjects.includes(option)} onChange={() => {
                                 setTempProjects(prev => prev.includes(option) ? prev.filter((x: string) => x !== option) : [...prev, option])
-                              }} className="w-4 h-4 rounded text-[#6B46C1] border-slate-300 focus:ring-[#6B46C1] shrink-0" />
+                              }} className="w-4 h-4 rounded text-[#0a2540] border-slate-300 focus:ring-[#0a2540] shrink-0" />
                               <span className="text-sm font-medium text-slate-700">{option}</span>
                             </label>
                           ))}
@@ -1337,7 +1337,7 @@ export default function PropertiesContent() {
                   <Button
                     type="button"
                     onClick={handleApplyMoreFilters}
-                    className="bg-[#6B46C1] hover:bg-[#5A38A7] text-white font-bold rounded-lg px-6 shadow-md transition h-8 text-xs"
+                    className="bg-[#0a2540] hover:bg-[#07192c] text-white font-bold rounded-lg px-6 shadow-md transition h-8 text-xs"
                   >
                     Apply Filters
                   </Button>
