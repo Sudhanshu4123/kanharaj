@@ -938,7 +938,7 @@ export default function PropertiesContent() {
                 <p className="text-slate-500 mt-2">Try adjusting your filters or location</p>
               </div>
             ) : (
-              <div>
+              <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-0">
                 {properties.map((property) => (
                   <HousingPropertyCard key={property.id} property={property} />
                 ))}

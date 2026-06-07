@@ -3,29 +3,29 @@ import { cn } from '@/lib/utils'
 
 export function HousingPropertyCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 flex flex-col sm:flex-row overflow-hidden mb-6 h-auto sm:h-[260px] animate-pulse">
-      <Skeleton className="w-full sm:w-[320px] h-64 sm:h-full shrink-0 rounded-none" shimmer />
-      <div className="p-4 sm:p-5 flex flex-col flex-1 gap-3">
-        <Skeleton className="h-5 w-28 rounded-full" />
-        <Skeleton className="h-6 w-4/5 max-w-md" />
-        <Skeleton className="h-4 w-3/5 max-w-sm" />
-        <div className="grid grid-cols-2 gap-4 mt-2">
-          <div className="space-y-2">
-            <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-5 w-24" />
+    <div className="bg-white rounded-xl border border-slate-200 flex flex-col sm:flex-row overflow-hidden mb-3 sm:mb-6 h-auto sm:h-[260px] animate-pulse">
+      <Skeleton className="w-full sm:w-[320px] h-36 sm:h-full shrink-0 rounded-none" shimmer />
+      <div className="p-2.5 sm:p-5 flex flex-col flex-1 gap-2">
+        <Skeleton className="h-4 w-20 rounded-full" />
+        <Skeleton className="h-5 w-4/5 max-w-md" />
+        <Skeleton className="h-3.5 w-3/5 max-w-sm" />
+        <div className="grid grid-cols-2 gap-2 mt-1 sm:mt-2">
+          <div className="space-y-1 sm:space-y-2">
+            <Skeleton className="h-2.5 sm:h-3 w-12 sm:w-20" />
+            <Skeleton className="h-4 sm:h-5 w-16 sm:w-24" />
           </div>
-          <div className="space-y-2">
-            <Skeleton className="h-3 w-16" />
-            <Skeleton className="h-5 w-20" />
+          <div className="space-y-1 sm:space-y-2">
+            <Skeleton className="h-2.5 sm:h-3 w-12 sm:w-16" />
+            <Skeleton className="h-4 sm:h-5 w-16 sm:w-20" />
           </div>
         </div>
-        <div className="mt-auto pt-4 border-t border-slate-100 flex gap-4">
+        <div className="mt-auto pt-2 border-t border-slate-100 hidden sm:flex gap-4">
           <Skeleton className="h-3 w-32" />
           <Skeleton className="h-3 w-24" />
         </div>
-        <div className="flex justify-end gap-3 sm:absolute sm:bottom-5 sm:right-5">
-          <Skeleton className="h-10 w-10 rounded-full" />
-          <Skeleton className="h-10 w-24 rounded-lg" />
+        <div className="mt-2 sm:mt-0 flex justify-end gap-2 sm:absolute sm:bottom-5 sm:right-5">
+          <Skeleton className="h-7 w-7 sm:h-10 sm:w-10 rounded-full" />
+          <Skeleton className="h-7 w-16 sm:h-10 sm:w-24 rounded-lg" />
         </div>
       </div>
     </div>
@@ -71,7 +71,7 @@ export function HomePickCardSkeleton() {
 
 export function HousingPropertyListSkeleton({ count = 4 }: { count?: number }) {
   return (
-    <div className="space-y-0">
+    <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-0">
       {Array.from({ length: count }).map((_, i) => (
         <HousingPropertyCardSkeleton key={i} />
       ))}

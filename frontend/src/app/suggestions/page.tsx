@@ -199,9 +199,9 @@ export default function SuggestionsPage() {
       {/* Property Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-5">
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-72 bg-slate-100 rounded-2xl animate-pulse" />
+              <div key={i} className="h-44 sm:h-72 bg-slate-100 rounded-xl sm:rounded-2xl animate-pulse" />
             ))}
           </div>
         ) : activeProperties.length === 0 ? (
@@ -236,7 +236,7 @@ export default function SuggestionsPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+              className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5"
             >
               {activeProperties.map((property, i) => (
                 <motion.div
