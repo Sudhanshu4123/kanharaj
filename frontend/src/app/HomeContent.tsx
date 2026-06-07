@@ -344,7 +344,7 @@ export default function HomeContent() {
           {loading && displayProperties.length === 0 ? (
             <PropertyGridSkeleton count={3} variant="home" />
           ) : displayProperties.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 justify-center justify-items-center">
               {displayProperties.map((property, index) => {
                 const { beds, baths } = formatBedBath(property)
                 const isVerified = property.featured || (property.images?.length ?? 0) > 0
@@ -355,10 +355,10 @@ export default function HomeContent() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.06 }}
-                    className="group bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg hover:border-rose-500/30 transition-all duration-300 flex flex-col h-full"
+                    className="group bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg hover:border-rose-500/30 transition-all duration-300 flex flex-col h-full max-w-[380px] w-full mx-auto"
                   >
                     {/* Image Area */}
-                    <div className="relative h-28 sm:h-48 overflow-hidden shrink-0">
+                    <div className="relative h-28 sm:h-52 overflow-hidden shrink-0 w-full">
                       <img
                         src={getPropertyImageUrl(property)}
                         alt={property.title}
