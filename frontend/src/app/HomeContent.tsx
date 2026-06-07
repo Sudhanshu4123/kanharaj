@@ -319,8 +319,8 @@ export default function HomeContent() {
         </div>
       </section>
 
-      {/* Housing's Top Picks */}
-      <section className="py-14 bg-white relative">
+      {/* Kanharaj's Top Picks */}
+      <section className="py-10 sm:py-14 bg-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 border-b border-slate-100 pb-6">
             <div>
@@ -344,7 +344,7 @@ export default function HomeContent() {
           {loading && displayProperties.length === 0 ? (
             <PropertyGridSkeleton count={3} variant="home" />
           ) : displayProperties.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
               {displayProperties.map((property, index) => {
                 const { beds, baths } = formatBedBath(property)
                 const isVerified = property.featured || (property.images?.length ?? 0) > 0
@@ -355,10 +355,10 @@ export default function HomeContent() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.06 }}
-                    className="group bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg hover:border-rose-500/30 transition-all duration-300 flex flex-col h-full"
+                    className="group bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg hover:border-rose-500/30 transition-all duration-300 flex flex-col h-full"
                   >
                     {/* Image Area */}
-                    <div className="relative h-48 overflow-hidden shrink-0">
+                    <div className="relative h-28 sm:h-48 overflow-hidden shrink-0">
                       <img
                         src={getPropertyImageUrl(property)}
                         alt={property.title}
@@ -368,67 +368,69 @@ export default function HomeContent() {
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
 
                       {/* Badges container */}
-                      <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                      <div className="absolute top-2 left-2 flex flex-wrap gap-1">
                         {isVerified && (
-                          <span className="px-3 py-1 rounded-full bg-emerald-500 text-white text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md">
-                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                            Verified Agent Listing
+                          <span className="px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-500 text-white text-[7px] sm:text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-md">
+                            <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-white animate-pulse" />
+                            <span className="hidden sm:inline">Verified Agent Listing</span>
+                            <span className="sm:hidden">Verified</span>
                           </span>
                         )}
                         {property.featured && (
-                          <span className="px-3 py-1 rounded-full bg-gradient-to-r from-rose-600 to-pink-600 text-white text-[9px] font-black uppercase tracking-wider shadow-md">
-                            Featured Spotlight
+                          <span className="px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-rose-600 to-pink-600 text-white text-[7px] sm:text-[9px] font-black uppercase tracking-wider shadow-md">
+                            <span className="hidden sm:inline">Featured Spotlight</span>
+                            <span className="sm:hidden">Featured</span>
                           </span>
                         )}
                       </div>
 
                       {/* Favorite Button */}
-                      <button className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-rose-600 hover:text-white transition-all shadow-md group/fav">
-                        <Heart className="w-4.5 h-4.5 group-hover/fav:fill-white" />
+                      <button className="absolute top-2 right-2 w-6 h-6 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-rose-600 hover:text-white transition-all shadow-md group/fav">
+                        <Heart className="w-3 h-3 sm:w-4 sm:h-4 group-hover/fav:fill-white" />
                       </button>
 
                       {/* Pricing Overlay */}
-                      <div className="absolute bottom-4 left-5 right-5 flex items-end justify-between text-white">
+                      <div className="absolute bottom-2 sm:bottom-4 left-2.5 sm:left-5 right-2.5 sm:right-5 flex items-end justify-between text-white">
                         <div>
-                          <p className="text-2xl font-black tracking-tight">{formatPropertyPriceDisplay(property)}</p>
-                          <p className="text-xs text-slate-200/90 font-bold uppercase tracking-wider mt-0.5">
-                            {property.propertyType?.replace('_', ' ')} • For {property.listingType}
+                          <p className="text-sm sm:text-2xl font-black tracking-tight leading-tight">{formatPropertyPriceDisplay(property)}</p>
+                          <p className="text-[8px] sm:text-xs text-slate-200/90 font-bold uppercase tracking-wider mt-0">
+                            {property.propertyType?.replace('_', ' ')} • {property.listingType}
                           </p>
                         </div>
                       </div>
                     </div>
 
                     {/* Content Details */}
-                    <div className="p-4 flex flex-col flex-grow">
-                      <h3 className="text-base font-bold text-slate-900 group-hover:text-rose-600 transition-colors line-clamp-1 mb-1.5">
+                    <div className="p-2.5 sm:p-4 flex flex-col flex-grow">
+                      <h3 className="text-xs sm:text-base font-bold text-slate-900 group-hover:text-rose-600 transition-colors line-clamp-1 mb-1">
                         {property.title}
                       </h3>
 
-                      <div className="flex items-center gap-1.5 text-slate-500 text-xs font-semibold mb-4">
-                        <MapPin className="h-4 w-4 text-rose-500 shrink-0" />
-                        <span className="truncate">{property.city ? `${property.address}, ${property.city}` : property.address || 'Address on request'}</span>
+                      <div className="flex items-center gap-1 text-slate-500 text-[10px] sm:text-xs font-semibold mb-2 sm:mb-4">
+                        <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-rose-500 shrink-0" />
+                        <span className="truncate">{property.city || property.address || 'Location on request'}</span>
                       </div>
 
-                      {/* Grid attributes */}
-                      <div className="grid grid-cols-3 gap-1.5 py-3 border-y border-slate-100 text-center text-slate-600 font-bold text-xs mb-4 mt-auto">
-                        <div className="bg-slate-50/50 py-2.5 rounded-2xl border border-slate-100/50">
-                          <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mb-0.5">Beds</p>
-                          <p className="text-slate-800 font-black text-sm">{beds}</p>
+                      {/* Grid attributes - hidden on very small, shown compact */}
+                      <div className="grid grid-cols-3 gap-1 py-1.5 sm:py-3 border-y border-slate-100 text-center text-slate-600 font-bold text-xs mb-2 sm:mb-4 mt-auto">
+                        <div className="bg-slate-50/50 py-1.5 sm:py-2.5 rounded-lg sm:rounded-2xl border border-slate-100/50">
+                          <p className="text-[7px] sm:text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mb-0">Beds</p>
+                          <p className="text-slate-800 font-black text-[10px] sm:text-sm">{beds}</p>
                         </div>
-                        <div className="bg-slate-50/50 py-2.5 rounded-2xl border border-slate-100/50">
-                          <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mb-0.5">Baths</p>
-                          <p className="text-slate-800 font-black text-sm">{baths}</p>
+                        <div className="bg-slate-50/50 py-1.5 sm:py-2.5 rounded-lg sm:rounded-2xl border border-slate-100/50">
+                          <p className="text-[7px] sm:text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mb-0">Baths</p>
+                          <p className="text-slate-800 font-black text-[10px] sm:text-sm">{baths}</p>
                         </div>
-                        <div className="bg-slate-50/50 py-2.5 rounded-2xl border border-slate-100/50">
-                          <p className="text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mb-0.5">Builtup</p>
-                          <p className="text-slate-800 font-black text-sm truncate">{formatAreaDisplay(property.area)}</p>
+                        <div className="bg-slate-50/50 py-1.5 sm:py-2.5 rounded-lg sm:rounded-2xl border border-slate-100/50">
+                          <p className="text-[7px] sm:text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mb-0">Area</p>
+                          <p className="text-slate-800 font-black text-[10px] sm:text-sm truncate">{formatAreaDisplay(property.area)}</p>
                         </div>
                       </div>
 
                       {/* View Details Action */}
                       <Link href={`/property/${property.id}`} className="block">
-                        <Button className="w-full h-10 bg-slate-900 hover:bg-rose-600 text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm">
-                          Explore Listing <ArrowRight className="w-4 h-4" />
+                        <Button className="w-full h-7 sm:h-10 bg-slate-900 hover:bg-rose-600 text-white font-bold rounded-lg sm:rounded-xl transition-all duration-300 flex items-center justify-center gap-1 text-[10px] sm:text-sm">
+                          View <ArrowRight className="w-2.5 h-2.5 sm:w-4 sm:h-4" />
                         </Button>
                       </Link>
                     </div>
