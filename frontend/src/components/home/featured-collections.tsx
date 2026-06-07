@@ -64,19 +64,19 @@ export function FeaturedCollections() {
   if (active.length === 0) return null
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-10 sm:py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-end mb-10">
+        <div className="flex justify-between items-end mb-6 sm:mb-10">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Featured Collections</h2>
-            <p className="text-slate-500 mt-2">Counts from live listings on Kanharaj</p>
+            <h2 className="text-xl sm:text-3xl font-bold text-slate-900 tracking-tight">Featured Collections</h2>
+            <p className="text-slate-500 text-xs sm:text-base mt-1 sm:mt-2">Counts from live listings on Kanharaj</p>
           </div>
-          <Link href="/properties" className="text-rose-600 font-bold flex items-center hover:gap-2 transition-all">
-            See All <ArrowRight className="ml-2 h-4 w-4" />
+          <Link href="/properties" className="text-rose-600 font-bold flex items-center text-xs sm:text-base hover:gap-2 transition-all">
+            See All <ArrowRight className="ml-1 sm:ml-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {collections.map((item, index) => (
             <motion.div
               key={item.title}
@@ -85,7 +85,7 @@ export function FeaturedCollections() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
             >
-              <Link href={item.href} className="group block relative overflow-hidden rounded-2xl aspect-[4/5]">
+              <Link href={item.href} className="group block relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/5]">
                 <Image
                   src={item.image}
                   alt={item.title}
@@ -94,11 +94,11 @@ export function FeaturedCollections() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent" />
 
-                <div className="absolute bottom-0 left-0 p-6 w-full">
-                  <div className={`w-10 h-1 mb-3 rounded-full ${item.color}`} />
-                  <h3 className="text-xl font-bold text-white mb-1">{item.title}</h3>
-                  <p className="text-slate-300 text-xs mb-3 line-clamp-1">{item.description}</p>
-                  <span className="inline-block px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-white text-[10px] font-bold uppercase tracking-wider border border-white/20">
+                <div className="absolute bottom-0 left-0 p-3.5 sm:p-6 w-full">
+                  <div className={`w-6 h-0.5 sm:w-10 sm:h-1 mb-2 sm:mb-3 rounded-full ${item.color}`} />
+                  <h3 className="text-sm sm:text-xl font-bold text-white mb-0.5 sm:mb-1">{item.title}</h3>
+                  <p className="text-slate-300 text-[10px] sm:text-xs mb-2 sm:mb-3 line-clamp-1">{item.description}</p>
+                  <span className="inline-block px-2 py-0.5 sm:px-3 sm:py-1 bg-white/10 backdrop-blur-md rounded-full text-white text-[8px] sm:text-[10px] font-bold uppercase tracking-wider border border-white/20">
                     {item.count > 0 ? `${formatNumber(item.count)} Properties` : 'Browse'}
                   </span>
                 </div>
