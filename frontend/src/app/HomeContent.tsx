@@ -211,36 +211,38 @@ export default function HomeContent() {
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex flex-col items-center justify-center text-center w-full max-w-5xl mx-auto gap-8">
 
-            {/* Header Content */}
+            {/* Header Content & Search Bar Card */}
             <div className="flex flex-col w-full items-center text-center">
-              {activeTab !== 'buy' && (
-                <div className="mb-6 px-1 text-center w-full max-w-4xl mx-auto flex flex-col items-center">
+              <div className="mb-6 px-1 text-center w-full max-w-4xl mx-auto flex flex-col items-center">
+                <AnimatePresence mode="wait">
                   <motion.div
-                    initial={{ opacity: 0, y: -15 }}
+                    key={activeTab}
+                    initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.3 }}
                     className="flex flex-col items-center text-center"
                   >
                     <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-white text-[11px] sm:text-xs font-bold tracking-[0.2em] uppercase mb-4 border border-white/20 shadow-lg">
                       <Award className="w-3.5 h-3.5 text-rose-500 fill-rose-500 animate-pulse" />
                       Delhi's Premium Real Estate Agency
                     </span>
-                    <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+                    <h1 className="font-sans text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
                       {currentTheme.title}
                     </h1>
                     <p className="mt-3 text-xs sm:text-sm md:text-base text-slate-100/90 font-medium drop-shadow-md max-w-2xl leading-relaxed">
                       {currentTheme.subtitle}
                     </p>
                   </motion.div>
-                </div>
-              )}
+                </AnimatePresence>
+              </div>
 
-              {/* Search Bar Card - Elegant Floating Glassmorphism */}
+              {/* Search Bar Card - Sleek Compact Layout */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="w-full bg-white/95 sm:bg-white/90 sm:backdrop-blur-xl rounded-[2rem] p-4 sm:p-8 shadow-[0_24px_50px_-12px_rgba(0,0,0,0.25)] border border-white/20 relative"
+                className="w-full max-w-4xl mx-auto bg-white/95 sm:bg-white/90 sm:backdrop-blur-xl rounded-3xl p-4 sm:p-6 shadow-xl border border-slate-100/80 relative"
               >
                 {/* Visual Accent */}
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-rose-600 text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1 rounded-full shadow-md z-20">
@@ -250,8 +252,6 @@ export default function HomeContent() {
                 <SearchBar
                   activeTab={activeTab}
                   setActiveTab={setActiveTab}
-                  title={activeTab === 'buy' ? currentTheme.title : undefined}
-                  subtitle={activeTab === 'buy' ? currentTheme.subtitle : undefined}
                 />
               </motion.div>
             </div>

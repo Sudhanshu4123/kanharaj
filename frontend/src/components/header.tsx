@@ -248,34 +248,28 @@ export function Header() {
 
   return (
     <header className={cn(
-      "fixed top-4 left-4 right-4 z-50 transition-all duration-300 max-w-7xl mx-auto rounded-[20px] bg-white shadow-lg border border-slate-200/80 h-[76px] flex items-center pr-4 pl-0 justify-between",
+      "fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#0a2540] h-[60px] flex items-center px-4 sm:px-6 lg:px-10 justify-between border-b border-white/10",
+      scrolled && "shadow-lg shadow-black/20",
       pathname === '/properties' && "hidden"
     )}>
-      <div className="relative h-full w-[180px] sm:w-[240px] md:w-[280px] bg-[#0a2540] rounded-l-[18px] flex items-center pl-3 shrink-0 select-none z-10">
-        <div className="absolute right-[-39px] top-0 bottom-0 w-10 h-full z-10 pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 40 100" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M 0 0 L 10 0 C 30 10, 10 90, 40 100 L 0 100 Z" fill="#0a2540" />
-            <path d="M 10 0 C 30 10, 10 90, 40 100" stroke="#dfa127" strokeWidth="3" />
-          </svg>
-        </div>
-        <div className="absolute left-2.5 sm:left-3 top-[10px] bottom-[10px] right-[-15px] sm:right-[-20px] bg-white rounded-l-full flex items-center pl-1.5 sm:pl-2 z-20 border-y border-l border-slate-100/55 shadow-sm">
-          <Link href="/" className="flex items-center">
-            <div className="relative h-9 w-9 sm:h-10 sm:w-10 rounded-full overflow-hidden flex items-center justify-center bg-[#0d233a] border border-[#dfa127] shrink-0 shadow-sm">
-              <img
-                src={BRAND_LOGO_SRC}
-                alt="Kanharaj Logo"
-                className="h-6 w-6 sm:h-7 sm:w-7 object-contain"
-              />
+      {/* Logo */}
+      <div className="flex items-center shrink-0">
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="relative h-9 w-9 rounded-full overflow-hidden flex items-center justify-center bg-[#0d233a] border border-[#dfa127] shrink-0 shadow-sm">
+            <img
+              src={BRAND_LOGO_SRC}
+              alt="Kanharaj Logo"
+              className="h-6 w-6 object-contain"
+            />
+          </div>
+          <div className="flex flex-col justify-center leading-none">
+            <div className="flex items-baseline">
+              <span className="font-sans font-black text-base text-white tracking-tighter leading-none">KANHARAJ</span>
+              <span className="text-[9px] font-black text-[#dfa127] ml-0.5 leading-none">.COM</span>
             </div>
-            <div className="ml-2 flex flex-col justify-center leading-none">
-              <div className="flex items-baseline">
-                <span className="font-sans font-black text-sm md:text-lg text-[#0a2540] tracking-tighter leading-none">KANHARAJ</span>
-                <span className="text-[9px] md:text-[10px] font-black text-[#dfa127] ml-0.5 leading-none">.COM</span>
-              </div>
-              <span className="hidden sm:block text-[8px] font-bold text-slate-500 mt-1 uppercase tracking-wide whitespace-nowrap">Dream Property. Right Place.</span>
-            </div>
-          </Link>
-        </div>
+            <span className="hidden sm:block text-[8px] font-bold text-white/50 mt-0.5 uppercase tracking-wide whitespace-nowrap">Dream Property. Right Place.</span>
+          </div>
+        </Link>
       </div>
 
       <nav className="hidden lg:flex items-center gap-2 xl:gap-4 ml-auto mr-4">
@@ -287,9 +281,9 @@ export function Header() {
             onMouseLeave={() => setOpenDropdown(null)}
           >
             <button
-              className="px-2.5 py-1.5 text-xs sm:text-sm font-bold text-[#0a2540] hover:text-[#dfa127] group-hover:text-[#dfa127] transition-colors flex items-center gap-1.5 rounded-lg"
+              className="px-2.5 py-1.5 text-xs sm:text-sm font-bold text-white hover:text-[#dfa127] group-hover:text-[#dfa127] transition-colors flex items-center gap-1.5 rounded-lg"
             >
-              {link.icon && <link.icon className="h-4 w-4 text-[#0a2540]/70 group-hover:text-[#dfa127] transition-colors" />}
+              {link.icon && <link.icon className="h-4 w-4 text-white/70 group-hover:text-[#dfa127] transition-colors" />}
               <span>{link.label}</span>
               <ChevronDown className={cn(
                 "h-3.5 w-3.5 transition-transform duration-200 opacity-70",
@@ -569,7 +563,7 @@ export function Header() {
 
         <button
           onClick={handlePostPropertyFreeClick}
-          className="h-11 px-5 bg-[#0a2540] hover:bg-[#143d66] text-white font-extrabold rounded-full text-xs shadow-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 border border-white/10 shrink-0"
+          className="h-11 px-5 bg-white/10 hover:bg-white/20 text-white font-extrabold rounded-full text-xs shadow-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 border border-white/20 shrink-0"
         >
           <span className="flex items-center justify-center w-4 h-4 rounded-full border border-white text-white font-bold text-[10px] leading-none shrink-0">+</span>
           <span>Post Property</span>
@@ -580,7 +574,7 @@ export function Header() {
           <div className="relative profile-menu-container flex items-center gap-2.5">
             <button
               onClick={() => setOpenDropdown(openDropdown === 'user' ? null : 'user')}
-              className="w-11 h-11 rounded-full border border-slate-200 bg-white hover:bg-slate-50 hover:shadow-md flex items-center justify-center text-[#0a2540] transition-all shrink-0 shadow-sm"
+              className="w-11 h-11 rounded-full border border-white/15 bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all shrink-0 shadow-sm"
               aria-label="Menu"
             >
               <Menu className="h-5 w-5" />
@@ -687,24 +681,6 @@ export function Header() {
                       <ChevronRight className="h-4.5 w-4.5" />
                     </Link>
                   )}
-
-                  <div className="bg-gradient-to-br from-slate-50 to-indigo-50/20 border border-slate-100 p-4 rounded-[22px] flex items-center justify-between gap-3 shadow-sm">
-                    <div className="flex flex-col gap-2 flex-grow">
-                      <h4 className="text-[11px] font-black text-slate-800 leading-tight">Download Housing App</h4>
-                      <div className="flex flex-col gap-1.5">
-                        <a href="#" className="h-7 w-[100px] hover:opacity-90 transition-opacity"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" className="h-full w-full object-contain" /></a>
-                        <a href="#" className="h-7 w-[100px] hover:opacity-90 transition-opacity"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" className="h-full w-full object-contain" /></a>
-                      </div>
-                    </div>
-                    <div className="bg-white p-2 rounded-xl border border-slate-200 shrink-0 shadow-sm flex items-center justify-center">
-                      <svg className="w-16 h-16 text-slate-800" viewBox="0 0 100 100" fill="currentColor">
-                        <path d="M5,5 h30 v30 h-30 z M15,15 h10 v10 h-10 z" />
-                        <path d="M65,5 h30 v30 h-30 z M75,15 h10 v10 h-10 z" />
-                        <path d="M5,65 h30 v30 h-30 z M15,75 h10 v10 h-10 z" />
-                        <rect x="45" y="10" width="8" height="8" /><rect x="45" y="25" width="8" height="8" /><rect x="45" y="45" width="8" height="8" /><rect x="10" y="45" width="8" height="8" /><rect x="25" y="45" width="8" height="8" /><rect x="65" y="45" width="8" height="8" /><rect x="80" y="45" width="8" height="8" /><rect x="45" y="65" width="8" height="8" /><rect x="45" y="80" width="8" height="8" /><rect x="65" y="65" width="10" height="10" /><rect x="80" y="65" width="10" height="10" /><rect x="65" y="80" width="10" height="10" /><rect x="80" y="80" width="15" height="15" />
-                      </svg>
-                    </div>
-                  </div>
 
                   <div className="flex items-center justify-between px-1 text-slate-400">
                     <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Follow on</span>

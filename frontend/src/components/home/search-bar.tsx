@@ -207,8 +207,8 @@ export function SearchBar({
         </div>
       </div>
 
-      {/* Main Search White Container Card */}
-      <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-5 border border-slate-100/80">
+      {/* Main Search Container (Nested card styling removed for single-layer layout) */}
+      <div className="mt-4 sm:mt-5">
 
         {/* Dynamic Title / Subtitle inside search card for Buy mode only */}
         {title && (
