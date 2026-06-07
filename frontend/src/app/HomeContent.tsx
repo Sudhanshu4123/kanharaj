@@ -18,7 +18,6 @@ import {
   fetchPlatformStats,
   getFeaturedOrLatest,
   getPopularCities,
-  getSellerPartners,
   getPropertyImageUrl,
   formatPropertyPriceDisplay,
   formatAreaDisplay,
@@ -102,7 +101,6 @@ export default function HomeContent() {
 
   const displayProperties = useMemo(() => getFeaturedOrLatest(properties, 3), [properties])
   const popularCities = useMemo(() => getPopularCities(properties, 4), [properties])
-  const sellerPartners = useMemo(() => getSellerPartners(properties, 3), [properties])
 
   const getHeroConfig = () => {
     switch (activeTab) {
@@ -565,74 +563,7 @@ export default function HomeContent() {
             ))}
           </div>
         </div>
-      </section>
-
-
-      {/* Collaboration Section */}
-      <section className="py-10 sm:py-24 bg-white relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-8 sm:mb-16"
-          >
-            <span className="text-rose-600 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] bg-rose-50 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full inline-block">
-              Network Excellence
-            </span>
-            <h2 className="text-base sm:text-xl md:text-3xl font-bold tracking-tight text-slate-900 mt-2.5 sm:mt-4 leading-tight">Our Strategic Partners</h2>
-            <div className="w-10 sm:w-16 h-1 sm:h-1.5 bg-rose-600 mx-auto mt-3 sm:mt-6 rounded-full" />
-            <p className="mt-3 sm:mt-6 text-slate-500 max-w-2xl mx-auto text-xs sm:text-lg font-medium">
-              Verified agents and brokers with active listings on Kanharaj — contact directly for zero-brokerage listings.
-            </p>
-          </motion.div>
-
-          {sellerPartners.length === 0 ? (
-            <p className="text-center text-slate-400 font-medium py-8 bg-slate-50 rounded-2xl border">Registered seller brokers will display here.</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8">
-              {sellerPartners.map((partner, index) => (
-                <motion.div
-                  key={partner.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.08 }}
-                  className="group bg-slate-50 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-8 border border-slate-100 hover:bg-white hover:border-rose-500 hover:shadow-2xl hover:shadow-rose-500/10 transition-all duration-500 flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-base sm:text-2xl font-black mb-4 sm:mb-8 group-hover:bg-rose-600 group-hover:text-white transition-all duration-500 shadow-sm border border-rose-100">
-                      {partner.name.charAt(0)}
-                    </div>
-                    <h3 className="text-lg sm:text-2xl font-black text-slate-900 mb-1 sm:mb-2 group-hover:text-rose-600 transition-colors">
-                      {partner.name}
-                    </h3>
-                    <Badge variant="secondary" className="bg-rose-50 text-rose-600 border border-rose-100 font-extrabold uppercase text-[8px] sm:text-[10px] tracking-wider mb-4 sm:mb-6">
-                      {partner.listingCount} active listing{partner.listingCount !== 1 ? 's' : ''}
-                    </Badge>
-                  </div>
-
-                  <div className="space-y-2.5 sm:space-y-4 pt-4 sm:pt-6 border-t border-slate-100/80">
-                    {partner.address && (
-                      <div className="flex items-start gap-2 sm:gap-3 text-slate-500">
-                        <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-rose-500 shrink-0 mt-0.5" />
-                        <p className="text-xs sm:text-sm font-medium leading-relaxed line-clamp-2">{partner.address}</p>
-                      </div>
-                    )}
-                    {partner.phone && (
-                      <div className="flex items-center gap-2 sm:gap-3 text-slate-500">
-                        <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-rose-500 shrink-0" />
-                        <a href={`tel:+91${partner.phone.replace(/\D/g, '')}`} className="text-xs sm:text-sm font-black hover:text-rose-600 transition-colors tracking-tight">
-                           +91 {partner.phone}
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
+   
       </section>
 
 
