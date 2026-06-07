@@ -101,11 +101,11 @@ const sellersMegaData = {
 
 const servicesMegaData = {
   edge: {
-    title: 'Housing Edge',
+    title: 'Kanharaj Services',
     items: [
       { label: 'Home Loan', href: '/services/home-loan' },
-      { label: 'Housing Protect', href: '/services/protect' },
-      { label: 'Housing Premium', href: '/services/premium' },
+      { label: 'Property Protection', href: '/services/protect' },
+      { label: 'Premium Plan', href: '/services/premium' },
     ]
   },
   tools: {
@@ -124,7 +124,7 @@ const newsMegaData = {
   items: [
     { label: 'Real Estate News', description: 'Latest market updates', href: '/#news' },
     { label: 'Buying Guide', description: 'Expert homebuying tips', href: '/guide/buying' },
-    { label: 'Housing Research', description: 'Data-driven insights', href: '/#research-insights' },
+    { label: 'Property Research', description: 'Data-driven insights', href: '/#research-insights' },
     { label: 'New Delhi Overview', description: 'Real estate & area highlights', href: '/guide/new-delhi' },
   ]
 }
