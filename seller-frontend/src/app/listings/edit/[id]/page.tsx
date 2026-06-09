@@ -179,7 +179,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="animate-spin text-rose-600" size={40} />
+        <Loader2 className="animate-spin text-[#0a2540]" size={40} />
         <p className="text-slate-500 font-bold">Loading property details...</p>
       </div>
     )
@@ -199,11 +199,11 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         {steps.map((step, i) => (
           <div key={step} className="relative z-10 flex flex-col items-center">
              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
-               i <= currentStep ? 'bg-rose-600 text-white shadow-lg shadow-rose-200' : 'bg-white border-2 border-slate-100 text-slate-400'
+               i <= currentStep ? 'bg-[#0a2540] text-white shadow-lg shadow-slate-200' : 'bg-white border-2 border-slate-100 text-slate-400'
              }`}>
                 {i < currentStep ? <CheckCircle2 size={20} /> : i + 1}
              </div>
-             <span className={`text-[10px] font-bold uppercase mt-2 tracking-widest ${i <= currentStep ? 'text-rose-600' : 'text-slate-400'}`}>
+             <span className={`text-[10px] font-bold uppercase mt-2 tracking-widest ${i <= currentStep ? 'text-[#0a2540]' : 'text-slate-400'}`}>
                 {step}
              </span>
           </div>
@@ -229,7 +229,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                             value={formData.title}
                             onChange={handleInputChange}
                             type="text" 
-                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-rose-500 outline-none text-sm font-medium"
+                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
                           />
                        </div>
                        <div>
@@ -239,7 +239,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                             value={formData.description}
                             onChange={handleInputChange}
                             rows={4}
-                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-rose-500 outline-none text-sm font-medium resize-none"
+                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium resize-none"
                           />
                        </div>
                     </div>
@@ -253,7 +253,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                               value={formData.price}
                               onChange={handleInputChange}
                               type="number" 
-                              className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-rose-500 outline-none text-sm font-medium"
+                              className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
                             />
                           </div>
                        </div>
@@ -263,7 +263,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                             name="propertyType"
                             value={formData.propertyType}
                             onChange={handleInputChange}
-                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-rose-500 outline-none text-sm font-medium bg-white"
+                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium bg-white"
                           >
                              <optgroup label="Residential">
                                 <option value="FLAT">Flat / Apartment</option>
@@ -292,7 +292,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                             value={formData.address}
                             onChange={handleInputChange}
                             rows={3}
-                            className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-rose-500 outline-none text-sm font-medium resize-none"
+                            className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium resize-none"
                           />
                        </div>
                     </div>
@@ -304,7 +304,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                             value={formData.city}
                             onChange={handleInputChange}
                             type="text" 
-                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-rose-500 outline-none text-sm font-medium"
+                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
                           />
                        </div>
                        <div>
@@ -314,7 +314,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                             value={formData.pincode}
                             onChange={handleInputChange}
                             type="text" 
-                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-rose-500 outline-none text-sm font-medium"
+                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
                           />
                        </div>
                     </div>
@@ -333,7 +333,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                                value={formData.bedrooms}
                                onChange={handleInputChange}
                                type="number" 
-                               className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-rose-500 outline-none text-sm font-medium"
+                               className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
                              />
                           </div>
                        </div>
@@ -346,7 +346,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                                value={formData.bathrooms}
                                onChange={handleInputChange}
                                type="number" 
-                               className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-rose-500 outline-none text-sm font-medium"
+                               className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
                              />
                           </div>
                        </div>
@@ -359,7 +359,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                                value={formData.area}
                                onChange={handleInputChange}
                                type="number" 
-                               className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-rose-500 outline-none text-sm font-medium"
+                               className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
                              />
                           </div>
                        </div>
@@ -375,15 +375,15 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                             <img src={url} alt="" className="w-full h-full object-cover" />
                             <button 
                               onClick={() => removeImage(i)}
-                              className="absolute top-2 right-2 bg-white/80 backdrop-blur-md p-1.5 rounded-full text-rose-600 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-target"
+                              className="absolute top-2 right-2 bg-white/80 backdrop-blur-md p-1.5 rounded-full text-[#0a2540] opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-target"
                             >
                                <X size={14} />
                             </button>
                          </div>
                        ))}
-                       <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-rose-500 hover:bg-rose-50 transition-all">
+                       <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-rose-500 hover:bg-[#0a2540]/5 transition-all">
                           {uploading ? (
-                            <Loader2 className="animate-spin text-rose-600" size={24} />
+                            <Loader2 className="animate-spin text-[#0a2540]" size={24} />
                           ) : (
                             <>
                               <Upload className="text-slate-400" size={24} />

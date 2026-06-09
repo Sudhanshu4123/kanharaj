@@ -47,11 +47,11 @@ export function Sidebar() {
       <div className="p-8">
         <Link href="/" className="flex items-center gap-3">
           <div className="relative h-10 w-10 flex items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-white shadow-sm">
-            <Building2 className="text-rose-600" size={24} />
+            <Building2 className="text-[#0a2540]" size={24} />
           </div>
           <div className="flex flex-col">
             <span className="font-heading text-lg font-bold leading-tight tracking-tight text-slate-900">
-              Seller<span className="text-rose-600">Hub</span>
+              Seller<span className="text-[#0a2540]">Hub</span>
             </span>
             <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Manage Properties</span>
           </div>
@@ -77,7 +77,7 @@ export function Sidebar() {
             >
               <item.icon size={20} className={cn("transition-transform group-hover:scale-110", isActive ? "text-white" : "text-slate-400 group-hover:text-slate-900")} />
               {item.name}
-              {isRestricted && <span className="ml-auto text-[10px] bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full">Locked</span>}
+              {isRestricted && <span className="ml-auto text-[10px] bg-[#0a2540]/5 text-[#0a2540] px-2 py-0.5 rounded-full">Locked</span>}
             </Link>
           )
         })}
@@ -88,16 +88,16 @@ export function Sidebar() {
            <div className="relative z-10">
               <p className="text-white font-bold text-sm">Grow your business</p>
               <p className="text-slate-400 text-xs mt-1 mb-4">Unlock premium features and reach more buyers.</p>
-              <button className="w-full bg-white text-slate-900 text-xs font-bold py-2 rounded-xl hover:bg-rose-50 transition-colors">
+              <button className="w-full bg-white text-slate-900 text-xs font-bold py-2 rounded-xl hover:bg-[#0a2540]/5 transition-colors">
                 Upgrade Now
               </button>
            </div>
-           <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-rose-600/20 rounded-full blur-2xl group-hover:bg-rose-600/30 transition-all" />
+           <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-[#0a2540]/20 rounded-full blur-2xl group-hover:bg-[#0a2540]/30 transition-all" />
         </div>
         
         <button 
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-4 mt-4 w-full text-slate-500 hover:text-rose-600 text-sm font-semibold transition-colors"
+          className="flex items-center gap-3 px-4 py-4 mt-4 w-full text-slate-500 hover:text-[#0a2540] text-sm font-semibold transition-colors"
         >
           <LogOut size={20} />
           Sign Out

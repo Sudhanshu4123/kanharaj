@@ -32,7 +32,7 @@ export function MobileNav() {
             href={item.href}
             className={cn(
               "flex flex-col items-center gap-1 px-1 py-1.5 transition-all flex-1",
-              isActive ? "text-rose-600" : "text-slate-400"
+              isActive ? "text-[#0a2540]" : "text-slate-400"
             )}
           >
             <item.icon 
@@ -44,7 +44,7 @@ export function MobileNav() {
               {item.name}
             </span>
             {isActive && (
-              <div className="w-1 h-1 bg-rose-600 rounded-full" />
+              <div className="w-1 h-1 bg-[#0a2540] rounded-full" />
             )}
           </Link>
         )

@@ -67,7 +67,7 @@ function PropertyCard({
     ACTIVE:      "bg-emerald-500",
     DEACTIVATED: "bg-orange-500",
     EXPIRED:     "bg-red-500",
-    REJECTED:    "bg-rose-600",
+    REJECTED:    "bg-[#0a2540]",
     INACTIVE:    "bg-slate-400",
   }
   const statusLabel: Record<string, string> = {
@@ -170,7 +170,7 @@ function PropertyCard({
               >
                 {lqsNum.toFixed(1)}
               </div>
-              <button className="flex items-center gap-0.5 text-[11px] font-bold text-[#6C4EF2] hover:underline">
+              <button className="flex items-center gap-0.5 text-[11px] font-bold text-[#0a2540] hover:underline">
                 Improve <ChevronDown className="w-3 h-3" />
               </button>
             </div>
@@ -191,7 +191,7 @@ function PropertyCard({
               <span className="text-xs font-black text-slate-800 mt-0.5 flex items-center gap-0.5">
                 {prop.inquiryCount ?? 0}
                 {(prop.inquiryCount ?? 0) > 0 && (
-                  <ExternalLink className="w-2.5 h-2.5 text-[#6C4EF2]" />
+                  <ExternalLink className="w-2.5 h-2.5 text-[#0a2540]" />
                 )}
               </span>
             </div>
@@ -209,7 +209,7 @@ function PropertyCard({
           <div className="flex items-center gap-3 pt-1 border-t border-slate-100 flex-wrap">
             <button
               onClick={() => onEdit(prop.id)}
-              className="text-xs font-black text-[#6C4EF2] hover:underline transition-colors"
+              className="text-xs font-black text-[#0a2540] hover:underline transition-colors"
             >
               Manage
             </button>
@@ -219,7 +219,7 @@ function PropertyCard({
               Verify
             </button>
             <button
-              className="px-4 py-1.5 rounded-lg text-xs font-black bg-purple-50 border border-[#6C4EF2] text-[#6C4EF2] hover:bg-purple-100 transition-colors"
+              className="px-4 py-1.5 rounded-lg text-xs font-black bg-[#0a2540]/5 border border-[#0a2540] text-[#0a2540] hover:bg-[#0a2540]/10 transition-colors"
             >
               Repost
             </button>
@@ -232,7 +232,7 @@ function PropertyCard({
             </button>
             <button
               onClick={() => onDelete(prop.id)}
-              className="flex items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-rose-600 transition-colors"
+              className="flex items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-[#0a2540] transition-colors"
               title="Delete"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -405,7 +405,7 @@ export default function ListingsPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="animate-spin text-[#6C4EF2]" size={40} />
+        <Loader2 className="animate-spin text-[#0a2540]" size={40} />
         <p className="text-slate-500 font-bold">Fetching your properties...</p>
       </div>
     )
@@ -414,7 +414,7 @@ export default function ListingsPage() {
   if (!hasSubscription) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-4">
-        <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center text-[#6C4EF2]">
+        <div className="w-16 h-16 bg-[#0a2540]/5 rounded-full flex items-center justify-center text-[#0a2540]">
           <Building2 size={32} />
         </div>
         <h4 className="font-black text-slate-800 text-lg">Subscribe to Post Listings</h4>
@@ -423,7 +423,7 @@ export default function ListingsPage() {
         </p>
         <a
           href="/subscription"
-          className="px-6 py-3 bg-[#6C4EF2] text-white rounded-xl font-bold text-sm hover:bg-[#5a3fd4] transition-colors shadow-lg shadow-purple-200"
+          className="px-6 py-3 bg-[#0a2540] text-white rounded-xl font-bold text-sm hover:bg-[#07192c] transition-colors shadow-lg shadow-slate-200"
         >
           View Subscription Plans
         </a>
@@ -463,7 +463,7 @@ export default function ListingsPage() {
             </div>
             <button
               onClick={resetFilters}
-              className="text-xs font-bold text-[#6C4EF2] hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-[#0a2540] hover:underline flex items-center gap-1"
             >
               <RotateCcw className="w-3 h-3" /> Reset Filters
             </button>
@@ -475,7 +475,7 @@ export default function ListingsPage() {
             {anyFilterActive ? (
               <div className="flex flex-wrap gap-1.5">
                 {listingStatus.map(s => (
-                  <span key={s} className="px-2 py-0.5 rounded-full bg-purple-50 text-[#6C4EF2] text-[10px] font-bold border border-purple-100 flex items-center gap-1">
+                  <span key={s} className="px-2 py-0.5 rounded-full bg-[#0a2540]/5 text-[#0a2540] text-[10px] font-bold border border-[#0a2540]/10 flex items-center gap-1">
                     {s} <button onClick={() => setListingStatus(p => p.filter(x => x !== s))}><X className="w-2.5 h-2.5" /></button>
                   </span>
                 ))}
@@ -495,7 +495,7 @@ export default function ListingsPage() {
                 value={searchId}
                 onChange={e => setSearchId(e.target.value)}
                 placeholder="Enter property IDs"
-                className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#6C4EF2]/30 bg-white"
+                className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#0a2540]/30 bg-white"
               />
             </div>
           </div>
@@ -508,7 +508,7 @@ export default function ListingsPage() {
                 <label key={s} className="flex items-center gap-1.5 cursor-pointer">
                   <div
                     onClick={() => setSector(s)}
-                    className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center cursor-pointer transition-colors ${sector === s ? "border-[#6C4EF2] bg-[#6C4EF2]" : "border-slate-300 bg-white"}`}
+                    className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center cursor-pointer transition-colors ${sector === s ? "border-[#0a2540] bg-[#0a2540]" : "border-slate-300 bg-white"}`}
                   >
                     {sector === s && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                   </div>
@@ -528,7 +528,7 @@ export default function ListingsPage() {
                   <button
                     key={s}
                     onClick={() => setService(p => active ? p.filter(x => x !== s) : [...p, s])}
-                    className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all ${active ? "bg-[#6C4EF2] text-white border-[#6C4EF2]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2] hover:text-[#6C4EF2]"}`}
+                    className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all ${active ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540] hover:text-[#0a2540]"}`}
                   >{s}</button>
                 )
               })}
@@ -550,7 +550,7 @@ export default function ListingsPage() {
                   <button
                     key={key}
                     onClick={() => setListingStatus(p => active ? p.filter(x => x !== key) : [...p, key])}
-                    className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all ${active ? "bg-[#6C4EF2] text-white border-[#6C4EF2]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2] hover:text-[#6C4EF2]"}`}
+                    className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all ${active ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540] hover:text-[#0a2540]"}`}
                   >{label}</button>
                 )
               })}
@@ -567,7 +567,7 @@ export default function ListingsPage() {
                 value={locality}
                 onChange={e => setLocality(e.target.value)}
                 placeholder="Enter Locality here"
-                className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#6C4EF2]/30 bg-white"
+                className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#0a2540]/30 bg-white"
               />
             </div>
           </div>
@@ -582,7 +582,7 @@ export default function ListingsPage() {
                 value={projectName}
                 onChange={e => setProjectName(e.target.value)}
                 placeholder="Enter Project Name here"
-                className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#6C4EF2]/30 bg-white"
+                className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#0a2540]/30 bg-white"
               />
             </div>
           </div>
@@ -597,7 +597,7 @@ export default function ListingsPage() {
                   <button
                     key={pt}
                     onClick={() => setPropertyTypes(p => active ? p.filter(x => x !== pt) : [...p, pt])}
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all ${active ? "bg-[#6C4EF2] text-white border-[#6C4EF2]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2] hover:text-[#6C4EF2]"}`}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all ${active ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540] hover:text-[#0a2540]"}`}
                   >{pt}</button>
                 )
               })}
@@ -614,7 +614,7 @@ export default function ListingsPage() {
                   <button
                     key={b}
                     onClick={() => setBhk(p => active ? p.filter(x => x !== b) : [...p, b])}
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all ${active ? "bg-[#6C4EF2] text-white border-[#6C4EF2]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2] hover:text-[#6C4EF2]"}`}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all ${active ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540] hover:text-[#0a2540]"}`}
                   >{b}</button>
                 )
               })}
@@ -629,7 +629,7 @@ export default function ListingsPage() {
               <input
                 type="text"
                 placeholder="Enter Sub Broker Name here"
-                className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#6C4EF2]/30 bg-white"
+                className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#0a2540]/30 bg-white"
               />
             </div>
           </div>
@@ -644,7 +644,7 @@ export default function ListingsPage() {
                   type="number"
                   value={priceMin}
                   onChange={e => setPriceMin(Number(e.target.value))}
-                  className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-[#6C4EF2]/30"
+                  className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-[#0a2540]/30"
                 />
               </div>
               <span className="text-slate-400 text-xs font-bold pt-4">To</span>
@@ -654,7 +654,7 @@ export default function ListingsPage() {
                   type="number"
                   value={priceMax}
                   onChange={e => setPriceMax(Number(e.target.value))}
-                  className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-[#6C4EF2]/30"
+                  className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-[#0a2540]/30"
                 />
               </div>
             </div>
@@ -663,7 +663,7 @@ export default function ListingsPage() {
               min={0} max={35000000} step={100000}
               value={priceMax}
               onChange={e => setPriceMax(Number(e.target.value))}
-              className="w-full accent-[#6C4EF2]"
+              className="w-full accent-[#0a2540]"
             />
             <div className="flex justify-between text-[10px] text-slate-400 font-bold mt-1">
               <span>₹ {priceMin.toLocaleString("en-IN")}</span>
@@ -681,7 +681,7 @@ export default function ListingsPage() {
                   <button
                     key={f}
                     onClick={() => setFurnishing(p => active ? p.filter(x => x !== f) : [...p, f])}
-                    className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all ${active ? "bg-[#6C4EF2] text-white border-[#6C4EF2]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2]"}`}
+                    className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all ${active ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
                   >{f}</button>
                 )
               })}
@@ -693,7 +693,7 @@ export default function ListingsPage() {
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-3">Verification Status</p>
             <div className="flex gap-2">
               {["Unverified", "Verified"].map(v => (
-                <button key={v} className="px-3 py-1 rounded-full text-[11px] font-bold bg-white text-slate-600 border border-slate-200 hover:border-[#6C4EF2] hover:text-[#6C4EF2] transition-all">{v}</button>
+                <button key={v} className="px-3 py-1 rounded-full text-[11px] font-bold bg-white text-slate-600 border border-slate-200 hover:border-[#0a2540] hover:text-[#0a2540] transition-all">{v}</button>
               ))}
             </div>
           </div>
@@ -703,14 +703,14 @@ export default function ListingsPage() {
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-3">Possession Status</p>
             <div className="flex flex-wrap gap-2">
               {["Ready to move", "Under Construction"].map(p => (
-                <button key={p} className="px-3 py-1 rounded-full text-[11px] font-bold bg-white text-slate-600 border border-slate-200 hover:border-[#6C4EF2] hover:text-[#6C4EF2] transition-all">{p}</button>
+                <button key={p} className="px-3 py-1 rounded-full text-[11px] font-bold bg-white text-slate-600 border border-slate-200 hover:border-[#0a2540] hover:text-[#0a2540] transition-all">{p}</button>
               ))}
             </div>
           </div>
 
           {/* Show Archived */}
           <div className="mb-5 flex items-center gap-2">
-            <input type="checkbox" id="archived" className="w-3.5 h-3.5 accent-[#6C4EF2] rounded" />
+            <input type="checkbox" id="archived" className="w-3.5 h-3.5 accent-[#0a2540] rounded" />
             <label htmlFor="archived" className="text-xs font-semibold text-slate-700 cursor-pointer">
               Show archived listings
             </label>
@@ -729,11 +729,11 @@ export default function ListingsPage() {
             className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 shadow-sm"
           >
             <SlidersHorizontal className="w-4 h-4" /> Filters
-            {anyFilterActive && <span className="w-2 h-2 rounded-full bg-[#6C4EF2]" />}
+            {anyFilterActive && <span className="w-2 h-2 rounded-full bg-[#0a2540]" />}
           </button>
           <Link
             href="/listings/add"
-            className="flex items-center gap-1.5 bg-[#6C4EF2] text-white px-4 py-2 rounded-xl text-xs font-bold shadow"
+            className="flex items-center gap-1.5 bg-[#0a2540] text-white px-4 py-2 rounded-xl text-xs font-bold shadow"
           >
             <Plus className="w-4 h-4" /> Add Property
           </Link>
@@ -747,7 +747,7 @@ export default function ListingsPage() {
               onClick={() => setActiveTab(tab.label)}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
                 activeTab === tab.label
-                  ? "border border-[#6C4EF2] text-[#6C4EF2] bg-purple-50"
+                  ? "border border-[#0a2540] text-[#0a2540] bg-[#0a2540]/5"
                   : "text-slate-600 hover:bg-slate-50"
               }`}
             >
@@ -757,7 +757,7 @@ export default function ListingsPage() {
               {tab.label}
               {tab.count > 0 && (
                 <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black ${
-                  activeTab === tab.label ? "bg-[#6C4EF2] text-white" : "bg-slate-100 text-slate-600"
+                  activeTab === tab.label ? "bg-[#0a2540] text-white" : "bg-slate-100 text-slate-600"
                 }`}>
                   {tab.count}
                 </span>
@@ -769,7 +769,7 @@ export default function ListingsPage() {
           <div className="hidden md:flex ml-auto items-center">
             <Link
               href="/listings/add"
-              className="flex items-center gap-1.5 bg-[#6C4EF2] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[#5a3fd4] transition-colors shadow"
+              className="flex items-center gap-1.5 bg-[#0a2540] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[#07192c] transition-colors shadow"
             >
               <Plus className="w-3.5 h-3.5" /> Add Property
             </Link>
@@ -790,7 +790,7 @@ export default function ListingsPage() {
                 className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 bg-white rounded-lg px-3 py-1.5 transition-colors"
               >
                 <ArrowUpDown className="w-3.5 h-3.5" /> Sort by
-                <span className="text-[#6C4EF2] font-black">{sortBy}</span>
+                <span className="text-[#0a2540] font-black">{sortBy}</span>
                 <ChevronDown className="w-3 h-3" />
               </button>
               <AnimatePresence>
@@ -805,7 +805,7 @@ export default function ListingsPage() {
                       <button
                         key={opt}
                         onClick={() => { setSortBy(opt); setSortDropdown(false) }}
-                        className={`block w-full text-left px-3 py-2 text-[11px] font-bold hover:bg-slate-50 transition-colors ${sortBy === opt ? "text-[#6C4EF2]" : "text-slate-700"}`}
+                        className={`block w-full text-left px-3 py-2 text-[11px] font-bold hover:bg-slate-50 transition-colors ${sortBy === opt ? "text-[#0a2540]" : "text-slate-700"}`}
                       >{opt}</button>
                     ))}
                   </motion.div>
@@ -813,7 +813,7 @@ export default function ListingsPage() {
               </AnimatePresence>
             </div>
 
-            <button className="flex items-center gap-1.5 text-xs font-bold text-[#6C4EF2] hover:underline">
+            <button className="flex items-center gap-1.5 text-xs font-bold text-[#0a2540] hover:underline">
               <RefreshCw className="w-3.5 h-3.5" /> Sync
             </button>
           </div>
@@ -846,7 +846,7 @@ export default function ListingsPage() {
               {!anyFilterActive && (
                 <Link
                   href="/listings/add"
-                  className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 bg-[#6C4EF2] text-white rounded-xl text-sm font-bold hover:bg-[#5a3fd4] transition-colors shadow"
+                  className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 bg-[#0a2540] text-white rounded-xl text-sm font-bold hover:bg-[#07192c] transition-colors shadow"
                 >
                   <Plus className="w-4 h-4" /> Post Your First Property
                 </Link>
@@ -854,7 +854,7 @@ export default function ListingsPage() {
               {anyFilterActive && (
                 <button
                   onClick={resetFilters}
-                  className="mt-4 px-4 py-2 text-xs font-bold text-[#6C4EF2] border border-[#6C4EF2] rounded-xl hover:bg-purple-50 transition-colors"
+                  className="mt-4 px-4 py-2 text-xs font-bold text-[#0a2540] border border-[#0a2540] rounded-xl hover:bg-[#0a2540]/5 transition-colors"
                 >
                   Reset Filters
                 </button>
@@ -878,7 +878,7 @@ export default function ListingsPage() {
               className="bg-white rounded-[2.5rem] p-10 w-full max-w-md shadow-2xl text-center border border-white/20"
               onClick={e => e.stopPropagation()}
             >
-              <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-[#0a2540]/5 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
                 {isDeleting ? <Loader2 className="animate-spin" size={32} /> : <Trash2 size={32} />}
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-2">Permanently Delete?</h3>
@@ -889,7 +889,7 @@ export default function ListingsPage() {
                 <button
                   onClick={confirmDelete}
                   disabled={isDeleting}
-                  className="flex-1 h-14 bg-rose-600 text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-rose-700 transition-all disabled:opacity-50"
+                  className="flex-1 h-14 bg-[#0a2540] text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#07192c] transition-all disabled:opacity-50"
                 >
                   {isDeleting ? "Deleting..." : "Confirm Delete"}
                 </button>

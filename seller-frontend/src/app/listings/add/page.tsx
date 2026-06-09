@@ -149,6 +149,8 @@ export default function AddPropertyPage() {
   const [lockInPeriod, setLockInPeriod] = useState("None")
   const [brokerageCharge, setBrokerageCharge] = useState("None")
   const [brokerageNegotiable, setBrokerageNegotiable] = useState(false)
+  const [transactionType, setTransactionType] = useState("New Booking")
+  const [constructionStatus, setConstructionStatus] = useState("Ready to Move")
 
   const [carpetArea, setCarpetArea] = useState("")
   const [floorNo, setFloorNo] = useState("")
@@ -171,6 +173,7 @@ export default function AddPropertyPage() {
   const [facing, setFacing] = useState("")
   const [additionalAddress, setAdditionalAddress] = useState("")
   const [servantRoom, setServantRoom] = useState("No")
+  const [reraId, setReraId] = useState("")
 
   // PG Specific State
   const [locality, setLocality] = useState("")
@@ -212,12 +215,16 @@ export default function AddPropertyPage() {
         alert("Please add at least 3 flat furnishings to continue.")
         return
       }
-      if (!availableFrom) {
+      if (lookingTo === "Rent" && !availableFrom) {
         alert("Please fill 'Available From' date.")
         return
       }
       if (!formData.price) {
         alert("Please enter price / rent.")
+        return
+      }
+      if (lookingTo === "Sell" && brokerageCharge === "Yes" && !customBrokerage) {
+        alert("Please enter Brokerage amount.")
         return
       }
       if (!floorNo || !totalFloors) {
@@ -289,9 +296,9 @@ export default function AddPropertyPage() {
     try {
       const mappedPropertyType = mapSellerPropertyType(propertyType, sector, lookingTo)
       const bedroomsCount = parseBedroomsFromBhk(bhk)
-      const yearBuiltVal = ageOfProperty ? (new Date().getFullYear() - parseInt(ageOfProperty)) : null
+      const yearBuiltVal = (lookingTo === "Rent" && ageOfProperty) ? (new Date().getFullYear() - parseInt(ageOfProperty)) : null
 
-      const richDescription = `PROPERTY HIGHLIGHTS:
+      const richDescription = lookingTo === "Rent" ? `PROPERTY HIGHLIGHTS:
 • BHK: ${bhk}
 • Age of Property: ${ageOfProperty ? ageOfProperty + ' years' : 'N/A'}
 • Bathrooms: ${bathroomCount}
@@ -311,6 +318,23 @@ ${furnishings.length > 0 ? `• Furnishings: ${furnishings.join(', ')}\n` : ''}�
 
 ---
 
+${formData.description}` : `PROPERTY HIGHLIGHTS:
+• BHK: ${bhk}
+• Transaction Type: ${transactionType}
+• Construction Status: ${constructionStatus}
+• Bathrooms: ${bathroomCount}
+• Balconies: ${balconyCount}
+• Furnish Type: ${furnishType}
+${furnishings.length > 0 ? `• Furnishings: ${furnishings.join(', ')}\n` : ''}• Covered Parking: ${coveredParking}
+• Open Parking: ${openParking}
+• Maintenance Charges: ${customMaintenance ? customMaintenance + '/month' : 'N/A'}
+• Brokerage Charges: ${brokerageCharge}
+• Carpet Area: ${carpetArea ? carpetArea + ' Sq. Ft.' : 'N/A'}
+• Floor details: Floor ${floorNo} of ${totalFloors}
+${facing ? `• Facing: ${facing}\n` : ''}${servantRoom ? `• Servant Room: ${servantRoom}\n` : ''}${reraId ? `• RERA ID: ${reraId}\n` : ''}
+
+---
+
 ${formData.description}`
 
       const payload = {
@@ -319,10 +343,10 @@ ${formData.description}`
         price: parseFloat(formData.price) || 0,
         propertyType: mappedPropertyType,
         listingType: mapSellerListingType(lookingTo),
-        address: `${buildingName}, ${formData.address}`,
+        address: lookingTo === "Rent" ? `${buildingName}, ${formData.address}` : (additionalAddress ? `${buildingName}, ${additionalAddress}` : buildingName),
         city: city,
         state: "Delhi",
-        pincode: formData.pincode,
+        pincode: lookingTo === "Rent" ? formData.pincode : "",
         bedrooms: bedroomsCount,
         bathrooms: bathroomCount,
         area: parseFloat(formData.area) || parseFloat(carpetArea) || 0,
@@ -360,7 +384,7 @@ ${formData.description}`
   if (loadingSubscription) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-slate-50">
-        <Loader2 className="animate-spin text-[#6C4EF2]" size={40} />
+        <Loader2 className="animate-spin text-[#0a2540]" size={40} />
         <p className="text-slate-500 font-bold">Verifying subscription status...</p>
       </div>
     )
@@ -375,9 +399,9 @@ ${formData.description}`
           className="bg-white rounded-3xl p-8 max-w-lg w-full text-center shadow-xl border border-slate-100 relative overflow-hidden"
         >
           {/* Decorative gradients */}
-          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-rose-500 via-[#6C4EF2] to-amber-500"></div>
+          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#0a2540] via-[#0a2540] to-amber-500"></div>
           
-          <div className="w-20 h-20 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+          <div className="w-20 h-20 bg-[#0a2540]/5 text-[#0a2540] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
             <Building2 size={36} />
           </div>
           
@@ -389,7 +413,7 @@ ${formData.description}`
           <div className="space-y-4">
             <Link
               href="/subscription"
-              className="block w-full py-4 rounded-xl text-center font-bold text-sm bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white shadow-lg shadow-rose-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              className="block w-full py-4 rounded-xl text-center font-bold text-sm bg-gradient-to-r from-[#0a2540] to-[#07192c] hover:from-[#07192c] hover:to-[#07192c] text-white shadow-lg shadow-slate-200 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               Choose a Subscription Plan
             </Link>
@@ -425,7 +449,7 @@ ${formData.description}`
           <p className="text-sm font-medium text-slate-500 mb-6">Sell or rent your property</p>
 
           {subscriptionPlan === "NONE" && (
-            <div className="bg-rose-50 text-rose-600 text-xs font-bold p-3 rounded-xl mb-4 border border-rose-100">
+            <div className="bg-[#0a2540]/5 text-[#0a2540] text-xs font-bold p-3 rounded-xl mb-4 border border-[#0a2540]/10">
               Free Listing: {freePostsLimit - freePostsUsed} of {freePostsLimit} free posts remaining.
             </div>
           )}
@@ -446,16 +470,16 @@ ${formData.description}`
               const isActive = currentStep === idx
               return (
                 <div key={step.id} className="relative flex items-start gap-4">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 z-10 ring-4 ring-white transition-colors ${isPast ? "bg-[#6C4EF2] text-white" : isActive ? "bg-white border-[3px] border-[#6C4EF2]" : "bg-slate-100 text-slate-400"
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 z-10 ring-4 ring-white transition-colors ${isPast ? "bg-[#0a2540] text-white" : isActive ? "bg-white border-[3px] border-[#0a2540]" : "bg-slate-100 text-slate-400"
                     }`}>
-                    {isPast ? <Check className="w-3.5 h-3.5" /> : isActive ? <div className="w-2.5 h-2.5 rounded-full bg-[#6C4EF2]" /> : null}
+                    {isPast ? <Check className="w-3.5 h-3.5" /> : isActive ? <div className="w-2.5 h-2.5 rounded-full bg-[#0a2540]" /> : null}
                   </div>
                   <div className="flex flex-col -mt-0.5">
                     <span className={`text-sm font-bold ${isActive ? "text-slate-900" : "text-slate-700"}`}>
                       {step.label}
                     </span>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider uppercase ${isActive ? "bg-purple-50 text-[#6C4EF2]" : "bg-transparent text-slate-400 border border-slate-200"
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider uppercase ${isActive ? "bg-[#0a2540]/5 text-[#0a2540]" : "bg-transparent text-slate-400 border border-slate-200"
                         }`}>
                         {isActive ? "In progress" : step.status}
                       </span>
@@ -470,7 +494,7 @@ ${formData.description}`
           </div>
 
           <div className="mt-12 pt-6 border-t border-slate-100 flex items-center gap-1 text-xs font-medium text-slate-500">
-            Need Help? <Phone className="w-3.5 h-3.5 text-[#6C4EF2] ml-1" /> <a href="tel:08048811281" className="font-bold text-[#6C4EF2] hover:underline">Call 08048811281</a>
+            Need Help? <Phone className="w-3.5 h-3.5 text-[#0a2540] ml-1" /> <a href="tel:08048811281" className="font-bold text-[#0a2540] hover:underline">Call 08048811281</a>
           </div>
         </aside>
 
@@ -514,7 +538,7 @@ ${formData.description}`
                               setLookingTo("Rent");
                             }
                           }}
-                          className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${sector === t ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2]"
+                          className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${sector === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
                             }`}
                         >
                           {t}
@@ -534,7 +558,7 @@ ${formData.description}`
                           key={t}
                           type="button"
                           onClick={() => setLookingTo(t)}
-                          className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${lookingTo === t ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2]"
+                          className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${lookingTo === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
                             }`}
                         >
                           {t}
@@ -550,7 +574,7 @@ ${formData.description}`
                       type="text"
                       value={city}
                       onChange={e => setCity(e.target.value)}
-                      className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#6C4EF2] outline-none transition-colors"
+                      className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
                       placeholder="City Name"
                     />
                   </div>
@@ -558,14 +582,14 @@ ${formData.description}`
                   {/* Building Name */}
                   {sector !== "Commercial" && (
                     <div>
-                      <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1 transition-colors group-focus-within:text-[#6C4EF2]">
+                      <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1 transition-colors group-focus-within:text-[#0a2540]">
                         Building / Apartment / Society Name <span className="text-rose-500">*</span>
                       </label>
                       <input
                         type="text"
                         value={buildingName}
                         onChange={e => { setBuildingName(e.target.value); setBuildingNameError("") }}
-                        className={`w-full text-base font-bold text-slate-800 pb-2 border-b outline-none transition-colors ${buildingNameError ? "border-rose-500" : "border-slate-200 focus:border-[#6C4EF2]"
+                        className={`w-full text-base font-bold text-slate-800 pb-2 border-b outline-none transition-colors ${buildingNameError ? "border-rose-500" : "border-slate-200 focus:border-[#0a2540]"
                           }`}
                         placeholder="e.g. DLF Phase 1"
                       />
@@ -579,14 +603,14 @@ ${formData.description}`
                     <div className="space-y-8">
                       {/* Locality */}
                       <div>
-                        <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1 transition-colors group-focus-within:text-[#6C4EF2]">
+                        <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1 transition-colors group-focus-within:text-[#0a2540]">
                           Locality <span className="text-rose-500">*</span>
                         </label>
                         <input
                           type="text"
                           value={locality}
                           onChange={e => setLocality(e.target.value)}
-                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#6C4EF2] outline-none transition-colors"
+                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
                         />
                         {!locality && (
                           <p className="text-xs font-bold text-rose-500 mt-1">Please select a valid locality</p>
@@ -598,11 +622,11 @@ ${formData.description}`
                         <div className="space-y-6">
                           <div>
                             <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">PG Name <span className="text-rose-500">*</span></label>
-                            <input type="text" value={pgName} onChange={e => setPgName(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#6C4EF2] outline-none transition-colors" />
+                            <input type="text" value={pgName} onChange={e => setPgName(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
                           </div>
                           <div>
                             <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Total Beds <span className="text-rose-500">*</span></label>
-                            <input type="number" value={totalBeds} onChange={e => setTotalBeds(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#6C4EF2] outline-none transition-colors" />
+                            <input type="number" value={totalBeds} onChange={e => setTotalBeds(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
                           </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -610,7 +634,7 @@ ${formData.description}`
                               <label className="block text-xs font-bold text-slate-500 mb-3">PG is for <span className="text-rose-500">*</span></label>
                               <div className="flex gap-3">
                                 {["Girls", "Boys"].map(opt => (
-                                  <button key={opt} type="button" onClick={() => setPgFor(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${pgFor === opt ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                  <button key={opt} type="button" onClick={() => setPgFor(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${pgFor === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
                                 ))}
                               </div>
                             </div>
@@ -618,7 +642,7 @@ ${formData.description}`
                               <label className="block text-xs font-bold text-slate-500 mb-3">Best suited for <span className="text-rose-500">*</span></label>
                               <div className="flex gap-3">
                                 {["Students", "Professionals"].map(opt => (
-                                  <button key={opt} type="button" onClick={() => setBestSuitedFor(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${bestSuitedFor === opt ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                  <button key={opt} type="button" onClick={() => setBestSuitedFor(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${bestSuitedFor === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
                                 ))}
                               </div>
                             </div>
@@ -628,7 +652,7 @@ ${formData.description}`
                             <label className="block text-xs font-bold text-slate-500 mb-3">Meals Available <span className="text-rose-500">*</span></label>
                             <div className="flex gap-3">
                               {["Yes", "No"].map(opt => (
-                                <button key={opt} type="button" onClick={() => setMealsAvailable(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${mealsAvailable === opt ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                <button key={opt} type="button" onClick={() => setMealsAvailable(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${mealsAvailable === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
                               ))}
                             </div>
                           </div>
@@ -644,7 +668,7 @@ ${formData.description}`
                                       <button key={opt} type="button" onClick={() => {
                                         if (isSelected) setMealOfferings(prev => prev.filter(a => a !== opt))
                                         else setMealOfferings(prev => [...prev, opt])
-                                      }} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                      }} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
                                     )
                                   })}
                                 </div>
@@ -658,7 +682,7 @@ ${formData.description}`
                                       <button key={opt} type="button" onClick={() => {
                                         if (isSelected) setMealSpecialities(prev => prev.filter(a => a !== opt))
                                         else setMealSpecialities(prev => [...prev, opt])
-                                      }} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                      }} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
                                     )
                                   })}
                                 </div>
@@ -669,11 +693,11 @@ ${formData.description}`
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                               <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Notice Period (Days) <span className="text-rose-500">*</span></label>
-                              <input type="number" value={noticePeriodDays} onChange={e => setNoticePeriodDays(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#6C4EF2] outline-none transition-colors" />
+                              <input type="number" value={noticePeriodDays} onChange={e => setNoticePeriodDays(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
                             </div>
                             <div>
                               <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Lock in Period (Days) <span className="text-rose-500">*</span></label>
-                              <input type="number" value={pgLockInDays} onChange={e => setPgLockInDays(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#6C4EF2] outline-none transition-colors" />
+                              <input type="number" value={pgLockInDays} onChange={e => setPgLockInDays(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
                             </div>
                           </div>
 
@@ -686,7 +710,7 @@ ${formData.description}`
                                   <button key={opt} type="button" onClick={() => {
                                     if (isSelected) setPgCommonAreas(prev => prev.filter(a => a !== opt))
                                     else setPgCommonAreas(prev => [...prev, opt])
-                                  }} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                  }} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
                                 )
                               })}
                             </div>
@@ -701,7 +725,7 @@ ${formData.description}`
                             <label className="block text-xs font-bold text-slate-500 mb-3">Property Managed By <span className="text-rose-500">*</span></label>
                             <div className="flex flex-wrap gap-3">
                               {["Landlord", "Caretaker", "Dedicated Professional"].map(opt => (
-                                <button key={opt} type="button" onClick={() => setPropertyManagedBy(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${propertyManagedBy === opt ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                <button key={opt} type="button" onClick={() => setPropertyManagedBy(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${propertyManagedBy === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
                               ))}
                             </div>
                           </div>
@@ -709,7 +733,7 @@ ${formData.description}`
                             <label className="block text-xs font-bold text-slate-500 mb-3">Property Manager stays at Property <span className="text-rose-500">*</span></label>
                             <div className="flex gap-3">
                               {["Yes", "No"].map(opt => (
-                                <button key={opt} type="button" onClick={() => setManagerStaysAtProperty(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${managerStaysAtProperty === opt ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                <button key={opt} type="button" onClick={() => setManagerStaysAtProperty(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${managerStaysAtProperty === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
                               ))}
                             </div>
                           </div>
@@ -732,7 +756,7 @@ ${formData.description}`
                               <label className="block text-xs font-bold text-slate-500 mb-3">{label} <span className="text-rose-500">*</span></label>
                               <div className="flex gap-3">
                                 {["Yes", "No"].map(opt => (
-                                  <button key={opt} type="button" onClick={() => setPgRules(prev => ({ ...prev, [key]: opt }))} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${pgRules[key as keyof typeof pgRules] === opt ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                  <button key={opt} type="button" onClick={() => setPgRules(prev => ({ ...prev, [key]: opt }))} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${pgRules[key as keyof typeof pgRules] === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
                                 ))}
                               </div>
                             </div>
@@ -785,11 +809,11 @@ ${formData.description}`
                               type="button"
                               onClick={() => setPropertyType(type.name)}
                               className={`flex flex-col items-center justify-center w-24 h-24 rounded-xl border transition-all ${propertyType === type.name
-                                ? "bg-[#efe8ff] border-[#d8cdfc] text-[#6C4EF2]"
-                                : "bg-white border-slate-200 text-slate-500 hover:border-[#6C4EF2] hover:text-[#6C4EF2]"
+                                ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                : "bg-white border-slate-200 text-slate-500 hover:border-[#0a2540] hover:text-[#0a2540]"
                                 }`}
                             >
-                              <type.icon strokeWidth={1.5} className={`w-8 h-8 mb-2 ${propertyType === type.name ? 'text-[#6C4EF2]' : 'text-slate-300'}`} />
+                              <type.icon strokeWidth={1.5} className={`w-8 h-8 mb-2 ${propertyType === type.name ? 'text-white' : 'text-slate-300'}`} />
                               <span className="text-[11px] font-bold text-center leading-tight px-1">
                                 {type.name}
                               </span>
@@ -815,8 +839,8 @@ ${formData.description}`
                                     type="button"
                                     onClick={() => setBhk(val)}
                                     className={`px-4 py-2.5 rounded-xl border text-sm font-bold transition-all ${bhk === val
-                                      ? "bg-[#efe8ff] border-[#d8cdfc] text-[#6C4EF2]"
-                                      : "bg-white border-slate-200 text-slate-600 hover:border-[#6C4EF2]"
+                                      ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                      : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
                                       }`}
                                   >
                                     {val}
@@ -838,23 +862,65 @@ ${formData.description}`
                                   value={formData.area}
                                   onChange={handleInputChange}
                                   type="number"
-                                  className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#6C4EF2] outline-none transition-colors pr-12"
+                                  className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-12"
                                 />
                                 <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">Sq. ft.</span>
                               </div>
                             </div>
-                            <div>
-                              <label className="text-xs font-bold text-slate-500 mb-1 flex items-center justify-between">
-                                <span>Age of Property (in years) <span className="text-rose-500">*</span></span>
-                                <Info className="w-4 h-4 text-slate-400" />
-                              </label>
-                              <input
-                                type="number"
-                                value={ageOfProperty}
-                                onChange={e => setAgeOfProperty(e.target.value)}
-                                className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#6C4EF2] outline-none transition-colors"
-                              />
-                            </div>
+                            {lookingTo === "Rent" ? (
+                              <div>
+                                <label className="text-xs font-bold text-slate-500 mb-1 flex items-center justify-between">
+                                  <span>Age of Property (in years) <span className="text-rose-500">*</span></span>
+                                  <Info className="w-4 h-4 text-slate-400" />
+                                </label>
+                                <input
+                                  type="number"
+                                  value={ageOfProperty}
+                                  onChange={e => setAgeOfProperty(e.target.value)}
+                                  className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                                />
+                              </div>
+                            ) : (
+                              <div className="space-y-6">
+                                {/* Transaction Type */}
+                                <div>
+                                  <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
+                                    Transaction Type <span className="text-rose-500">*</span>
+                                  </label>
+                                  <div className="flex gap-3">
+                                    {["New Booking", "Resale"].map(t => (
+                                      <button
+                                        key={t}
+                                        type="button"
+                                        onClick={() => setTransactionType(t)}
+                                        className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${transactionType === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
+                                      >
+                                        {t}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* Construction Status */}
+                                <div>
+                                  <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
+                                    Construction Status <span className="text-rose-500">*</span>
+                                  </label>
+                                  <div className="flex gap-3">
+                                    {["Ready to Move", "Under Construction"].map(t => (
+                                      <button
+                                        key={t}
+                                        type="button"
+                                        onClick={() => setConstructionStatus(t)}
+                                        className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${constructionStatus === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
+                                      >
+                                        {t}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
 
                           {/* Bathroom & Balcony */}
@@ -870,8 +936,8 @@ ${formData.description}`
                                     type="button"
                                     onClick={() => setBathroomCount(val)}
                                     className={`w-12 h-12 rounded-xl border text-sm font-bold transition-all ${bathroomCount === val
-                                      ? "bg-[#efe8ff] border-[#d8cdfc] text-[#6C4EF2]"
-                                      : "bg-white border-slate-200 text-slate-600 hover:border-[#6C4EF2]"
+                                      ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                      : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
                                       }`}
                                   >
                                     {val}
@@ -890,8 +956,8 @@ ${formData.description}`
                                     type="button"
                                     onClick={() => setBalconyCount(val)}
                                     className={`w-12 h-12 rounded-xl border text-sm font-bold transition-all ${balconyCount === val
-                                      ? "bg-[#efe8ff] border-[#d8cdfc] text-[#6C4EF2]"
-                                      : "bg-white border-slate-200 text-slate-600 hover:border-[#6C4EF2]"
+                                      ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                      : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
                                       }`}
                                   >
                                     {val}
@@ -919,11 +985,11 @@ ${formData.description}`
                                     type="button"
                                     onClick={() => setFurnishType(opt.name)}
                                     className={`flex items-center gap-2 px-5 py-3 rounded-xl border text-sm font-bold transition-all ${isSelected
-                                      ? "bg-[#efe8ff] border-[#d8cdfc] text-[#6C4EF2]"
-                                      : "bg-white border-slate-200 text-slate-600 hover:border-[#6C4EF2]"
+                                      ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                      : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
                                       }`}
                                   >
-                                    <opt.icon size={16} className={isSelected ? "text-[#6C4EF2]" : "text-slate-400"} />
+                                    <opt.icon size={16} className={isSelected ? "text-white" : "text-slate-400"} />
                                     {opt.name}
                                   </button>
                                 )
@@ -948,8 +1014,8 @@ ${formData.description}`
                                           }
                                         }}
                                         className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${isChecked
-                                          ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]"
-                                          : "bg-white text-slate-500 border-slate-200 hover:border-[#6C4EF2]"
+                                          ? "bg-[#0a2540] text-white border-[#0a2540]"
+                                          : "bg-white text-slate-500 border-slate-200 hover:border-[#0a2540]"
                                           }`}
                                       >
                                         {isChecked ? "✓ " : "+ "} {item}
@@ -974,7 +1040,7 @@ ${formData.description}`
                                     key={num}
                                     type="button"
                                     onClick={() => setCoveredParking(num)}
-                                    className={`w-10 h-10 rounded-lg text-sm font-bold border transition-colors ${coveredParking === num ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2]"
+                                    className={`w-10 h-10 rounded-lg text-sm font-bold border transition-colors ${coveredParking === num ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
                                       }`}
                                   >
                                     {num}
@@ -990,7 +1056,7 @@ ${formData.description}`
                                     key={num}
                                     type="button"
                                     onClick={() => setOpenParking(num)}
-                                    className={`w-10 h-10 rounded-lg text-sm font-bold border transition-colors ${openParking === num ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2]"
+                                    className={`w-10 h-10 rounded-lg text-sm font-bold border transition-colors ${openParking === num ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
                                       }`}
                                   >
                                     {num}
@@ -1000,320 +1066,455 @@ ${formData.description}`
                             </div>
                           </div>
 
-                          {/* Tenant Type & Pets */}
-                          <div className="grid grid-cols-1 gap-6">
-                            <div>
-                              <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Preferred Tenant Type</label>
-                              <div className="flex gap-2">
-                                {["Family", "Bachelors", "Company"].map(type => (
-                                  <button
-                                    key={type}
-                                    type="button"
-                                    onClick={() => setPreferredTenant(type)}
-                                    className={`px-4 py-2.5 rounded-xl border text-sm font-bold transition-all ${preferredTenant === type
-                                      ? "bg-[#efe8ff] border-[#d8cdfc] text-[#6C4EF2]"
-                                      : "bg-white border-slate-200 text-slate-600 hover:border-[#6C4EF2]"
-                                      }`}
-                                  >
-                                    {type}
-                                  </button>
-                                ))}
-                              </div>
-                              {preferredTenant === "Bachelors" && (
-                                <div className="mt-6">
-                                  <label className="block text-xs font-bold text-slate-500 mb-3">Select your preference for bachelors</label>
-                                  <div className="flex gap-3">
-                                    {["Open for both", "Men Only", "Women Only"].map(opt => (
-                                      <button key={opt} type="button" onClick={() => setBachelorPreference(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${bachelorPreference === opt ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                          {lookingTo === "Rent" ? (
+                            <>
+                              {/* Tenant Type & Pets */}
+                              <div className="grid grid-cols-1 gap-6">
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Preferred Tenant Type</label>
+                                  <div className="flex gap-2">
+                                    {["Family", "Bachelors", "Company"].map(type => (
+                                      <button
+                                        key={type}
+                                        type="button"
+                                        onClick={() => setPreferredTenant(type)}
+                                        className={`px-4 py-2.5 rounded-xl border text-sm font-bold transition-all ${preferredTenant === type
+                                          ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                          : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
+                                          }`}
+                                      >
+                                        {type}
+                                      </button>
+                                    ))}
+                                  </div>
+                                  {preferredTenant === "Bachelors" && (
+                                    <div className="mt-6">
+                                      <label className="block text-xs font-bold text-slate-500 mb-3">Select your preference for bachelors</label>
+                                      <div className="flex gap-3">
+                                        {["Open for both", "Men Only", "Women Only"].map(opt => (
+                                          <button key={opt} type="button" onClick={() => setBachelorPreference(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${bachelorPreference === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-3 flex items-center gap-1.5">
+                                    Pet Friendly?
+                                    <Info className="w-3.5 h-3.5 text-slate-400 cursor-pointer" />
+                                  </label>
+                                  <div className="flex gap-2">
+                                    {["Yes", "No"].map(opt => (
+                                      <button
+                                        key={opt}
+                                        type="button"
+                                        onClick={() => setPetFriendly(opt)}
+                                        className={`w-16 py-2.5 rounded-xl border text-sm font-bold transition-all ${petFriendly === opt
+                                          ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                          : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
+                                          }`}
+                                      >
+                                        {opt}
+                                      </button>
                                     ))}
                                   </div>
                                 </div>
-                              )}
-                            </div>
-                            <div>
-                              <label className="block text-xs font-bold text-slate-500 uppercase mb-3 flex items-center gap-1.5">
-                                Pet Friendly?
-                                <Info className="w-3.5 h-3.5 text-slate-400 cursor-pointer" />
-                              </label>
-                              <div className="flex gap-2">
-                                {["Yes", "No"].map(opt => (
-                                  <button
-                                    key={opt}
-                                    type="button"
-                                    onClick={() => setPetFriendly(opt)}
-                                    className={`w-16 py-2.5 rounded-xl border text-sm font-bold transition-all ${petFriendly === opt
-                                      ? "bg-[#efe8ff] border-[#d8cdfc] text-[#6C4EF2]"
-                                      : "bg-white border-slate-200 text-slate-600 hover:border-[#6C4EF2]"
-                                      }`}
-                                  >
-                                    {opt}
-                                  </button>
-                                ))}
                               </div>
-                            </div>
-                          </div>
 
-                          <hr className="border-slate-100" />
+                              <hr className="border-slate-100" />
 
-                          {/* Available From & Rent/Price */}
-                          <div className="grid grid-cols-1 gap-6">
-                            <div>
-                              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Available From <span className="text-rose-500">*</span></label>
-                              <div className="relative">
-                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                <input
-                                  type="date"
-                                  value={availableFrom}
-                                  onChange={e => setAvailableFrom(e.target.value)}
-                                  className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#6C4EF2]/20 focus:border-[#6C4EF2] outline-none text-sm font-semibold transition-all"
-                                />
-                              </div>
-                            </div>
-                            <div>
-                              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
-                                {lookingTo === "Rent" ? "Monthly Rent (in ₹)" : "Price (in ₹)"} <span className="text-rose-500">*</span>
-                              </label>
-                              <div className="relative">
-                                <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                <input
-                                  name="price"
-                                  value={formData.price}
-                                  onChange={handleInputChange}
-                                  type="number"
-                                  placeholder={lookingTo === "Rent" ? "25000" : "7500000"}
-                                  className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#6C4EF2]/20 focus:border-[#6C4EF2] outline-none text-sm font-semibold transition-all"
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Maintenance Charges */}
-                          <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Maintenance Charges <span className="text-rose-500">*</span></label>
-                            <div className="flex gap-3">
-                              {["Include in rent", "Separate"].map(opt => (
-                                <button
-                                  key={opt}
-                                  type="button"
-                                  onClick={() => setMaintenanceCharges(opt)}
-                                  className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${maintenanceCharges === opt ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2]"
-                                    }`}
-                                >
-                                  {opt}
-                                </button>
-                              ))}
-                            </div>
-                            {maintenanceCharges === "Separate" && (
-                              <div className="mt-6">
-                                <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Maintenance Charges (per month) <span className="text-rose-500">*</span></label>
-                                <input type="number" value={customMaintenance} onChange={e => setCustomMaintenance(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#6C4EF2] outline-none transition-colors" />
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Security Deposit & Lock-in Period */}
-                          <div className="grid grid-cols-1 gap-6">
-                            <div>
-                              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Security Deposit <span className="text-rose-500">*</span></label>
-                              <div className="flex flex-wrap gap-2">
-                                {["None", "1 month", "2 month", "Custom"].map(opt => (
-                                  <button
-                                    key={opt}
-                                    type="button"
-                                    onClick={() => setSecurityDeposit(opt)}
-                                    className={`px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${securityDeposit === opt ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2]"
-                                      }`}
-                                  >
-                                    {opt}
-                                  </button>
-                                ))}
-                              </div>
-                              {securityDeposit === "Custom" && (
-                                <div className="mt-6">
-                                  <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Security Deposit <span className="text-rose-500">*</span></label>
-                                  <input type="text" value={customSecurityDeposit} onChange={e => setCustomSecurityDeposit(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#6C4EF2] outline-none transition-colors" />
-                                </div>
-                              )}
-                            </div>
-                            <div>
-                              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Lock-in Period <span className="text-rose-500">*</span></label>
-                              <div className="flex flex-wrap gap-2">
-                                {["None", "1 month", "6 month", "Custom"].map(opt => (
-                                  <button
-                                    key={opt}
-                                    type="button"
-                                    onClick={() => setLockInPeriod(opt)}
-                                    className={`px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${lockInPeriod === opt ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2]"
-                                      }`}
-                                  >
-                                    {opt}
-                                  </button>
-                                ))}
-                              </div>
-                              {lockInPeriod === "Custom" && (
-                                <div className="mt-6 relative">
-                                  <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Lock in Period <span className="text-rose-500">*</span></label>
-                                  <input type="number" value={customLockInPeriod} onChange={e => setCustomLockInPeriod(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#6C4EF2] outline-none transition-colors pr-16" />
-                                  <span className="absolute right-0 bottom-2 text-sm font-bold text-slate-400">months</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Do you charge brokerage? */}
-                          <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Do you charge brokerage? <span className="text-rose-500">*</span></label>
-                            <div className="flex flex-wrap gap-2 items-center">
-                              {["None", "15 Days", "30 Days", "Custom"].map(opt => (
-                                <button
-                                  key={opt}
-                                  type="button"
-                                  onClick={() => setBrokerageCharge(opt)}
-                                  className={`px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${brokerageCharge === opt ? "bg-[#efe8ff] text-[#6C4EF2] border-[#d8cdfc]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2]"
-                                    }`}
-                                >
-                                  {opt}
-                                </button>
-                              ))}
-                            </div>
-                            
-                            {brokerageCharge === "Custom" && (
-                              <div className="mt-6 space-y-4">
+                              {/* Available From & Rent/Price */}
+                              <div className="grid grid-cols-1 gap-6">
                                 <div>
-                                  <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Brokerage (in Rupees) <span className="text-rose-500">*</span></label>
-                                  <input type="number" value={customBrokerage} onChange={e => setCustomBrokerage(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#6C4EF2] outline-none transition-colors" />
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Available From <span className="text-rose-500">*</span></label>
+                                  <div className="relative">
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input
+                                      type="date"
+                                      value={availableFrom}
+                                      onChange={e => setAvailableFrom(e.target.value)}
+                                      className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                    />
+                                  </div>
                                 </div>
-                                <label className="flex items-center gap-2 cursor-pointer w-fit border border-slate-200 rounded-lg px-4 py-3 hover:border-[#6C4EF2] transition-colors">
-                                  <input
-                                    type="checkbox"
-                                    checked={brokerageNegotiable}
-                                    onChange={e => setBrokerageNegotiable(e.target.checked)}
-                                    className="rounded text-[#6C4EF2] focus:ring-[#6C4EF2] w-4 h-4"
-                                  />
-                                  <span className="text-sm font-medium text-slate-800">Brokerage Negotiable</span>
-                                </label>
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                                    Monthly Rent (in ₹) <span className="text-rose-500">*</span>
+                                  </label>
+                                  <div className="relative">
+                                    <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input
+                                      name="price"
+                                      value={formData.price}
+                                      onChange={handleInputChange}
+                                      type="number"
+                                      placeholder="25000"
+                                      className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                    />
+                                  </div>
+                                </div>
                               </div>
-                            )}
-                            {brokerageCharge !== "Custom" && brokerageCharge !== "None" && (
-                              <div className="mt-4">
-                                <label className="flex items-center gap-2 cursor-pointer w-fit border border-slate-200 rounded-lg px-4 py-3 hover:border-[#6C4EF2] transition-colors">
-                                  <input
-                                    type="checkbox"
-                                    checked={brokerageNegotiable}
-                                    onChange={e => setBrokerageNegotiable(e.target.checked)}
-                                    className="rounded text-[#6C4EF2] focus:ring-[#6C4EF2] w-4 h-4"
-                                  />
-                                  <span className="text-sm font-medium text-slate-800">Brokerage Negotiable</span>
-                                </label>
-                              </div>
-                            )}
-                          </div>
 
-                          <hr className="border-slate-100" />
-
-                          {/* Carpet Area & Floors */}
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div>
-                              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Super Area (Sq. Ft.)</label>
-                              <div className="relative">
-                                <Maximize2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                <input
-                                  name="area"
-                                  value={formData.area}
-                                  onChange={handleInputChange}
-                                  type="number"
-                                  placeholder="1500"
-                                  className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#6C4EF2]/20 focus:border-[#6C4EF2] outline-none text-sm font-semibold transition-all"
-                                />
-                              </div>
-                            </div>
-                            <div>
-                              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Carpet Area (Sq. Ft.)</label>
-                              <div className="relative">
-                                <Maximize2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                <input
-                                  type="number"
-                                  value={carpetArea}
-                                  onChange={e => setCarpetArea(e.target.value)}
-                                  placeholder="1200"
-                                  className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#6C4EF2]/20 focus:border-[#6C4EF2] outline-none text-sm font-semibold transition-all"
-                                />
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
+                              {/* Maintenance Charges */}
                               <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Floor No <span className="text-rose-500">*</span></label>
-                                <input
-                                  type="number"
-                                  value={floorNo}
-                                  onChange={e => setFloorNo(e.target.value)}
-                                  placeholder="3"
-                                  className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#6C4EF2]/20 focus:border-[#6C4EF2] outline-none text-sm font-semibold transition-all"
-                                />
+                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Maintenance Charges <span className="text-rose-500">*</span></label>
+                                <div className="flex gap-3">
+                                  {["Include in rent", "Separate"].map(opt => (
+                                    <button
+                                      key={opt}
+                                      type="button"
+                                      onClick={() => setMaintenanceCharges(opt)}
+                                      className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${maintenanceCharges === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                                        }`}
+                                    >
+                                      {opt}
+                                    </button>
+                                  ))}
+                                </div>
+                                {maintenanceCharges === "Separate" && (
+                                  <div className="mt-6">
+                                    <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Maintenance Charges (per month) <span className="text-rose-500">*</span></label>
+                                    <input type="number" value={customMaintenance} onChange={e => setCustomMaintenance(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
+                                  </div>
+                                )}
                               </div>
+
+                              {/* Security Deposit & Lock-in Period */}
+                              <div className="grid grid-cols-1 gap-6">
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Security Deposit <span className="text-rose-500">*</span></label>
+                                  <div className="flex flex-wrap gap-2">
+                                    {["None", "1 month", "2 month", "Custom"].map(opt => (
+                                      <button
+                                        key={opt}
+                                        type="button"
+                                        onClick={() => setSecurityDeposit(opt)}
+                                        className={`px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${securityDeposit === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                                          }`}
+                                      >
+                                        {opt}
+                                      </button>
+                                    ))}
+                                  </div>
+                                  {securityDeposit === "Custom" && (
+                                    <div className="mt-6">
+                                      <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Security Deposit <span className="text-rose-500">*</span></label>
+                                      <input type="text" value={customSecurityDeposit} onChange={e => setCustomSecurityDeposit(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
+                                    </div>
+                                  )}
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Lock-in Period <span className="text-rose-500">*</span></label>
+                                  <div className="flex flex-wrap gap-2">
+                                    {["None", "1 month", "6 month", "Custom"].map(opt => (
+                                      <button
+                                        key={opt}
+                                        type="button"
+                                        onClick={() => setLockInPeriod(opt)}
+                                        className={`px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${lockInPeriod === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                                          }`}
+                                      >
+                                        {opt}
+                                      </button>
+                                    ))}
+                                  </div>
+                                  {lockInPeriod === "Custom" && (
+                                    <div className="mt-6 relative">
+                                      <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Lock in Period <span className="text-rose-500">*</span></label>
+                                      <input type="number" value={customLockInPeriod} onChange={e => setCustomLockInPeriod(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-16" />
+                                      <span className="absolute right-0 bottom-2 text-sm font-bold text-slate-400">months</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Do you charge brokerage? */}
                               <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Total Floors <span className="text-rose-500">*</span></label>
-                                <input
-                                  type="number"
-                                  value={totalFloors}
-                                  onChange={e => setTotalFloors(e.target.value)}
-                                  placeholder="12"
-                                  className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#6C4EF2]/20 focus:border-[#6C4EF2] outline-none text-sm font-semibold transition-all"
-                                />
+                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Do you charge brokerage? <span className="text-rose-500">*</span></label>
+                                <div className="flex flex-wrap gap-2 items-center">
+                                  {["None", "15 Days", "30 Days", "Custom"].map(opt => (
+                                    <button
+                                      key={opt}
+                                      type="button"
+                                      onClick={() => setBrokerageCharge(opt)}
+                                      className={`px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${brokerageCharge === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                                        }`}
+                                    >
+                                      {opt}
+                                    </button>
+                                  ))}
+                                </div>
+                                
+                                {brokerageCharge === "Custom" && (
+                                  <div className="mt-6 space-y-4">
+                                    <div>
+                                      <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Brokerage (in Rupees) <span className="text-rose-500">*</span></label>
+                                      <input type="number" value={customBrokerage} onChange={e => setCustomBrokerage(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
+                                    </div>
+                                    <label className="flex items-center gap-2 cursor-pointer w-fit border border-slate-200 rounded-lg px-4 py-3 hover:border-[#0a2540] transition-colors">
+                                      <input
+                                        type="checkbox"
+                                        checked={brokerageNegotiable}
+                                        onChange={e => setBrokerageNegotiable(e.target.checked)}
+                                        className="rounded text-[#0a2540] focus:ring-[#0a2540] w-4 h-4"
+                                      />
+                                      <span className="text-sm font-medium text-slate-800">Brokerage Negotiable</span>
+                                    </label>
+                                  </div>
+                                )}
+                                {brokerageCharge !== "Custom" && brokerageCharge !== "None" && (
+                                  <div className="mt-4">
+                                    <label className="flex items-center gap-2 cursor-pointer w-fit border border-slate-200 rounded-lg px-4 py-3 hover:border-[#0a2540] transition-colors">
+                                      <input
+                                        type="checkbox"
+                                        checked={brokerageNegotiable}
+                                        onChange={e => setBrokerageNegotiable(e.target.checked)}
+                                        className="rounded text-[#0a2540] focus:ring-[#0a2540] w-4 h-4"
+                                      />
+                                      <span className="text-sm font-medium text-slate-800">Brokerage Negotiable</span>
+                                    </label>
+                                  </div>
+                                )}
                               </div>
-                            </div>
-                          </div>
 
-                          <hr className="border-slate-100" />
+                              <hr className="border-slate-100" />
 
-                          {/* Local Address & Pincode */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Local Address / Area Details</label>
-                              <div className="relative">
-                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                <input
-                                  name="address"
-                                  value={formData.address}
+                              {/* Carpet Area & Floors */}
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Super Area (Sq. Ft.)</label>
+                                  <div className="relative">
+                                    <Maximize2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input
+                                      name="area"
+                                      value={formData.area}
+                                      onChange={handleInputChange}
+                                      type="number"
+                                      placeholder="1500"
+                                      className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Carpet Area (Sq. Ft.)</label>
+                                  <div className="relative">
+                                    <Maximize2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input
+                                      type="number"
+                                      value={carpetArea}
+                                      onChange={e => setCarpetArea(e.target.value)}
+                                      placeholder="1200"
+                                      className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Floor No <span className="text-rose-500">*</span></label>
+                                    <input
+                                      type="number"
+                                      value={floorNo}
+                                      onChange={e => setFloorNo(e.target.value)}
+                                      placeholder="3"
+                                      className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Total Floors <span className="text-rose-500">*</span></label>
+                                    <input
+                                      type="number"
+                                      value={totalFloors}
+                                      onChange={e => setTotalFloors(e.target.value)}
+                                      placeholder="12"
+                                      className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+
+                              <hr className="border-slate-100" />
+
+                              {/* Local Address & Pincode */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Local Address / Area Details</label>
+                                  <div className="relative">
+                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input
+                                      name="address"
+                                      value={formData.address}
+                                      onChange={handleInputChange}
+                                      type="text"
+                                      placeholder="Flat 302, Block C, near Park"
+                                      className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Pincode</label>
+                                  <input
+                                    name="pincode"
+                                    value={formData.pincode}
+                                    onChange={handleInputChange}
+                                    type="text"
+                                    placeholder="110001"
+                                    className="w-full px-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Description */}
+                              <div>
+                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Description</label>
+                                <textarea
+                                  name="description"
+                                  value={formData.description}
                                   onChange={handleInputChange}
-                                  type="text"
-                                  placeholder="Flat 302, Block C, near Park"
-                                  className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#6C4EF2]/20 focus:border-[#6C4EF2] outline-none text-sm font-semibold transition-all"
+                                  rows={4}
+                                  placeholder="Tell buyers about your property..."
+                                  className="w-full px-5 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold resize-none transition-all"
                                 />
                               </div>
-                            </div>
-                            <div>
-                              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Pincode</label>
-                              <input
-                                name="pincode"
-                                value={formData.pincode}
-                                onChange={handleInputChange}
-                                type="text"
-                                placeholder="110001"
-                                className="w-full px-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#6C4EF2]/20 focus:border-[#6C4EF2] outline-none text-sm font-semibold transition-all"
-                              />
-                            </div>
-                          </div>
+                            </>
+                          ) : (
+                            <>
+                              {/* COST * (Expected Price) */}
+                              <div className="grid grid-cols-1 gap-6">
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                                    Cost <span className="text-rose-500">*</span>
+                                  </label>
+                                  <div className="relative">
+                                    <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input
+                                      name="price"
+                                      value={formData.price}
+                                      onChange={handleInputChange}
+                                      type="number"
+                                      placeholder="7500000"
+                                      className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
 
-                          {/* Description */}
-                          <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Description</label>
-                            <textarea
-                              name="description"
-                              value={formData.description}
-                              onChange={handleInputChange}
-                              rows={4}
-                              placeholder="Tell buyers about your property..."
-                              className="w-full px-5 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#6C4EF2]/20 focus:border-[#6C4EF2] outline-none text-sm font-semibold resize-none transition-all"
-                            />
-                          </div>
+                              {/* MAINTENANCE CHARGES (per month) */}
+                              <div className="grid grid-cols-1 gap-6">
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                                    Maintenance Charges (per month)
+                                  </label>
+                                  <div className="relative">
+                                    <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input
+                                      type="number"
+                                      value={customMaintenance}
+                                      onChange={e => setCustomMaintenance(e.target.value)}
+                                      placeholder="2000"
+                                      className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* DO YOU CHARGE BROKERAGE? * */}
+                              <div>
+                                <label className="block text-xs font-bold text-slate-500 uppercase mb-3">
+                                  Do you charge brokerage? <span className="text-rose-500">*</span>
+                                </label>
+                                <div className="flex gap-3">
+                                  {["Yes", "No"].map(opt => {
+                                    const isActive = opt === "Yes" ? brokerageCharge === "Yes" : (brokerageCharge === "No" || brokerageCharge === "None")
+                                    return (
+                                      <button
+                                        key={opt}
+                                        type="button"
+                                        onClick={() => setBrokerageCharge(opt)}
+                                        className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isActive ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
+                                      >
+                                        {opt}
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+
+                                {brokerageCharge === "Yes" && (
+                                  <div className="mt-6 space-y-4">
+                                    <div>
+                                      <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">
+                                        Brokerage (in Rupees) <span className="text-rose-500">*</span>
+                                      </label>
+                                      <input
+                                        type="number"
+                                        value={customBrokerage}
+                                        onChange={e => setCustomBrokerage(e.target.value)}
+                                        placeholder="50000"
+                                        className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                                      />
+                                    </div>
+                                    <label className="flex items-center gap-2 cursor-pointer w-fit border border-slate-200 rounded-lg px-4 py-3 hover:border-[#0a2540] transition-colors">
+                                      <input
+                                        type="checkbox"
+                                        checked={brokerageNegotiable}
+                                        onChange={e => setBrokerageNegotiable(e.target.checked)}
+                                        className="rounded text-[#0a2540] focus:ring-[#0a2540] w-4 h-4"
+                                      />
+                                      <span className="text-sm font-medium text-slate-800">Brokerage Negotiable</span>
+                                    </label>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* CARPET AREA */}
+                              <div className="grid grid-cols-1 gap-6">
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Carpet Area</label>
+                                  <div className="relative">
+                                    <Maximize2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input
+                                      type="number"
+                                      value={carpetArea}
+                                      onChange={e => setCarpetArea(e.target.value)}
+                                      placeholder="1200"
+                                      className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all pr-16"
+                                    />
+                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">Sq. ft.</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* FLOOR NO. * & TOTAL FLOORS * */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Floor No. <span className="text-rose-500">*</span></label>
+                                  <input
+                                    type="number"
+                                    value={floorNo}
+                                    onChange={e => setFloorNo(e.target.value)}
+                                    placeholder="3"
+                                    className="w-full px-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Total Floors <span className="text-rose-500">*</span></label>
+                                  <input
+                                    type="number"
+                                    value={totalFloors}
+                                    onChange={e => setTotalFloors(e.target.value)}
+                                    placeholder="12"
+                                    className="w-full px-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                  />
+                                </div>
+                              </div>
+                            </>
+                          )}
 
                           {/* Additional Details Accordion */}
-                          <div className="border border-purple-100 rounded-xl overflow-hidden shadow-sm">
+                          <div className="border border-[#0a2540]/10 rounded-xl overflow-hidden shadow-sm">
                             <button
                               type="button"
                               onClick={() => setShowAdditionalDetails(!showAdditionalDetails)}
-                              className="w-full flex items-center justify-between p-4 bg-purple-50/40 hover:bg-purple-50 transition-colors"
+                              className="w-full flex items-center justify-between p-4 bg-[#0a2540]/5/40 hover:bg-[#0a2540]/5 transition-colors"
                             >
                               <div className="flex items-center gap-2">
                                 <span className="font-bold text-slate-800 text-sm">Add Additional Details</span>
@@ -1328,92 +1529,183 @@ ${formData.description}`
                                   initial={{ height: 0 }}
                                   animate={{ height: "auto" }}
                                   exit={{ height: 0 }}
-                                  className="overflow-hidden bg-white border-t border-purple-100/50"
+                                  className="overflow-hidden bg-white border-t border-[#0a2540]/10/50"
                                 >
                                   <div className="p-6 space-y-10">
-                                    {/* Parking Charges */}
-                                    <div>
-                                      <label className="block text-sm font-semibold text-slate-400 mb-4">Parking Charges</label>
-                                      <div className="flex flex-wrap gap-4">
-                                        {["Include in rent", "Separate"].map(opt => (
-                                          <button
-                                            key={opt}
-                                            type="button"
-                                            onClick={() => setParkingCharges(opt)}
-                                            className={`px-6 py-2.5 rounded-xl text-sm font-medium border transition-colors ${parkingCharges === opt ? "bg-white border-slate-300 text-slate-800 shadow-sm" : "bg-white border-slate-100 text-slate-800"}`}
-                                          >
-                                            {opt}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-
-                                    {/* Painting Charges */}
-                                    <div>
-                                      <label className="block text-sm font-semibold text-slate-400 mb-4">Painting Charges</label>
-                                      <div className="flex flex-wrap gap-4">
-                                        {["None", "As per cost", "1 month", "Custom"].map(opt => (
-                                          <button
-                                            key={opt}
-                                            type="button"
-                                            onClick={() => setPaintingCharges(opt)}
-                                            className={`px-6 py-2.5 rounded-xl text-sm font-medium border transition-colors ${paintingCharges === opt ? "bg-white border-slate-300 text-slate-800 shadow-sm" : "bg-white border-slate-100 text-slate-800"}`}
-                                          >
-                                            {opt}
-                                          </button>
-                                        ))}
-                                      </div>
-                                      {paintingCharges === "Custom" && (
-                                        <div className="mt-4">
-                                          <input type="text" value={customPaintingCharges} onChange={e => setCustomPaintingCharges(e.target.value)} className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#6C4EF2] outline-none transition-colors" placeholder="Enter custom amount" />
+                                    {lookingTo === "Rent" ? (
+                                      <>
+                                        {/* Parking Charges */}
+                                        <div>
+                                          <label className="block text-sm font-semibold text-slate-400 mb-4">Parking Charges</label>
+                                          <div className="flex flex-wrap gap-4">
+                                            {["Include in rent", "Separate"].map(opt => (
+                                              <button
+                                                key={opt}
+                                                type="button"
+                                                onClick={() => setParkingCharges(opt)}
+                                                className={`px-6 py-2.5 rounded-xl text-sm font-medium border transition-colors ${parkingCharges === opt ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600"}`}
+                                              >
+                                                {opt}
+                                              </button>
+                                            ))}
+                                          </div>
                                         </div>
-                                      )}
-                                    </div>
 
-                                    {/* Facing */}
-                                    <div>
-                                      <label className="block text-sm font-semibold text-slate-400 mb-4">Facing</label>
-                                      <div className="flex flex-wrap gap-4">
-                                        {["North", "East", "West", "South", "North - East", "North - West", "South - East", "South - West"].map(opt => (
-                                          <button
-                                            key={opt}
-                                            type="button"
-                                            onClick={() => setFacing(opt)}
-                                            className={`px-6 py-2.5 rounded-xl text-sm font-medium border transition-colors ${facing === opt ? "bg-white border-slate-300 text-slate-800 shadow-sm" : "bg-white border-slate-100 text-slate-800"}`}
-                                          >
-                                            {opt}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
+                                        {/* Painting Charges */}
+                                        <div>
+                                          <label className="block text-sm font-semibold text-slate-400 mb-4">Painting Charges</label>
+                                          <div className="flex flex-wrap gap-4">
+                                            {["None", "As per cost", "1 month", "Custom"].map(opt => (
+                                              <button
+                                                key={opt}
+                                                type="button"
+                                                onClick={() => setPaintingCharges(opt)}
+                                                className={`px-6 py-2.5 rounded-xl text-sm font-medium border transition-colors ${paintingCharges === opt ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600"}`}
+                                              >
+                                                {opt}
+                                              </button>
+                                            ))}
+                                          </div>
+                                          {paintingCharges === "Custom" && (
+                                            <div className="mt-4">
+                                              <input type="text" value={customPaintingCharges} onChange={e => setCustomPaintingCharges(e.target.value)} className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" placeholder="Enter custom amount" />
+                                            </div>
+                                          )}
+                                        </div>
 
-                                    {/* Address */}
-                                    <div>
-                                      <label className="block text-lg font-semibold text-slate-400 mb-2">Address</label>
-                                      <input
-                                        type="text"
-                                        value={additionalAddress}
-                                        onChange={e => setAdditionalAddress(e.target.value)}
-                                        className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 outline-none"
-                                      />
-                                    </div>
+                                        {/* Facing */}
+                                        <div>
+                                          <label className="block text-sm font-semibold text-slate-400 mb-4">Facing</label>
+                                          <div className="flex flex-wrap gap-4">
+                                            {["North", "East", "West", "South", "North - East", "North - West", "South - East", "South - West"].map(opt => (
+                                              <button
+                                                key={opt}
+                                                type="button"
+                                                onClick={() => setFacing(opt)}
+                                                className={`px-6 py-2.5 rounded-xl text-sm font-medium border transition-colors ${facing === opt ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600"}`}
+                                              >
+                                                {opt}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        </div>
 
-                                    {/* Servant Room */}
-                                    <div>
-                                      <label className="block text-sm font-semibold text-slate-400 mb-4">Servant Room</label>
-                                      <div className="flex flex-wrap gap-4">
-                                        {["Yes", "No"].map(opt => (
-                                          <button
-                                            key={opt}
-                                            type="button"
-                                            onClick={() => setServantRoom(opt)}
-                                            className={`px-8 py-2.5 rounded-xl text-sm font-medium border transition-colors ${servantRoom === opt ? "bg-white border-slate-300 text-slate-800 shadow-sm" : "bg-white border-slate-100 text-slate-800"}`}
-                                          >
-                                            {opt}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
+                                        {/* Address */}
+                                        <div>
+                                          <label className="block text-lg font-semibold text-slate-400 mb-2">Address</label>
+                                          <input
+                                            type="text"
+                                            value={additionalAddress}
+                                            onChange={e => setAdditionalAddress(e.target.value)}
+                                            className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 outline-none"
+                                          />
+                                        </div>
+
+                                        {/* Servant Room */}
+                                        <div>
+                                          <label className="block text-sm font-semibold text-slate-400 mb-4">Servant Room</label>
+                                          <div className="flex flex-wrap gap-4">
+                                            {["Yes", "No"].map(opt => (
+                                              <button
+                                                key={opt}
+                                                type="button"
+                                                onClick={() => setServantRoom(opt)}
+                                                className={`px-8 py-2.5 rounded-xl text-sm font-medium border transition-colors ${servantRoom === opt ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600"}`}
+                                              >
+                                                {opt}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <>
+                                        {/* Facing */}
+                                        <div>
+                                          <label className="block text-sm font-semibold text-slate-500 mb-3">Facing</label>
+                                          <div className="flex flex-wrap gap-3">
+                                            {["North", "East", "West", "South", "North - East", "North - West", "South - East", "South - West"].map(opt => (
+                                              <button
+                                                key={opt}
+                                                type="button"
+                                                onClick={() => setFacing(opt)}
+                                                className={`px-5 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
+                                                  facing === opt
+                                                    ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm"
+                                                    : "bg-white border-slate-200 text-slate-700 hover:border-[#0a2540]"
+                                                }`}
+                                              >
+                                                {opt}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        </div>
+
+                                        {/* Address */}
+                                        <div>
+                                          <label className="block text-sm font-semibold text-slate-500 mb-2">Address</label>
+                                          <input
+                                            type="text"
+                                            value={additionalAddress}
+                                            onChange={e => setAdditionalAddress(e.target.value)}
+                                            className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                                          />
+                                        </div>
+
+                                        {/* Servant Room */}
+                                        <div>
+                                          <label className="block text-sm font-semibold text-slate-500 mb-3">Servant Room</label>
+                                          <div className="flex gap-3">
+                                            {["Yes", "No"].map(opt => (
+                                              <button
+                                                key={opt}
+                                                type="button"
+                                                onClick={() => setServantRoom(opt)}
+                                                className={`px-6 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
+                                                  servantRoom === opt
+                                                    ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm"
+                                                    : "bg-white border-slate-200 text-slate-700 hover:border-[#0a2540]"
+                                                }`}
+                                              >
+                                                {opt}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        </div>
+
+                                        {/* RERA ID */}
+                                        <div>
+                                          <label className="block text-sm font-semibold text-slate-500 mb-2">RERA ID</label>
+                                          <input
+                                            type="text"
+                                            value={reraId}
+                                            onChange={e => setReraId(e.target.value)}
+                                            className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                                          />
+                                        </div>
+
+                                        {/* Property Description */}
+                                        <div>
+                                          <div className="flex justify-between items-center mb-2">
+                                            <label className="block text-sm font-semibold text-slate-500">Property Description</label>
+                                            <span className="text-xs font-semibold text-slate-400">
+                                              {(formData.description || "").length} / 1500
+                                            </span>
+                                          </div>
+                                          <textarea
+                                            name="description"
+                                            value={formData.description}
+                                            onChange={e => {
+                                              if (e.target.value.length <= 1500) {
+                                                handleInputChange(e);
+                                              }
+                                            }}
+                                            rows={2}
+                                            className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none resize-none transition-colors"
+                                          />
+                                        </div>
+                                      </>
+                                    )}
                                   </div>
                                 </motion.div>
                               )}
@@ -1447,15 +1739,15 @@ ${formData.description}`
                         <button
                           type="button"
                           onClick={() => removeImage(i)}
-                          className="absolute top-2 right-2 bg-white/90 backdrop-blur-md p-1.5 rounded-lg text-rose-600 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all shadow-sm touch-target"
+                          className="absolute top-2 right-2 bg-white/90 backdrop-blur-md p-1.5 rounded-lg text-[#0a2540] opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all shadow-sm touch-target"
                         >
                           <X size={14} />
                         </button>
                       </div>
                     ))}
-                    <label className="aspect-square rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-[#6C4EF2] hover:bg-purple-50 transition-all">
+                    <label className="aspect-square rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-[#0a2540] hover:bg-[#0a2540]/5 transition-all">
                       {uploading ? (
-                        <Loader2 className="animate-spin text-[#6C4EF2]" size={24} />
+                        <Loader2 className="animate-spin text-[#0a2540]" size={24} />
                       ) : (
                         <>
                           <Upload className="text-slate-400 mb-2" size={24} />
@@ -1485,15 +1777,15 @@ ${formData.description}`
               {currentStep === 2 && (
                 <div className="space-y-6 max-w-2xl">
                   <h2 className="text-xl font-black text-slate-800 border-b border-slate-50 pb-4">Verify Listing</h2>
-                  <div className="p-6 bg-purple-50/50 rounded-2xl border border-purple-100/50 space-y-4">
+                  <div className="p-6 bg-[#0a2540]/5/50 rounded-2xl border border-[#0a2540]/10/50 space-y-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#6C4EF2] text-white flex items-center justify-center font-bold">✓</div>
+                      <div className="w-10 h-10 rounded-full bg-[#0a2540] text-white flex items-center justify-center font-bold">✓</div>
                       <div>
                         <h3 className="font-bold text-slate-800 text-sm">Listing Verification Check</h3>
                         <p className="text-xs text-slate-500 font-medium">Verify your details to get a verified tag on your property listing.</p>
                       </div>
                     </div>
-                    <hr className="border-purple-100" />
+                    <hr className="border-[#0a2540]/10" />
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-xs font-bold text-slate-600">
                         <span>Contact Number Verified</span>
@@ -1501,7 +1793,7 @@ ${formData.description}`
                       </div>
                       <div className="flex items-center justify-between text-xs font-bold text-slate-600">
                         <span>Ownership Status Declaration</span>
-                        <span className="text-[#6C4EF2] hover:underline cursor-pointer font-bold">Declared</span>
+                        <span className="text-[#0a2540] hover:underline cursor-pointer font-bold">Declared</span>
                       </div>
                     </div>
                   </div>
@@ -1536,7 +1828,7 @@ ${formData.description}`
               {currentStep < steps.length - 1 ? (
                 <button
                   onClick={handleNext}
-                  className="px-8 py-2.5 rounded-lg text-sm font-bold bg-[#6C4EF2] text-white hover:bg-[#5a3fd4] transition-colors shadow-lg shadow-purple-200 flex items-center gap-2"
+                  className="px-8 py-2.5 rounded-lg text-sm font-bold bg-[#0a2540] text-white hover:bg-[#07192c] transition-colors shadow-lg shadow-slate-200 flex items-center gap-2"
                 >
                   Continue
                 </button>

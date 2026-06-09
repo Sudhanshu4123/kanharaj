@@ -205,7 +205,7 @@ export default function ProfilePage() {
   if (loading) return (
     <div className="min-h-[400px] flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="w-10 h-10 text-rose-600 animate-spin" />
+        <Loader2 className="w-10 h-10 text-[#0a2540] animate-spin" />
         <p className="text-slate-400 font-bold">Fetching Profile...</p>
       </div>
     </div>
@@ -214,7 +214,7 @@ export default function ProfilePage() {
   if (error) return (
     <div className="min-h-[400px] flex items-center justify-center p-8">
       <div className="bg-white p-10 rounded-[32px] shadow-xl border border-slate-100 text-center space-y-6 max-w-md">
-        <div className="w-20 h-20 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto">
+        <div className="w-20 h-20 bg-[#0a2540]/5 text-[#0a2540] rounded-full flex items-center justify-center mx-auto">
           <ShieldCheck size={40} />
         </div>
         <div className="space-y-2">
@@ -251,11 +251,11 @@ export default function ProfilePage() {
         <div className="px-4 sm:px-8 pb-8 -mt-14 flex flex-col md:flex-row items-start md:items-end gap-6">
           {/* Avatar */}
           <div className="relative shrink-0">
-            <div className="w-28 h-28 rounded-full border-4 border-white shadow-xl overflow-hidden bg-rose-50 flex items-center justify-center">
+            <div className="w-28 h-28 rounded-full border-4 border-white shadow-xl overflow-hidden bg-[#0a2540]/5 flex items-center justify-center">
               {formData.profileImage ? (
                 <img src={formData.profileImage} alt={user?.name} className="w-full h-full object-cover" />
               ) : (
-                <span className="text-4xl font-black text-rose-600">{user?.name?.charAt(0)?.toUpperCase()}</span>
+                <span className="text-4xl font-black text-[#0a2540]">{user?.name?.charAt(0)?.toUpperCase()}</span>
               )}
             </div>
             {!isEditing && (
@@ -263,7 +263,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-rose-600 text-white flex items-center justify-center border-4 border-white shadow-lg hover:bg-rose-700 transition-all"
+                className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-[#0a2540] text-white flex items-center justify-center border-4 border-white shadow-lg hover:bg-[#07192c] transition-all"
               >
                 {uploading ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
               </button>
@@ -277,7 +277,7 @@ export default function ProfilePage() {
             <p className="text-slate-500 text-sm font-medium">{user?.email}</p>
             <div className="flex flex-wrap gap-2 mt-2">
               {isVerifiedSeller && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-rose-50 text-rose-700 rounded-full text-xs font-black uppercase tracking-wide">
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#0a2540]/5 text-rose-700 rounded-full text-xs font-black uppercase tracking-wide">
                   <ShieldCheck size={12} /> Verified Seller
                 </span>
               )}
@@ -297,7 +297,7 @@ export default function ProfilePage() {
             {!isEditing ? (
               <button
                 onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-2xl hover:bg-rose-600 transition-all text-sm shadow-lg"
+                className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-2xl hover:bg-[#0a2540] transition-all text-sm shadow-lg"
               >
                 <Edit2 size={16} />
                 Edit Profile
@@ -313,7 +313,7 @@ export default function ProfilePage() {
                 <button
                   onClick={handleSave as any}
                   disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-rose-600 text-white font-bold rounded-2xl hover:bg-rose-700 transition-all text-sm shadow-lg"
+                  className="flex items-center gap-2 px-6 py-3 bg-[#0a2540] text-white font-bold rounded-2xl hover:bg-[#07192c] transition-all text-sm shadow-lg"
                 >
                   {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
                   Save Changes
@@ -337,7 +337,7 @@ export default function ProfilePage() {
               </div>
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Days Left</p>
-                <p className="font-bold text-rose-600 text-sm">{daysLeft} days</p>
+                <p className="font-bold text-[#0a2540] text-sm">{daysLeft} days</p>
               </div>
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Experience</p>
@@ -365,7 +365,7 @@ export default function ProfilePage() {
                     className="w-28 h-28 rounded-full object-cover border-4 border-rose-50 shadow-md"
                   />
                 ) : (
-                  <div className="w-28 h-28 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center font-black text-3xl border-4 border-rose-50 uppercase shadow-md">
+                  <div className="w-28 h-28 rounded-full bg-[#0a2540]/5 text-[#0a2540] flex items-center justify-center font-black text-3xl border-4 border-rose-50 uppercase shadow-md">
                     {user?.name?.slice(0, 2)}
                   </div>
                 )}
@@ -374,7 +374,7 @@ export default function ProfilePage() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                  className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-rose-600 text-white flex items-center justify-center border-4 border-white shadow-lg hover:bg-rose-700 transition-all"
+                  className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-[#0a2540] text-white flex items-center justify-center border-4 border-white shadow-lg hover:bg-[#07192c] transition-all"
                 >
                   {uploading ? (
                     <Loader2 size={14} className="animate-spin" />
@@ -400,7 +400,7 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-rose-600 text-xs font-black hover:underline"
+                    className="text-[#0a2540] text-xs font-black hover:underline"
                   >
                     Change Image
                   </button>
@@ -408,7 +408,7 @@ export default function ProfilePage() {
                     <button
                       type="button"
                       onClick={handleRemoveImage}
-                      className="text-slate-400 hover:text-rose-600 text-xs font-black hover:underline transition-colors"
+                      className="text-slate-400 hover:text-[#0a2540] text-xs font-black hover:underline transition-colors"
                     >
                       Remove Image
                     </button>
@@ -420,7 +420,7 @@ export default function ProfilePage() {
             {/* Account Details */}
             <div className="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/50 border border-slate-100">
               <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                <User className="text-rose-600" size={20} />
+                <User className="text-[#0a2540]" size={20} />
                 Personal Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -480,9 +480,9 @@ export default function ProfilePage() {
 
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Account Type</label>
-                  <div className="flex items-center gap-3 p-4 bg-rose-50 rounded-2xl border border-rose-100">
-                    <ShieldCheck size={18} className="text-rose-600" />
-                    <span className="font-bold text-rose-600 text-sm">Verified Professional Seller</span>
+                  <div className="flex items-center gap-3 p-4 bg-[#0a2540]/5 rounded-2xl border border-[#0a2540]/10">
+                    <ShieldCheck size={18} className="text-[#0a2540]" />
+                    <span className="font-bold text-[#0a2540] text-sm">Verified Professional Seller</span>
                   </div>
                 </div>
 
@@ -492,7 +492,7 @@ export default function ProfilePage() {
             {/* Professional Details (Experience & Bio) */}
             <div className="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/50 border border-slate-100 space-y-6">
               <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                <Award className="text-rose-600" size={20} />
+                <Award className="text-[#0a2540]" size={20} />
                 Professional Profile
               </h2>
               
@@ -550,7 +550,7 @@ export default function ProfilePage() {
             {/* Business Details */}
             <div className="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/50 border border-slate-100">
               <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                <Building2 className="text-rose-600" size={20} />
+                <Building2 className="text-[#0a2540]" size={20} />
                 Business Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -581,7 +581,7 @@ export default function ProfilePage() {
                 <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
                   <CreditCard size={24} className="text-rose-500" />
                 </div>
-                <span className="bg-rose-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                <span className="bg-[#0a2540] px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
                   {user?.subscriptionPlan} PLAN
                 </span>
               </div>
@@ -611,7 +611,7 @@ export default function ProfilePage() {
  
                 <Link
                   href="/subscription"
-                  className="w-full bg-white text-slate-900 font-black py-4 rounded-2xl mt-4 hover:bg-rose-50 transition-all flex items-center justify-center gap-2 group/btn"
+                  className="w-full bg-white text-slate-900 font-black py-4 rounded-2xl mt-4 hover:bg-[#0a2540]/5 transition-all flex items-center justify-center gap-2 group/btn"
                 >
                   Manage Billing
                   <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
@@ -619,7 +619,7 @@ export default function ProfilePage() {
               </div>
             </div>
             {/* Background Decoration */}
-            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-rose-600/20 rounded-full blur-3xl group-hover:bg-rose-600/30 transition-all" />
+            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-[#0a2540]/20 rounded-full blur-3xl group-hover:bg-[#0a2540]/30 transition-all" />
           </div>
         </div>
       </div>

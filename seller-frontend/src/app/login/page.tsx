@@ -21,19 +21,21 @@ export default function LoginPage() {
     const urlToken = searchParams.get("token")
     const plan = searchParams.get("plan")
     const months = searchParams.get("months")
+    const redirectParam = searchParams.get("redirect")
+    const redirectPath = (redirectParam && redirectParam.startsWith("/")) ? redirectParam : "/"
 
     if (urlToken) {
-      handleAutoLogin(urlToken, plan, months)
+      handleAutoLogin(urlToken, plan, months, redirectPath)
       return
     }
 
     const user = localStorage.getItem("seller_user")
     if (user) {
-      router.push("/")
+      router.push(redirectPath)
     }
   }, [router])
 
-  const handleAutoLogin = async (token: string, plan: string | null, months: string | null) => {
+  const handleAutoLogin = async (token: string, plan: string | null, months: string | null, redirectPath: string) => {
     setLoading(true)
     try {
       // Use the token to fetch user profile data
@@ -46,11 +48,11 @@ export default function LoginPage() {
         localStorage.setItem("seller_user", JSON.stringify(userData))
         localStorage.setItem("seller_token", token)
         
-        // Redirect to subscription page if plan info is present, otherwise home
+        // Redirect to subscription page if plan info is present, otherwise requested path
         if (plan) {
           router.push(`/subscription?plan=${plan}&months=${months}`)
         } else {
-          router.push("/")
+          router.push(redirectPath)
         }
       } else {
         setError("Automatic login failed. Please sign in manually.")
@@ -123,7 +125,9 @@ export default function LoginPage() {
         } else if (data.token) {
           localStorage.setItem("seller_user", JSON.stringify(data.user))
           localStorage.setItem("seller_token", data.token)
-          router.push("/")
+          const redirectParam = new URLSearchParams(window.location.search).get("redirect")
+          const redirectPath = (redirectParam && redirectParam.startsWith("/")) ? redirectParam : "/"
+          router.push(redirectPath)
         }
       } else {
         setError(data.message || "Invalid email or password")
@@ -150,7 +154,9 @@ export default function LoginPage() {
       if (res.ok) {
         localStorage.setItem("seller_user", JSON.stringify(data.user))
         localStorage.setItem("seller_token", data.token)
-        router.push("/")
+        const redirectParam = new URLSearchParams(window.location.search).get("redirect")
+        const redirectPath = (redirectParam && redirectParam.startsWith("/")) ? redirectParam : "/"
+        router.push(redirectPath)
       } else {
         setError(data.message || "Invalid OTP code")
       }
@@ -166,11 +172,11 @@ export default function LoginPage() {
       <div className="w-full max-w-[440px] space-y-8">
         <div className="text-center">
           <div className="inline-flex items-center gap-2 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-rose-600 flex items-center justify-center text-white shadow-xl shadow-rose-200">
+            <div className="w-12 h-12 rounded-2xl bg-[#0a2540] flex items-center justify-center text-white shadow-xl shadow-slate-200">
               <Building2 size={24} />
             </div>
             <span className="text-2xl font-black text-slate-900 tracking-tighter">
-              Seller<span className="text-rose-600">Dashboard</span>
+              Seller<span className="text-[#0a2540]">Dashboard</span>
             </span>
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Welcome Back</h1>
@@ -180,7 +186,7 @@ export default function LoginPage() {
         <div className="bg-white p-8 rounded-[32px] shadow-xl shadow-slate-200/50 border border-slate-100">
           {showOtp ? (
             <form onSubmit={handleVerifyOtp} className="space-y-6">
-              <div className="bg-rose-50 p-6 rounded-[24px] border border-rose-100 text-center">
+              <div className="bg-[#0a2540]/5 p-6 rounded-[24px] border border-[#0a2540]/10 text-center">
                 <p className="text-sm font-bold text-slate-900">Enter Verification Code</p>
                 <p className="text-xs text-slate-500 mt-1">We've sent an OTP to your email</p>
               </div>
@@ -196,14 +202,14 @@ export default function LoginPage() {
                     value={otp[index] || ""}
                     onChange={(e) => handleOtpChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
-                    className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold text-slate-900 bg-slate-50 border-2 border-slate-200 rounded-xl focus:bg-white focus:border-rose-500 focus:ring-4 focus:ring-rose-500/20 outline-none transition-all"
+                    className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold text-slate-900 bg-slate-50 border-2 border-slate-200 rounded-xl focus:bg-white focus:border-[#0a2540] focus:ring-4 focus:ring-[#0a2540]/20 outline-none transition-all"
                     autoFocus={index === 0}
                   />
                 ))}
               </div>
 
               {error && (
-                <div className="p-4 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 text-xs font-bold">
+                <div className="p-4 rounded-2xl bg-[#0a2540]/5 border border-[#0a2540]/10 text-[#0a2540] text-xs font-bold">
                   {error}
                 </div>
               )}
@@ -236,7 +242,7 @@ export default function LoginPage() {
                     value={form.email}
                     onChange={(e) => setForm({...form, email: e.target.value})}
                     placeholder="name@example.com"
-                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-rose-500 outline-none text-sm font-medium transition-all"
+                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium transition-all"
                   />
                 </div>
               </div>
@@ -251,7 +257,7 @@ export default function LoginPage() {
                     value={form.password}
                     onChange={(e) => setForm({...form, password: e.target.value})}
                     placeholder="••••••••"
-                    className="w-full pl-12 pr-12 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-rose-500 outline-none text-sm font-medium transition-all"
+                    className="w-full pl-12 pr-12 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium transition-all"
                   />
                   <button 
                     type="button"
@@ -264,7 +270,7 @@ export default function LoginPage() {
               </div>
 
               {error && (
-                <div className="p-4 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 text-xs font-bold animate-shake">
+                <div className="p-4 rounded-2xl bg-[#0a2540]/5 border border-[#0a2540]/10 text-[#0a2540] text-xs font-bold animate-shake">
                   {error}
                 </div>
               )}
@@ -289,7 +295,7 @@ export default function LoginPage() {
           <div className="mt-8 pt-8 border-t border-slate-50 text-center">
             <p className="text-sm text-slate-500 font-medium">
               Don't have a seller account?{" "}
-              <Link href={`${process.env.NEXT_PUBLIC_MAIN_URL}/login`} className="text-rose-600 font-bold hover:underline">
+              <Link href={`${process.env.NEXT_PUBLIC_MAIN_URL}/login`} className="text-[#0a2540] font-bold hover:underline">
                 Register on Website
               </Link>
             </p>

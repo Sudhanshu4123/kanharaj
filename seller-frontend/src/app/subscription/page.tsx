@@ -270,7 +270,7 @@ export default function SubscriptionPage() {
               key={m}
               onClick={() => setMonths(m)}
               className={`px-8 py-2.5 rounded-xl text-sm font-bold transition-all relative ${months === m
-                ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/20'
+                ? 'bg-[#0a2540] text-white shadow-lg shadow-slate-200'
                 : 'text-slate-500 hover:bg-slate-50'
                 }`}
             >
@@ -291,10 +291,10 @@ export default function SubscriptionPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className={`dashboard-card flex flex-col relative transition-all duration-300 ${plan.popular ? 'border-rose-200 ring-4 ring-rose-50 shadow-2xl' : 'hover:border-rose-100'}`}
+            className={`dashboard-card flex flex-col relative transition-all duration-300 ${plan.popular ? 'border-rose-200 ring-4 ring-rose-50 shadow-2xl' : 'hover:border-[#0a2540]/10'}`}
           >
             {plan.popular && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-rose-600 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#0a2540] text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
                 Most Popular
               </div>
             )}
@@ -313,7 +313,7 @@ export default function SubscriptionPage() {
             <div className="flex-1 space-y-4 mb-8">
               {plan.features.map((feature) => (
                 <div key={feature} className="flex items-start gap-3">
-                  <div className={`mt-1 w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${plan.color === 'rose' ? 'bg-rose-50 text-rose-600' : 'bg-slate-100 text-slate-500'}`}>
+                  <div className={`mt-1 w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${plan.color === 'rose' ? 'bg-[#0a2540]/5 text-[#0a2540]' : 'bg-slate-100 text-slate-500'}`}>
                     <Check size={10} strokeWidth={4} />
                   </div>
                   <span className="text-xs text-slate-600 leading-tight">{feature}</span>
@@ -356,7 +356,7 @@ export default function SubscriptionPage() {
 
               <div className="mb-6">
                 <h3 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  <CreditCard className="text-rose-600" /> Transaction History
+                  <CreditCard className="text-[#0a2540]" /> Transaction History
                 </h3>
                 <p className="text-slate-500 text-xs mt-1">Logs of all subscription purchases and active invoicing.</p>
               </div>
@@ -364,13 +364,13 @@ export default function SubscriptionPage() {
               <div className="flex-1 overflow-y-auto pr-1 no-scrollbar space-y-4 min-h-[30vh]">
                 {historyLoading ? (
                   <div className="flex flex-col items-center justify-center py-20 gap-3">
-                    <Loader2 className="animate-spin text-rose-600" size={32} />
+                    <Loader2 className="animate-spin text-[#0a2540]" size={32} />
                     <p className="text-slate-400 text-sm font-bold uppercase tracking-wider">Loading logs...</p>
                   </div>
                 ) : historyList.length > 0 ? (
                   <div className="space-y-3">
                     {historyList.map((tx) => (
-                      <div key={tx.id} className="p-4 rounded-2xl border border-slate-100 hover:border-rose-100 transition-colors bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div key={tx.id} className="p-4 rounded-2xl border border-slate-100 hover:border-[#0a2540]/10 transition-colors bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-slate-900 text-sm sm:text-base capitalize">

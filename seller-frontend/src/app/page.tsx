@@ -45,7 +45,7 @@ function CircularProgress({
   value,
   max,
   label,
-  color = "#6C4EF2",
+  color = "#0a2540",
   size = 72
 }: {
   value: number
@@ -160,7 +160,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] gap-4">
-        <Loader2 className="animate-spin text-[#6C4EF2]" size={40} />
+        <Loader2 className="animate-spin text-[#0a2540]" size={40} />
         <p className="text-slate-500 font-bold animate-pulse">Loading Kanharaj Seller Hub...</p>
       </div>
     )
@@ -216,8 +216,8 @@ export default function DashboardPage() {
 
             {/* Listing Quality Score */}
             <div className="bg-white rounded-2xl p-5 shadow-lg border border-slate-100 flex items-center gap-4 hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center shrink-0 text-purple-600">
-                <Star className="w-6 h-6 fill-purple-200 text-purple-600" />
+              <div className="w-12 h-12 rounded-full bg-[#0a2540]/5 flex items-center justify-center shrink-0 text-[#0a2540]">
+                <Star className="w-6 h-6 fill-[#0a2540]/20 text-[#0a2540]" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-1">
@@ -225,7 +225,7 @@ export default function DashboardPage() {
                   <span className="text-slate-400 text-sm font-bold">/10</span>
                 </div>
                 <p className="text-slate-500 text-xs font-bold truncate mt-0.5">Avg Listing Quality</p>
-                <Link href="/listings" className="text-[#5F3CF8] hover:text-purple-900 text-xs font-bold flex items-center gap-0.5 mt-1 transition-colors">
+                <Link href="/listings" className="text-[#0a2540] hover:text-[#07192c] text-xs font-bold flex items-center gap-0.5 mt-1 transition-colors">
                   {lowLqsCount > 0 ? `Improve ${lowLqsCount}` : "View"} <ChevronRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -239,7 +239,7 @@ export default function DashboardPage() {
               <div className="flex-1 min-w-0">
                 <span className="text-2xl font-black text-slate-800">{verifiedCount}</span>
                 <p className="text-slate-500 text-xs font-bold truncate mt-0.5">Verified / Complete Listings</p>
-                <Link href="/listings" className="text-[#5F3CF8] hover:text-blue-800 text-xs font-bold flex items-center gap-0.5 mt-1 transition-colors">
+                <Link href="/listings" className="text-[#0a2540] hover:text-blue-800 text-xs font-bold flex items-center gap-0.5 mt-1 transition-colors">
                   Manage <ChevronRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -253,7 +253,7 @@ export default function DashboardPage() {
               <div className="flex-1 min-w-0">
                 <span className="text-2xl font-black text-slate-800">{stats.leads}</span>
                 <p className="text-slate-500 text-xs font-bold truncate mt-0.5">Total Leads</p>
-                <Link href="/leads" className="text-[#5F3CF8] hover:text-blue-800 text-xs font-bold flex items-center gap-0.5 mt-1 transition-colors">
+                <Link href="/leads" className="text-[#0a2540] hover:text-blue-800 text-xs font-bold flex items-center gap-0.5 mt-1 transition-colors">
                   View <ChevronRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -282,7 +282,7 @@ export default function DashboardPage() {
                 </svg>
               </div>
               <div className="flex items-center justify-between relative z-10 pt-2 border-t border-slate-50">
-                <button className="text-[#5F3CF8] hover:underline text-xs font-black flex items-center gap-0.5 transition-colors">
+                <button className="text-[#0a2540] hover:underline text-xs font-black flex items-center gap-0.5 transition-colors">
                   Add Sub-broker <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -310,7 +310,7 @@ export default function DashboardPage() {
                       <button
                         key={opt}
                         onClick={() => { setLeadsFilter(opt as typeof leadsFilter); setLeadsDropdown(false) }}
-                        className={`block w-full text-left px-3 py-2 hover:bg-slate-50 transition-colors ${leadsFilter === opt ? "text-[#6C4EF2]" : ""}`}
+                        className={`block w-full text-left px-3 py-2 hover:bg-slate-50 transition-colors ${leadsFilter === opt ? "text-[#0a2540]" : ""}`}
                       >{opt}</button>
                     ))}
                   </div>
@@ -320,9 +320,9 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-2 gap-4">
               {/* Residential Leads */}
-              <div className="border border-slate-100 rounded-xl p-4 hover:border-purple-200 transition-colors group">
+              <div className="border border-slate-100 rounded-xl p-4 hover:border-[#0a2540]/20 transition-colors group">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 shrink-0 group-hover:bg-purple-100 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-[#0a2540]/5 flex items-center justify-center text-[#0a2540] shrink-0 group-hover:bg-[#0a2540]/10 transition-colors">
                     <Home className="w-5 h-5" />
                   </div>
                   <div>
@@ -332,7 +332,7 @@ export default function DashboardPage() {
                 </div>
                 {todayLeadCount > 0 && (
                   <div className="flex items-center gap-1">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-50 text-purple-600 border border-purple-100">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#0a2540]/5 text-[#0a2540] border border-[#0a2540]/10">
                       {todayLeadCount} today
                     </span>
                   </div>
@@ -342,7 +342,7 @@ export default function DashboardPage() {
               {/* Commercial Leads */}
               <div className="border border-slate-100 rounded-xl p-4 hover:border-rose-200 transition-colors group cursor-pointer">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500 shrink-0 group-hover:bg-rose-100 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-[#0a2540]/5 flex items-center justify-center text-rose-500 shrink-0 group-hover:bg-rose-100 transition-colors">
                     <Building2 className="w-5 h-5" />
                   </div>
                   <div>
@@ -365,12 +365,12 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-2 gap-4">
               {/* Residential Listings */}
-              <div className="flex items-center gap-4 border border-slate-100 rounded-xl p-4 hover:border-purple-200 transition-colors">
+              <div className="flex items-center gap-4 border border-slate-100 rounded-xl p-4 hover:border-[#0a2540]/20 transition-colors">
                 <div>
                   <p className="text-3xl font-black text-slate-800">{stats.residentialListings}</p>
                   <p className="text-xs font-bold text-slate-500 mt-0.5">Residential</p>
                 </div>
-                <CircularProgress value={stats.residentialListings} max={Math.max(stats.residentialListings, 1)} label="Live" color="#6C4EF2" size={64} />
+                <CircularProgress value={stats.residentialListings} max={Math.max(stats.residentialListings, 1)} label="Live" color="#0a2540" size={64} />
               </div>
 
               {/* Commercial Listings */}
@@ -391,7 +391,7 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
             {/* Plan Usage */}
-            <div className="flex items-center justify-between border border-slate-100 rounded-2xl p-5 hover:border-purple-200 transition-colors bg-slate-50/50">
+            <div className="flex items-center justify-between border border-slate-100 rounded-2xl p-5 hover:border-[#0a2540]/20 transition-colors bg-slate-50/50">
               <div className="space-y-2">
                 <p className="text-sm font-black text-slate-800">
                   {hasSubscription ? subscriptionName.replace("_", " ") : "No Active Plan"}
@@ -400,7 +400,7 @@ export default function DashboardPage() {
                   {hasSubscription ? `${stats.listings} of ${maxListings} slots used` : "Subscribe to list properties"}
                 </p>
                 <Link href="/subscription">
-                  <button className="mt-1 px-4 py-1.5 rounded-full border border-[#6C4EF2] text-[#6C4EF2] text-[11px] font-black hover:bg-purple-50 transition-colors">
+                  <button className="mt-1 px-4 py-1.5 rounded-full border border-[#0a2540] text-[#0a2540] text-[11px] font-black hover:bg-[#0a2540]/5 transition-colors">
                     Promote Listings
                   </button>
                 </Link>
@@ -409,7 +409,7 @@ export default function DashboardPage() {
                 value={stats.listings}
                 max={maxListings}
                 label="Listings"
-                color="#6C4EF2"
+                color="#0a2540"
                 size={80}
               />
             </div>
@@ -419,7 +419,7 @@ export default function DashboardPage() {
               <div className="space-y-2">
                 <p className="text-sm font-black text-slate-800">Credit Balance</p>
                 <Link href="/subscription">
-                  <button className="mt-1 px-4 py-1.5 rounded-full border border-[#6C4EF2] text-[#6C4EF2] text-[11px] font-black hover:bg-purple-50 transition-colors">
+                  <button className="mt-1 px-4 py-1.5 rounded-full border border-[#0a2540] text-[#0a2540] text-[11px] font-black hover:bg-[#0a2540]/5 transition-colors">
                     Boost Listings
                   </button>
                 </Link>
@@ -465,7 +465,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <button className="text-[#5F3CF8] hover:underline text-xs font-bold block pt-1">Learn More</button>
+              <button className="text-[#0a2540] hover:underline text-xs font-bold block pt-1">Learn More</button>
             </div>
             <div className="flex items-center gap-4 border-l border-slate-100 pl-0 sm:pl-6 shrink-0">
               <div className="flex flex-col items-center text-center space-y-2">
@@ -474,8 +474,8 @@ export default function DashboardPage() {
                     ? `${Math.round((verifiedCount / stats.listings) * 100)}% verified`
                     : "No listings yet"}
                 </p>
-                <CircularProgress value={verifiedCount} max={Math.max(stats.listings, 1)} label="Listings" color="#5F3CF8" size={76} />
-                <button className="text-xs font-black text-[#5F3CF8] hover:text-[#4d2ee0] flex items-center gap-0.5">
+                <CircularProgress value={verifiedCount} max={Math.max(stats.listings, 1)} label="Listings" color="#0a2540" size={76} />
+                <button className="text-xs font-black text-[#0a2540] hover:text-[#4d2ee0] flex items-center gap-0.5">
                   Verify now <ChevronRight className="w-3 h-3" />
                 </button>
               </div>
@@ -486,7 +486,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
             <div className="flex justify-between items-center mb-5">
               <h3 className="font-black text-slate-800 text-base">Quick Analytics</h3>
-              <span className="text-xs text-[#5F3CF8] font-bold">Real-time Data</span>
+              <span className="text-xs text-[#0a2540] font-bold">Real-time Data</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="p-4 bg-slate-50 rounded-xl text-center border border-slate-100">
@@ -557,7 +557,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="mt-auto">
-              <button className="px-5 py-2 rounded-full border border-[#6C4EF2] text-[#6C4EF2] text-xs font-black hover:bg-purple-50 transition-colors">
+              <button className="px-5 py-2 rounded-full border border-[#0a2540] text-[#0a2540] text-xs font-black hover:bg-[#0a2540]/5 transition-colors">
                 Explore FAQ's
               </button>
             </div>
@@ -569,8 +569,8 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               {/* Call Us */}
-              <div className="border border-slate-100 rounded-xl p-4 flex flex-col gap-2 hover:border-purple-200 hover:bg-purple-50/20 transition-all cursor-pointer group">
-                <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-[#6C4EF2] group-hover:bg-purple-100 transition-colors">
+              <div className="border border-slate-100 rounded-xl p-4 flex flex-col gap-2 hover:border-[#0a2540]/20 hover:bg-[#0a2540]/5/20 transition-all cursor-pointer group">
+                <div className="w-10 h-10 rounded-xl bg-[#0a2540]/5 flex items-center justify-center text-[#0a2540] group-hover:bg-[#0a2540]/10 transition-colors">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
@@ -580,8 +580,8 @@ export default function DashboardPage() {
               </div>
 
               {/* Email Us */}
-              <div className="border border-slate-100 rounded-xl p-4 flex flex-col gap-2 hover:border-purple-200 hover:bg-purple-50/20 transition-all cursor-pointer group">
-                <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-[#6C4EF2] group-hover:bg-purple-100 transition-colors">
+              <div className="border border-slate-100 rounded-xl p-4 flex flex-col gap-2 hover:border-[#0a2540]/20 hover:bg-[#0a2540]/5/20 transition-all cursor-pointer group">
+                <div className="w-10 h-10 rounded-xl bg-[#0a2540]/5 flex items-center justify-center text-[#0a2540] group-hover:bg-[#0a2540]/10 transition-colors">
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
@@ -602,7 +602,7 @@ export default function DashboardPage() {
           <h4 className="text-sm font-black text-slate-800 mb-4">Support &amp; Tips</h4>
           <div className="space-y-4">
             <div className="flex gap-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0" />
+              <div className="w-1.5 h-1.5 rounded-full bg-[#0a2540]/50 mt-2 shrink-0" />
               <p className="text-xs font-semibold text-slate-600 leading-normal">Add more photos to increase views by 40%.</p>
             </div>
             <div className="flex gap-3">

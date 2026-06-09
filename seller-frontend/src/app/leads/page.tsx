@@ -77,7 +77,7 @@ function LeadCard({
   }, [])
 
   const statusColors: Record<string, string> = {
-    New: "bg-[#6C4EF2] text-white",
+    New: "bg-[#0a2540] text-white",
     Replied: "bg-emerald-50 text-emerald-700 border border-emerald-200",
     Closed: "bg-slate-100 text-slate-500 border border-slate-200",
   }
@@ -96,7 +96,7 @@ function LeadCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-start gap-1 flex-wrap">
             <span className="text-sm font-black text-slate-900">{lead.name || "Unknown Buyer"}</span>
-            <button className="text-slate-400 hover:text-[#6C4EF2] transition-colors ml-1" title="Share">
+            <button className="text-slate-400 hover:text-[#0a2540] transition-colors ml-1" title="Share">
               <Share2 className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -105,7 +105,7 @@ function LeadCard({
           </p>
           <button
             onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-0.5 text-xs font-bold text-[#6C4EF2] hover:underline mt-1 transition-colors"
+            className="flex items-center gap-0.5 text-xs font-bold text-[#0a2540] hover:underline mt-1 transition-colors"
           >
             More buyer info {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
           </button>
@@ -139,7 +139,7 @@ function LeadCard({
                 href={`${process.env.NEXT_PUBLIC_MAIN_URL || "http://localhost:3000"}/property/${lead.propertyId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-400 hover:text-[#6C4EF2] transition-colors"
+                className="text-slate-400 hover:text-[#0a2540] transition-colors"
                 title="View property"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -153,7 +153,7 @@ function LeadCard({
           {/* +Add Notes */}
           <button
             onClick={() => setNotesOpen(!notesOpen)}
-            className="text-[11px] font-bold text-[#6C4EF2] hover:underline whitespace-nowrap"
+            className="text-[11px] font-bold text-[#0a2540] hover:underline whitespace-nowrap"
           >
             +Add Notes
           </button>
@@ -163,7 +163,7 @@ function LeadCard({
             {hasSubscription ? (
               <a
                 href={`tel:${lead.phone}`}
-                className="flex items-center gap-1.5 text-xs font-bold text-[#6C4EF2] hover:underline whitespace-nowrap"
+                className="flex items-center gap-1.5 text-xs font-bold text-[#0a2540] hover:underline whitespace-nowrap"
               >
                 <Phone className="w-3.5 h-3.5" />
                 View Contact
@@ -220,7 +220,7 @@ function LeadCard({
                         setStatusOpen(false)
                         setSavingStatus(false)
                       }}
-                      className={`block w-full text-left px-3 py-2 text-[11px] font-bold hover:bg-slate-50 transition-colors ${status === opt ? "text-[#6C4EF2]" : "text-slate-700"}`}
+                      className={`block w-full text-left px-3 py-2 text-[11px] font-bold hover:bg-slate-50 transition-colors ${status === opt ? "text-[#0a2540]" : "text-slate-700"}`}
                     >
                       {opt}
                     </button>
@@ -274,7 +274,7 @@ function LeadCard({
             transition={{ duration: 0.2 }}
             className="overflow-hidden border-t border-slate-100"
           >
-            <div className="px-4 py-3 bg-purple-50/30">
+            <div className="px-4 py-3 bg-[#0a2540]/5/30">
               <p className="text-[11px] font-bold text-slate-600 mb-2">Add a note for this lead</p>
               <p className="text-xs text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-2 whitespace-pre-wrap">
                 {lead.message?.trim() || "No message from buyer."}
@@ -437,7 +437,7 @@ export default function LeadsPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="animate-spin text-[#6C4EF2]" size={40} />
+        <Loader2 className="animate-spin text-[#0a2540]" size={40} />
         <p className="text-slate-500 font-bold">Connecting to live inquiries...</p>
       </div>
     )
@@ -446,7 +446,7 @@ export default function LeadsPage() {
   if (!hasSubscription) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-4">
-        <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center text-[#6C4EF2]">
+        <div className="w-16 h-16 bg-[#0a2540]/5 rounded-full flex items-center justify-center text-[#0a2540]">
           <Users size={32} />
         </div>
         <h4 className="font-black text-slate-800 text-lg">Subscribe to View Leads</h4>
@@ -455,7 +455,7 @@ export default function LeadsPage() {
         </p>
         <a
           href="/subscription"
-          className="px-6 py-3 bg-[#6C4EF2] text-white rounded-xl font-bold text-sm hover:bg-[#5a3fd4] transition-colors shadow-lg shadow-purple-200"
+          className="px-6 py-3 bg-[#0a2540] text-white rounded-xl font-bold text-sm hover:bg-[#07192c] transition-colors shadow-lg shadow-slate-200"
         >
           View Subscription Plans
         </a>
@@ -494,7 +494,7 @@ export default function LeadsPage() {
             </div>
             <button
               onClick={resetFilters}
-              className="text-xs font-bold text-[#6C4EF2] hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-[#0a2540] hover:underline flex items-center gap-1"
             >
               <RotateCcw className="w-3 h-3" /> Reset Filters
             </button>
@@ -506,12 +506,12 @@ export default function LeadsPage() {
             {anyFilterActive ? (
               <div className="flex flex-wrap gap-1.5">
                 {sector !== "All" && (
-                  <span className="px-2 py-0.5 rounded-full bg-purple-50 text-[#6C4EF2] text-[10px] font-bold border border-purple-100 flex items-center gap-1">
+                  <span className="px-2 py-0.5 rounded-full bg-[#0a2540]/5 text-[#0a2540] text-[10px] font-bold border border-[#0a2540]/10 flex items-center gap-1">
                     {sector} <button onClick={() => setSector("All")}><X className="w-2.5 h-2.5" /></button>
                   </span>
                 )}
                 {leadStatus.map(s => (
-                  <span key={s} className="px-2 py-0.5 rounded-full bg-purple-50 text-[#6C4EF2] text-[10px] font-bold border border-purple-100 flex items-center gap-1">
+                  <span key={s} className="px-2 py-0.5 rounded-full bg-[#0a2540]/5 text-[#0a2540] text-[10px] font-bold border border-[#0a2540]/10 flex items-center gap-1">
                     {s} <button onClick={() => setLeadStatus(prev => prev.filter(x => x !== s))}><X className="w-2.5 h-2.5" /></button>
                   </span>
                 ))}
@@ -531,7 +531,7 @@ export default function LeadsPage() {
                 value={searchId}
                 onChange={e => setSearchId(e.target.value)}
                 placeholder="Enter property ID"
-                className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#6C4EF2]/30 bg-white"
+                className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#0a2540]/30 bg-white"
               />
             </div>
           </div>
@@ -544,7 +544,7 @@ export default function LeadsPage() {
                 <label key={s} className="flex items-center gap-1.5 cursor-pointer">
                   <div
                     onClick={() => setSector(s)}
-                    className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center cursor-pointer transition-colors ${sector === s ? "border-[#6C4EF2] bg-[#6C4EF2]" : "border-slate-300 bg-white"}`}
+                    className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center cursor-pointer transition-colors ${sector === s ? "border-[#0a2540] bg-[#0a2540]" : "border-slate-300 bg-white"}`}
                   >
                     {sector === s && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                   </div>
@@ -564,7 +564,7 @@ export default function LeadsPage() {
                   <button
                     key={s}
                     onClick={() => setLeadStatus(prev => active ? prev.filter(x => x !== s) : [...prev, s])}
-                    className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all border ${active ? "bg-[#6C4EF2] text-white border-[#6C4EF2]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2] hover:text-[#6C4EF2]"}`}
+                    className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all border ${active ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540] hover:text-[#0a2540]"}`}
                   >{s}</button>
                 )
               })}
@@ -579,7 +579,7 @@ export default function LeadsPage() {
                 <button
                   key={d}
                   onClick={() => setFollowUpDate(followUpDate === d ? "" : d)}
-                  className={`px-2 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${followUpDate === d ? "bg-[#6C4EF2] text-white border-[#6C4EF2]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2] hover:text-[#6C4EF2]"}`}
+                  className={`px-2 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${followUpDate === d ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540] hover:text-[#0a2540]"}`}
                 >{d}</button>
               ))}
             </div>
@@ -595,7 +595,7 @@ export default function LeadsPage() {
                 value={locality}
                 onChange={e => setLocality(e.target.value)}
                 placeholder="Enter Locality here"
-                className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#6C4EF2]/30 bg-white"
+                className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#0a2540]/30 bg-white"
               />
             </div>
           </div>
@@ -610,7 +610,7 @@ export default function LeadsPage() {
                   <button
                     key={pt}
                     onClick={() => setSelectedPropertyTypes(prev => active ? prev.filter(x => x !== pt) : [...prev, pt])}
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all ${active ? "bg-[#6C4EF2] text-white border-[#6C4EF2]" : "bg-white text-slate-600 border-slate-200 hover:border-[#6C4EF2] hover:text-[#6C4EF2]"}`}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all ${active ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540] hover:text-[#0a2540]"}`}
                   >{pt}</button>
                 )
               })}
@@ -622,9 +622,9 @@ export default function LeadsPage() {
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-3">Date Range</p>
             <div className="grid grid-cols-2 gap-2">
               <input type="date" placeholder="Start Date"
-                className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-[#6C4EF2]/30 text-slate-600" />
+                className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-[#0a2540]/30 text-slate-600" />
               <input type="date" placeholder="End Date"
-                className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-[#6C4EF2]/30 text-slate-600" />
+                className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-[#0a2540]/30 text-slate-600" />
             </div>
           </div>
 
@@ -638,7 +638,7 @@ export default function LeadsPage() {
                   type="number"
                   value={priceMin}
                   onChange={e => setPriceMin(Number(e.target.value))}
-                  className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-[#6C4EF2]/30"
+                  className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-[#0a2540]/30"
                 />
               </div>
               <span className="text-slate-400 text-xs font-bold pt-4">To</span>
@@ -648,7 +648,7 @@ export default function LeadsPage() {
                   type="number"
                   value={priceMax}
                   onChange={e => setPriceMax(Number(e.target.value))}
-                  className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-[#6C4EF2]/30"
+                  className="w-full px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-[#0a2540]/30"
                 />
               </div>
             </div>
@@ -659,7 +659,7 @@ export default function LeadsPage() {
               step={50000}
               value={priceMax}
               onChange={e => setPriceMax(Number(e.target.value))}
-              className="w-full accent-[#6C4EF2]"
+              className="w-full accent-[#0a2540]"
             />
             <div className="flex justify-between text-[10px] text-slate-400 font-bold mt-1">
               <span>₹ 0</span><span>Any</span>
@@ -678,7 +678,7 @@ export default function LeadsPage() {
             className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 shadow-sm"
           >
             <SlidersHorizontal className="w-4 h-4" /> Filters
-            {anyFilterActive && <span className="w-2 h-2 rounded-full bg-[#6C4EF2]" />}
+            {anyFilterActive && <span className="w-2 h-2 rounded-full bg-[#0a2540]" />}
           </button>
         </div>
 
@@ -689,7 +689,7 @@ export default function LeadsPage() {
             <button
               key={tab.label}
               onClick={() => setActiveTab(tab.label)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${activeTab === tab.label ? "bg-[#6C4EF2] text-white shadow-sm" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${activeTab === tab.label ? "bg-[#0a2540] text-white shadow-sm" : "text-slate-600 hover:bg-slate-50"}`}
             >
               {tab.label}
               {tab.count > 0 && (
@@ -707,7 +707,7 @@ export default function LeadsPage() {
             Showing <span className="font-black text-slate-900">{filteredLeads.length}</span> lead{filteredLeads.length !== 1 ? "s" : ""}
           </p>
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-1.5 text-xs font-bold text-[#6C4EF2] hover:underline">
+            <button className="flex items-center gap-1.5 text-xs font-bold text-[#0a2540] hover:underline">
               <RefreshCw className="w-3.5 h-3.5" /> Sync lead status
             </button>
             <span className="text-slate-200">|</span>
@@ -741,7 +741,7 @@ export default function LeadsPage() {
               {anyFilterActive && (
                 <button
                   onClick={resetFilters}
-                  className="mt-4 px-4 py-2 text-xs font-bold text-[#6C4EF2] border border-[#6C4EF2] rounded-xl hover:bg-purple-50 transition-colors"
+                  className="mt-4 px-4 py-2 text-xs font-bold text-[#0a2540] border border-[#0a2540] rounded-xl hover:bg-[#0a2540]/5 transition-colors"
                 >
                   Reset Filters
                 </button>

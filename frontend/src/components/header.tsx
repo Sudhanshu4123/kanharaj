@@ -178,7 +178,7 @@ export function Header() {
   const pathname = usePathname()
   const router = useRouter()
 
-  if (pathname === '/properties') {
+  if (pathname === '/properties' || pathname?.startsWith('/property/')) {
     return null
   }
 

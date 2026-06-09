@@ -8,15 +8,16 @@ import {
   ChevronLeft, ChevronRight, Check, MessageCircle, ArrowLeft, Building2,
   ShieldAlert, ShieldCheck, Info, Sparkles, AlertCircle, Compass, Star,
   X, Printer, DollarSign, Download, School, Activity, Shield, ArrowUpDown,
-  ChevronDown
+  ChevronDown, Search, Menu, User, LogOut
 } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
-import { formatPrice, formatNumber, cn } from '@/lib/utils'
+import { formatPrice, formatNumber, cn, BRAND_LOGO_SRC, hasSellerDashboardAccess } from '@/lib/utils'
 import { useInquiryStore, useAuthStore } from '@/lib/store'
 import { useUserActivityStore } from '@/lib/user-activity-store'
 import { Property } from '@/lib/data'
@@ -24,6 +25,128 @@ import { FloorPlanSchematic } from '@/components/properties/floor-plan-schematic
 import { PropertyLocalityMap } from '@/components/properties/property-locality-map'
 import { buildFloorPlanRooms, isResidentialFloorPlan } from '@/lib/floor-plan'
 import { SUPPORT_PHONE } from '@/lib/platform-data'
+import { topCities, otherCities } from '@/components/home/search-bar'
+
+const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
+  ? process.env.NEXT_PUBLIC_SELLER_URL
+  : 'http://localhost:3001'
+
+interface ParsedHighlights {
+  bhk?: string;
+  transactionType?: string;
+  constructionStatus?: string;
+  bathrooms?: string;
+  balconies?: string;
+  furnishType?: string;
+  furnishings?: string[];
+  coveredParking?: string;
+  openParking?: string;
+  preferredTenant?: string;
+  petFriendly?: string;
+  availableFrom?: string;
+  maintenanceCharges?: string;
+  securityDeposit?: string;
+  lockInPeriod?: string;
+  brokerageCharges?: string;
+  carpetArea?: string;
+  floorDetails?: string;
+  facing?: string;
+  servantRoom?: string;
+  reraId?: string;
+  ageOfProperty?: string;
+}
+
+function parsePropertyHighlights(description: string): { highlights: ParsedHighlights; cleanDescription: string } {
+  const highlights: ParsedHighlights = {};
+  let cleanDescription = description || '';
+
+  if (description && description.includes('PROPERTY HIGHLIGHTS:')) {
+    const parts = description.split('---');
+    const highlightsPart = parts[0];
+    cleanDescription = parts.slice(1).join('---').trim();
+
+    const lines = highlightsPart.split('\n');
+    lines.forEach(line => {
+      const match = line.match(/^\s*•\s*([^:]+)\s*:\s*(.*)$/);
+      if (match) {
+        const key = match[1].trim();
+        const value = match[2].trim();
+        
+        switch (key) {
+          case 'BHK':
+            highlights.bhk = value;
+            break;
+          case 'Transaction Type':
+            highlights.transactionType = value;
+            break;
+          case 'Construction Status':
+            highlights.constructionStatus = value;
+            break;
+          case 'Bathrooms':
+            highlights.bathrooms = value;
+            break;
+          case 'Balconies':
+            highlights.balconies = value;
+            break;
+          case 'Furnish Type':
+            highlights.furnishType = value;
+            break;
+          case 'Furnishings':
+            highlights.furnishings = value.split(',').map(f => f.trim()).filter(Boolean);
+            break;
+          case 'Covered Parking':
+            highlights.coveredParking = value;
+            break;
+          case 'Open Parking':
+            highlights.openParking = value;
+            break;
+          case 'Preferred Tenant':
+            highlights.preferredTenant = value;
+            break;
+          case 'Pet Friendly':
+            highlights.petFriendly = value;
+            break;
+          case 'Available From':
+            highlights.availableFrom = value;
+            break;
+          case 'Maintenance':
+          case 'Maintenance Charges':
+            highlights.maintenanceCharges = value;
+            break;
+          case 'Security Deposit':
+            highlights.securityDeposit = value;
+            break;
+          case 'Lock-in Period':
+            highlights.lockInPeriod = value;
+            break;
+          case 'Brokerage Charges':
+            highlights.brokerageCharges = value;
+            break;
+          case 'Carpet Area':
+            highlights.carpetArea = value;
+            break;
+          case 'Floor details':
+            highlights.floorDetails = value;
+            break;
+          case 'Facing':
+            highlights.facing = value;
+            break;
+          case 'Servant Room':
+            highlights.servantRoom = value;
+            break;
+          case 'RERA ID':
+            highlights.reraId = value;
+            break;
+          case 'Age of Property':
+            highlights.ageOfProperty = value;
+            break;
+        }
+      }
+    });
+  }
+
+  return { highlights, cleanDescription };
+}
 
 interface PropertyDetailContentProps {
   property: Property
@@ -48,7 +171,73 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
   const [interestRate, setInterestRate] = useState(8.5) // default 8.5%
   const [tenureYears, setTenureYears] = useState(20) // default 20 years
 
-  const { isAuthenticated, user } = useAuthStore()
+  const router = useRouter()
+
+  // Search header state
+  const [search, setSearch] = useState('')
+  const [selectedCity, setSelectedCity] = useState('')
+  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false)
+  const [citySearchQuery, setCitySearchQuery] = useState('')
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+
+  // Auth store
+  const { isAuthenticated, user, token, logout } = useAuthStore()
+  const showSellerDashboard = isAuthenticated && hasSellerDashboardAccess(user)
+  const sellerDashboardHref = token ? `${SELLER_URL}/login?token=${token}` : `${SELLER_URL}/login`
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (isCityDropdownOpen && !target.closest('.city-dropdown-container')) {
+        setIsCityDropdownOpen(false)
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isCityDropdownOpen]);
+
+  const handleLogout = () => {
+    logout()
+    setProfileDropdownOpen(false)
+    router.push('/login')
+  }
+
+  const handleCitySelect = (city: string) => {
+    setSelectedCity(city)
+    setIsCityDropdownOpen(false)
+    setCitySearchQuery('')
+    const params = new URLSearchParams()
+    if (city) params.set('city', city)
+    if (search) params.set('search', search)
+    router.push(`/properties?${params.toString()}`)
+  }
+
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    const params = new URLSearchParams()
+    if (selectedCity) params.set('city', selectedCity)
+    if (search) params.set('search', search)
+    router.push(`/properties?${params.toString()}`)
+  }
+
+  // Parse Property Highlights from description
+  const { highlights, cleanDescription } = useMemo(() => {
+    return parsePropertyHighlights(property.description)
+  }, [property.description])
+
+  // Derived metadata display values
+  const bedroomsVal = highlights.bhk || (property.bedrooms ? `${property.bedrooms} BHK` : '3 BHK')
+  const bathroomsVal = highlights.bathrooms ? `${highlights.bathrooms} Baths` : (property.bathrooms ? `${property.bathrooms} Baths` : '3 Baths')
+  const areaVal = highlights.carpetArea || (property.area ? `${formatNumber(property.area)} Sq.Ft.` : 'N/A')
+  const areaLabel = highlights.carpetArea ? 'Carpet Area' : 'Super Area'
+  const facingVal = highlights.facing ? `${highlights.facing} Facing` : 'East Facing'
+  const possessionVal = property.listingType === 'RENT'
+    ? (highlights.availableFrom ? `From ${highlights.availableFrom}` : 'Immediately')
+    : (highlights.constructionStatus || 'Ready To Move')
+  const ageVal = highlights.ageOfProperty
+    ? highlights.ageOfProperty
+    : (property.yearBuilt ? `${new Date().getFullYear() - property.yearBuilt} Years` : 'Newly Built')
   const [inquiryForm, setInquiryForm] = useState({
     name: '',
     email: '',
@@ -226,11 +415,241 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     [property]
   )
 
+  const filteredTopCities = useMemo(() => {
+    return topCities.filter(city =>
+      city.toLowerCase().includes(citySearchQuery.toLowerCase())
+    )
+  }, [citySearchQuery])
+
+  const filteredOtherCities = useMemo(() => {
+    return otherCities.filter(city =>
+      city.toLowerCase().includes(citySearchQuery.toLowerCase())
+    )
+  }, [citySearchQuery])
+
   return (
     <div className="min-h-screen bg-slate-50">
 
+      {/* Properties search bar — same on phone & desktop (responsive website) */}
+      <div className="flex bg-[#0a2540] text-white py-2 px-3 sm:px-4 md:px-6 flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-5 fixed top-0 left-0 right-0 z-50 shadow-md">
+
+        {/* Logo and Location Selector */}
+        <div className="flex items-center gap-2 sm:gap-4 md:border-r border-white/20 md:pr-4 shrink-0 pb-2 md:pb-0 border-b border-white/15 md:border-b-0">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="relative h-7 w-7 rounded overflow-hidden flex items-center justify-center bg-white shadow-sm">
+              <img src={BRAND_LOGO_SRC} alt="Kanharaj Logo" className="h-full w-full object-cover" />
+            </div>
+            <span className="font-heading text-lg font-black tracking-tighter text-white flex items-baseline">
+              KANHARAJ<span className="text-[9px] font-extrabold ml-0.5 opacity-85">.COM</span>
+            </span>
+          </Link>
+          <div className="w-px h-6 bg-white/20 mx-1" />
+          <div className="relative city-dropdown-container">
+            <button
+              type="button"
+              onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+              className="flex items-center gap-1 text-xs sm:text-sm font-semibold cursor-pointer hover:text-white/80 transition whitespace-nowrap max-w-[140px] sm:max-w-none truncate"
+            >
+              <MapPin className="w-4 h-4 opacity-80" />
+              {property.listingType === 'RENT' ? 'Rent In' : 'Buy In'} {selectedCity || 'All Cities'}
+              <ChevronDown className={cn("w-4 h-4 opacity-70 transition-transform", isCityDropdownOpen && "rotate-180")} />
+            </button>
+
+            <AnimatePresence>
+              {isCityDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute left-0 top-full mt-2 w-[min(18rem,calc(100vw-1.5rem))] sm:w-72 max-h-[70vh] sm:max-h-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-[60] flex flex-col overflow-hidden text-slate-800"
+                >
+                  <div className="p-2 border-b border-slate-100 flex items-center bg-slate-50 gap-1.5 shrink-0">
+                    <Search className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                    <input
+                      type="text"
+                      value={citySearchQuery}
+                      onChange={(e) => setCitySearchQuery(e.target.value)}
+                      placeholder="Search city..."
+                      className="w-full bg-transparent focus:outline-none text-xs text-slate-800 font-bold placeholder:text-slate-400 h-6 border-0 p-0"
+                      autoFocus
+                    />
+                    {citySearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setCitySearchQuery('')}
+                        className="text-[9px] text-[#0a2540] hover:text-[#07192c] font-black px-1"
+                      >
+                        CLEAR
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto max-h-60 py-1.5 text-left">
+                    <button
+                      type="button"
+                      onClick={() => handleCitySelect('')}
+                      className={cn(
+                        "w-full text-left px-3 py-2 text-xs font-bold transition-colors flex items-center justify-between border-b border-slate-100 mb-1",
+                        !selectedCity
+                          ? "bg-[#0a2540]/5 text-[#0a2540]"
+                          : "text-slate-700 hover:bg-slate-50"
+                      )}
+                    >
+                      <span>All Cities</span>
+                      {!selectedCity && <span className="text-[10px] font-black">✓</span>}
+                    </button>
+                    {filteredTopCities.length === 0 && filteredOtherCities.length === 0 ? (
+                      <div className="px-4 py-3 text-xs font-semibold text-slate-400 text-center">
+                        No cities found
+                      </div>
+                    ) : (
+                      <>
+                        {filteredTopCities.length > 0 && (
+                          <div>
+                            <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                              Top Cities
+                            </div>
+                            {filteredTopCities.map((city) => (
+                              <button
+                                key={city}
+                                type="button"
+                                onClick={() => handleCitySelect(city)}
+                                className={cn(
+                                  "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
+                                  selectedCity === city
+                                    ? "bg-[#0a2540]/5 text-[#0a2540]"
+                                    : "text-slate-700 hover:bg-slate-50"
+                                )}
+                              >
+                                <span>{city}</span>
+                                {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {filteredOtherCities.length > 0 && (
+                          <div className="mt-1">
+                            <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                              Other Cities
+                            </div>
+                            {filteredOtherCities.map((city) => (
+                              <button
+                                key={city}
+                                type="button"
+                                onClick={() => handleCitySelect(city)}
+                                className={cn(
+                                  "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
+                                  selectedCity === city
+                                    ? "bg-[#0a2540]/5 text-[#0a2540]"
+                                    : "text-slate-700 hover:bg-slate-50"
+                                )}
+                              >
+                                <span>{city}</span>
+                                {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <form onSubmit={handleSearchSubmit} className="flex-1 w-full min-w-0 max-w-[800px] relative order-3 md:order-none">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#0a2540]" />
+          <Input
+            placeholder="Enter Locality, Landmark, Project or builder"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="bg-white border-0 text-slate-900 placeholder:text-slate-400 rounded-md h-[42px] pl-10 focus-visible:ring-0 shadow-inner w-full focus:outline-none"
+          />
+        </form>
+
+        {/* Right Actions */}
+        <div className="flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-wrap">
+          <a href="tel:+919599801767" className="text-xs sm:text-sm font-bold flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded transition whitespace-nowrap">
+            <Phone className="w-4 h-4" /> Contact
+          </a>
+
+          {showSellerDashboard && (
+            <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
+              <Button className="bg-[#00D289] hover:bg-[#00c07d] text-white font-bold rounded shadow-none h-9 px-5 whitespace-nowrap cursor-pointer">
+                Dashboard
+              </Button>
+            </a>
+          )}
+
+          {/* Profile Menu Dropdown */}
+          <div className="relative profile-menu-container">
+            <button
+              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+              className="flex items-center gap-2 bg-white rounded-full p-1 pl-3 shadow-sm hover:bg-slate-50 transition border border-slate-200 ml-1 cursor-pointer focus:outline-none"
+            >
+              <Menu className="w-4 h-4 text-slate-700" />
+              <div className="w-7 h-7 rounded-full bg-[#0a2540] flex items-center justify-center text-white text-[11px] font-black overflow-hidden shrink-0">
+                {isAuthenticated && user?.profileImage ? (
+                  <img src={user.profileImage} alt={user.name || "User"} className="w-full h-full object-cover" />
+                ) : isAuthenticated ? (
+                  user?.name?.charAt(0).toUpperCase()
+                ) : (
+                  <User className="w-4 h-4" />
+                )}
+              </div>
+            </button>
+
+            {profileDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setProfileDropdownOpen(false)} />
+                <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 shadow-xl rounded-xl py-1.5 z-50 overflow-hidden text-slate-800">
+                  {isAuthenticated ? (
+                    <>
+                      <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
+                        <p className="text-xs font-black text-slate-800 truncate">{user?.name || "User Account"}</p>
+                        <p className="text-[10px] text-slate-400 truncate mt-0.5">{user?.email}</p>
+                      </div>
+                      <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                        <User className="w-3.5 h-3.5 text-slate-400" /> My Profile
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          handleLogout()
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-rose-600 hover:bg-slate-50 border-t border-slate-100 transition-colors text-left cursor-pointer"
+                      >
+                        <LogOut className="w-3.5 h-3.5" /> Log Out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
+                        <p className="text-xs font-black text-slate-800">Welcome to Kanharaj</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Login to access dashboard & profile</p>
+                      </div>
+                      <Link href="/login" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                        <User className="w-3.5 h-3.5 text-slate-400" /> Log In / Register
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+      </div>
+
       {/* Top Breadcrumb & Actions Bar */}
-      <div className="bg-white border-b border-slate-200 py-3 sticky top-0 z-30 shadow-sm">
+      <div className="bg-white border-b border-slate-200 py-3 relative z-30 shadow-sm mt-12 md:mt-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
 
           {/* Breadcrumb Links */}
@@ -443,7 +862,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Bedrooms</span>
-                    <span className="text-sm font-bold text-slate-800">{property.bedrooms} BHK</span>
+                    <span className="text-sm font-bold text-slate-800">{bedroomsVal}</span>
                   </div>
                 </div>
 
@@ -453,7 +872,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Bathrooms</span>
-                    <span className="text-sm font-bold text-slate-800">{property.bathrooms} Baths</span>
+                    <span className="text-sm font-bold text-slate-800">{bathroomsVal}</span>
                   </div>
                 </div>
 
@@ -462,8 +881,8 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     <Maximize className="h-5 w-5" />
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Super Area</span>
-                    <span className="text-sm font-bold text-slate-800">{formatNumber(property.area)} Sq.Ft.</span>
+                    <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">{areaLabel}</span>
+                    <span className="text-sm font-bold text-slate-800">{areaVal}</span>
                   </div>
                 </div>
 
@@ -473,7 +892,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Facing Direction</span>
-                    <span className="text-sm font-bold text-slate-800">East Facing</span>
+                    <span className="text-sm font-bold text-slate-800">{facingVal}</span>
                   </div>
                 </div>
 
@@ -483,7 +902,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Possession Status</span>
-                    <span className="text-sm font-bold text-slate-800">Ready To Move</span>
+                    <span className="text-sm font-bold text-slate-800">{possessionVal}</span>
                   </div>
                 </div>
 
@@ -493,7 +912,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Property Age</span>
-                    <span className="text-sm font-bold text-slate-800">{property.yearBuilt ? `${new Date().getFullYear() - property.yearBuilt} Years` : 'Newly Built'}</span>
+                    <span className="text-sm font-bold text-slate-800">{ageVal}</span>
                   </div>
                 </div>
 
@@ -504,20 +923,90 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3.5 text-sm font-semibold">
                   <div className="flex justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-500">Floor Number</span>
-                    <span className="text-slate-800">2nd of 4 floors</span>
+                    <span className="text-slate-800">{highlights.floorDetails || '2nd of 4 floors'}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-500">Furnishing Status</span>
-                    <span className="text-slate-800">Semi-Furnished</span>
+                    <span className="text-slate-800">{highlights.furnishType || 'Semi-Furnished'}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-500">Car Parking Space</span>
-                    <span className="text-slate-800">1 Covered Parking</span>
+                    <span className="text-slate-800">
+                      {highlights.coveredParking || highlights.openParking
+                        ? `${highlights.coveredParking || '0'} Covered, ${highlights.openParking || '0'} Open`
+                        : '1 Covered Parking'}
+                    </span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-500">Water Supply</span>
                     <span className="text-slate-800">24 Hours Guaranteed</span>
                   </div>
+                  {highlights.transactionType && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Transaction Type</span>
+                      <span className="text-slate-800">{highlights.transactionType}</span>
+                    </div>
+                  )}
+                  {highlights.preferredTenant && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Preferred Tenant</span>
+                      <span className="text-slate-800">{highlights.preferredTenant}</span>
+                    </div>
+                  )}
+                  {highlights.petFriendly && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Pet Friendly</span>
+                      <span className="text-slate-800">{highlights.petFriendly}</span>
+                    </div>
+                  )}
+                  {highlights.maintenanceCharges && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Maintenance Charges</span>
+                      <span className="text-slate-800">{highlights.maintenanceCharges}</span>
+                    </div>
+                  )}
+                  {highlights.securityDeposit && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Security Deposit</span>
+                      <span className="text-slate-800">{highlights.securityDeposit}</span>
+                    </div>
+                  )}
+                  {highlights.lockInPeriod && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Lock-in Period</span>
+                      <span className="text-slate-800">{highlights.lockInPeriod}</span>
+                    </div>
+                  )}
+                  {highlights.brokerageCharges && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Brokerage Charges</span>
+                      <span className="text-slate-800">{highlights.brokerageCharges}</span>
+                    </div>
+                  )}
+                  {highlights.servantRoom && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Servant Room</span>
+                      <span className="text-slate-800">{highlights.servantRoom}</span>
+                    </div>
+                  )}
+                  {highlights.reraId && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">RERA ID</span>
+                      <span className="text-slate-800">{highlights.reraId}</span>
+                    </div>
+                  )}
+                  {highlights.balconies && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Balconies</span>
+                      <span className="text-slate-800">{highlights.balconies}</span>
+                    </div>
+                  )}
+                  {highlights.furnishings && highlights.furnishings.length > 0 && (
+                    <div className="flex justify-between py-2 border-b border-slate-100 md:col-span-2">
+                      <span className="text-slate-500">Furnishings Included</span>
+                      <span className="text-slate-800">{highlights.furnishings.join(', ')}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </Card>
@@ -526,141 +1015,8 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
             <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl">
               <h2 className="text-lg font-black text-slate-900 mb-3">Property Description</h2>
               <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line font-medium">
-                {property.description || "No description provided for this listing."}
+                {cleanDescription || "No description provided for this listing."}
               </p>
-            </Card>
-
-            {/* CSS-rendered 2D Schematic Floor Plan Mockup */}
-            <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                  <Building2 className="h-5 w-5 text-indigo-600" />
-                  2D Layout Floor Plan
-                </h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 border-slate-200 text-xs font-bold rounded-lg flex items-center gap-1.5"
-                  onClick={() =>
-                    alert(
-                      floorPlanMeta
-                        ? `We will share the official ${floorPlanMeta.bedrooms} BHK floor plan PDF (${formatNumber(floorPlanMeta.carpetArea)} sq.ft.) for this property shortly.`
-                        : 'Brochure with layout diagrams is being requested.'
-                    )
-                  }
-                >
-                  <Download className="w-3.5 h-3.5" /> Request HD PDF
-                </Button>
-              </div>
-
-              <FloorPlanSchematic property={property} />
-            </Card>
-
-            {/* Live Interactive Home Loan EMI Calculator */}
-            <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl">
-              <h2 className="text-lg font-black text-slate-900 mb-5 flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-emerald-600" />
-                Home Loan EMI Calculator
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-
-                {/* Sliders Input Panel */}
-                <div className="space-y-5">
-
-                  {/* Downpayment Slider */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold">
-                      <span className="text-slate-500">Down Payment ({downPaymentPercent}%)</span>
-                      <span className="text-[#6B46C1]">{formatPrice(emiDetails.downPayment)}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="10"
-                      max="90"
-                      step="5"
-                      value={downPaymentPercent}
-                      onChange={(e) => setDownPaymentPercent(Number(e.target.value))}
-                      className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#6B46C1]"
-                    />
-                  </div>
-
-                  {/* Interest Rate Slider */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold">
-                      <span className="text-slate-500">Interest Rate (p.a.)</span>
-                      <span className="text-[#6B46C1]">{interestRate}%</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="5"
-                      max="15"
-                      step="0.1"
-                      value={interestRate}
-                      onChange={(e) => setInterestRate(Number(e.target.value))}
-                      className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#6B46C1]"
-                    />
-                  </div>
-
-                  {/* Tenure Slider */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold">
-                      <span className="text-slate-500">Loan Tenure</span>
-                      <span className="text-[#6B46C1]">{tenureYears} Years</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="5"
-                      max="30"
-                      step="1"
-                      value={tenureYears}
-                      onChange={(e) => setDownPaymentPercent(Number(e.target.value))}
-                      onChangeCapture={(e) => setTenureYears(Number((e.target as HTMLInputElement).value))}
-                      className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#6B46C1]"
-                    />
-                  </div>
-
-                </div>
-
-                {/* Math Calculation Result Panel */}
-                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 flex flex-col justify-between shadow-inner">
-                  <div className="text-center pb-4 border-b border-slate-200">
-                    <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Estimated Monthly EMI</span>
-                    <span className="text-3xl font-black text-[#6B46C1] mt-1 block">
-                      {formatPrice(emiDetails.monthlyEmi)}<span className="text-xs font-normal text-slate-500">/mo</span>
-                    </span>
-                  </div>
-
-                  <div className="py-4 space-y-2 text-xs font-bold text-slate-600">
-                    <div className="flex justify-between">
-                      <span>Loan Principal</span>
-                      <span>{formatPrice(emiDetails.loanPrincipal)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Interest Payable</span>
-                      <span>{formatPrice(emiDetails.interestPayable)}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-800 pt-2 border-t border-dashed border-slate-200 font-extrabold">
-                      <span>Total Repayment</span>
-                      <span>{formatPrice(emiDetails.totalRepayment)}</span>
-                    </div>
-                  </div>
-
-                  {/* Principal vs Interest color bar */}
-                  <div className="space-y-1">
-                    <div className="flex w-full h-2.5 rounded-full overflow-hidden">
-                      <div className="bg-[#6B46C1]" style={{ width: `${emiDetails.principalPercent}%` }} />
-                      <div className="bg-rose-500" style={{ width: `${emiDetails.interestPercent}%` }} />
-                    </div>
-                    <div className="flex justify-between text-[9px] font-bold text-slate-400 mt-1">
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-[#6B46C1]" /> Principal ({emiDetails.principalPercent.toFixed(0)}%)</span>
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-rose-500" /> Interest ({emiDetails.interestPercent.toFixed(0)}%)</span>
-                    </div>
-                  </div>
-
-                </div>
-
-              </div>
             </Card>
 
             {/* Categorized Amenities section */}

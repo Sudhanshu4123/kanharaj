@@ -94,7 +94,7 @@ export default function RootLayout({
     <html lang="en-IN">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
-        <meta name="theme-color" content="#4a3b1e" />
+        <meta name="theme-color" content="#0a2540" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="Kanharaj Seller" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -125,120 +125,121 @@ export default function RootLayout({
             </div>
           </div>
         ) : (
-          <div className="min-h-screen flex flex-col">
-            {!isLoginPage && (
-              <header className="bg-[#4a3b1e] border-b border-black/20 sticky top-0 z-50 px-4 md:px-8 h-14 flex items-center justify-between shadow-md text-white">
+          <div className={`min-h-screen flex flex-col ${!isLoginPage ? 'pt-14' : ''}`}>
+             {!isLoginPage && (
+              <header className="bg-[#0a2540] border-b border-white/10 fixed top-0 left-0 right-0 z-50 px-4 md:px-8 h-14 flex items-center justify-between shadow-md text-white">
 
-                {/* Left Section: Logo & Navigation */}
-                <div className="flex items-center gap-6">
-                  <Link href="/" className="flex items-center gap-2 select-none">
-                    {/* Yellow house icon - exact match to Housing.com style */}
-                    <div className="w-8 h-8 bg-[#FFC72C] rounded flex items-center justify-center shadow-sm">
-                      <svg viewBox="0 0 24 24" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none">
-                        <path d="M3 10.5L12 3l9 7.5V21H15v-5h-6v5H3V10.5z" fill="#fff" />
-                        <rect x="9" y="14" width="6" height="7" rx="0.5" fill="#FFC72C" />
-                      </svg>
+                {/* Left Section: Logo */}
+                <div className="flex items-center">
+                  <Link href="/" className="flex items-center gap-2.5 select-none">
+                    <div className="relative h-9 w-9 rounded-full overflow-hidden flex items-center justify-center bg-[#0d233a] border border-[#dfa127] shrink-0 shadow-sm">
+                      <img
+                        src="/logo.png"
+                        alt="Kanharaj Logo"
+                        className="h-6 w-6 object-contain"
+                      />
                     </div>
-                    <div className="flex flex-col leading-none">
-                      <span className="font-black text-white tracking-tight text-[15px] leading-none">
-                        KANHARAJ<span className="text-white/60 font-light text-[13px]">.com</span>
-                      </span>
-                      <span className="text-[9px] font-semibold text-white/50 uppercase tracking-widest">Seller</span>
+                    <div className="flex flex-col justify-center leading-none">
+                      <div className="flex items-baseline">
+                        <span className="font-sans font-black text-base text-white tracking-tighter leading-none">KANHARAJ</span>
+                        <span className="text-[9px] font-black text-[#dfa127] ml-0.5 leading-none">.COM</span>
+                      </div>
+                      <span className="text-[8px] font-bold text-white/50 mt-0.5 uppercase tracking-wide whitespace-nowrap">Seller Portal</span>
                     </div>
                   </Link>
+                </div>
 
-                  {/* Desktop Links */}
-                  <nav className="hidden md:flex items-center gap-1 h-14">
-                    {/* Home icon link with label */}
-                    <Link
-                      href="/"
-                      className={`flex items-center gap-1 px-3 h-full border-b-2 transition-all ${pathname === "/"
+                {/* Desktop Links - Centered */}
+                <nav className="hidden md:flex items-center gap-1 h-14 absolute left-1/2 -translate-x-1/2">
+                  {/* Home icon link with label */}
+                  <Link
+                    href="/"
+                    className={`flex items-center gap-1 px-3 h-full border-b-2 transition-all ${pathname === "/"
+                      ? "border-white text-white"
+                      : "border-transparent text-white/60 hover:text-white"}`}
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                    </svg>
+                    <span className="text-sm font-medium">Home</span>
+                  </Link>
+                  <Link
+                    href="/leads"
+                    className={`px-3 h-full flex items-center text-sm font-medium border-b-2 transition-all ${pathname === "/leads"
                         ? "border-white text-white"
-                        : "border-transparent text-white/60 hover:text-white"}`}
-                    >
-                      <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                      </svg>
-                      <span className="text-sm font-medium">Home</span>
-                    </Link>
-                    <Link
-                      href="/leads"
-                      className={`px-3 h-full flex items-center text-sm font-medium border-b-2 transition-all ${pathname === "/leads"
-                          ? "border-white text-white"
-                          : "border-transparent text-white/70 hover:text-white"
-                        }`}
-                    >
-                      Leads
-                    </Link>
-                    <Link
-                      href="/listings"
-                      className={`px-3 h-full flex items-center text-sm font-medium border-b-2 transition-all ${pathname === "/listings"
-                          ? "border-white text-white"
-                          : "border-transparent text-white/70 hover:text-white"
-                        }`}
-                    >
-                      Listings
-                    </Link>
-                    <Link
-                      href="/subscription"
-                      className={`px-3 h-full flex items-center text-sm font-medium border-b-2 transition-all ${pathname === "/subscription"
-                          ? "border-white text-white"
-                          : "border-transparent text-white/70 hover:text-white"
-                        }`}
-                    >
-                      Packages
-                    </Link>
-                    <span className="px-3 h-full flex items-center text-sm font-medium text-white/40 cursor-not-allowed border-b-2 border-transparent">Home Loan</span>
+                        : "border-transparent text-white/70 hover:text-white"
+                      }`}
+                  >
+                    Leads
+                  </Link>
+                  <Link
+                    href="/listings"
+                    className={`px-3 h-full flex items-center text-sm font-medium border-b-2 transition-all ${pathname === "/listings"
+                        ? "border-white text-white"
+                        : "border-transparent text-white/70 hover:text-white"
+                      }`}
+                  >
+                    Listings
+                  </Link>
+                  <Link
+                    href="/subscription"
+                    className={`px-3 h-full flex items-center text-sm font-medium border-b-2 transition-all ${pathname === "/subscription"
+                        ? "border-white text-white"
+                        : "border-transparent text-white/70 hover:text-white"
+                      }`}
+                  >
+                    Packages
+                  </Link>
+                  <span className="px-3 h-full flex items-center text-sm font-medium text-white/40 cursor-not-allowed border-b-2 border-transparent">Home Loan</span>
 
-                    {/* More dropdown */}
-                    <div className="relative group h-full flex items-center">
-                      <button className="px-3 h-full flex items-center text-white/70 hover:text-white text-sm font-medium gap-1 border-b-2 border-transparent focus:outline-none">
-                        More <ChevronDown className="w-3.5 h-3.5" />
-                      </button>
-                      <div className="absolute left-0 top-full hidden group-hover:block w-56 bg-white border border-slate-100 shadow-2xl rounded-xl py-2 z-50 text-slate-800 divide-y divide-slate-50">
-                        {/* Audience Maximizer */}
-                        <div className="pb-1">
-                          <span className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-slate-400 cursor-not-allowed">
-                            <Megaphone className="w-3.5 h-3.5 text-slate-300" />
-                            Audience Maximizer
-                          </span>
-                        </div>
-                        {/* My Profile */}
-                        <div className="py-1">
-                          <Link href="/profile" className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
-                            <User className="w-3.5 h-3.5 text-slate-400" />
-                            My Profile
-                          </Link>
-                          {/* Change Password */}
-                          <Link href="/profile" className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
-                            <Lock className="w-3.5 h-3.5 text-slate-400" />
-                            Change Password
-                          </Link>
-                          {/* Go to Kanharaj.com */}
-                          <a
-                            href={process.env.NEXT_PUBLIC_MAIN_URL || "https://kanharaj.com"}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                            Go to Kanharaj.com
-                          </a>
-                        </div>
-                        {/* Logout */}
-                        <div className="pt-1">
-                          <button
-                            onClick={handleLogout}
-                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors text-left"
-                          >
-                            <LogOut className="w-3.5 h-3.5" />
-                            Logout &gt;
-                          </button>
-                        </div>
+                  {/* More dropdown */}
+                  <div className="relative group h-full flex items-center">
+                    <button className="px-3 h-full flex items-center text-white/70 hover:text-white text-sm font-medium gap-1 border-b-2 border-transparent focus:outline-none">
+                      More <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                    <div className="absolute left-0 top-full hidden group-hover:block w-56 bg-white border border-slate-100 shadow-2xl rounded-xl py-2 z-50 text-slate-800 divide-y divide-slate-50">
+                      {/* Audience Maximizer */}
+                      <div className="pb-1">
+                        <span className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-slate-400 cursor-not-allowed">
+                          <Megaphone className="w-3.5 h-3.5 text-slate-300" />
+                          Audience Maximizer
+                        </span>
+                      </div>
+                      {/* My Profile */}
+                      <div className="py-1">
+                        <Link href="/profile" className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+                          <User className="w-3.5 h-3.5 text-slate-400" />
+                          My Profile
+                        </Link>
+                        {/* Change Password */}
+                        <Link href="/profile" className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+                          <Lock className="w-3.5 h-3.5 text-slate-400" />
+                          Change Password
+                        </Link>
+                        {/* Go to Kanharaj.com */}
+                        <a
+                          href={process.env.NEXT_PUBLIC_MAIN_URL || "https://kanharaj.com"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                          Go to Kanharaj.com
+                        </a>
+                      </div>
+                      {/* Logout */}
+                      <div className="pt-1">
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-[#0a2540] hover:bg-[#0a2540]/5 transition-colors text-left"
+                        >
+                          <LogOut className="w-3.5 h-3.5" />
+                          Logout &gt;
+                        </button>
                       </div>
                     </div>
-                  </nav>
-                </div>
+                  </div>
+                </nav>
 
                 {/* Right Section: Add Property & Profile */}
                 <div className="flex items-center gap-3">
@@ -246,7 +247,7 @@ export default function RootLayout({
                   {/* Add Property Button - purple like screenshot */}
                   <Link
                     href="/listings/add"
-                    className="bg-[#6C4EF2] hover:bg-[#5a3fd4] text-white px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-1.5 transition-all shadow active:scale-95 whitespace-nowrap"
+                    className="bg-[#0a2540] hover:bg-[#07192c] text-white px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-1.5 transition-all shadow active:scale-95 whitespace-nowrap"
                   >
                     <Plus className="w-4 h-4" /> Add Property
                   </Link>
@@ -275,7 +276,7 @@ export default function RootLayout({
                         <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 shadow-xl rounded-xl py-1 z-50 overflow-hidden text-slate-800">
                           <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50">
                             <p className="text-xs font-black text-slate-800 truncate">{user?.name || "Seller Account"}</p>
-                            <p className="text-[9px] text-[#6C4EF2] font-bold uppercase tracking-wider mt-0.5">Verified Builder</p>
+                            <p className="text-[9px] text-[#0a2540] font-bold uppercase tracking-wider mt-0.5">Verified Builder</p>
                           </div>
                           <Link href="/profile" className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
                             <User className="w-3.5 h-3.5 text-slate-400" /> My Profile
@@ -285,7 +286,7 @@ export default function RootLayout({
                           </Link>
                           <button
                             onClick={handleLogout}
-                            className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-rose-600 hover:bg-slate-50 border-t border-slate-100 transition-colors text-left"
+                            className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[#0a2540] hover:bg-slate-50 border-t border-slate-100 transition-colors text-left"
                           >
                             <LogOut className="w-3.5 h-3.5" /> Logout
                           </button>
@@ -315,7 +316,7 @@ export default function RootLayout({
                 <Link href="/profile" className="block py-2 text-sm font-bold text-slate-700 hover:text-[#3b2b85]">Profile Settings</Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left py-2 text-sm font-bold text-rose-600 border-t border-slate-100 mt-2 pt-2 flex items-center gap-2"
+                  className="w-full text-left py-2 text-sm font-bold text-[#0a2540] border-t border-slate-100 mt-2 pt-2 flex items-center gap-2"
                 >
                   <LogOut className="w-4 h-4" /> Logout
                 </button>
