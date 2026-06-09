@@ -25,6 +25,7 @@ import {
   Settings2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { getApiUrl } from "@/lib/auth"
 import {
   attachInquiryCounts,
   computeListingQualityScore,
@@ -283,7 +284,7 @@ export default function ListingsPage() {
 
       try {
         // Fetch active payment status from backend to ensure real-time accuracy
-        const statusRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/status`, {
+        const statusRes = await fetch(`${getApiUrl()}/payments/status`, {
           headers: { "Authorization": `Bearer ${token}` }
         })
         let activePlan = user.subscriptionPlan;
@@ -326,7 +327,7 @@ export default function ListingsPage() {
     setIsDeleting(true)
     const token = localStorage.getItem("seller_token")
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/properties/${deleteConfirmId}`, {
+      const res = await fetch(`${getApiUrl()}/properties/${deleteConfirmId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       })
@@ -345,7 +346,7 @@ export default function ListingsPage() {
 
   const handleEdit = (id: number) => router.push(`/listings/edit/${id}`)
   const handleView = (id: number) =>
-    window.open(`${process.env.NEXT_PUBLIC_MAIN_URL}/property/${id}`, "_blank")
+    window.open(`${process.env.NEXT_PUBLIC_MAIN_URL || "https://kanharaj.com"}/property/${id}`, "_blank")
 
   const resetFilters = () => {
     setSector("Residential"); setService([]); setListingStatus([])

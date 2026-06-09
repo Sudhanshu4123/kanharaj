@@ -31,6 +31,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { getApiUrl } from "@/lib/auth"
 import {
   getSellerAuthHeaders,
   getApiErrorMessage,
@@ -68,7 +69,7 @@ export default function AddPropertyPage() {
       const user = JSON.parse(userData)
       
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/status`, {
+        const res = await fetch(`${getApiUrl()}/payments/status`, {
           headers: { "Authorization": `Bearer ${token}` }
         })
         
@@ -251,7 +252,7 @@ export default function AddPropertyPage() {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/images`, {
+      const res = await fetch(`${getApiUrl()}/upload/images`, {
         method: "POST",
         body: data
       })
@@ -259,7 +260,7 @@ export default function AddPropertyPage() {
       if (result.urls) {
         const absoluteUrls = result.urls.map((url: string) => {
           if (url.startsWith('/api/')) {
-            return `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "")}${url}`
+            return `${getApiUrl()?.replace("/api", "")}${url}`
           }
           return url
         })
@@ -356,7 +357,7 @@ ${formData.description}`
         amenities: formData.amenities,
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/properties`, {
+      const res = await fetch(`${getApiUrl()}/properties`, {
         method: "POST",
         headers: authHeaders,
         body: JSON.stringify(payload)

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import { getApiUrl } from "@/lib/auth"
 import { 
   User, Mail, Phone, Building2, ShieldCheck, 
   CreditCard, Calendar, Clock, ArrowRight, Camera, 
@@ -54,7 +55,7 @@ export default function ProfilePage() {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+      const res = await fetch(`${getApiUrl()}/auth/me`, {
         method: "GET",
         headers: { 
           "Authorization": `Bearer ${token}`,
@@ -66,7 +67,7 @@ export default function ProfilePage() {
         const data = await res.json()
         let merged = { ...data }
         try {
-          const payRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/status`, {
+          const payRes = await fetch(`${getApiUrl()}/payments/status`, {
             headers: { Authorization: `Bearer ${token}` },
           })
           if (payRes.ok) {
@@ -123,7 +124,7 @@ export default function ProfilePage() {
       profileImage:
         patch.profileImage !== undefined ? patch.profileImage : formData.profileImage,
     })
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
+    const res = await fetch(`${getApiUrl()}/users/profile`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

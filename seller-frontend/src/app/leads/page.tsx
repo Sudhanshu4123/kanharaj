@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
+import { getApiUrl } from "@/lib/auth"
 import {
   fetchSellerLeads,
   fetchSellerPaymentStatus,
@@ -136,7 +137,7 @@ function LeadCard({
             )}
             {lead.propertyId && (
               <a
-                href={`${process.env.NEXT_PUBLIC_MAIN_URL || "http://localhost:3000"}/property/${lead.propertyId}`}
+                href={`${process.env.NEXT_PUBLIC_MAIN_URL || "https://kanharaj.com"}/property/${lead.propertyId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-400 hover:text-[#0a2540] transition-colors"
@@ -359,7 +360,7 @@ export default function LeadsPage() {
     const apiStatus = mapLabelToInquiryStatus(label)
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/inquiries/${id}/status?status=${apiStatus}`,
+        `${getApiUrl()}/inquiries/${id}/status?status=${apiStatus}`,
         { method: "PATCH", headers }
       )
       if (res.ok) {

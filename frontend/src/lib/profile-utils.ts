@@ -1,9 +1,10 @@
 /** Profile image URL + API payload helpers */
+import { getApiUrl } from './utils'
 
 export function normalizeProfileImageUrl(url?: string | null): string {
   if (!url || url === 'null') return ''
   if (url.startsWith('http')) return url
-  const apiBase = (process.env.NEXT_PUBLIC_API_URL || '/api').replace(/\/api$/, '')
+  const apiBase = (getApiUrl() || '/api').replace(/\/api$/, '')
   return `${apiBase}${url.startsWith('/') ? '' : '/'}${url}`
 }
 
@@ -31,7 +32,7 @@ export function buildProfileUpdateBody(data: ProfileFormData): Record<string, st
 export async function uploadProfileImage(file: File, token: string): Promise<string> {
   const fd = new FormData()
   fd.append('files', file)
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api'
+  const apiUrl = getApiUrl() || '/api'
   const res = await fetch(`${apiUrl}/upload/images`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },

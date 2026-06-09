@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Plus, ChevronDown, Menu, X, User, LogOut, FileText, Settings, ShieldAlert, Lock, Megaphone, ExternalLink } from "lucide-react"
-import { logoutFromSellerDashboard } from "@/lib/auth"
+import { logoutFromSellerDashboard, getApiUrl } from "@/lib/auth"
 import { normalizeProfileImageUrl } from "@/lib/profile-utils"
 import { MobileNav } from "@/components/mobile-nav"
 
@@ -42,7 +42,7 @@ export default function RootLayout({
       }
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+        const res = await fetch(`${getApiUrl()}/auth/me`, {
           headers: { "Authorization": `Bearer ${token}` }
         })
         if (res.ok) {

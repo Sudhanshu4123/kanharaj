@@ -13,6 +13,7 @@ import {
   X
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { getApiUrl } from "@/lib/auth"
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -98,7 +99,7 @@ export default function SubscriptionPage() {
     setHistoryLoading(true)
     const token = localStorage.getItem("seller_token")
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/history`, {
+      const res = await fetch(`${getApiUrl()}/payments/history`, {
         headers: { "Authorization": `Bearer ${token}` }
       })
       if (res.ok) {
@@ -115,7 +116,7 @@ export default function SubscriptionPage() {
   const fetchStatus = async () => {
     const token = localStorage.getItem("seller_token")
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/status`, {
+      const res = await fetch(`${getApiUrl()}/payments/status`, {
         headers: { "Authorization": `Bearer ${token}` }
       })
       if (res.ok) {
@@ -134,7 +135,7 @@ export default function SubscriptionPage() {
 
     try {
       // 1. Create Order on Backend
-      const orderRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/create-order`, {
+      const orderRes = await fetch(`${getApiUrl()}/payments/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ amount: amount }) // Backend multiplies by 100
@@ -176,7 +177,7 @@ export default function SubscriptionPage() {
         handler: async function (response: any) {
           document.body.style.overflow = 'auto';
           // 3. Verify Payment on Backend
-          const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/verify`, {
+          const verifyRes = await fetch(`${getApiUrl()}/payments/verify`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

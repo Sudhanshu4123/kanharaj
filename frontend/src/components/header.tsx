@@ -12,14 +12,12 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Button } from './ui/button'
-import { cn, hasSellerDashboardAccess, BRAND_LOGO_SRC } from '@/lib/utils'
+import { cn, hasSellerDashboardAccess, BRAND_LOGO_SRC, getSellerUrl } from '@/lib/utils'
 import { useAuthStore } from '@/lib/store'
 import { normalizeProfileImageUrl } from '@/lib/profile-utils'
 import { MyActivityPanel, type ActivityTab } from '@/components/header/my-activity-panel'
 
-const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
-  ? process.env.NEXT_PUBLIC_SELLER_URL
-  : "https://seller.kanharaj.com";
+const SELLER_URL = getSellerUrl();
 
 const buyersMegaData = {
   propertyTypes: [

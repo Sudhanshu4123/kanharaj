@@ -8,7 +8,7 @@ import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Property } from '@/lib/data'
 import { usePropertyStore } from '@/lib/store'
-import { formatPrice, cn } from '@/lib/utils'
+import { formatPrice, cn, getApiUrl } from '@/lib/utils'
 import { ContactSellerModal } from './contact-seller-modal'
 
 interface MobilePropertyCardProps {
@@ -42,7 +42,7 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
     if (!url) return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
     if (url.startsWith('http')) return url;
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || '';
+    const apiUrl = getApiUrl()?.replace(/\/api$/, '') || '';
     return `${apiUrl}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 

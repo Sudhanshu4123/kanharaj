@@ -22,10 +22,9 @@ import { Button } from "@/components/ui/button"
 
 import { useState, useEffect } from "react"
 import { fetchPlatformStats, formatStatCount } from "@/lib/platform-data"
+import { getSellerUrl, getApiUrl } from "@/lib/utils"
 
-const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
-  ? process.env.NEXT_PUBLIC_SELLER_URL
-  : "https://seller.kanharaj.com";
+const SELLER_URL = getSellerUrl();
 
 const plans = [
   {
@@ -149,7 +148,7 @@ export default function ForSellersPage() {
 
     try {
       // 1. Create Order
-      const orderRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/create-order`, {
+      const orderRes = await fetch(`${getApiUrl()}/payments/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ amount: amount })
@@ -182,7 +181,7 @@ export default function ForSellersPage() {
         handler: async function (response: any) {
           // 3. Verify & Upgrade
           try {
-            const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/verify`, {
+            const verifyRes = await fetch(`${getApiUrl()}/payments/verify`, {
               method: "POST",
               headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
               body: JSON.stringify({

@@ -12,7 +12,7 @@ import {
   Briefcase, FileText, ChevronRight, Shield, Mail, Phone, User as UserIcon
 } from 'lucide-react'
 import { normalizeProfileImageUrl, uploadProfileImage } from '@/lib/profile-utils'
-import { hasSellerDashboardAccess } from '@/lib/utils'
+import { hasSellerDashboardAccess, getSellerUrl } from '@/lib/utils'
 
 type TabType = 'activity' | 'edit'
 
@@ -297,7 +297,7 @@ export default function ProfilePage() {
                   <Link
                     href={
                       token
-                        ? `${process.env.NEXT_PUBLIC_SELLER_URL || 'https://seller.kanharaj.com'}/login?token=${token}`
+                        ? `${getSellerUrl()}/login?token=${token}`
                         : '/for-sellers'
                     }
                     target="_blank"

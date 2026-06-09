@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
-import { formatPrice, formatNumber, cn, BRAND_LOGO_SRC, hasSellerDashboardAccess } from '@/lib/utils'
+import { formatPrice, formatNumber, cn, BRAND_LOGO_SRC, hasSellerDashboardAccess, getSellerUrl, getApiUrl } from '@/lib/utils'
 import { useInquiryStore, useAuthStore } from '@/lib/store'
 import { useUserActivityStore } from '@/lib/user-activity-store'
 import { Property } from '@/lib/data'
@@ -27,10 +27,7 @@ import { buildFloorPlanRooms, isResidentialFloorPlan } from '@/lib/floor-plan'
 import { SUPPORT_PHONE } from '@/lib/platform-data'
 import { topCities, otherCities } from '@/components/home/search-bar'
 
-const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
-  ? process.env.NEXT_PUBLIC_SELLER_URL
-  : 'https://seller.kanharaj.com'
-
+const SELLER_URL = getSellerUrl()
 interface ParsedHighlights {
   bhk?: string;
   transactionType?: string;
@@ -71,7 +68,7 @@ function parsePropertyHighlights(description: string): { highlights: ParsedHighl
       if (match) {
         const key = match[1].trim();
         const value = match[2].trim();
-        
+
         switch (key) {
           case 'BHK':
             highlights.bhk = value;
@@ -262,7 +259,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
   useEffect(() => {
     const trackView = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const apiUrl = getApiUrl() || '';
         await fetch(`${apiUrl}/properties/${property.id}/view`, {
           method: 'POST',
         });
@@ -305,7 +302,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
       return url.replace('http://', 'https://');
     }
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || '';
+    const apiUrl = getApiUrl()?.replace(/\/api$/, '') || '';
     return `${apiUrl}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/lib/store'
 import { Building, Loader2 } from 'lucide-react'
+import { getSellerUrl } from '@/lib/utils'
 
 export default function PostPropertyPage() {
   const { token, isAuthenticated, user, refreshUser } = useAuthStore()
@@ -43,16 +44,13 @@ export default function PostPropertyPage() {
       }
 
       // If authorized, perform redirection to the seller dashboard
-      const sellerUrl =
-        (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
-          ? process.env.NEXT_PUBLIC_SELLER_URL
-          : 'https://seller.kanharaj.com'
+      const sellerUrl = getSellerUrl()
 
       const destination = token
         ? `${sellerUrl}/login?token=${token}&redirect=/listings/add`
         : `${sellerUrl}/login`
 
-      window.location.href = destination
+      window.location.replace(destination)
     }
   }, [mounted, isAuthenticated, user, token, router])
 

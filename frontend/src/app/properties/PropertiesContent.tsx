@@ -12,7 +12,7 @@ import { HousingPropertyCard } from '@/components/properties/housing-property-ca
 import { HousingPropertyListSkeleton, PropertiesPageSkeleton } from '@/components/skeletons/property-skeletons'
 import { usePropertyStore, useAuthStore } from '@/lib/store'
 import { countByBedrooms } from '@/lib/platform-data'
-import { cn, hasSellerDashboardAccess, BRAND_LOGO_SRC } from '@/lib/utils'
+import { cn, hasSellerDashboardAccess, BRAND_LOGO_SRC, getSellerUrl } from '@/lib/utils'
 import { useUserActivityStore } from '@/lib/user-activity-store'
 import { topCities, otherCities } from '@/components/home/search-bar'
 
@@ -25,9 +25,7 @@ function formatBudgetLabel(lakh: number) {
   return `${lakh} Lakh`
 }
 
-const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
-  ? process.env.NEXT_PUBLIC_SELLER_URL
-  : 'https://seller.kanharaj.com'
+const SELLER_URL = getSellerUrl()
 
 export default function PropertiesContent() {
   const searchParams = useSearchParams()

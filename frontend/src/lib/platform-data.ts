@@ -1,6 +1,6 @@
 import { API_URL } from './store'
 import { Property } from './data'
-import { formatPrice, formatNumber } from './utils'
+import { formatPrice, formatNumber, getApiUrl } from './utils'
 
 export const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || '9599801767'
 
@@ -27,7 +27,7 @@ export function getPropertyImageUrl(property: Property): string {
   const img = property.images?.[0]
   if (!img) return FALLBACK_IMAGE
   if (img.startsWith('http')) return img
-  const apiBase = (process.env.NEXT_PUBLIC_API_URL || '/api').replace(/\/api$/, '')
+  const apiBase = (getApiUrl() || '/api').replace(/\/api$/, '')
   return `${apiBase}${img.startsWith('/') ? '' : '/'}${img}`
 }
 

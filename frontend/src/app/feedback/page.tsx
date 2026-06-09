@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAuthStore } from "@/lib/store"
+import { getApiUrl } from "@/lib/utils"
 
 const categories = [
   "General Experience",
@@ -51,7 +52,7 @@ export default function FeedbackPage() {
     setError("")
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"}/feedbacks`, {
+      const res = await fetch(`${getApiUrl()}/feedbacks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

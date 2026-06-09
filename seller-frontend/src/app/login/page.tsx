@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Building2, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { getApiUrl } from "@/lib/auth"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -31,7 +32,7 @@ export default function LoginPage() {
 
     const user = localStorage.getItem("seller_user")
     if (user) {
-      router.push(redirectPath)
+      router.replace(redirectPath)
     }
   }, [router])
 
@@ -39,7 +40,7 @@ export default function LoginPage() {
     setLoading(true)
     try {
       // Use the token to fetch user profile data
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+      const res = await fetch(`${getApiUrl()}/auth/me`, {
         headers: { "Authorization": `Bearer ${token}` }
       })
 
@@ -50,9 +51,9 @@ export default function LoginPage() {
         
         // Redirect to subscription page if plan info is present, otherwise requested path
         if (plan) {
-          router.push(`/subscription?plan=${plan}&months=${months}`)
+          router.replace(`/subscription?plan=${plan}&months=${months}`)
         } else {
-          router.push(redirectPath)
+          router.replace(redirectPath)
         }
       } else {
         setError("Automatic login failed. Please sign in manually.")
@@ -111,7 +112,7 @@ export default function LoginPage() {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      const res = await fetch(`${getApiUrl()}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)
@@ -127,7 +128,7 @@ export default function LoginPage() {
           localStorage.setItem("seller_token", data.token)
           const redirectParam = new URLSearchParams(window.location.search).get("redirect")
           const redirectPath = (redirectParam && redirectParam.startsWith("/")) ? redirectParam : "/"
-          router.push(redirectPath)
+          router.replace(redirectPath)
         }
       } else {
         setError(data.message || "Invalid email or password")
@@ -145,7 +146,7 @@ export default function LoginPage() {
     setError("")
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login-verify-otp?email=${encodeURIComponent(form.email)}&otp=${otp}`, {
+      const res = await fetch(`${getApiUrl()}/auth/login-verify-otp?email=${encodeURIComponent(form.email)}&otp=${otp}`, {
         method: "POST"
       })
 
@@ -156,7 +157,7 @@ export default function LoginPage() {
         localStorage.setItem("seller_token", data.token)
         const redirectParam = new URLSearchParams(window.location.search).get("redirect")
         const redirectPath = (redirectParam && redirectParam.startsWith("/")) ? redirectParam : "/"
-        router.push(redirectPath)
+        router.replace(redirectPath)
       } else {
         setError(data.message || "Invalid OTP code")
       }
@@ -295,7 +296,7 @@ export default function LoginPage() {
           <div className="mt-8 pt-8 border-t border-slate-50 text-center">
             <p className="text-sm text-slate-500 font-medium">
               Don't have a seller account?{" "}
-              <Link href={`${process.env.NEXT_PUBLIC_MAIN_URL}/login`} className="text-[#0a2540] font-bold hover:underline">
+              <Link href={`${process.env.NEXT_PUBLIC_MAIN_URL || "https://kanharaj.com"}/login`} className="text-[#0a2540] font-bold hover:underline">
                 Register on Website
               </Link>
             </p>

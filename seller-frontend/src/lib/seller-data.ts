@@ -1,4 +1,5 @@
 /** Real-data helpers for Kanharaj seller dashboard */
+import { getApiUrl } from "./auth"
 
 export const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || '9599801767'
 export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'kanharaj1389@gmail.com'
@@ -50,7 +51,7 @@ const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1560518883-ce09059eeff
 export function normalizeImageUrl(img: string): string {
   if (!img) return FALLBACK_IMAGE
   if (img.startsWith('http')) return img
-  const apiBase = (process.env.NEXT_PUBLIC_API_URL || '/api').replace(/\/api$/, '')
+  const apiBase = (getApiUrl() || '/api').replace(/\/api$/, '')
   return `${apiBase}${img.startsWith('/') ? '' : '/'}${img}`
 }
 
@@ -174,7 +175,7 @@ export function computeConversionRate(leads: number, views: number, listings: nu
 }
 
 export async function fetchSellerPaymentStatus(token: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/status`, {
+  const res = await fetch(`${getApiUrl()}/payments/status`, {
     headers: { Authorization: `Bearer ${token}` },
   })
   if (!res.ok) return null
@@ -182,7 +183,7 @@ export async function fetchSellerPaymentStatus(token: string) {
 }
 
 export async function fetchMyProperties(token: string): Promise<SellerProperty[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/properties/my`, {
+  const res = await fetch(`${getApiUrl()}/properties/my`, {
     headers: { Authorization: `Bearer ${token}` },
   })
   if (!res.ok) return []
@@ -194,7 +195,7 @@ export async function fetchMyProperties(token: string): Promise<SellerProperty[]
 
 export async function fetchSellerLeads(token: string, sellerId: number | string): Promise<SellerLead[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/inquiries/seller`,
+    `${getApiUrl()}/inquiries/seller`,
     { headers: { Authorization: `Bearer ${token}` } }
   )
   if (!res.ok) return []

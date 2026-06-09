@@ -57,3 +57,27 @@ export function hasSellerDashboardAccess(user: User | null | undefined): boolean
 
   return role === 'SELLER'
 }
+
+/** Resolves Seller Dashboard URL dynamically to prevent hardcoded localhost/dev issues in production. */
+export function getSellerUrl(): string {
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname
+    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1' && !hostname.startsWith('192.168.')) {
+      return 'https://seller.kanharaj.com'
+    }
+  }
+  return (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
+    ? process.env.NEXT_PUBLIC_SELLER_URL
+    : 'https://seller.kanharaj.com'
+}
+
+/** Resolves Backend API URL dynamically to prevent hardcoded localhost/dev issues in production. */
+export function getApiUrl(): string {
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname
+    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1' && !hostname.startsWith('192.168.')) {
+      return 'https://kanharaj.com/api'
+    }
+  }
+  return process.env.NEXT_PUBLIC_API_URL || '/api'
+}

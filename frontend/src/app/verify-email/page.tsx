@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { ShieldCheck, XCircle, Loader2, ArrowRight, Building, Mail } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { getApiUrl } from "@/lib/utils"
 
 function VerifyEmailContent() {
   const router = useRouter()
@@ -58,7 +59,7 @@ function VerifyEmailContent() {
 
     setStatus("loading")
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify?token=${otp}`)
+      const res = await fetch(`${getApiUrl()}/auth/verify?token=${otp}`)
       const text = await res.text()
       
       if (res.ok) {
@@ -78,7 +79,7 @@ function VerifyEmailContent() {
     if (!email) return
     setResending(true)
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/resend-otp?email=${encodeURIComponent(email)}`, {
+      const res = await fetch(`${getApiUrl()}/auth/resend-otp?email=${encodeURIComponent(email)}`, {
         method: 'POST'
       })
       if (res.ok) {

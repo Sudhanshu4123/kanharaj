@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { getSellerAuthHeaders, getApiErrorMessage } from "@/lib/utils"
+import { getApiUrl } from "@/lib/auth"
 
 const steps = ["Basic Info", "Location", "Specifications", "Photos"]
 
@@ -53,7 +54,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   useEffect(() => {
     async function fetchProperty() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/properties/${propertyId}`)
+        const res = await fetch(`${getApiUrl()}/properties/${propertyId}`)
         if (res.ok) {
           const data = await res.json()
           setFormData({
@@ -98,7 +99,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/images`, {
+      const res = await fetch(`${getApiUrl()}/upload/images`, {
         method: "POST",
         body: data
       })
@@ -106,7 +107,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       if (result.urls) {
         const absoluteUrls = result.urls.map((url: string) => {
           if (url.startsWith('/api/')) {
-            return `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "")}${url}`
+            return `${getApiUrl()?.replace("/api", "")}${url}`
           }
           return url
         })
@@ -152,7 +153,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         amenities: formData.amenities,
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/properties/${propertyId}`, {
+      const res = await fetch(`${getApiUrl()}/properties/${propertyId}`, {
         method: "PUT",
         headers: authHeaders,
         body: JSON.stringify(payload)

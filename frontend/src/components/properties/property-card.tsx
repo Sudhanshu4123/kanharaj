@@ -10,7 +10,7 @@ import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Property } from '@/lib/data'
 import { usePropertyStore } from '@/lib/store'
-import { formatPrice, formatNumber, cn } from '@/lib/utils'
+import { formatPrice, formatNumber, cn, getApiUrl } from '@/lib/utils'
 import { PropertyCardSkeleton } from '@/components/skeletons/property-skeletons'
 
 interface PropertyCardProps {
@@ -57,7 +57,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
       return url.replace('http://', 'https://');
     }
     
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || '';
+    const apiUrl = getApiUrl()?.replace(/\/api$/, '') || '';
     return `${apiUrl}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 

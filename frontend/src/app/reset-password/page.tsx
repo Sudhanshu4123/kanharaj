@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { Building, Lock, Eye, EyeOff, CheckCircle2, Loader2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { getApiUrl } from '@/lib/utils'
 
 function ResetPasswordContent() {
   const searchParams = useSearchParams()
@@ -39,7 +40,7 @@ function ResetPasswordContent() {
     setError('')
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/reset-password`, {
+      const res = await fetch(`${getApiUrl()}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, newPassword: password })

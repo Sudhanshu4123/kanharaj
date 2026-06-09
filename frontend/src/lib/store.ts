@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { Property, Inquiry, User } from './data'
-import { tryParse } from './utils'
+import { tryParse, getSellerUrl, getApiUrl } from './utils'
 import { buildProfileUpdateBody } from './profile-utils'
 import { useUserActivityStore } from './user-activity-store'
 
@@ -65,7 +65,7 @@ const defaultFilters: PropertyFilters = {
 
 // API Config: Uses /api by default for relative routing in production, 
 // or environment variable if provided.
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
+export const API_URL = getApiUrl()
 
 // Timeout-aware fetch (15 seconds)
 const fetchWithTimeout = (url: string, options: RequestInit = {}, ms = 15000) => {
@@ -358,7 +358,7 @@ export const useAuthStore = create<AuthStore>()(
         set({ user: null, token: null, isAuthenticated: false, users: [] })
         if (typeof window !== 'undefined') {
           useAuthStore.persist.clearStorage()
-          const sellerUrl = process.env.NEXT_PUBLIC_SELLER_URL
+          const sellerUrl = getSellerUrl()
           if (sellerUrl && sellerUrl !== 'undefined') {
             const iframe = document.createElement('iframe')
             iframe.style.display = 'none'
