@@ -27,7 +27,7 @@ function formatBudgetLabel(lakh: number) {
 
 const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
   ? process.env.NEXT_PUBLIC_SELLER_URL
-  : 'http://localhost:3001'
+  : 'https://seller.kanharaj.com'
 
 export default function PropertiesContent() {
   const searchParams = useSearchParams()

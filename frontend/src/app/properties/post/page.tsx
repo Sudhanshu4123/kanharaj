@@ -46,7 +46,7 @@ export default function PostPropertyPage() {
       const sellerUrl =
         (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
           ? process.env.NEXT_PUBLIC_SELLER_URL
-          : 'http://localhost:3001'
+          : 'https://seller.kanharaj.com'
 
       const destination = token
         ? `${sellerUrl}/login?token=${token}&redirect=/listings/add`

@@ -297,7 +297,7 @@ export default function ProfilePage() {
                   <Link
                     href={
                       token
-                        ? `${process.env.NEXT_PUBLIC_SELLER_URL || 'http://localhost:3001'}/login?token=${token}`
+                        ? `${process.env.NEXT_PUBLIC_SELLER_URL || 'https://seller.kanharaj.com'}/login?token=${token}`
                         : '/for-sellers'
                     }
                     target="_blank"

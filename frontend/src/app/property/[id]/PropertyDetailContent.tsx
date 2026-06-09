@@ -29,7 +29,7 @@ import { topCities, otherCities } from '@/components/home/search-bar'
 
 const SELLER_URL = (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
   ? process.env.NEXT_PUBLIC_SELLER_URL
-  : 'http://localhost:3001'
+  : 'https://seller.kanharaj.com'
 
 interface ParsedHighlights {
   bhk?: string;
