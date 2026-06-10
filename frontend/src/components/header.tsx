@@ -1098,71 +1098,71 @@ export function Header() {
                             onNavigate={() => setIsMenuOpen(false)}
                           />
 
-                      {/* Mobile Links List */}
-                      <div className="flex flex-col gap-1 pr-2">
-                        <Link
-                          href="/properties?brokerage=zero"
-                          onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Gem className="h-4 w-4 text-amber-500" />
-                            <span>Zero Brokerage Properties</span>
-                          </div>
-                          <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                        </Link>
+                          {/* Mobile Links List */}
+                          <div className="flex flex-col gap-1 pr-2">
+                            <Link
+                              href="/properties?brokerage=zero"
+                              onClick={() => setIsMenuOpen(false)}
+                              className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Gem className="h-4 w-4 text-amber-500" />
+                                <span>Zero Brokerage Properties</span>
+                              </div>
+                              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                            </Link>
 
-                        <Link
-                          href="/profile?tab=activity&activity=contacted"
-                          onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
-                        >
-                          <div className="flex items-center gap-2">
-                            <CreditCard className="h-4 w-4 text-blue-500" />
-                            <span>My Transactions</span>
-                          </div>
-                          <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                        </Link>
+                            <Link
+                              href="/profile?tab=activity&activity=contacted"
+                              onClick={() => setIsMenuOpen(false)}
+                              className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
+                            >
+                              <div className="flex items-center gap-2">
+                                <CreditCard className="h-4 w-4 text-blue-500" />
+                                <span>My Transactions</span>
+                              </div>
+                              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                            </Link>
 
-                        <Link
-                          href="/feedback"
-                          onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Star className="h-4 w-4 text-yellow-500" />
-                            <div className="flex items-center">
-                              <span>My Reviews</span>
-                              <span className="ml-2 px-1.5 py-0.5 text-[7px] font-black bg-[#ff007f] text-white rounded-full uppercase">NEW</span>
-                            </div>
-                          </div>
-                          <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                        </Link>
+                            <Link
+                              href="/feedback"
+                              onClick={() => setIsMenuOpen(false)}
+                              className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Star className="h-4 w-4 text-yellow-500" />
+                                <div className="flex items-center">
+                                  <span>My Reviews</span>
+                                  <span className="ml-2 px-1.5 py-0.5 text-[7px] font-black bg-[#ff007f] text-white rounded-full uppercase">NEW</span>
+                                </div>
+                              </div>
+                              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                            </Link>
 
-                        <a
-                          href="mailto:kanharaj1389@gmail.com?subject=Unsubscribe%20Alerts"
-                          onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Bell className="h-4 w-4 text-rose-500" />
-                            <span>Unsubscribe Alerts</span>
-                          </div>
-                          <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                        </a>
+                            <a
+                              href="mailto:kanharaj1389@gmail.com?subject=Unsubscribe%20Alerts"
+                              onClick={() => setIsMenuOpen(false)}
+                              className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Bell className="h-4 w-4 text-rose-500" />
+                                <span>Unsubscribe Alerts</span>
+                              </div>
+                              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                            </a>
 
-                        <a
-                          href="mailto:kanharaj1389@gmail.com?subject=Report%20Fraud"
-                          onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
-                        >
-                          <div className="flex items-center gap-2">
-                            <ShieldAlert className="h-4 w-4 text-red-500" />
-                            <span>Report a Fraud</span>
+                            <a
+                              href="mailto:kanharaj1389@gmail.com?subject=Report%20Fraud"
+                              onClick={() => setIsMenuOpen(false)}
+                              className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
+                            >
+                              <div className="flex items-center gap-2">
+                                <ShieldAlert className="h-4 w-4 text-red-500" />
+                                <span>Report a Fraud</span>
+                              </div>
+                              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                            </a>
                           </div>
-                          <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                        </a>
-                      </div>
 
                         </>
                       )}

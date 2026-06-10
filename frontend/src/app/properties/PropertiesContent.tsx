@@ -454,8 +454,10 @@ export default function PropertiesContent() {
   return (
     <div className="min-h-screen bg-[#F5F7FA] -mt-16 sm:-mt-20">
 
-      {/* Properties search bar — same on phone & desktop (responsive website) */}
-      <div className="flex bg-[#0a2540] text-white py-2 px-3 sm:px-4 md:px-6 flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-5 sticky top-0 z-40">
+      {/* Header Container - Fixed to Top */}
+      <div className="fixed top-0 left-0 right-0 z-40">
+        {/* Properties search bar — same on phone & desktop (responsive website) */}
+        <div className="flex bg-[#0a2540] text-white py-2 px-3 sm:px-4 md:px-6 flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-5">
 
         {/* Logo and Location Selector */}
         <div className="flex items-center gap-2 sm:gap-4 md:border-r border-white/20 md:pr-4 shrink-0 pb-2 md:pb-0 border-b border-white/15 md:border-b-0">
@@ -672,7 +674,7 @@ export default function PropertiesContent() {
       </div>
 
       {/* Filter bar — same website UI, scrollable on small screens */}
-      <div className="bg-white border-b border-slate-200 sticky top-[98px] md:top-[58px] z-30 shadow-sm">
+      <div className="bg-white border-b border-slate-200 shadow-sm">
         <div className={cn(
           "max-w-[1400px] mx-auto px-4 md:px-8 py-2 flex items-center gap-3 flex-nowrap lg:flex-wrap",
           activeDropdown ? "overflow-visible" : "overflow-x-auto no-scrollbar"
@@ -904,11 +906,11 @@ export default function PropertiesContent() {
               Reset All
             </button>
           )}
-
         </div>
       </div>
+      </div> {/* Close Header Container */}
 
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-6">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 pt-[210px] sm:pt-[190px] md:pt-[130px] pb-6">
         {/* Breadcrumb and Timestamp */}
         <div className="flex flex-col md:flex-row md:items-center justify-between text-xs text-slate-500 mb-6">
           <div className="mb-2 md:mb-0">
