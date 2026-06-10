@@ -17,7 +17,7 @@ import { useAuthStore } from '@/lib/store'
 import { normalizeProfileImageUrl } from '@/lib/profile-utils'
 import { MyActivityPanel, type ActivityTab } from '@/components/header/my-activity-panel'
 
-const SELLER_URL = getSellerUrl();
+
 
 const buyersMegaData = {
   propertyTypes: [
@@ -185,9 +185,14 @@ export function Header() {
   const [activeActivityTab, setActiveActivityTab] = useState<ActivityTab>('seen')
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [sellerUrl, setSellerUrl] = useState('https://seller.kanharaj.com')
+  useEffect(() => {
+    setSellerUrl(getSellerUrl())
+  }, [])
+
   const { isAuthenticated, user, token, logout, refreshUser } = useAuthStore()
   const showSellerDashboard = isAuthenticated && hasSellerDashboardAccess(user)
-  const sellerDashboardHref = token ? `${SELLER_URL}/login?token=${token}` : `${SELLER_URL}/login`
+  const sellerDashboardHref = token ? `${sellerUrl}/login?token=${token}` : `${sellerUrl}/login`
 
   const handleLogout = () => {
     logout()
@@ -570,14 +575,6 @@ export function Header() {
 
         {mounted && (
           <div className="relative profile-menu-container flex items-center gap-2.5">
-            <button
-              onClick={() => setOpenDropdown(openDropdown === 'user' ? null : 'user')}
-              className="w-11 h-11 rounded-full border border-white/15 bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all shrink-0 shadow-sm"
-              aria-label="Menu"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-
             <button
               onClick={() => setOpenDropdown(openDropdown === 'user' ? null : 'user')}
               className="w-11 h-11 rounded-full bg-[#dfa127] hover:bg-[#c29224] flex items-center justify-center text-white transition-all shrink-0 shadow-sm overflow-hidden"

@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Plus, ChevronDown, Menu, X, User, LogOut, FileText, Settings, ShieldAlert, Lock, Megaphone, ExternalLink } from "lucide-react"
-import { logoutFromSellerDashboard, getApiUrl } from "@/lib/auth"
+import { logoutFromSellerDashboard, getApiUrl, getMainSiteUrl } from "@/lib/auth"
 import { normalizeProfileImageUrl } from "@/lib/profile-utils"
 import { MobileNav } from "@/components/mobile-nav"
 
@@ -93,11 +93,17 @@ export default function RootLayout({
   return (
     <html lang="en-IN">
       <head>
+        <title>Post Your Property for Sale or Rent Online | Kanharaj Seller Dashboard</title>
+        <meta name="description" content="Post your property for sale or rent online on Kanharaj Seller Portal. Reach verified buyers and tenants with zero brokerage." />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
         <meta name="theme-color" content="#0a2540" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="Kanharaj Seller" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="icon" href="/favicon.ico?v=5" sizes="any" />
+        <link rel="icon" href="/favicon-32x32.png?v=5" type="image/png" sizes="32x32" />
+        <link rel="icon" href="/icon.png?v=5" type="image/png" sizes="512x512" />
+        <link rel="apple-touch-icon" href="/apple-icon.png?v=5" />
         {/* Google Tag Manager */}
         <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -218,7 +224,7 @@ export default function RootLayout({
                         </Link>
                         {/* Go to Kanharaj.com */}
                         <a
-                          href={process.env.NEXT_PUBLIC_MAIN_URL || "https://kanharaj.com"}
+                          href={getMainSiteUrl()}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"

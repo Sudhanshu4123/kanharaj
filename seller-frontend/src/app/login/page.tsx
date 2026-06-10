@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Building2, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { getApiUrl } from "@/lib/auth"
+import { getApiUrl, getMainSiteUrl } from "@/lib/auth"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -296,7 +296,7 @@ export default function LoginPage() {
           <div className="mt-8 pt-8 border-t border-slate-50 text-center">
             <p className="text-sm text-slate-500 font-medium">
               Don't have a seller account?{" "}
-              <Link href={`${process.env.NEXT_PUBLIC_MAIN_URL || "https://kanharaj.com"}/login`} className="text-[#0a2540] font-bold hover:underline">
+              <Link href={`${getMainSiteUrl()}/login`} className="text-[#0a2540] font-bold hover:underline">
                 Register on Website
               </Link>
             </p>

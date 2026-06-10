@@ -98,9 +98,12 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       data.append("files", files[i])
     }
 
+    const token = localStorage.getItem("seller_token")
+
     try {
       const res = await fetch(`${getApiUrl()}/upload/images`, {
         method: "POST",
+        headers: token ? { "Authorization": `Bearer ${token}` } : {},
         body: data
       })
       const result = await res.json()

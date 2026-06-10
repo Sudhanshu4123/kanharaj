@@ -63,9 +63,12 @@ const defaultFilters: PropertyFilters = {
   search: '',
 }
 
-// API Config: Uses /api by default for relative routing in production, 
-// or environment variable if provided.
+// API Config: dynamically resolved per-call so browser always uses relative /api path
+// (which is proxied by Next.js rewrites to the backend).
 export const API_URL = getApiUrl()
+
+// Dynamic resolver - use this inside async functions for correct browser/SSR handling
+function resolveApiUrl(): string { return getApiUrl() }
 
 // Timeout-aware fetch (15 seconds)
 const fetchWithTimeout = (url: string, options: RequestInit = {}, ms = 15000) => {
@@ -119,6 +122,24 @@ const transformToApi = (prop: Partial<Property>) => ({
   status: prop.status?.toUpperCase(),
 })
 
+const isPropertyTypeMatch = (filterType: string, propType: string): boolean => {
+  if (!filterType || !propType) return false;
+  const f = filterType.toUpperCase().replace(/[\s+]+/g, '_');
+  const p = propType.toUpperCase().replace(/[\s+]+/g, '_');
+  
+  if (f === p) return true;
+  
+  const mapType = (type: string) => {
+    if (type === 'INDEPENDENT_HOUSE') return 'HOUSE';
+    if (type === 'INDEPENDENT_FLOOR' || type === 'BUILDER_FLOOR') return 'BUILDER_FLOOR';
+    if (type === 'PLOTS/LAND' || type === 'AGRICULTURAL_LAND' || type === 'PLOT') return 'PLOT';
+    if (type === 'PENTHOUSE' || type === 'DUPLEX' || type === 'STUDIO' || type === 'APARTMENT' || type === 'FLAT') return 'APARTMENT';
+    return type;
+  }
+  
+  return mapType(f) === mapType(p);
+}
+
 export const usePropertyStore = create<PropertyStore>()(
   persist(
     (set, get) => ({
@@ -142,7 +163,7 @@ export const usePropertyStore = create<PropertyStore>()(
         const { properties, filters } = get()
         return properties.filter((property) => {
           if (filters.listingType !== 'all' && property.listingType !== filters.listingType) return false
-          if (filters.propertyType.length > 0 && !filters.propertyType.some(t => t.toLowerCase() === property.propertyType?.toLowerCase())) return false
+          if (filters.propertyType.length > 0 && !filters.propertyType.some(t => isPropertyTypeMatch(t, property.propertyType || ''))) return false
           if (property.price < filters.priceMin || property.price > filters.priceMax) return false
           if (filters.bedrooms.length > 0 && !filters.bedrooms.includes(property.bedrooms)) return false
           if (filters.bathrooms.length > 0 && !filters.bathrooms.includes(property.bathrooms)) return false
@@ -183,12 +204,16 @@ export const usePropertyStore = create<PropertyStore>()(
       setLoading: (loading) => set({ loading }),
 
       fetchProperties: async (pageSize = 36) => {
+        // Always show loading spinner on first load; for refreshes keep showing stale data
         if (get().properties.length === 0) {
           set({ loading: true })
         }
         
         try {
-          const res = await fetchWithTimeout(`${API_URL}/properties?size=${pageSize}`)
+          const apiUrl = resolveApiUrl()
+          const res = await fetchWithTimeout(`${apiUrl}/properties?size=${pageSize}&t=${Date.now()}`, {
+            cache: 'no-store'
+          })
           const data = await res.json()
           const list = data.content ?? (Array.isArray(data) ? data : null)
           if (list) {
@@ -204,8 +229,10 @@ export const usePropertyStore = create<PropertyStore>()(
       fetchMyProperties: async (token: string) => {
         set({ loading: true })
         try {
-          const res = await fetchWithTimeout(`${API_URL}/properties/my`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+          const apiUrl = resolveApiUrl()
+          const res = await fetchWithTimeout(`${apiUrl}/properties/my`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+            cache: 'no-store'
           })
           if (!res.ok) throw new Error('Failed to fetch my properties')
           const data = await res.json()
@@ -223,7 +250,8 @@ export const usePropertyStore = create<PropertyStore>()(
 
       createProperty: async (prop, token) => {
         try {
-          const res = await fetchWithTimeout(`${API_URL}/properties`, {
+          const apiUrl = resolveApiUrl()
+          const res = await fetchWithTimeout(`${apiUrl}/properties`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -256,7 +284,8 @@ export const usePropertyStore = create<PropertyStore>()(
 
       updateProperty: async (id, prop, token) => {
         try {
-          const res = await fetchWithTimeout(`${API_URL}/properties/${id}`, {
+          const apiUrl = resolveApiUrl()
+          const res = await fetchWithTimeout(`${apiUrl}/properties/${id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -281,7 +310,8 @@ export const usePropertyStore = create<PropertyStore>()(
 
       deleteProperty: async (id, token) => {
         try {
-          const res = await fetchWithTimeout(`${API_URL}/properties/${id}`, {
+          const apiUrl = resolveApiUrl()
+          const res = await fetchWithTimeout(`${apiUrl}/properties/${id}`, {
             method: 'DELETE',
             ...(token ? { headers: { 'Authorization': `Bearer ${token}` } } : {})
           })
@@ -434,7 +464,8 @@ export const useAuthStore = create<AuthStore>()(
       fetchUsers: async (token) => {
         try {
           const res = await fetchWithTimeout(`${API_URL}/admin/users`, {
-            headers: { ...(token ? { 'Authorization': `Bearer ${token}` } : {}) }
+            headers: { ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
+            cache: 'no-store'
           })
           if (!res.ok) throw new Error('Failed to fetch users')
           const data = await res.json()
@@ -471,7 +502,8 @@ export const useInquiryStore = create<InquiryStore>((set, get) => ({
     set({ loading: true })
     try {
       const res = await fetchWithTimeout(`${API_URL}/inquiries`, {
-        headers: { ...(token ? { 'Authorization': `Bearer ${token}` } : {}) }
+        headers: { ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
+        cache: 'no-store'
       })
       if (!res.ok) throw new Error('Failed to fetch inquiries')
       const data = await res.json()

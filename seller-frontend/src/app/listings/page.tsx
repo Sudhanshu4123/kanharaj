@@ -25,7 +25,7 @@ import {
   Settings2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { getApiUrl } from "@/lib/auth"
+import { getApiUrl, getMainSiteUrl } from "@/lib/auth"
 import {
   attachInquiryCounts,
   computeListingQualityScore,
@@ -346,7 +346,7 @@ export default function ListingsPage() {
 
   const handleEdit = (id: number) => router.push(`/listings/edit/${id}`)
   const handleView = (id: number) =>
-    window.open(`${process.env.NEXT_PUBLIC_MAIN_URL || "https://kanharaj.com"}/property/${id}`, "_blank")
+    window.open(`${getMainSiteUrl()}/property/${id}`, "_blank")
 
   const resetFilters = () => {
     setSector("Residential"); setService([]); setListingStatus([])

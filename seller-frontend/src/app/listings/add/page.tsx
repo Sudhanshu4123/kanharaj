@@ -251,16 +251,26 @@ export default function AddPropertyPage() {
       data.append("files", files[i])
     }
 
+    const token = localStorage.getItem("seller_token")
+
     try {
       const res = await fetch(`${getApiUrl()}/upload/images`, {
         method: "POST",
+        headers: token ? { "Authorization": `Bearer ${token}` } : {},
         body: data
       })
       const result = await res.json()
       if (result.urls) {
+        const apiBase = getApiUrl()
         const absoluteUrls = result.urls.map((url: string) => {
-          if (url.startsWith('/api/')) {
-            return `${getApiUrl()?.replace("/api", "")}${url}`
+          if (url.startsWith('http')) return url // Already absolute (Cloudinary etc.)
+          if (url.startsWith('/api/') || url.startsWith('/uploads/')) {
+            // Relative URL: prefix with origin only if apiBase is absolute
+            if (apiBase && apiBase.startsWith('http')) {
+              const origin = apiBase.replace(/\/api$/, '')
+              return `${origin}${url}`
+            }
+            return url // Keep relative — Next.js proxy handles it
           }
           return url
         })

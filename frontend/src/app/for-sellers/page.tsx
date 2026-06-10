@@ -24,7 +24,7 @@ import { useState, useEffect } from "react"
 import { fetchPlatformStats, formatStatCount } from "@/lib/platform-data"
 import { getSellerUrl, getApiUrl } from "@/lib/utils"
 
-const SELLER_URL = getSellerUrl();
+
 
 const plans = [
   {
@@ -121,6 +121,10 @@ const loadRazorpayScript = () => {
 };
 
 export default function ForSellersPage() {
+  const [sellerUrl, setSellerUrl] = useState('https://seller.kanharaj.com')
+  useEffect(() => {
+    setSellerUrl(getSellerUrl())
+  }, [])
   const [months, setMonths] = useState(1)
   const [loading, setLoading] = useState(false)
   const [platformStats, setPlatformStats] = useState({ buyers: 0, sellers: 0 })
@@ -204,7 +208,7 @@ export default function ForSellersPage() {
             await verifyRes.json()
             await refreshUser()
             alert("Payment Successful! Welcome to Seller Hub.")
-            window.location.href = `${SELLER_URL}/login?token=${token}`
+            window.location.href = `${sellerUrl}/login?token=${token}`
           } catch (err) {
             alert("Verification connection failed. Please contact support.")
           }
@@ -226,7 +230,7 @@ export default function ForSellersPage() {
 
   // Define the dashboard link generator (still kept for general navigation)
   const getDashboardLink = (planId: string) => {
-    const baseUrl = `${SELLER_URL}/login`
+    const baseUrl = `${sellerUrl}/login`
     if (!isAuthenticated) return "/login?redirect=/for-sellers"
     return `${baseUrl}?token=${token}`
   }
@@ -257,12 +261,12 @@ export default function ForSellersPage() {
                 Join India's most trusted property portal and connect with verified buyers directly. Whether you're an owner or an agent, we have the right tools for you.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href={`${SELLER_URL}/login`}>
+                <Link href={`${sellerUrl}/login`}>
                   <Button size="lg" className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-8 h-14 rounded-2xl shadow-xl shadow-rose-600/20">
                     Post Property Now
                   </Button>
                 </Link>
-                <Link href={`${SELLER_URL}/login`}>
+                <Link href={`${sellerUrl}/login`}>
                   <Button variant="outline" size="lg" className="border-slate-200 text-slate-700 font-bold px-8 h-14 rounded-2xl bg-white hover:bg-slate-50">
                     <PlayCircle className="mr-2 h-5 w-5 text-rose-600" /> Seller Dashboard
                   </Button>
@@ -494,7 +498,7 @@ export default function ForSellersPage() {
                 Join thousands of successful sellers in Dwarka and start getting quality leads today.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href={`${SELLER_URL}/login`}>
+                <Link href={`${sellerUrl}/login`}>
                   <Button size="lg" className="bg-rose-600 hover:bg-rose-700 text-white font-bold h-16 px-10 rounded-2xl text-xl shadow-2xl shadow-rose-600/20">
                     Start Selling Now
                   </Button>

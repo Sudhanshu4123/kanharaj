@@ -73,7 +73,8 @@ public class Property {
 
     private BigDecimal longitude;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
+    @Builder.Default
     private Integer views = 0;
 
     @Enumerated(EnumType.STRING)
@@ -81,6 +82,7 @@ public class Property {
     private Status status;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean featured = false;
 
     @ManyToOne(fetch = FetchType.LAZY)

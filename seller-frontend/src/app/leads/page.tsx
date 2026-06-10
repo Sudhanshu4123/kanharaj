@@ -20,7 +20,7 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
-import { getApiUrl } from "@/lib/auth"
+import { getApiUrl, getMainSiteUrl } from "@/lib/auth"
 import {
   fetchSellerLeads,
   fetchSellerPaymentStatus,
@@ -137,7 +137,7 @@ function LeadCard({
             )}
             {lead.propertyId && (
               <a
-                href={`${process.env.NEXT_PUBLIC_MAIN_URL || "https://kanharaj.com"}/property/${lead.propertyId}`}
+                href={`${getMainSiteUrl()}/property/${lead.propertyId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-400 hover:text-[#0a2540] transition-colors"

@@ -51,8 +51,12 @@ const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1560518883-ce09059eeff
 export function normalizeImageUrl(img: string): string {
   if (!img) return FALLBACK_IMAGE
   if (img.startsWith('http')) return img
-  const apiBase = (getApiUrl() || '/api').replace(/\/api$/, '')
-  return `${apiBase}${img.startsWith('/') ? '' : '/'}${img}`
+  // If img is already relative (e.g. /api/uploads/...) keep it as-is;
+  // Next.js proxy will route it to the backend.
+  const apiBase = getApiUrl()
+  if (!apiBase || !apiBase.startsWith('http')) return img
+  const origin = apiBase.replace(/\/api$/, '')
+  return `${origin}${img.startsWith('/') ? '' : '/'}${img}`
 }
 
 export function normalizeSellerProperty(raw: Record<string, unknown>): SellerProperty {

@@ -25,7 +25,7 @@ function formatBudgetLabel(lakh: number) {
   return `${lakh} Lakh`
 }
 
-const SELLER_URL = getSellerUrl()
+
 
 export default function PropertiesContent() {
   const searchParams = useSearchParams()
@@ -42,9 +42,14 @@ export default function PropertiesContent() {
 
   // Profile dropdown and Auth store
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+  const [sellerUrl, setSellerUrl] = useState('https://seller.kanharaj.com')
+  useEffect(() => {
+    setSellerUrl(getSellerUrl())
+  }, [])
+
   const { isAuthenticated, user, token, logout } = useAuthStore()
   const showSellerDashboard = isAuthenticated && hasSellerDashboardAccess(user)
-  const sellerDashboardHref = token ? `${SELLER_URL}/login?token=${token}` : `${SELLER_URL}/login`
+  const sellerDashboardHref = token ? `${sellerUrl}/login?token=${token}` : `${sellerUrl}/login`
 
   const handleLogout = () => {
     logout()
@@ -253,13 +258,19 @@ export default function PropertiesContent() {
     const listing = searchParams.get('listing')?.toUpperCase()
     const urlBhk = searchParams.get('bhk')
 
-    if (urlSearch) setSearch(urlSearch)
+    setSearch(urlSearch)
 
-    const urlCity = searchParams.get('city')
-    if (urlCity) setSelectedCity(urlCity)
+    const urlCity = searchParams.get('city') || ''
+    setSelectedCity(urlCity)
 
-    const urlState = searchParams.get('state')
-    if (urlState) setSelectedState(urlState)
+    const urlState = searchParams.get('state') || ''
+    setSelectedState(urlState)
+
+    if (listing && (listing === 'BUY' || listing === 'RENT')) {
+      setListingMode(listing)
+    } else {
+      setListingMode('')
+    }
 
     const initialFilters: any = { search: urlSearch }
     if (urlCity) initialFilters.city = urlCity
@@ -267,9 +278,13 @@ export default function PropertiesContent() {
     if (type) {
       initialFilters.propertyType = [type.toUpperCase()]
       setPropertyTypes([type.charAt(0).toUpperCase() + type.slice(1)])
+    } else {
+      setPropertyTypes([])
     }
     if (listing && (listing === 'BUY' || listing === 'RENT')) {
       initialFilters.listingType = listing
+    } else {
+      initialFilters.listingType = 'all'
     }
     if (urlBhk) {
       let mappedBhk = '';
@@ -280,6 +295,9 @@ export default function PropertiesContent() {
       }
       setBhkTypes([mappedBhk])
       initialFilters.bedrooms = [urlBhk.toLowerCase() === '1rk' ? 1 : parseInt(urlBhk)]
+    } else {
+      setBhkTypes([])
+      initialFilters.bedrooms = []
     }
 
     setFilters(initialFilters)

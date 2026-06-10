@@ -27,7 +27,7 @@ import { buildFloorPlanRooms, isResidentialFloorPlan } from '@/lib/floor-plan'
 import { SUPPORT_PHONE } from '@/lib/platform-data'
 import { topCities, otherCities } from '@/components/home/search-bar'
 
-const SELLER_URL = getSellerUrl()
+
 interface ParsedHighlights {
   bhk?: string;
   transactionType?: string;
@@ -177,10 +177,15 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
   const [citySearchQuery, setCitySearchQuery] = useState('')
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
 
+  const [sellerUrl, setSellerUrl] = useState('https://seller.kanharaj.com')
+  useEffect(() => {
+    setSellerUrl(getSellerUrl())
+  }, [])
+
   // Auth store
   const { isAuthenticated, user, token, logout } = useAuthStore()
   const showSellerDashboard = isAuthenticated && hasSellerDashboardAccess(user)
-  const sellerDashboardHref = token ? `${SELLER_URL}/login?token=${token}` : `${SELLER_URL}/login`
+  const sellerDashboardHref = token ? `${sellerUrl}/login?token=${token}` : `${sellerUrl}/login`
 
   // Close dropdown on outside click
   useEffect(() => {
