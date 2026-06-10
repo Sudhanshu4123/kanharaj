@@ -43,6 +43,7 @@ export default function PropertiesContent() {
   // Profile dropdown and Auth store
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const [sellerUrl, setSellerUrl] = useState('https://seller.kanharaj.com')
+
   useEffect(() => {
     setSellerUrl(getSellerUrl())
   }, [])
