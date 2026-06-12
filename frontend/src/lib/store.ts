@@ -26,7 +26,7 @@ interface PropertyStore {
   resetFilters: () => void
   filteredProperties: () => Property[]
   setLoading: (loading: boolean) => void
-  fetchProperties: (pageSize?: number) => Promise<void>
+  fetchProperties: (pageSize?: number, fetchAll?: boolean) => Promise<void>
   fetchMyProperties: (token: string) => Promise<void>
   createProperty: (prop: Partial<Property>, token?: string) => Promise<Property>
   updateProperty: (id: string, prop: Partial<Property>, token?: string) => Promise<Property>
@@ -205,7 +205,7 @@ export const usePropertyStore = create<PropertyStore>()(
       },
       setLoading: (loading) => set({ loading }),
 
-      fetchProperties: async (pageSize = 1000) => {
+      fetchProperties: async (pageSize = 36, fetchAll = true) => {
         // Always show loading spinner on first load; for refreshes keep showing stale data
         if (get().properties.length === 0) {
           set({ loading: true })
@@ -217,8 +217,20 @@ export const usePropertyStore = create<PropertyStore>()(
             cache: 'no-store'
           })
           const data = await res.json()
-          const list = data.content ?? (Array.isArray(data) ? data : null)
+          let list = data.content ?? (Array.isArray(data) ? data : null)
           if (list) {
+            const totalElements = data.totalElements
+            if (fetchAll && typeof totalElements === 'number' && totalElements > list.length) {
+              // Automatically fetch all remaining properties by requesting the exact database size
+              const fullRes = await fetchWithTimeout(`${apiUrl}/properties?size=${totalElements + 50}&t=${Date.now()}`, {
+                cache: 'no-store'
+              })
+              const fullData = await fullRes.json()
+              const fullList = fullData.content ?? (Array.isArray(fullData) ? fullData : null)
+              if (fullList) {
+                list = fullList
+              }
+            }
             set({ properties: list.map(transformFromApi) })
           }
           set({ loading: false })
@@ -578,7 +590,7 @@ export const useInquiryStore = create<InquiryStore>((set, get) => ({
 }))
 
 // Helper exports
-export const fetchProperties = (pageSize?: number) => usePropertyStore.getState().fetchProperties(pageSize)
+export const fetchProperties = (pageSize?: number, fetchAll?: boolean) => usePropertyStore.getState().fetchProperties(pageSize, fetchAll)
 export const createPropertyAPI = (prop: Partial<Property>, token?: string) => usePropertyStore.getState().createProperty(prop, token)
 export const updatePropertyAPI = (id: string, prop: Partial<Property>, token?: string) => usePropertyStore.getState().updateProperty(id, prop, token)
 export const deletePropertyAPI = (id: string, token?: string) => usePropertyStore.getState().deleteProperty(id, token)
