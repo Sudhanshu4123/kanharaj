@@ -205,7 +205,7 @@ export const usePropertyStore = create<PropertyStore>()(
       },
       setLoading: (loading) => set({ loading }),
 
-      fetchProperties: async (pageSize = 36) => {
+      fetchProperties: async (pageSize = 1000) => {
         // Always show loading spinner on first load; for refreshes keep showing stale data
         if (get().properties.length === 0) {
           set({ loading: true })
