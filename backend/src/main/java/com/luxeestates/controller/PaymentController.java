@@ -248,12 +248,20 @@ public class PaymentController {
         Seller seller = sellerRepository.findByUserId(user.getId()).orElse(null);
         if (seller != null) {
             plan = seller.getSubscriptionPlan();
-            status = seller.getStatus();
             expiry = seller.getSubscriptionExpiry();
+            // Real-time expiry check
+            if (expiry != null && expiry.isBefore(LocalDateTime.now())) {
+                status = "EXPIRED";
+            } else {
+                status = seller.getStatus();
+            }
         } else {
             plan = user.getSubscriptionPlan();
             status = user.getPaymentStatus();
             expiry = user.getSubscriptionExpiry();
+            if (expiry != null && expiry.isBefore(LocalDateTime.now())) {
+                status = "EXPIRED";
+            }
         }
         
         return ResponseEntity.ok(Map.of(
@@ -268,7 +276,7 @@ public class PaymentController {
     @GetMapping("/history")
     public ResponseEntity<?> getPaymentHistory(@AuthenticationPrincipal CustomUserDetails userDetails) {
         if (userDetails == null) return ResponseEntity.status(401).body("Unauthorized");
-        
+
         java.util.List<java.util.Map<String, Object>> history = transactionRepository.findByUserId(userDetails.getId())
                 .stream()
                 .map(t -> {
@@ -283,7 +291,35 @@ public class PaymentController {
                     return map;
                 })
                 .collect(java.util.stream.Collectors.toList());
-                
+
         return ResponseEntity.ok(history);
+    }
+
+    // Invoice API — returns full details for a single transaction
+    @GetMapping("/invoice/{transactionId}")
+    public ResponseEntity<?> getInvoice(
+            @PathVariable Long transactionId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) return ResponseEntity.status(401).body("Unauthorized");
+
+        return transactionRepository.findById(transactionId)
+                .filter(t -> t.getUser().getId().equals(userDetails.getId()))
+                .map(t -> {
+                    User user = t.getUser();
+                    java.util.Map<String, Object> invoice = new java.util.HashMap<>();
+                    invoice.put("invoiceId", "INV-" + String.format("%05d", t.getId()));
+                    invoice.put("transactionId", t.getId());
+                    invoice.put("orderId", t.getRazorpayOrderId());
+                    invoice.put("paymentId", t.getRazorpayPaymentId());
+                    invoice.put("amount", t.getAmount());
+                    invoice.put("planName", t.getPlanName());
+                    invoice.put("status", t.getStatus());
+                    invoice.put("createdAt", t.getCreatedAt() != null ? t.getCreatedAt().toString() : "");
+                    invoice.put("buyerName", user.getName());
+                    invoice.put("buyerEmail", user.getEmail());
+                    invoice.put("buyerPhone", user.getPhone());
+                    return ResponseEntity.ok(invoice);
+                })
+                .orElse(ResponseEntity.status(404).body(null));
     }
 }

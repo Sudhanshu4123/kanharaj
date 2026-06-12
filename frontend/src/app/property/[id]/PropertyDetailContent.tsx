@@ -42,6 +42,8 @@ interface ParsedHighlights {
   petFriendly?: string;
   availableFrom?: string;
   maintenanceCharges?: string;
+  parkingCharges?: string;
+  paintingCharges?: string;
   securityDeposit?: string;
   lockInPeriod?: string;
   brokerageCharges?: string;
@@ -51,6 +53,28 @@ interface ParsedHighlights {
   servantRoom?: string;
   reraId?: string;
   ageOfProperty?: string;
+  // PG Fields
+  pgName?: string;
+  locality?: string;
+  totalBeds?: string;
+  pgFor?: string;
+  bestSuitedFor?: string;
+  mealsAvailable?: string;
+  noticePeriod?: string;
+  commonAreas?: string;
+  managedBy?: string;
+  managerStaysAtProperty?: string;
+  nonVegAllowed?: string;
+  oppositeSexAllowed?: string;
+  anyTimeAllowed?: string;
+  visitorsAllowed?: string;
+  guardianAllowed?: string;
+  drinkingAllowed?: string;
+  smokingAllowed?: string;
+  onetimeMoveInCharges?: string;
+  mealCharges?: string;
+  electricityCharges?: string;
+  roomDetails?: string;
 }
 
 function parsePropertyHighlights(description: string): { highlights: ParsedHighlights; cleanDescription: string } {
@@ -110,6 +134,12 @@ function parsePropertyHighlights(description: string): { highlights: ParsedHighl
           case 'Maintenance Charges':
             highlights.maintenanceCharges = value;
             break;
+          case 'Parking Charges':
+            highlights.parkingCharges = value;
+            break;
+          case 'Painting Charges':
+            highlights.paintingCharges = value;
+            break;
           case 'Security Deposit':
             highlights.securityDeposit = value;
             break;
@@ -136,6 +166,72 @@ function parsePropertyHighlights(description: string): { highlights: ParsedHighl
             break;
           case 'Age of Property':
             highlights.ageOfProperty = value;
+            break;
+          case 'PG Name':
+            highlights.pgName = value;
+            break;
+          case 'Locality':
+            highlights.locality = value;
+            break;
+          case 'Total Beds':
+            highlights.totalBeds = value;
+            break;
+          case 'PG is for':
+            highlights.pgFor = value;
+            break;
+          case 'Best Suited For':
+            highlights.bestSuitedFor = value;
+            break;
+          case 'Meals Available':
+            highlights.mealsAvailable = value;
+            break;
+          case 'Notice Period':
+            highlights.noticePeriod = value;
+            break;
+          case 'Lock-in Period':
+            highlights.lockInPeriod = value;
+            break;
+          case 'Common Areas':
+            highlights.commonAreas = value;
+            break;
+          case 'Managed By':
+            highlights.managedBy = value;
+            break;
+          case 'Manager Stays At Property':
+            highlights.managerStaysAtProperty = value;
+            break;
+          case 'Non-Veg Allowed':
+            highlights.nonVegAllowed = value;
+            break;
+          case 'Opposite Sex Allowed':
+            highlights.oppositeSexAllowed = value;
+            break;
+          case 'Any Time Allowed':
+            highlights.anyTimeAllowed = value;
+            break;
+          case 'Visitors Allowed':
+            highlights.visitorsAllowed = value;
+            break;
+          case 'Guardian Allowed':
+            highlights.guardianAllowed = value;
+            break;
+          case 'Drinking Allowed':
+            highlights.drinkingAllowed = value;
+            break;
+          case 'Smoking Allowed':
+            highlights.smokingAllowed = value;
+            break;
+          case 'Onetime Move-in Charges':
+            highlights.onetimeMoveInCharges = value;
+            break;
+          case 'Meal Charges':
+            highlights.mealCharges = value;
+            break;
+          case 'Electricity Charges':
+            highlights.electricityCharges = value;
+            break;
+          case 'Room Details':
+            highlights.roomDetails = value;
             break;
         }
       }
@@ -228,11 +324,29 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     return parsePropertyHighlights(property.description)
   }, [property.description])
 
+  const roomsList = useMemo(() => {
+    if (!highlights.roomDetails) return []
+    try {
+      return JSON.parse(highlights.roomDetails) as Array<{
+        roomType: string;
+        totalBeds?: string;
+        rent: string;
+        securityDeposit: string;
+        facilities: string[];
+      }>
+    } catch (e) {
+      console.error("Failed to parse room details:", e)
+      return []
+    }
+  }, [highlights.roomDetails])
+
+  const isPlotOrLand = property.propertyType?.toUpperCase() === 'PLOT' || property.propertyType?.toUpperCase() === 'PLOTS/LAND'
+
   // Derived metadata display values
-  const bedroomsVal = highlights.bhk || (property.bedrooms ? `${property.bedrooms} BHK` : '3 BHK')
-  const bathroomsVal = highlights.bathrooms ? `${highlights.bathrooms} Baths` : (property.bathrooms ? `${property.bathrooms} Baths` : '3 Baths')
+  const bedroomsVal = isPlotOrLand ? null : (highlights.bhk || (property.bedrooms ? `${property.bedrooms} BHK` : '3 BHK'))
+  const bathroomsVal = isPlotOrLand ? null : (highlights.bathrooms ? `${highlights.bathrooms} Baths` : (property.bathrooms ? `${property.bathrooms} Baths` : '3 Baths'))
   const areaVal = highlights.carpetArea || (property.area ? `${formatNumber(property.area)} Sq.Ft.` : 'N/A')
-  const areaLabel = highlights.carpetArea ? 'Carpet Area' : 'Super Area'
+  const areaLabel = isPlotOrLand ? 'Plot Area' : (highlights.carpetArea ? 'Carpet Area' : 'Super Area')
   const facingVal = highlights.facing ? `${highlights.facing} Facing` : 'East Facing'
   const possessionVal = property.listingType === 'RENT'
     ? (highlights.availableFrom ? `From ${highlights.availableFrom}` : 'Immediately')
@@ -858,25 +972,29 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
 
-                <div className="flex items-start gap-3">
-                  <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
-                    <Bed className="h-5 w-5" />
+                {!isPlotOrLand && (
+                  <div className="flex items-start gap-3">
+                    <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                      <Bed className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Bedrooms</span>
+                      <span className="text-sm font-bold text-slate-800">{bedroomsVal}</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Bedrooms</span>
-                    <span className="text-sm font-bold text-slate-800">{bedroomsVal}</span>
-                  </div>
-                </div>
+                )}
 
-                <div className="flex items-start gap-3">
-                  <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
-                    <Bath className="h-5 w-5" />
+                {!isPlotOrLand && (
+                  <div className="flex items-start gap-3">
+                    <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                      <Bath className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Bathrooms</span>
+                      <span className="text-sm font-bold text-slate-800">{bathroomsVal}</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Bathrooms</span>
-                    <span className="text-sm font-bold text-slate-800">{bathroomsVal}</span>
-                  </div>
-                </div>
+                )}
 
                 <div className="flex items-start gap-3">
                   <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
@@ -908,37 +1026,45 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
-                    <Building2 className="h-5 w-5" />
+                {!isPlotOrLand && (
+                  <div className="flex items-start gap-3">
+                    <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                      <Building2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Property Age</span>
+                      <span className="text-sm font-bold text-slate-800">{ageVal}</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Property Age</span>
-                    <span className="text-sm font-bold text-slate-800">{ageVal}</span>
-                  </div>
-                </div>
+                )}
 
               </div>
 
               {/* Extended specs table rows */}
               <div className="mt-8 border-t border-slate-100 pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3.5 text-sm font-semibold">
-                  <div className="flex justify-between py-2 border-b border-slate-100">
-                    <span className="text-slate-500">Floor Number</span>
-                    <span className="text-slate-800">{highlights.floorDetails || '2nd of 4 floors'}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-slate-100">
-                    <span className="text-slate-500">Furnishing Status</span>
-                    <span className="text-slate-800">{highlights.furnishType || 'Semi-Furnished'}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-slate-100">
-                    <span className="text-slate-500">Car Parking Space</span>
-                    <span className="text-slate-800">
-                      {highlights.coveredParking || highlights.openParking
-                        ? `${highlights.coveredParking || '0'} Covered, ${highlights.openParking || '0'} Open`
-                        : '1 Covered Parking'}
-                    </span>
-                  </div>
+                  {!isPlotOrLand && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Floor Number</span>
+                      <span className="text-slate-800">{highlights.floorDetails || '2nd of 4 floors'}</span>
+                    </div>
+                  )}
+                  {!isPlotOrLand && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Furnishing Status</span>
+                      <span className="text-slate-800">{highlights.furnishType || 'Semi-Furnished'}</span>
+                    </div>
+                  )}
+                  {!isPlotOrLand && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Car Parking Space</span>
+                      <span className="text-slate-800">
+                        {highlights.coveredParking || highlights.openParking
+                          ? `${highlights.coveredParking || '0'} Covered, ${highlights.openParking || '0'} Open`
+                          : '1 Covered Parking'}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-500">Water Supply</span>
                     <span className="text-slate-800">24 Hours Guaranteed</span>
@@ -952,7 +1078,16 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   {highlights.preferredTenant && (
                     <div className="flex justify-between py-2 border-b border-slate-100">
                       <span className="text-slate-500">Preferred Tenant</span>
-                      <span className="text-slate-800">{highlights.preferredTenant}</span>
+                      <span className="text-slate-800">
+                        {(() => {
+                          const val = highlights.preferredTenant.trim();
+                          const lower = val.toLowerCase();
+                          if (lower.includes("family") && lower.includes("bachelors") && lower.includes("company")) {
+                            return "All (Family, Bachelors, Company)";
+                          }
+                          return val;
+                        })()}
+                      </span>
                     </div>
                   )}
                   {highlights.petFriendly && (
@@ -965,6 +1100,18 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     <div className="flex justify-between py-2 border-b border-slate-100">
                       <span className="text-slate-500">Maintenance Charges</span>
                       <span className="text-slate-800">{highlights.maintenanceCharges}</span>
+                    </div>
+                  )}
+                  {highlights.parkingCharges && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Parking Charges</span>
+                      <span className="text-slate-800">{highlights.parkingCharges}</span>
+                    </div>
+                  )}
+                  {highlights.paintingCharges && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Painting Charges</span>
+                      <span className="text-slate-800">{highlights.paintingCharges}</span>
                     </div>
                   )}
                   {highlights.securityDeposit && (
@@ -997,6 +1144,132 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                       <span className="text-slate-800">{highlights.reraId}</span>
                     </div>
                   )}
+                  {highlights.pgName && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">PG Name</span>
+                      <span className="text-slate-800">{highlights.pgName}</span>
+                    </div>
+                  )}
+                  {highlights.locality && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Locality</span>
+                      <span className="text-slate-800">{highlights.locality}</span>
+                    </div>
+                  )}
+                  {highlights.totalBeds && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Total Beds</span>
+                      <span className="text-slate-800">{highlights.totalBeds}</span>
+                    </div>
+                  )}
+                  {highlights.pgFor && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">PG is for</span>
+                      <span className="text-slate-800">{highlights.pgFor}</span>
+                    </div>
+                  )}
+                  {highlights.bestSuitedFor && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Best Suited For</span>
+                      <span className="text-slate-800">{highlights.bestSuitedFor}</span>
+                    </div>
+                  )}
+                  {highlights.mealsAvailable && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Meals Available</span>
+                      <span className="text-slate-800">{highlights.mealsAvailable}</span>
+                    </div>
+                  )}
+                  {highlights.noticePeriod && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Notice Period</span>
+                      <span className="text-slate-800">{highlights.noticePeriod}</span>
+                    </div>
+                  )}
+                  {highlights.lockInPeriod && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Lock-in Period</span>
+                      <span className="text-slate-800">{highlights.lockInPeriod}</span>
+                    </div>
+                  )}
+                  {highlights.commonAreas && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Common Areas</span>
+                      <span className="text-slate-800">{highlights.commonAreas}</span>
+                    </div>
+                  )}
+                  {highlights.managedBy && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Managed By</span>
+                      <span className="text-slate-800">{highlights.managedBy}</span>
+                    </div>
+                  )}
+                  {highlights.managerStaysAtProperty && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Manager Stays At Property</span>
+                      <span className="text-slate-800">{highlights.managerStaysAtProperty}</span>
+                    </div>
+                  )}
+                  {highlights.nonVegAllowed && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Non-Veg Allowed</span>
+                      <span className="text-slate-800">{highlights.nonVegAllowed}</span>
+                    </div>
+                  )}
+                  {highlights.oppositeSexAllowed && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Opposite Sex Allowed</span>
+                      <span className="text-slate-800">{highlights.oppositeSexAllowed}</span>
+                    </div>
+                  )}
+                  {highlights.anyTimeAllowed && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Any Time Allowed</span>
+                      <span className="text-slate-800">{highlights.anyTimeAllowed}</span>
+                    </div>
+                  )}
+                  {highlights.visitorsAllowed && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Visitors Allowed</span>
+                      <span className="text-slate-800">{highlights.visitorsAllowed}</span>
+                    </div>
+                  )}
+                  {highlights.guardianAllowed && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Guardian Allowed</span>
+                      <span className="text-slate-800">{highlights.guardianAllowed}</span>
+                    </div>
+                  )}
+                  {highlights.drinkingAllowed && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Drinking Allowed</span>
+                      <span className="text-slate-800">{highlights.drinkingAllowed}</span>
+                    </div>
+                  )}
+                  {highlights.smokingAllowed && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Smoking Allowed</span>
+                      <span className="text-slate-800">{highlights.smokingAllowed}</span>
+                    </div>
+                  )}
+                  {highlights.onetimeMoveInCharges && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Onetime Move-in Charges</span>
+                      <span className="text-slate-800">{highlights.onetimeMoveInCharges}</span>
+                    </div>
+                  )}
+                  {highlights.mealCharges && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Meal Charges</span>
+                      <span className="text-slate-800">{highlights.mealCharges}</span>
+                    </div>
+                  )}
+                  {highlights.electricityCharges && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Electricity Charges</span>
+                      <span className="text-slate-800">{highlights.electricityCharges}</span>
+                    </div>
+                  )}
                   {highlights.balconies && (
                     <div className="flex justify-between py-2 border-b border-slate-100">
                       <span className="text-slate-500">Balconies</span>
@@ -1012,6 +1285,62 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                 </div>
               </div>
             </Card>
+
+            {/* Room Configurations Card */}
+            {roomsList.length > 0 && (
+              <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl">
+                <h2 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
+                  <Bed className="h-5 w-5 text-indigo-600" />
+                  Room Configurations
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {roomsList.map((room, idx) => (
+                    <div
+                      key={idx}
+                      className="border border-slate-100 rounded-2xl p-5 bg-slate-50/50 hover:bg-slate-50 transition-all hover:shadow-md hover:border-slate-200"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <Badge className="bg-indigo-100 hover:bg-indigo-100 text-indigo-700 font-bold border-none px-3 py-1 rounded-lg">
+                            {room.roomType}
+                          </Badge>
+                          {room.totalBeds && (
+                            <span className="text-xs text-slate-500 font-bold ml-2">
+                              {room.totalBeds} Bed{parseInt(room.totalBeds) > 1 ? "s" : ""}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 mb-4 bg-white p-3 rounded-xl border border-slate-100">
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Rent</span>
+                          <span className="text-base font-black text-slate-800">{formatPrice(parseFloat(room.rent))}</span>
+                          <span className="text-[10px] text-slate-400 font-bold">/month</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Security Deposit</span>
+                          <span className="text-base font-black text-slate-800">{formatPrice(parseFloat(room.securityDeposit))}</span>
+                        </div>
+                      </div>
+
+                      {room.facilities && room.facilities.length > 0 && (
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block mb-2">Facilities Offered</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {room.facilities.map((fac) => (
+                              <Badge key={fac} variant="outline" className="text-[10px] font-bold text-slate-600 border-slate-200 bg-white">
+                                {fac}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
 
             {/* Description Tab area */}
             <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl">

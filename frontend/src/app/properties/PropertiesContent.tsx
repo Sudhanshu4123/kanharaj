@@ -213,7 +213,7 @@ export default function PropertiesContent() {
     setSelectedState('')
   }
 
-  const { filteredProperties, setFilters, fetchProperties, filters: storeFilters, loading } = usePropertyStore()
+  const { properties: storeProperties, filteredProperties, setFilters, fetchProperties, filters: storeFilters, loading } = usePropertyStore()
 
   const filteredTopCities = topCities.filter(city =>
     city.toLowerCase().includes(citySearchQuery.toLowerCase())
@@ -948,7 +948,7 @@ export default function PropertiesContent() {
               {countByBedrooms(properties, 3) > 0 ? ` and ${countByBedrooms(properties, 3)}× 3 BHK` : ''} options.
             </p>
 
-            {loading && properties.length === 0 ? (
+            {loading && storeProperties.length === 0 ? (
               <HousingPropertyListSkeleton count={4} />
             ) : properties.length === 0 ? (
               <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">

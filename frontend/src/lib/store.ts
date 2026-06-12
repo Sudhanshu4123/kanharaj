@@ -130,10 +130,12 @@ const isPropertyTypeMatch = (filterType: string, propType: string): boolean => {
   if (f === p) return true;
   
   const mapType = (type: string) => {
-    if (type === 'INDEPENDENT_HOUSE') return 'HOUSE';
+    if (type === 'INDEPENDENT_HOUSE' || type === 'FARM_HOUSE' || type === 'HOUSE') return 'HOUSE';
     if (type === 'INDEPENDENT_FLOOR' || type === 'BUILDER_FLOOR') return 'BUILDER_FLOOR';
     if (type === 'PLOTS/LAND' || type === 'AGRICULTURAL_LAND' || type === 'PLOT') return 'PLOT';
     if (type === 'PENTHOUSE' || type === 'DUPLEX' || type === 'STUDIO' || type === 'APARTMENT' || type === 'FLAT') return 'APARTMENT';
+    if (type === 'OFFICE' || type === 'OFFICE_SPACE') return 'OFFICE_SPACE';
+    if (type === 'RETAIL_SHOP' || type === 'SHOWROOM' || type === 'SHOP') return 'SHOP';
     return type;
   }
   

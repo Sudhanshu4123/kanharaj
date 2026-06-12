@@ -5,7 +5,7 @@ import "./globals.css"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Plus, ChevronDown, Menu, X, User, LogOut, FileText, Settings, ShieldAlert, Lock, Megaphone, ExternalLink } from "lucide-react"
+import { Plus, ChevronDown, Menu, X, User, LogOut, FileText, Settings, ShieldAlert, Lock, Megaphone, ExternalLink, AlertTriangle } from "lucide-react"
 import { logoutFromSellerDashboard, getApiUrl, getMainSiteUrl } from "@/lib/auth"
 import { normalizeProfileImageUrl } from "@/lib/profile-utils"
 import { MobileNav } from "@/components/mobile-nav"
@@ -24,6 +24,7 @@ export default function RootLayout({
   const [loading, setLoading] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+  const [subStatus, setSubStatus] = useState<{ plan: string; status: string; expiry: string } | null>(null)
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -49,6 +50,14 @@ export default function RootLayout({
           const data = await res.json()
           setUser(data)
           localStorage.setItem("seller_user", JSON.stringify(data))
+
+          // Fetch subscription status for banner
+          try {
+            const subRes = await fetch(`${getApiUrl()}/payments/status`, {
+              headers: { "Authorization": `Bearer ${token}` }
+            })
+            if (subRes.ok) setSubStatus(await subRes.json())
+          } catch (_) {}
 
           // Redirect if no active plan (Allow Home, Leads, Profile and Subscription)
           if (false && data.subscriptionPlan === "NONE" && // TEMPORARY BYPASS
@@ -328,6 +337,34 @@ export default function RootLayout({
                 </button>
               </div>
             )}
+
+            {/* Subscription Warning Banner */}
+            {!isLoginPage && subStatus && (() => {
+              const isExpired = subStatus.status === "EXPIRED" || subStatus.plan === "NONE";
+              const expDate = subStatus.expiry && subStatus.expiry !== "NONE" ? new Date(subStatus.expiry) : null;
+              const daysLeft = expDate ? Math.ceil((expDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
+              const expiringSoon = daysLeft !== null && daysLeft > 0 && daysLeft <= 7;
+
+              if (isExpired && subStatus.plan !== "NONE") {
+                return (
+                  <div className="bg-red-600 text-white text-center text-xs font-bold py-2 px-4 flex items-center justify-center gap-2">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                    ❌ Aapka subscription expire ho gaya hai. Nayi listings add nahi ho sakti. &nbsp;
+                    <a href="/subscription" className="underline font-black">Plan Renew Karo →</a>
+                  </div>
+                );
+              }
+              if (expiringSoon) {
+                return (
+                  <div className="bg-amber-500 text-white text-center text-xs font-bold py-2 px-4 flex items-center justify-center gap-2">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                    ⚠️ Aapka subscription sirf {daysLeft} din{daysLeft === 1 ? "" : ""} mein expire hoga. &nbsp;
+                    <a href="/subscription" className="underline font-black">Abhi Renew Karo →</a>
+                  </div>
+                );
+              }
+              return null;
+            })()}
 
             {/* Main Content Area */}
             <main className={`flex-1 min-w-0 ${!isLoginPage ? 'pb-20 lg:pb-6' : ''}`}>

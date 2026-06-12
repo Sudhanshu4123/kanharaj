@@ -86,6 +86,51 @@ export default function SubscriptionPage() {
   const [historyList, setHistoryList] = useState<any[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
 
+  const handleDownloadInvoice = async (txId: number) => {
+    const token = localStorage.getItem("seller_token")
+    try {
+      const res = await fetch(`${getApiUrl()}/payments/invoice/${txId}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      })
+      if (!res.ok) { alert("Invoice load nahi ho saka."); return; }
+      const inv = await res.json()
+      const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /><title>Invoice ${inv.invoiceId}</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; color: #1e293b; }
+  h1 { font-size: 22px; font-weight: 900; color: #0a2540; margin-bottom: 4px; }
+  .sub { font-size: 12px; color: #64748b; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  td { padding: 8px 4px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+  td:first-child { color: #64748b; width: 40%; }
+  td:last-child { font-weight: 700; }
+  .amount { font-size: 28px; font-weight: 900; color: #0a2540; }
+  .badge { display:inline-block; background:#d1fae5; color:#065f46; border-radius:999px; padding:2px 10px; font-size:11px; font-weight:800; }
+  footer { margin-top: 32px; font-size: 11px; color: #94a3b8; text-align:center; }
+</style></head>
+<body>
+  <h1>KANHARAJ</h1>
+  <div class="sub">Payment Invoice &nbsp;·&nbsp; ${inv.invoiceId}</div>
+  <div class="amount">&#8377;${(inv.amount || 0).toLocaleString('en-IN')}</div>
+  <span class="badge">${inv.status || 'SUCCESS'}</span>
+  <table style="margin-top:20px">
+    <tr><td>Plan</td><td>${(inv.planName || '').toUpperCase()} Plan</td></tr>
+    <tr><td>Date</td><td>${inv.createdAt ? new Date(inv.createdAt).toLocaleDateString('en-IN') : 'N/A'}</td></tr>
+    <tr><td>Razorpay Order ID</td><td>${inv.orderId || 'N/A'}</td></tr>
+    <tr><td>Razorpay Payment ID</td><td>${inv.paymentId || 'N/A'}</td></tr>
+    <tr><td>Buyer Name</td><td>${inv.buyerName || 'N/A'}</td></tr>
+    <tr><td>Buyer Email</td><td>${inv.buyerEmail || 'N/A'}</td></tr>
+    <tr><td>Buyer Phone</td><td>${inv.buyerPhone || 'N/A'}</td></tr>
+  </table>
+  <footer>Thank you for choosing Kanharaj &mdash; India&apos;s trusted property platform.</footer>
+  <script>window.onload = function() { window.print(); }</script>
+</body></html>`
+      const win = window.open("", "_blank")
+      if (win) { win.document.write(html); win.document.close(); }
+    } catch { alert("Invoice download mein error aaya.") }
+  }
+
   const getPrice = (monthlyPrice: number, months: number) => {
     return monthlyPrice * months
   }
@@ -391,6 +436,14 @@ export default function SubscriptionPage() {
                         </div>
                         <div className="text-right shrink-0">
                           <span className="text-lg sm:text-xl font-black text-slate-900">₹{(tx.amount || 0).toLocaleString()}</span>
+                          <div className="mt-2">
+                            <button
+                              onClick={() => handleDownloadInvoice(tx.id)}
+                              className="text-[10px] font-bold text-[#0a2540] border border-[#0a2540]/20 rounded-lg px-3 py-1.5 hover:bg-[#0a2540]/5 transition-colors flex items-center gap-1"
+                            >
+                              <CreditCard size={11} /> Invoice
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}

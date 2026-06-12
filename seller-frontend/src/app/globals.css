@@ -62,3 +62,14 @@ body {
 .btn-secondary {
   @apply bg-secondary text-secondary-foreground px-6 py-3 rounded-2xl font-bold hover:bg-slate-200 transition-all active:scale-95 flex items-center justify-center gap-2;
 }
+
+/* Hide increment/decrement spinner arrows on number inputs */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
