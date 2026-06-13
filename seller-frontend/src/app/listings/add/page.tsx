@@ -434,6 +434,10 @@ export default function AddPropertyPage() {
           alert("Please select Available From date.")
           return
         }
+        if (possessionStatus === "Ready to move" && !ageOfProperty) {
+          alert("Please enter Age of Property.")
+          return
+        }
         if (!zoneType) {
           alert("Please select Zone Type.")
           return
@@ -601,7 +605,7 @@ export default function AddPropertyPage() {
       const mappedPropertyType = mapSellerPropertyType(propertyType, sector, lookingTo)
       const isPlotOrLand = propertyType === "Plot" || propertyType === "Agricultural Land"
       const bedroomsCount = isPlotOrLand ? 0 : parseBedroomsFromBhk(bhk)
-      const yearBuiltVal = (lookingTo === "Rent" && ageOfProperty) ? (new Date().getFullYear() - parseInt(ageOfProperty)) : null
+      const yearBuiltVal = ((lookingTo === "Rent" || sector === "Commercial") && ageOfProperty) ? (new Date().getFullYear() - parseInt(ageOfProperty)) : null
 
       const formatMaintenanceValue = () => {
         if (maintenanceCharges === "Separate") {
@@ -659,7 +663,7 @@ export default function AddPropertyPage() {
 • Locality: ${locality}
 • Possession Status: ${possessionStatus}
 • Available From: ${availableFrom || 'Immediately'}
-• Zone Type: ${zoneType}
+${possessionStatus === "Ready to move" ? `• Age of Property: ${ageOfProperty ? ageOfProperty + ' years' : 'N/A'}\n` : ''}• Zone Type: ${zoneType}
 • Location Hub: ${locationHub}
 • Property Condition: ${propertyCondition}
 • Built Up Area: ${formData.area} Sq. Ft.
@@ -1203,31 +1207,78 @@ ${formData.description}`
                               key={opt}
                               type="button"
                               onClick={() => setPossessionStatus(opt)}
-                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${possessionStatus === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${possessionStatus === opt ? "bg-[#eae6f9] text-[#7f56d9] border-[#7f56d9]" : "bg-white text-slate-600 border-slate-200"}`}
                             >
                               {opt}
                             </button>
                           ))}
                         </div>
                       </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-400 mb-2">Available From <span className="text-rose-500">*</span></label>
-                        <div className="relative">
-                          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                          <input
-                            type="date"
-                            value={availableFrom}
-                            onChange={e => setAvailableFrom(e.target.value)}
-                            className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                          />
+
+                      {possessionStatus === "Ready to move" && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="text-xs font-bold text-slate-500 mb-1 block">
+                              Available From <span className="text-rose-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <input
+                                type="date"
+                                value={availableFrom}
+                                onChange={e => setAvailableFrom(e.target.value)}
+                                className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-10"
+                              />
+                              <Calendar className="absolute right-0 bottom-2.5 w-4 h-4 text-slate-400 pointer-events-none" />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-bold text-slate-500 mb-1 block">
+                              Age of Property (in years) <span className="text-rose-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <input
+                                type="number"
+                                value={ageOfProperty}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 100)) {
+                                    setAgeOfProperty(val);
+                                  }
+                                }}
+                                min="0"
+                                max="100"
+                                className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-10"
+                                placeholder="e.g. 5"
+                              />
+                              <Info className="absolute right-0 bottom-2.5 w-4 h-4 text-slate-400 pointer-events-none" />
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      )}
+
+                      {possessionStatus === "Under construction" && (
+                        <div>
+                          <label className="text-xs font-bold text-slate-500 mb-1 block">
+                            Available From <span className="text-rose-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <input
+                              type="date"
+                              value={availableFrom}
+                              onChange={e => setAvailableFrom(e.target.value)}
+                              className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-10"
+                            />
+                            <Calendar className="absolute right-0 bottom-2.5 w-4 h-4 text-slate-400 pointer-events-none" />
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* ABOUT THE PROPERTY */}
                     <div className="space-y-6 pt-8 border-t border-slate-100">
                       <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">ABOUT THE PROPERTY</h3>
-                      
+
                       {/* Zone Type */}
                       <div>
                         <label className="block text-xs font-bold text-slate-500 mb-3">Zone Type <span className="text-rose-500">*</span></label>
@@ -1504,1034 +1555,1364 @@ ${formData.description}`
                 ) : (
                   <div className="space-y-12 max-w-2xl mx-auto">
 
-                  <div className="flex flex-col items-center justify-center pb-6 border-b border-slate-50 space-y-2 text-center">
-                    <h2 className="text-2xl font-black text-slate-800">Add Property Details</h2>
-                    <p className="text-sm font-medium text-slate-400 flex items-center gap-1.5">
-                      <Info className="w-4 h-4" /> Please fill in all the details of your property
-                    </p>
-                  </div>
+                    <div className="flex flex-col items-center justify-center pb-6 border-b border-slate-50 space-y-2 text-center">
+                      <h2 className="text-2xl font-black text-slate-800">Add Property Details</h2>
+                      <p className="text-sm font-medium text-slate-400 flex items-center gap-1.5">
+                        <Info className="w-4 h-4" /> Please fill in all the details of your property
+                      </p>
+                    </div>
 
-                  {/* Property Type Group */}
-                  <div>
-                    <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
-                      Property Type <span className="text-rose-500">*</span>
-                    </label>
-                    <div className="flex gap-3">
-                      {["Residential", "Commercial"].map(t => (
-                        <button
-                          key={t}
-                          type="button"
-                          onClick={() => {
-                            setSector(t);
-                            setPropertyType(t === "Commercial" ? "Office" : "Apartment");
-                            if (t === "Commercial" && lookingTo === "PG/Co-living") {
-                              setLookingTo("Rent");
+                    {/* Property Type Group */}
+                    <div>
+                      <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
+                        Property Type <span className="text-rose-500">*</span>
+                      </label>
+                      <div className="flex gap-3">
+                        {["Residential", "Commercial"].map(t => (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => {
+                              setSector(t);
+                              setPropertyType(t === "Commercial" ? "Office" : "Apartment");
+                              if (t === "Commercial" && lookingTo === "PG/Co-living") {
+                                setLookingTo("Rent");
+                              }
+                            }}
+                            className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${sector === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                              }`}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Looking to */}
+                    <div>
+                      <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
+                        Looking to <span className="text-rose-500">*</span>
+                      </label>
+                      <div className="flex gap-3">
+                        {(sector === "Commercial" ? ["Rent", "Sell"] : ["Rent", "Sell", "PG/Co-living"]).map(t => (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => setLookingTo(t)}
+                            className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${lookingTo === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                              }`}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* City */}
+                    <div className="relative" ref={cityDropdownRef}>
+                      <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">City <span className="text-rose-500">*</span></label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={city}
+                          onChange={e => {
+                            setCity(e.target.value)
+                            setIsCityDropdownOpen(true)
+                          }}
+                          onFocus={e => {
+                            setIsCityDropdownOpen(true)
+                            e.target.select() // Auto-select text on focus so user can easily type and search
+                          }}
+                          onKeyDown={e => {
+                            if (e.key === "Enter") {
+                              e.preventDefault()
+                              const query = city.trim()
+                              if (query) {
+                                const match = topCities.concat(otherCities).find(c => c.toLowerCase() === query.toLowerCase())
+                                if (match) {
+                                  setCity(match)
+                                } else {
+                                  setCity(query)
+                                }
+                                setIsCityDropdownOpen(false)
+                              }
                             }
                           }}
-                          className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${sector === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
-                            }`}
-                        >
-                          {t}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-8"
+                          placeholder="Search or type city name..."
+                        />
+                        <ChevronDown
+                          className={`absolute right-2 bottom-3 w-4 h-4 text-slate-400 cursor-pointer transition-transform ${isCityDropdownOpen ? "rotate-180 text-[#0a2540]" : ""}`}
+                          onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                        />
+                      </div>
 
-                  {/* Looking to */}
-                  <div>
-                    <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
-                      Looking to <span className="text-rose-500">*</span>
-                    </label>
-                    <div className="flex gap-3">
-                      {(sector === "Commercial" ? ["Rent", "Sell"] : ["Rent", "Sell", "PG/Co-living"]).map(t => (
-                        <button
-                          key={t}
-                          type="button"
-                          onClick={() => setLookingTo(t)}
-                          className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${lookingTo === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
-                            }`}
-                        >
-                          {t}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                      <AnimatePresence>
+                        {isCityDropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 8 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl z-[60] flex flex-col overflow-hidden max-h-60"
+                          >
+                            <div className="flex-1 overflow-y-auto py-1.5 text-left custom-scrollbar">
+                              {/* Custom City Fallback Option */}
+                              {city.trim() && !topCities.concat(otherCities).some(c => c.toLowerCase() === city.toLowerCase().trim()) && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setIsCityDropdownOpen(false)
+                                  }}
+                                  className="w-full text-left px-4 py-2 text-xs font-bold text-[#0a2540] bg-[#0a2540]/5 hover:bg-[#0a2540]/10 transition-colors border-b border-slate-100"
+                                >
+                                  Use custom city: &ldquo;{city.trim()}&rdquo;
+                                </button>
+                              )}
 
-                  {/* City */}
-                  <div className="relative" ref={cityDropdownRef}>
-                    <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">City <span className="text-rose-500">*</span></label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={city}
-                        onChange={e => {
-                          setCity(e.target.value)
-                          setIsCityDropdownOpen(true)
-                        }}
-                        onFocus={e => {
-                          setIsCityDropdownOpen(true)
-                          e.target.select() // Auto-select text on focus so user can easily type and search
-                        }}
-                        onKeyDown={e => {
-                          if (e.key === "Enter") {
-                            e.preventDefault()
-                            const query = city.trim()
-                            if (query) {
-                              const match = topCities.concat(otherCities).find(c => c.toLowerCase() === query.toLowerCase())
-                              if (match) {
-                                setCity(match)
-                              } else {
-                                setCity(query)
-                              }
-                              setIsCityDropdownOpen(false)
-                            }
-                          }
-                        }}
-                        className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-8"
-                        placeholder="Search or type city name..."
-                      />
-                      <ChevronDown
-                        className={`absolute right-2 bottom-3 w-4 h-4 text-slate-400 cursor-pointer transition-transform ${isCityDropdownOpen ? "rotate-180 text-[#0a2540]" : ""}`}
-                        onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
-                      />
-                    </div>
-
-                    <AnimatePresence>
-                      {isCityDropdownOpen && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 8 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl z-[60] flex flex-col overflow-hidden max-h-60"
-                        >
-                          <div className="flex-1 overflow-y-auto py-1.5 text-left custom-scrollbar">
-                            {/* Custom City Fallback Option */}
-                            {city.trim() && !topCities.concat(otherCities).some(c => c.toLowerCase() === city.toLowerCase().trim()) && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setIsCityDropdownOpen(false)
-                                }}
-                                className="w-full text-left px-4 py-2 text-xs font-bold text-[#0a2540] bg-[#0a2540]/5 hover:bg-[#0a2540]/10 transition-colors border-b border-slate-100"
-                              >
-                                Use custom city: &ldquo;{city.trim()}&rdquo;
-                              </button>
-                            )}
-
-                            {/* Top Cities */}
-                            {(() => {
-                              const filteredTop = topCities.filter(c => c.toLowerCase().includes(city.toLowerCase()))
-                              if (filteredTop.length > 0) {
-                                return (
-                                  <div>
-                                    <div className="px-4 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
-                                      Top Cities
+                              {/* Top Cities */}
+                              {(() => {
+                                const filteredTop = topCities.filter(c => c.toLowerCase().includes(city.toLowerCase()))
+                                if (filteredTop.length > 0) {
+                                  return (
+                                    <div>
+                                      <div className="px-4 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                                        Top Cities
+                                      </div>
+                                      {filteredTop.map(c => (
+                                        <button
+                                          key={c}
+                                          type="button"
+                                          onClick={() => {
+                                            setCity(c)
+                                            setIsCityDropdownOpen(false)
+                                          }}
+                                          className={`w-full text-left px-4 py-1.5 text-xs font-bold transition-colors flex items-center justify-between ${city === c ? "bg-[#0a2540]/5 text-[#0a2540]" : "text-slate-700 hover:bg-slate-50"}`}
+                                        >
+                                          <span>{c}</span>
+                                          {city === c && <span className="text-[10px] font-black">✓</span>}
+                                        </button>
+                                      ))}
                                     </div>
-                                    {filteredTop.map(c => (
-                                      <button
-                                        key={c}
-                                        type="button"
-                                        onClick={() => {
-                                          setCity(c)
-                                          setIsCityDropdownOpen(false)
-                                        }}
-                                        className={`w-full text-left px-4 py-1.5 text-xs font-bold transition-colors flex items-center justify-between ${city === c ? "bg-[#0a2540]/5 text-[#0a2540]" : "text-slate-700 hover:bg-slate-50"}`}
-                                      >
-                                        <span>{c}</span>
-                                        {city === c && <span className="text-[10px] font-black">✓</span>}
-                                      </button>
-                                    ))}
-                                  </div>
-                                )
-                              }
-                              return null
-                            })()}
+                                  )
+                                }
+                                return null
+                              })()}
 
-                            {/* Other Cities */}
-                            {(() => {
-                              const filteredOther = otherCities.filter(c => c.toLowerCase().includes(city.toLowerCase()))
-                              if (filteredOther.length > 0) {
-                                return (
-                                  <div className="mt-1">
-                                    <div className="px-4 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
-                                      Other Cities
+                              {/* Other Cities */}
+                              {(() => {
+                                const filteredOther = otherCities.filter(c => c.toLowerCase().includes(city.toLowerCase()))
+                                if (filteredOther.length > 0) {
+                                  return (
+                                    <div className="mt-1">
+                                      <div className="px-4 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                                        Other Cities
+                                      </div>
+                                      {filteredOther.map(c => (
+                                        <button
+                                          key={c}
+                                          type="button"
+                                          onClick={() => {
+                                            setCity(c)
+                                            setIsCityDropdownOpen(false)
+                                          }}
+                                          className={`w-full text-left px-4 py-1.5 text-xs font-bold transition-colors flex items-center justify-between ${city === c ? "bg-[#0a2540]/5 text-[#0a2540]" : "text-slate-700 hover:bg-slate-50"}`}
+                                        >
+                                          <span>{c}</span>
+                                          {city === c && <span className="text-[10px] font-black">✓</span>}
+                                        </button>
+                                      ))}
                                     </div>
-                                    {filteredOther.map(c => (
-                                      <button
-                                        key={c}
-                                        type="button"
-                                        onClick={() => {
-                                          setCity(c)
-                                          setIsCityDropdownOpen(false)
-                                        }}
-                                        className={`w-full text-left px-4 py-1.5 text-xs font-bold transition-colors flex items-center justify-between ${city === c ? "bg-[#0a2540]/5 text-[#0a2540]" : "text-slate-700 hover:bg-slate-50"}`}
-                                      >
-                                        <span>{c}</span>
-                                        {city === c && <span className="text-[10px] font-black">✓</span>}
-                                      </button>
-                                    ))}
-                                  </div>
-                                )
-                              }
-                              return null
-                            })()}
+                                  )
+                                }
+                                return null
+                              })()}
 
-                            {/* No matches fallback */}
-                            {city.trim() && topCities.filter(c => c.toLowerCase().includes(city.toLowerCase())).length === 0 && otherCities.filter(c => c.toLowerCase().includes(city.toLowerCase())).length === 0 && (
-                              <div className="px-4 py-3 text-xs font-semibold text-slate-400 text-center">
-                                No matching cities found. Click custom city above to save.
-                              </div>
-                            )}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  {/* Building Name */}
-                  {sector !== "Commercial" && (
-                    <div>
-                      <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1 transition-colors group-focus-within:text-[#0a2540]">
-                        Building / Apartment / Society Name <span className="text-rose-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={buildingName}
-                        onChange={e => { setBuildingName(e.target.value); setBuildingNameError("") }}
-                        className={`w-full text-base font-bold text-slate-800 pb-2 border-b outline-none transition-colors ${buildingNameError ? "border-rose-500" : "border-slate-200 focus:border-[#0a2540]"
-                          }`}
-                        placeholder="e.g. DLF Phase 1"
-                      />
-                      {buildingNameError && (
-                        <p className="text-xs font-bold text-rose-500 mt-1">{buildingNameError}</p>
-                      )}
+                              {/* No matches fallback */}
+                              {city.trim() && topCities.filter(c => c.toLowerCase().includes(city.toLowerCase())).length === 0 && otherCities.filter(c => c.toLowerCase().includes(city.toLowerCase())).length === 0 && (
+                                <div className="px-4 py-3 text-xs font-semibold text-slate-400 text-center">
+                                  No matching cities found. Click custom city above to save.
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                  )}
 
-                  {lookingTo === "PG/Co-living" ? (
-                    <div className="space-y-8">
-                      {/* Locality */}
+                    {/* Building Name */}
+                    {sector !== "Commercial" && (
                       <div>
                         <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1 transition-colors group-focus-within:text-[#0a2540]">
-                          Locality <span className="text-rose-500">*</span>
+                          Building / Apartment / Society Name <span className="text-rose-500">*</span>
                         </label>
                         <input
                           type="text"
-                          value={locality}
-                          onChange={e => setLocality(e.target.value)}
-                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                          value={buildingName}
+                          onChange={e => { setBuildingName(e.target.value); setBuildingNameError("") }}
+                          className={`w-full text-base font-bold text-slate-800 pb-2 border-b outline-none transition-colors ${buildingNameError ? "border-rose-500" : "border-slate-200 focus:border-[#0a2540]"
+                            }`}
+                          placeholder="e.g. DLF Phase 1"
                         />
-                        {!locality && (
-                          <p className="text-xs font-bold text-rose-500 mt-1">Please select a valid locality</p>
+                        {buildingNameError && (
+                          <p className="text-xs font-bold text-rose-500 mt-1">{buildingNameError}</p>
                         )}
                       </div>
+                    )}
 
-                      <div className="pt-4">
-                        <h3 className="text-sm font-black text-slate-800 mb-6 uppercase">PG DETAILS</h3>
-                        <div className="space-y-6">
-                          <div>
-                            <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">PG Name <span className="text-rose-500">*</span></label>
-                            <input type="text" value={pgName} onChange={e => setPgName(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
-                          </div>
-                          <div>
-                            <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Total Beds <span className="text-rose-500">*</span></label>
-                            <input type="number" value={totalBeds} onChange={e => setTotalBeds(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
-                          </div>
+                    {lookingTo === "PG/Co-living" ? (
+                      <div className="space-y-8">
+                        {/* Locality */}
+                        <div>
+                          <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1 transition-colors group-focus-within:text-[#0a2540]">
+                            Locality <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={locality}
+                            onChange={e => setLocality(e.target.value)}
+                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                          />
+                          {!locality && (
+                            <p className="text-xs font-bold text-rose-500 mt-1">Please select a valid locality</p>
+                          )}
+                        </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="pt-4">
+                          <h3 className="text-sm font-black text-slate-800 mb-6 uppercase">PG DETAILS</h3>
+                          <div className="space-y-6">
                             <div>
-                              <label className="block text-xs font-bold text-slate-500 mb-3">PG is for <span className="text-rose-500">*</span></label>
-                              <div className="flex gap-3">
-                                {["Girls", "Boys"].map(opt => {
-                                  const isSelected = pgFor.includes(opt);
+                              <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">PG Name <span className="text-rose-500">*</span></label>
+                              <input type="text" value={pgName} onChange={e => setPgName(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
+                            </div>
+                            <div>
+                              <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Total Beds <span className="text-rose-500">*</span></label>
+                              <input type="number" value={totalBeds} onChange={e => setTotalBeds(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                <label className="block text-xs font-bold text-slate-500 mb-3">PG is for <span className="text-rose-500">*</span></label>
+                                <div className="flex gap-3">
+                                  {["Girls", "Boys"].map(opt => {
+                                    const isSelected = pgFor.includes(opt);
+                                    return (
+                                      <button
+                                        key={opt}
+                                        type="button"
+                                        onClick={() => {
+                                          setPgFor(prev => {
+                                            if (prev.includes(opt)) {
+                                              return prev.filter(x => x !== opt);
+                                            } else {
+                                              return [...prev, opt];
+                                            }
+                                          });
+                                        }}
+                                        className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected
+                                          ? "bg-[#0a2540] text-white border-[#0a2540]"
+                                          : "bg-white text-slate-600 border-slate-200"
+                                          }`}
+                                      >
+                                        {opt}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-bold text-slate-500 mb-3">Best suited for <span className="text-rose-500">*</span></label>
+                                <div className="flex gap-3">
+                                  {["Students", "Professionals"].map(opt => {
+                                    const isSelected = bestSuitedFor.includes(opt);
+                                    return (
+                                      <button
+                                        key={opt}
+                                        type="button"
+                                        onClick={() => {
+                                          setBestSuitedFor(prev => {
+                                            if (prev.includes(opt)) {
+                                              return prev.filter(x => x !== opt);
+                                            } else {
+                                              return [...prev, opt];
+                                            }
+                                          });
+                                        }}
+                                        className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected
+                                          ? "bg-[#0a2540] text-white border-[#0a2540]"
+                                          : "bg-white text-slate-600 border-slate-200"
+                                          }`}
+                                      >
+                                        {opt}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Meals details */}
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 mb-3">Meals Available <span className="text-rose-500">*</span></label>
+                          <div className="flex gap-3">
+                            {["Yes", "No"].map(opt => (
+                              <button key={opt} type="button" onClick={() => setMealsAvailable(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${mealsAvailable === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {mealsAvailable === "Yes" && (
+                          <div className="space-y-6 pt-2">
+                            <div>
+                              <label className="block text-xs font-bold text-slate-500 mb-3">Meal Offerings <span className="text-rose-500">*</span></label>
+                              <div className="flex flex-wrap gap-3">
+                                {["Breakfast", "Lunch", "Dinner"].map(opt => {
+                                  const isSelected = mealOfferings.includes(opt)
                                   return (
-                                    <button
-                                      key={opt}
-                                      type="button"
-                                      onClick={() => {
-                                        setPgFor(prev => {
-                                          if (prev.includes(opt)) {
-                                            return prev.filter(x => x !== opt);
-                                          } else {
-                                            return [...prev, opt];
-                                          }
-                                        });
-                                      }}
-                                      className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected
-                                        ? "bg-[#0a2540] text-white border-[#0a2540]"
-                                        : "bg-white text-slate-600 border-slate-200"
-                                        }`}
-                                    >
-                                      {opt}
-                                    </button>
-                                  );
+                                    <button key={opt} type="button" onClick={() => {
+                                      if (isSelected) setMealOfferings(prev => prev.filter(a => a !== opt))
+                                      else setMealOfferings(prev => [...prev, opt])
+                                    }} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                  )
                                 })}
                               </div>
                             </div>
                             <div>
-                              <label className="block text-xs font-bold text-slate-500 mb-3">Best suited for <span className="text-rose-500">*</span></label>
-                              <div className="flex gap-3">
-                                {["Students", "Professionals"].map(opt => {
-                                  const isSelected = bestSuitedFor.includes(opt);
+                              <label className="block text-xs font-bold text-slate-500 mb-3">Meal Speciality (Optional)</label>
+                              <div className="flex flex-wrap gap-3">
+                                {["Punjabi", "South Indian", "Andhra", "North Indian", "Others"].map(opt => {
+                                  const isSelected = mealSpecialities.includes(opt)
                                   return (
-                                    <button
-                                      key={opt}
-                                      type="button"
-                                      onClick={() => {
-                                        setBestSuitedFor(prev => {
-                                          if (prev.includes(opt)) {
-                                            return prev.filter(x => x !== opt);
-                                          } else {
-                                            return [...prev, opt];
-                                          }
-                                        });
-                                      }}
-                                      className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected
-                                        ? "bg-[#0a2540] text-white border-[#0a2540]"
-                                        : "bg-white text-slate-600 border-slate-200"
-                                        }`}
-                                    >
-                                      {opt}
-                                    </button>
-                                  );
+                                    <button key={opt} type="button" onClick={() => {
+                                      if (isSelected) setMealSpecialities(prev => prev.filter(a => a !== opt))
+                                      else setMealSpecialities(prev => [...prev, opt])
+                                    }} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                  )
                                 })}
                               </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
+                        )}
 
-                      {/* Meals details */}
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-3">Meals Available <span className="text-rose-500">*</span></label>
-                        <div className="flex gap-3">
-                          {["Yes", "No"].map(opt => (
-                            <button key={opt} type="button" onClick={() => setMealsAvailable(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${mealsAvailable === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {mealsAvailable === "Yes" && (
-                        <div className="space-y-6 pt-2">
-                          <div>
-                            <label className="block text-xs font-bold text-slate-500 mb-3">Meal Offerings <span className="text-rose-500">*</span></label>
-                            <div className="flex flex-wrap gap-3">
-                              {["Breakfast", "Lunch", "Dinner"].map(opt => {
-                                const isSelected = mealOfferings.includes(opt)
-                                return (
-                                  <button key={opt} type="button" onClick={() => {
-                                    if (isSelected) setMealOfferings(prev => prev.filter(a => a !== opt))
-                                    else setMealOfferings(prev => [...prev, opt])
-                                  }} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
-                                )
-                              })}
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-bold text-slate-500 mb-3">Meal Speciality (Optional)</label>
-                            <div className="flex flex-wrap gap-3">
-                              {["Punjabi", "South Indian", "Andhra", "North Indian", "Others"].map(opt => {
-                                const isSelected = mealSpecialities.includes(opt)
-                                return (
-                                  <button key={opt} type="button" onClick={() => {
-                                    if (isSelected) setMealSpecialities(prev => prev.filter(a => a !== opt))
-                                    else setMealSpecialities(prev => [...prev, opt])
-                                  }} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
-                                )
-                              })}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Notice & Lock-in Periods */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Notice Period (Days) <span className="text-rose-500">*</span></label>
-                          <input type="number" value={noticePeriodDays} onChange={e => setNoticePeriodDays(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
-                        </div>
-                        <div>
-                          <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Lock in Period (Days) <span className="text-rose-500">*</span></label>
-                          <input type="number" value={pgLockInDays} onChange={e => setPgLockInDays(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
-                        </div>
-                      </div>
-
-                      {/* Common Areas */}
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-3">Common Areas <span className="text-rose-500">*</span></label>
-                        <div className="flex flex-wrap gap-3">
-                          {["Living Room", "Kitchen", "Dining Hall", "Study Room / Library", "Breakout Room"].map(opt => {
-                            const isSelected = pgCommonAreas.includes(opt)
-                            return (
-                              <button key={opt} type="button" onClick={() => {
-                                if (isSelected) setPgCommonAreas(prev => prev.filter(a => a !== opt))
-                                else setPgCommonAreas(prev => [...prev, opt])
-                              }} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Caretaker details */}
-                      <div className="pt-8 border-t border-slate-100">
-                        <h3 className="text-sm font-black text-slate-800 mb-6 uppercase">OWNER / CARETAKER DETAILS</h3>
-                        <div className="space-y-6">
-                          <div>
-                            <label className="block text-xs font-bold text-slate-500 mb-3">Property Managed By <span className="text-rose-500">*</span></label>
-                            <div className="flex flex-wrap gap-3">
-                              {["Landlord", "Caretaker", "Dedicated Professional"].map(opt => (
-                                <button key={opt} type="button" onClick={() => setPropertyManagedBy(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${propertyManagedBy === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
-                              ))}
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-bold text-slate-500 mb-3">Property Manager stays at Property <span className="text-rose-500">*</span></label>
-                            <div className="flex gap-3">
-                              {["Yes", "No"].map(opt => (
-                                <button key={opt} type="button" onClick={() => setManagerStaysAtProperty(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${managerStaysAtProperty === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Rules details */}
-                      <div className="pt-8 border-t border-slate-100">
-                        <h3 className="text-sm font-black text-slate-800 mb-6 uppercase">PG RULES</h3>
+                        {/* Notice & Lock-in Periods */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {(Object.entries({
-                            "Non Veg Allowed": "nonVegAllowed",
-                            "Opposite Sex Allowed": "oppositeSexAllowed",
-                            "Any Time Allowed": "anyTimeAllowed",
-                            "Visitors Allowed": "visitorsAllowed",
-                            "Guardian Allowed": "guardianAllowed",
-                            "Drinking Allowed": "drinkingAllowed",
-                            "Smoking Allowed": "smokingAllowed"
-                          })).map(([label, key]) => (
-                            <div key={key}>
-                              <label className="block text-xs font-bold text-slate-500 mb-3">{label} <span className="text-rose-500">*</span></label>
+                          <div>
+                            <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Notice Period (Days) <span className="text-rose-500">*</span></label>
+                            <input type="number" value={noticePeriodDays} onChange={e => setNoticePeriodDays(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Lock in Period (Days) <span className="text-rose-500">*</span></label>
+                            <input type="number" value={pgLockInDays} onChange={e => setPgLockInDays(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
+                          </div>
+                        </div>
+
+                        {/* Common Areas */}
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 mb-3">Common Areas <span className="text-rose-500">*</span></label>
+                          <div className="flex flex-wrap gap-3">
+                            {["Living Room", "Kitchen", "Dining Hall", "Study Room / Library", "Breakout Room"].map(opt => {
+                              const isSelected = pgCommonAreas.includes(opt)
+                              return (
+                                <button key={opt} type="button" onClick={() => {
+                                  if (isSelected) setPgCommonAreas(prev => prev.filter(a => a !== opt))
+                                  else setPgCommonAreas(prev => [...prev, opt])
+                                }} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                              )
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Caretaker details */}
+                        <div className="pt-8 border-t border-slate-100">
+                          <h3 className="text-sm font-black text-slate-800 mb-6 uppercase">OWNER / CARETAKER DETAILS</h3>
+                          <div className="space-y-6">
+                            <div>
+                              <label className="block text-xs font-bold text-slate-500 mb-3">Property Managed By <span className="text-rose-500">*</span></label>
+                              <div className="flex flex-wrap gap-3">
+                                {["Landlord", "Caretaker", "Dedicated Professional"].map(opt => (
+                                  <button key={opt} type="button" onClick={() => setPropertyManagedBy(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${propertyManagedBy === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-slate-500 mb-3">Property Manager stays at Property <span className="text-rose-500">*</span></label>
                               <div className="flex gap-3">
                                 {["Yes", "No"].map(opt => (
-                                  <button key={opt} type="button" onClick={() => setPgRules(prev => ({ ...prev, [key]: opt }))} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${pgRules[key as keyof typeof pgRules] === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                  <button key={opt} type="button" onClick={() => setManagerStaysAtProperty(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${managerStaysAtProperty === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
                                 ))}
                               </div>
                             </div>
-                          ))}
+                          </div>
+                        </div>
+
+                        {/* Rules details */}
+                        <div className="pt-8 border-t border-slate-100">
+                          <h3 className="text-sm font-black text-slate-800 mb-6 uppercase">PG RULES</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {(Object.entries({
+                              "Non Veg Allowed": "nonVegAllowed",
+                              "Opposite Sex Allowed": "oppositeSexAllowed",
+                              "Any Time Allowed": "anyTimeAllowed",
+                              "Visitors Allowed": "visitorsAllowed",
+                              "Guardian Allowed": "guardianAllowed",
+                              "Drinking Allowed": "drinkingAllowed",
+                              "Smoking Allowed": "smokingAllowed"
+                            })).map(([label, key]) => (
+                              <div key={key}>
+                                <label className="block text-xs font-bold text-slate-500 mb-3">{label} <span className="text-rose-500">*</span></label>
+                                <div className="flex gap-3">
+                                  {["Yes", "No"].map(opt => (
+                                    <button key={opt} type="button" onClick={() => setPgRules(prev => ({ ...prev, [key]: opt }))} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${pgRules[key as keyof typeof pgRules] === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+
+
+                        <div className="pt-8">
+                          <button
+                            onClick={handleNext}
+                            className="w-full py-4 rounded-xl text-base font-bold bg-[#38D39F] text-white hover:bg-[#2bc490] transition-colors shadow-lg shadow-emerald-200/50"
+                          >
+                            Continues
+                          </button>
                         </div>
                       </div>
-
-
-
-                      <div className="pt-8">
-                        <button
-                          onClick={handleNext}
-                          className="w-full py-4 rounded-xl text-base font-bold bg-[#38D39F] text-white hover:bg-[#2bc490] transition-colors shadow-lg shadow-emerald-200/50"
-                        >
-                          Continues
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      {/* Specific Property Type Icons */}
-                      <div>
-                        <label className="text-xs font-bold text-slate-500 mb-4 flex items-center gap-1">
-                          Sub Property Type <span className="text-rose-500">*</span>
-                        </label>
-                        <div className="flex flex-wrap gap-3">
-                          {(sector === "Commercial" ? [
-                            { name: "Office", icon: Building },
-                            { name: "Retail Shop", icon: Store },
-                            { name: "Showroom", icon: Store },
-                            { name: "Warehouse", icon: Warehouse },
-                            { name: "Plot", icon: Map },
-                            { name: "Others", icon: MoreHorizontal }
-                          ] : [
-                            { name: "Apartment", icon: Building },
-                            { name: "Independent House", icon: Home },
-                            { name: "Duplex", icon: Building2 },
-                            { name: "Independent Floor", icon: Maximize2 },
-                            { name: "Villa", icon: Home },
-                            { name: "Penthouse", icon: Building2 },
-                            { name: "Studio", icon: Building },
-                            ...(lookingTo === "Sell" ? [
+                    ) : (
+                      <>
+                        {/* Specific Property Type Icons */}
+                        <div>
+                          <label className="text-xs font-bold text-slate-500 mb-4 flex items-center gap-1">
+                            Sub Property Type <span className="text-rose-500">*</span>
+                          </label>
+                          <div className="flex flex-wrap gap-3">
+                            {(sector === "Commercial" ? [
+                              { name: "Office", icon: Building },
+                              { name: "Retail Shop", icon: Store },
+                              { name: "Showroom", icon: Store },
+                              { name: "Warehouse", icon: Warehouse },
                               { name: "Plot", icon: Map },
-                              { name: "Farm House", icon: Home },
-                              { name: "Agricultural Land", icon: Map }
+                              { name: "Others", icon: MoreHorizontal }
                             ] : [
-                              { name: "Farm House", icon: Home }
-                            ])
-                          ]).map(type => (
-                            <button
-                              key={type.name}
-                              type="button"
-                              onClick={() => setPropertyType(type.name)}
-                              className={`flex flex-col items-center justify-center w-24 h-24 rounded-xl border transition-all ${propertyType === type.name
-                                ? "bg-[#0a2540] border-[#0a2540] text-white"
-                                : "bg-white border-slate-200 text-slate-500 hover:border-[#0a2540] hover:text-[#0a2540]"
-                                }`}
-                            >
-                              <type.icon strokeWidth={1.5} className={`w-8 h-8 mb-2 ${propertyType === type.name ? 'text-white' : 'text-slate-300'}`} />
-                              <span className="text-[11px] font-bold text-center leading-tight px-1">
-                                {type.name}
-                              </span>
-                            </button>
-                          ))}
+                              { name: "Apartment", icon: Building },
+                              { name: "Independent House", icon: Home },
+                              { name: "Duplex", icon: Building2 },
+                              { name: "Independent Floor", icon: Maximize2 },
+                              { name: "Villa", icon: Home },
+                              { name: "Penthouse", icon: Building2 },
+                              { name: "Studio", icon: Building },
+                              ...(lookingTo === "Sell" ? [
+                                { name: "Plot", icon: Map },
+                                { name: "Farm House", icon: Home },
+                                { name: "Agricultural Land", icon: Map }
+                              ] : [
+                                { name: "Farm House", icon: Home }
+                              ])
+                            ]).map(type => (
+                              <button
+                                key={type.name}
+                                type="button"
+                                onClick={() => setPropertyType(type.name)}
+                                className={`flex flex-col items-center justify-center w-24 h-24 rounded-xl border transition-all ${propertyType === type.name
+                                  ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                  : "bg-white border-slate-200 text-slate-500 hover:border-[#0a2540] hover:text-[#0a2540]"
+                                  }`}
+                              >
+                                <type.icon strokeWidth={1.5} className={`w-8 h-8 mb-2 ${propertyType === type.name ? 'text-white' : 'text-slate-300'}`} />
+                                <span className="text-[11px] font-bold text-center leading-tight px-1">
+                                  {type.name}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      </div>
 
-                      {sector !== "Commercial" ? (
-                        <>
-                          <hr className="border-slate-100" />
+                        {sector !== "Commercial" ? (
+                          <>
+                            <hr className="border-slate-100" />
 
-                          {/* BHK details */}
-                          {propertyType !== "Plot" && propertyType !== "Agricultural Land" && (
-                            <div>
-                              <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
-                                BHK <span className="text-rose-500">*</span>
-                              </label>
-                              <div className="flex flex-wrap gap-3">
-                                {["1 RK", "1 BHK", "1.5 BHK", "2 BHK", "2.5 BHK", "3 BHK", "3.5 BHK", "4 BHK", "4.5 BHK", "5 BHK", "5+ BHK"].map(val => (
-                                  <button
-                                    key={val}
-                                    type="button"
-                                    onClick={() => setBhk(val)}
-                                    className={`px-4 py-2.5 rounded-xl border text-sm font-bold transition-all ${bhk === val
-                                      ? "bg-[#0a2540] border-[#0a2540] text-white"
-                                      : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
-                                      }`}
-                                  >
-                                    {val}
-                                  </button>
-                                ))}
+                            {/* BHK details */}
+                            {propertyType !== "Plot" && propertyType !== "Agricultural Land" && (
+                              <div>
+                                <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
+                                  BHK <span className="text-rose-500">*</span>
+                                </label>
+                                <div className="flex flex-wrap gap-3">
+                                  {["1 RK", "1 BHK", "1.5 BHK", "2 BHK", "2.5 BHK", "3 BHK", "3.5 BHK", "4 BHK", "4.5 BHK", "5 BHK", "5+ BHK"].map(val => (
+                                    <button
+                                      key={val}
+                                      type="button"
+                                      onClick={() => setBhk(val)}
+                                      className={`px-4 py-2.5 rounded-xl border text-sm font-bold transition-all ${bhk === val
+                                        ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                        : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
+                                        }`}
+                                    >
+                                      {val}
+                                    </button>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
 
-                          {/* Built Up Area & Age of Property */}
-                          <div className="grid grid-cols-1 gap-6">
-                            {propertyType === "Plot" || propertyType === "Agricultural Land" ? (
-                              <div className="space-y-6">
-                                {/* Plot Area / Land Area & Unit */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Built Up Area & Age of Property */}
+                            <div className="grid grid-cols-1 gap-6">
+                              {propertyType === "Plot" || propertyType === "Agricultural Land" ? (
+                                <div className="space-y-6">
+                                  {/* Plot Area / Land Area & Unit */}
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                      <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
+                                        {propertyType === "Plot" ? "Plot Area" : "Land Area"} <span className="text-rose-0">*</span>
+                                      </label>
+                                      <input
+                                        name="area"
+                                        value={formData.area}
+                                        onChange={handleInputChange}
+                                        type="number"
+                                        min="0"
+                                        className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                                        placeholder="e.g. 0"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
+                                        Select Area Unit <span className="text-rose-0">*</span>
+                                      </label>
+                                      <div className="relative">
+                                        <select
+                                          value={areaUnit}
+                                          onChange={e => setAreaUnit(e.target.value)}
+                                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none bg-transparent appearance-none cursor-pointer"
+                                        >
+                                          <option value="Sq. Ft.">Sq. Ft.</option>
+                                          <option value="Sq. Yards">Sq. Yards</option>
+                                          <option value="Sq. Meter">Sq. Meter</option>
+                                          <option value="Acre">Acre</option>
+                                          <option value="Bigha">Bigha</option>
+                                          <option value="Kanal">Kanal</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-0 bottom-3 w-4.5 h-4.5 text-slate-400 pointer-events-none" />
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Length & Width */}
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                      <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
+                                        Length (in ft) <span className="text-rose-0">*</span>
+                                      </label>
+                                      <input
+                                        type="number"
+                                        value={plotLength}
+                                        onChange={e => {
+                                          const val = e.target.value;
+                                          if (val === "" || parseFloat(val) >= 0) setPlotLength(val);
+                                        }}
+                                        min="0"
+                                        className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                                        placeholder="e.g. 50"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
+                                        Width (in ft) <span className="text-rose-0">*</span>
+                                      </label>
+                                      <input
+                                        type="number"
+                                        value={plotWidth}
+                                        onChange={e => {
+                                          const val = e.target.value;
+                                          if (val === "" || parseFloat(val) >= 0) setPlotWidth(val);
+                                        }}
+                                        min="0"
+                                        className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                                        placeholder="e.g. 30"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {/* Facing Road Width */}
                                   <div>
                                     <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
-                                      {propertyType === "Plot" ? "Plot Area" : "Land Area"} <span className="text-rose-0">*</span>
+                                      Width of Facing Road (in ft) <span className="text-rose-0">*</span>
                                     </label>
+                                    <input
+                                      type="number"
+                                      value={facingRoadWidth}
+                                      onChange={e => {
+                                        const val = e.target.value;
+                                        if (val === "" || parseFloat(val) >= 0) setFacingRoadWidth(val);
+                                      }}
+                                      min="0"
+                                      className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                                      placeholder="e.g. 40"
+                                    />
+                                  </div>
+                                </div>
+                              ) : (
+                                <div>
+                                  <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
+                                    Built Up Area <span className="text-rose-0">*</span>
+                                  </label>
+                                  <div className="relative">
                                     <input
                                       name="area"
                                       value={formData.area}
                                       onChange={handleInputChange}
                                       type="number"
                                       min="0"
-                                      className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
-                                      placeholder="e.g. 0"
+                                      max="100000"
+                                      className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-32"
                                     />
-                                  </div>
-                                  <div>
-                                    <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
-                                      Select Area Unit <span className="text-rose-0">*</span>
-                                    </label>
-                                    <div className="relative">
-                                      <select
-                                        value={areaUnit}
-                                        onChange={e => setAreaUnit(e.target.value)}
-                                        className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none bg-transparent appearance-none cursor-pointer"
-                                      >
-                                        <option value="Sq. Ft.">Sq. Ft.</option>
-                                        <option value="Sq. Yards">Sq. Yards</option>
-                                        <option value="Sq. Meter">Sq. Meter</option>
-                                        <option value="Acre">Acre</option>
-                                        <option value="Bigha">Bigha</option>
-                                        <option value="Kanal">Kanal</option>
-                                      </select>
-                                      <ChevronDown className="absolute right-0 bottom-3 w-4.5 h-4.5 text-slate-400 pointer-events-none" />
-                                    </div>
+                                    <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
+                                      {formData.area ? `${formData.area} Sq. ft.` : 'Sq. ft.'}
+                                    </span>
                                   </div>
                                 </div>
-
-                                {/* Length & Width */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                  <div>
-                                    <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
-                                      Length (in ft) <span className="text-rose-0">*</span>
-                                    </label>
+                              )}
+                              {lookingTo === "Rent" && propertyType !== "Plot" && propertyType !== "Agricultural Land" ? (
+                                <div>
+                                  <label className="text-xs font-bold text-slate-500 mb-1 flex items-center justify-between">
+                                    <span>Age of Property (in years) <span className="text-rose-500">*</span></span>
+                                    <Info className="w-4 h-4 text-slate-400" />
+                                  </label>
+                                  <div className="relative">
                                     <input
                                       type="number"
-                                      value={plotLength}
+                                      value={ageOfProperty}
                                       onChange={e => {
                                         const val = e.target.value;
-                                        if (val === "" || parseFloat(val) >= 0) setPlotLength(val);
+                                        if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 10)) {
+                                          setAgeOfProperty(val);
+                                        }
                                       }}
                                       min="0"
-                                      className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
-                                      placeholder="e.g. 50"
+                                      max="10"
+                                      className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
                                     />
-                                  </div>
-                                  <div>
-                                    <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
-                                      Width (in ft) <span className="text-rose-0">*</span>
-                                    </label>
-                                    <input
-                                      type="number"
-                                      value={plotWidth}
-                                      onChange={e => {
-                                        const val = e.target.value;
-                                        if (val === "" || parseFloat(val) >= 0) setPlotWidth(val);
-                                      }}
-                                      min="0"
-                                      className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
-                                      placeholder="e.g. 30"
-                                    />
+                                    <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
+                                      {ageOfProperty ? `${ageOfProperty} Years` : 'Years'}
+                                    </span>
                                   </div>
                                 </div>
-
-                                {/* Facing Road Width */}
-                                <div>
-                                  <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
-                                    Width of Facing Road (in ft) <span className="text-rose-0">*</span>
-                                  </label>
-                                  <input
-                                    type="number"
-                                    value={facingRoadWidth}
-                                    onChange={e => {
-                                      const val = e.target.value;
-                                      if (val === "" || parseFloat(val) >= 0) setFacingRoadWidth(val);
-                                    }}
-                                    min="0"
-                                    className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
-                                    placeholder="e.g. 40"
-                                  />
-                                </div>
-                              </div>
-                            ) : (
-                              <div>
-                                <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
-                                  Built Up Area <span className="text-rose-0">*</span>
-                                </label>
-                                <div className="relative">
-                                  <input
-                                    name="area"
-                                    value={formData.area}
-                                    onChange={handleInputChange}
-                                    type="number"
-                                    min="0"
-                                    max="100000"
-                                    className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-32"
-                                  />
-                                  <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
-                                    {formData.area ? `${formData.area} Sq. ft.` : 'Sq. ft.'}
-                                  </span>
-                                </div>
-                              </div>
-                            )}
-                            {lookingTo === "Rent" && propertyType !== "Plot" && propertyType !== "Agricultural Land" ? (
-                              <div>
-                                <label className="text-xs font-bold text-slate-500 mb-1 flex items-center justify-between">
-                                  <span>Age of Property (in years) <span className="text-rose-500">*</span></span>
-                                  <Info className="w-4 h-4 text-slate-400" />
-                                </label>
-                                <div className="relative">
-                                  <input
-                                    type="number"
-                                    value={ageOfProperty}
-                                    onChange={e => {
-                                      const val = e.target.value;
-                                      if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 10)) {
-                                        setAgeOfProperty(val);
-                                      }
-                                    }}
-                                    min="0"
-                                    max="10"
-                                    className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
-                                  />
-                                  <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
-                                    {ageOfProperty ? `${ageOfProperty} Years` : 'Years'}
-                                  </span>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="space-y-6">
-                                {/* Transaction Type */}
-                                <div>
-                                  <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
-                                    Transaction Type <span className="text-rose-500">*</span>
-                                  </label>
-                                  <div className="flex gap-3">
-                                    {["New Booking", "Resale"].map(t => (
-                                      <button
-                                        key={t}
-                                        type="button"
-                                        onClick={() => setTransactionType(t)}
-                                        className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${transactionType === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
-                                      >
-                                        {t}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {/* Possession Status - only for Plot / Agricultural Land */}
-                                {(propertyType === "Plot" || propertyType === "Agricultural Land") && (
-                                  <div className="space-y-4">
-                                    <div>
-                                      <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
-                                        Possession Status <span className="text-rose-500">*</span>
-                                      </label>
-                                      <div className="flex gap-3">
-                                        {["Immediate", "In Future"].map(p => (
-                                          <button
-                                            key={p}
-                                            type="button"
-                                            onClick={() => setPossessionStatus(p)}
-                                            className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${possessionStatus === p
-                                              ? "bg-[#0a2540] text-white border-[#0a2540]"
-                                              : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
-                                              }`}
-                                          >
-                                            {p}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-
-                                    {/* Immediate → Age of Property */}
-                                    {possessionStatus === "Immediate" && (
-                                      <div>
-                                        <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
-                                          Age of Property (in years) <span className="text-rose-500">*</span>
-                                        </label>
-                                        <input
-                                          type="number"
-                                          value={ageOfProperty}
-                                          onChange={e => {
-                                            const val = e.target.value;
-                                            if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 200)) setAgeOfProperty(val);
-                                          }}
-                                          min="0"
-                                          max="200"
-                                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
-                                          placeholder="e.g. 5"
-                                        />
-                                      </div>
-                                    )}
-
-                                    {/* In Future → Possession Date */}
-                                    {possessionStatus === "In Future" && (
-                                      <div>
-                                        <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
-                                          Possession Date <span className="text-rose-500">*</span>
-                                        </label>
-                                        <input
-                                          type="date"
-                                          value={possessionDate}
-                                          onChange={e => setPossessionDate(e.target.value)}
-                                          min={new Date().toISOString().split("T")[0]}
-                                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
-                                        />
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-
-                                {/* Construction Status */}
-                                {propertyType !== "Plot" && propertyType !== "Agricultural Land" && (
+                              ) : (
+                                <div className="space-y-6">
+                                  {/* Transaction Type */}
                                   <div>
                                     <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
-                                      Construction Status <span className="text-rose-500">*</span>
+                                      Transaction Type <span className="text-rose-500">*</span>
                                     </label>
                                     <div className="flex gap-3">
-                                      {["Ready to Move", "Under Construction"].map(t => (
+                                      {["New Booking", "Resale"].map(t => (
                                         <button
                                           key={t}
                                           type="button"
-                                          onClick={() => setConstructionStatus(t)}
-                                          className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${constructionStatus === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
+                                          onClick={() => setTransactionType(t)}
+                                          className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${transactionType === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
                                         >
                                           {t}
                                         </button>
                                       ))}
                                     </div>
                                   </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
 
-                          {propertyType !== "Plot" && propertyType !== "Agricultural Land" && (
-                            <>
-                              {/* Bathroom & Balcony */}
-                              <div className="grid grid-cols-1 gap-6">
-                                <div>
-                                  <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
-                                    Bathroom <span className="text-rose-500">*</span>
-                                  </label>
-                                  <div className="flex flex-wrap gap-3">
-                                    {[1, 2, 3, 4].map(val => (
-                                      <button
-                                        key={val}
-                                        type="button"
-                                        onClick={() => setBathroomCount(val)}
-                                        className={`w-12 h-12 rounded-xl border text-sm font-bold transition-all ${bathroomCount === val
-                                          ? "bg-[#0a2540] border-[#0a2540] text-white"
-                                          : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
-                                          }`}
-                                      >
-                                        {val}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                                <div>
-                                  <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
-                                    Balcony <span className="text-rose-500">*</span>
-                                  </label>
-                                  <div className="flex flex-wrap gap-3">
-                                    {[0, 1, 2, 3, 4].map(val => (
-                                      <button
-                                        key={val}
-                                        type="button"
-                                        onClick={() => setBalconyCount(val)}
-                                        className={`w-12 h-12 rounded-xl border text-sm font-bold transition-all ${balconyCount === val
-                                          ? "bg-[#0a2540] border-[#0a2540] text-white"
-                                          : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
-                                          }`}
-                                      >
-                                        {val}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
+                                  {/* Possession Status - only for Plot / Agricultural Land */}
+                                  {(propertyType === "Plot" || propertyType === "Agricultural Land") && (
+                                    <div className="space-y-4">
+                                      <div>
+                                        <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
+                                          Possession Status <span className="text-rose-500">*</span>
+                                        </label>
+                                        <div className="flex gap-3">
+                                          {["Immediate", "In Future"].map(p => (
+                                            <button
+                                              key={p}
+                                              type="button"
+                                              onClick={() => setPossessionStatus(p)}
+                                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${possessionStatus === p
+                                                ? "bg-[#0a2540] text-white border-[#0a2540]"
+                                                : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                                                }`}
+                                            >
+                                              {p}
+                                            </button>
+                                          ))}
+                                        </div>
+                                      </div>
 
-                              <hr className="border-slate-100" />
-
-                              {/* Furnish Type */}
-                              <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Furnish Type <span className="text-rose-500">*</span></label>
-                                <div className="flex gap-3">
-                                  {[
-                                    { name: "Fully Furnished", icon: Sofa },
-                                    { name: "Semi Furnished", icon: Sofa },
-                                    { name: "Unfurnished", icon: Sofa },
-                                  ].map(opt => {
-                                    const isSelected = furnishType === opt.name
-                                    return (
-                                      <button
-                                        key={opt.name}
-                                        type="button"
-                                        onClick={() => setFurnishType(opt.name)}
-                                        className={`flex items-center gap-2 px-5 py-3 rounded-xl border text-sm font-bold transition-all ${isSelected
-                                          ? "bg-[#0a2540] border-[#0a2540] text-white"
-                                          : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
-                                          }`}
-                                      >
-                                        <opt.icon size={16} className={isSelected ? "text-white" : "text-slate-400"} />
-                                        {opt.name}
-                                      </button>
-                                    )
-                                  })}
-                                </div>
-
-                                {furnishType !== "Unfurnished" && (
-                                  <div className="mt-4 space-y-3">
-                                    <label className="block text-[11px] font-bold text-slate-500 uppercase">Select Furnishings / Amenities</label>
-                                    <div className="flex flex-wrap gap-2">
-                                      {["Sofa", "TV", "Bed", "AC", "Refrigerator", "Wardrobe", "Geyser", "Washing Machine", "Dining Table", "Microwave"].map(item => {
-                                        const isChecked = furnishings.includes(item)
-                                        return (
-                                          <button
-                                            key={item}
-                                            type="button"
-                                            onClick={() => {
-                                              if (isChecked) {
-                                                setFurnishings(prev => prev.filter(x => x !== item))
-                                              } else {
-                                                setFurnishings(prev => [...prev, item])
-                                              }
+                                      {/* Immediate → Age of Property */}
+                                      {possessionStatus === "Immediate" && (
+                                        <div>
+                                          <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
+                                            Age of Property (in years) <span className="text-rose-500">*</span>
+                                          </label>
+                                          <input
+                                            type="number"
+                                            value={ageOfProperty}
+                                            onChange={e => {
+                                              const val = e.target.value;
+                                              if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 200)) setAgeOfProperty(val);
                                             }}
-                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${isChecked
-                                              ? "bg-[#0a2540] text-white border-[#0a2540]"
-                                              : "bg-white text-slate-500 border-slate-200 hover:border-[#0a2540]"
-                                              }`}
-                                          >
-                                            {isChecked ? "✓ " : "+ "} {item}
-                                          </button>
-                                        )
-                                      })}
+                                            min="0"
+                                            max="200"
+                                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                                            placeholder="e.g. 5"
+                                          />
+                                        </div>
+                                      )}
+
+                                      {/* In Future → Possession Date */}
+                                      {possessionStatus === "In Future" && (
+                                        <div>
+                                          <label className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
+                                            Possession Date <span className="text-rose-500">*</span>
+                                          </label>
+                                          <input
+                                            type="date"
+                                            value={possessionDate}
+                                            onChange={e => setPossessionDate(e.target.value)}
+                                            min={new Date().toISOString().split("T")[0]}
+                                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                                          />
+                                        </div>
+                                      )}
                                     </div>
-                                    {furnishings.length < 3 && (
-                                      <p className="text-xs font-bold text-rose-500 mt-1">Please add atleast 3 flat furnishings to continue</p>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
+                                  )}
 
-                              {/* Parking Details */}
-                              <div className="grid grid-cols-1 gap-6">
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Covered Parking <span className="text-rose-500">*</span></label>
-                                  <div className="flex gap-2">
-                                    {["0", "1", "2", "3", "3+"].map(num => (
-                                      <button
-                                        key={num}
-                                        type="button"
-                                        onClick={() => setCoveredParking(num)}
-                                        className={`w-10 h-10 rounded-lg text-sm font-bold border transition-colors ${coveredParking === num ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
-                                          }`}
-                                      >
-                                        {num}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Open Parking <span className="text-rose-500">*</span></label>
-                                  <div className="flex gap-2">
-                                    {["0", "1", "2", "3", "3+"].map(num => (
-                                      <button
-                                        key={num}
-                                        type="button"
-                                        onClick={() => setOpenParking(num)}
-                                        className={`w-10 h-10 rounded-lg text-sm font-bold border transition-colors ${openParking === num ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
-                                          }`}
-                                      >
-                                        {num}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                            </>
-                          )}
-
-                          {lookingTo === "Rent" ? (
-                            <>
-                              {/* Tenant Type & Pets */}
-                              <div className="grid grid-cols-1 gap-6">
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Preferred Tenant Type</label>
-                                  <div className="flex gap-2">
-                                    {["Family", "Bachelors", "Company"].map(type => {
-                                      const isSelected = preferredTenant.includes(type);
-                                      return (
-                                        <button
-                                          key={type}
-                                          type="button"
-                                          onClick={() => {
-                                            if (isSelected) {
-                                              setPreferredTenant(prev => prev.filter(t => t !== type));
-                                            } else {
-                                              setPreferredTenant(prev => [...prev, type]);
-                                            }
-                                          }}
-                                          className={`px-4 py-2.5 rounded-xl border text-sm font-bold transition-all ${isSelected
-                                            ? "bg-[#0a2540] border-[#0a2540] text-white"
-                                            : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
-                                            }`}
-                                        >
-                                          {type}
-                                        </button>
-                                      );
-                                    })}
-                                  </div>
-                                  {preferredTenant.includes("Bachelors") && (
-                                    <div className="mt-6">
-                                      <label className="block text-xs font-bold text-slate-500 mb-3">Select your preference for bachelors</label>
+                                  {/* Construction Status */}
+                                  {propertyType !== "Plot" && propertyType !== "Agricultural Land" && (
+                                    <div>
+                                      <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
+                                        Construction Status <span className="text-rose-500">*</span>
+                                      </label>
                                       <div className="flex gap-3">
-                                        {["Open for both", "Men Only", "Women Only"].map(opt => (
-                                          <button key={opt} type="button" onClick={() => setBachelorPreference(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${bachelorPreference === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                        {["Ready to Move", "Under Construction"].map(t => (
+                                          <button
+                                            key={t}
+                                            type="button"
+                                            onClick={() => setConstructionStatus(t)}
+                                            className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${constructionStatus === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
+                                          >
+                                            {t}
+                                          </button>
                                         ))}
                                       </div>
                                     </div>
                                   )}
                                 </div>
+                              )}
+                            </div>
+
+                            {propertyType !== "Plot" && propertyType !== "Agricultural Land" && (
+                              <>
+                                {/* Bathroom & Balcony */}
+                                <div className="grid grid-cols-1 gap-6">
+                                  <div>
+                                    <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
+                                      Bathroom <span className="text-rose-500">*</span>
+                                    </label>
+                                    <div className="flex flex-wrap gap-3">
+                                      {[1, 2, 3, 4].map(val => (
+                                        <button
+                                          key={val}
+                                          type="button"
+                                          onClick={() => setBathroomCount(val)}
+                                          className={`w-12 h-12 rounded-xl border text-sm font-bold transition-all ${bathroomCount === val
+                                            ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                            : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
+                                            }`}
+                                        >
+                                          {val}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-1">
+                                      Balcony <span className="text-rose-500">*</span>
+                                    </label>
+                                    <div className="flex flex-wrap gap-3">
+                                      {[0, 1, 2, 3, 4].map(val => (
+                                        <button
+                                          key={val}
+                                          type="button"
+                                          onClick={() => setBalconyCount(val)}
+                                          className={`w-12 h-12 rounded-xl border text-sm font-bold transition-all ${balconyCount === val
+                                            ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                            : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
+                                            }`}
+                                        >
+                                          {val}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <hr className="border-slate-100" />
+
+                                {/* Furnish Type */}
                                 <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-3 flex items-center gap-1.5">
-                                    Pet Friendly?
-                                    <Info className="w-3.5 h-3.5 text-slate-400 cursor-pointer" />
-                                  </label>
-                                  <div className="flex gap-2">
-                                    {["Yes", "No"].map(opt => (
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Furnish Type <span className="text-rose-500">*</span></label>
+                                  <div className="flex gap-3">
+                                    {[
+                                      { name: "Fully Furnished", icon: Sofa },
+                                      { name: "Semi Furnished", icon: Sofa },
+                                      { name: "Unfurnished", icon: Sofa },
+                                    ].map(opt => {
+                                      const isSelected = furnishType === opt.name
+                                      return (
+                                        <button
+                                          key={opt.name}
+                                          type="button"
+                                          onClick={() => setFurnishType(opt.name)}
+                                          className={`flex items-center gap-2 px-5 py-3 rounded-xl border text-sm font-bold transition-all ${isSelected
+                                            ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                            : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
+                                            }`}
+                                        >
+                                          <opt.icon size={16} className={isSelected ? "text-white" : "text-slate-400"} />
+                                          {opt.name}
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+
+                                  {furnishType !== "Unfurnished" && (
+                                    <div className="mt-4 space-y-3">
+                                      <label className="block text-[11px] font-bold text-slate-500 uppercase">Select Furnishings / Amenities</label>
+                                      <div className="flex flex-wrap gap-2">
+                                        {["Sofa", "TV", "Bed", "AC", "Refrigerator", "Wardrobe", "Geyser", "Washing Machine", "Dining Table", "Microwave"].map(item => {
+                                          const isChecked = furnishings.includes(item)
+                                          return (
+                                            <button
+                                              key={item}
+                                              type="button"
+                                              onClick={() => {
+                                                if (isChecked) {
+                                                  setFurnishings(prev => prev.filter(x => x !== item))
+                                                } else {
+                                                  setFurnishings(prev => [...prev, item])
+                                                }
+                                              }}
+                                              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${isChecked
+                                                ? "bg-[#0a2540] text-white border-[#0a2540]"
+                                                : "bg-white text-slate-500 border-slate-200 hover:border-[#0a2540]"
+                                                }`}
+                                            >
+                                              {isChecked ? "✓ " : "+ "} {item}
+                                            </button>
+                                          )
+                                        })}
+                                      </div>
+                                      {furnishings.length < 3 && (
+                                        <p className="text-xs font-bold text-rose-500 mt-1">Please add atleast 3 flat furnishings to continue</p>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Parking Details */}
+                                <div className="grid grid-cols-1 gap-6">
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Covered Parking <span className="text-rose-500">*</span></label>
+                                    <div className="flex gap-2">
+                                      {["0", "1", "2", "3", "3+"].map(num => (
+                                        <button
+                                          key={num}
+                                          type="button"
+                                          onClick={() => setCoveredParking(num)}
+                                          className={`w-10 h-10 rounded-lg text-sm font-bold border transition-colors ${coveredParking === num ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                                            }`}
+                                        >
+                                          {num}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Open Parking <span className="text-rose-500">*</span></label>
+                                    <div className="flex gap-2">
+                                      {["0", "1", "2", "3", "3+"].map(num => (
+                                        <button
+                                          key={num}
+                                          type="button"
+                                          onClick={() => setOpenParking(num)}
+                                          className={`w-10 h-10 rounded-lg text-sm font-bold border transition-colors ${openParking === num ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                                            }`}
+                                        >
+                                          {num}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+
+                            {lookingTo === "Rent" ? (
+                              <>
+                                {/* Tenant Type & Pets */}
+                                <div className="grid grid-cols-1 gap-6">
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-3">Preferred Tenant Type</label>
+                                    <div className="flex gap-2">
+                                      {["Family", "Bachelors", "Company"].map(type => {
+                                        const isSelected = preferredTenant.includes(type);
+                                        return (
+                                          <button
+                                            key={type}
+                                            type="button"
+                                            onClick={() => {
+                                              if (isSelected) {
+                                                setPreferredTenant(prev => prev.filter(t => t !== type));
+                                              } else {
+                                                setPreferredTenant(prev => [...prev, type]);
+                                              }
+                                            }}
+                                            className={`px-4 py-2.5 rounded-xl border text-sm font-bold transition-all ${isSelected
+                                              ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                              : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
+                                              }`}
+                                          >
+                                            {type}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                    {preferredTenant.includes("Bachelors") && (
+                                      <div className="mt-6">
+                                        <label className="block text-xs font-bold text-slate-500 mb-3">Select your preference for bachelors</label>
+                                        <div className="flex gap-3">
+                                          {["Open for both", "Men Only", "Women Only"].map(opt => (
+                                            <button key={opt} type="button" onClick={() => setBachelorPreference(opt)} className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${bachelorPreference === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}>{opt}</button>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-3 flex items-center gap-1.5">
+                                      Pet Friendly?
+                                      <Info className="w-3.5 h-3.5 text-slate-400 cursor-pointer" />
+                                    </label>
+                                    <div className="flex gap-2">
+                                      {["Yes", "No"].map(opt => (
+                                        <button
+                                          key={opt}
+                                          type="button"
+                                          onClick={() => setPetFriendly(opt)}
+                                          className={`w-16 py-2.5 rounded-xl border text-sm font-bold transition-all ${petFriendly === opt
+                                            ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                            : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
+                                            }`}
+                                        >
+                                          {opt}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <hr className="border-slate-100" />
+
+                                {/* Available From & Rent/Price */}
+                                <div className="grid grid-cols-1 gap-6">
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Available From <span className="text-rose-500">*</span></label>
+                                    <div className="relative">
+                                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <input
+                                        type="date"
+                                        value={availableFrom}
+                                        onChange={e => setAvailableFrom(e.target.value)}
+                                        className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                                      Monthly Rent (in ₹) <span className="text-rose-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                      <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <input
+                                        name="price"
+                                        value={formData.price}
+                                        onChange={handleInputChange}
+                                        onKeyDown={handleAmountKeyDown}
+                                        type="number"
+                                        placeholder="25000"
+                                        min="0"
+                                        max="1000000"
+                                        className="w-full pl-12 pr-28 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                      />
+                                      {formData.price && (
+                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                          {formatHelperAmount(formData.price)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Maintenance Charges */}
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Maintenance Charges <span className="text-rose-500">*</span></label>
+                                  <div className="flex gap-3">
+                                    {["Include in rent", "Separate"].map(opt => (
                                       <button
                                         key={opt}
                                         type="button"
-                                        onClick={() => setPetFriendly(opt)}
-                                        className={`w-16 py-2.5 rounded-xl border text-sm font-bold transition-all ${petFriendly === opt
-                                          ? "bg-[#0a2540] border-[#0a2540] text-white"
-                                          : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
+                                        onClick={() => setMaintenanceCharges(opt)}
+                                        className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${maintenanceCharges === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
                                           }`}
                                       >
                                         {opt}
                                       </button>
                                     ))}
                                   </div>
+                                  {maintenanceCharges === "Separate" && (
+                                    <div className="mt-6">
+                                      <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Maintenance Charges (per month) <span className="text-rose-500">*</span></label>
+                                      <div className="relative">
+                                        <input
+                                          type="number"
+                                          value={customMaintenance}
+                                          onChange={e => {
+                                            const val = e.target.value;
+                                            if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 100000)) {
+                                              setCustomMaintenance(val);
+                                            }
+                                          }}
+                                          onKeyDown={handleAmountKeyDown}
+                                          min="0"
+                                          max="100000"
+                                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
+                                        />
+                                        <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
+                                          {formatHelperAmount(customMaintenance)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
-                              </div>
 
-                              <hr className="border-slate-100" />
-
-                              {/* Available From & Rent/Price */}
-                              <div className="grid grid-cols-1 gap-6">
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Available From <span className="text-rose-500">*</span></label>
-                                  <div className="relative">
-                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input
-                                      type="date"
-                                      value={availableFrom}
-                                      onChange={e => setAvailableFrom(e.target.value)}
-                                      className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                                    />
+                                {/* Security Deposit & Lock-in Period */}
+                                <div className="grid grid-cols-1 gap-6">
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Security Deposit <span className="text-rose-500">*</span></label>
+                                    <div className="flex flex-wrap gap-2">
+                                      {["None", "1 month", "2 month", "Custom"].map(opt => (
+                                        <button
+                                          key={opt}
+                                          type="button"
+                                          onClick={() => setSecurityDeposit(opt)}
+                                          className={`px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${securityDeposit === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                                            }`}
+                                        >
+                                          {opt}
+                                        </button>
+                                      ))}
+                                    </div>
+                                    {securityDeposit === "Custom" && (
+                                      <div className="mt-6">
+                                        <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Security Deposit <span className="text-rose-500">*</span></label>
+                                        <div className="relative">
+                                          <input
+                                            type="number"
+                                            value={customSecurityDeposit}
+                                            onChange={e => {
+                                              const val = e.target.value;
+                                              if (val === "" || parseFloat(val) >= 0) {
+                                                setCustomSecurityDeposit(val);
+                                              }
+                                            }}
+                                            onKeyDown={handleAmountKeyDown}
+                                            min="0"
+                                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
+                                          />
+                                          <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
+                                            {formatHelperAmount(customSecurityDeposit)}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
-                                </div>
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
-                                    Monthly Rent (in ₹) <span className="text-rose-500">*</span>
-                                  </label>
-                                  <div className="relative">
-                                    <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input
-                                      name="price"
-                                      value={formData.price}
-                                      onChange={handleInputChange}
-                                      onKeyDown={handleAmountKeyDown}
-                                      type="number"
-                                      placeholder="25000"
-                                      min="0"
-                                      max="1000000"
-                                      className="w-full pl-12 pr-28 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                                    />
-                                    {formData.price && (
-                                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                                        {formatHelperAmount(formData.price)}
-                                      </span>
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Lock-in Period <span className="text-rose-500">*</span></label>
+                                    <div className="flex flex-wrap gap-2">
+                                      {["None", "1 month", "6 month", "Custom"].map(opt => (
+                                        <button
+                                          key={opt}
+                                          type="button"
+                                          onClick={() => setLockInPeriod(opt)}
+                                          className={`px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${lockInPeriod === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                                            }`}
+                                        >
+                                          {opt}
+                                        </button>
+                                      ))}
+                                    </div>
+                                    {lockInPeriod === "Custom" && (
+                                      <div className="mt-6 relative">
+                                        <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Lock in Period <span className="text-rose-500">*</span></label>
+                                        <input type="number" value={customLockInPeriod} onChange={e => setCustomLockInPeriod(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-16" />
+                                        <span className="absolute right-0 bottom-2 text-sm font-bold text-slate-400">months</span>
+                                      </div>
                                     )}
                                   </div>
                                 </div>
-                              </div>
 
-                              {/* Maintenance Charges */}
-                              <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Maintenance Charges <span className="text-rose-500">*</span></label>
-                                <div className="flex gap-3">
-                                  {["Include in rent", "Separate"].map(opt => (
-                                    <button
-                                      key={opt}
-                                      type="button"
-                                      onClick={() => setMaintenanceCharges(opt)}
-                                      className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${maintenanceCharges === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
-                                        }`}
-                                    >
-                                      {opt}
-                                    </button>
-                                  ))}
+                                {/* Do you charge brokerage? */}
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Do you charge brokerage? <span className="text-rose-500">*</span></label>
+                                  <div className="flex flex-wrap gap-2 items-center">
+                                    {["None", "15 Days", "30 Days", "Custom"].map(opt => (
+                                      <button
+                                        key={opt}
+                                        type="button"
+                                        onClick={() => setBrokerageCharge(opt)}
+                                        className={`px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${brokerageCharge === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                                          }`}
+                                      >
+                                        {opt}
+                                      </button>
+                                    ))}
+                                  </div>
+
+                                  {brokerageCharge === "Custom" && (
+                                    <div className="mt-6 space-y-4">
+                                      <div>
+                                        <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Brokerage (in Rupees) <span className="text-rose-500">*</span></label>
+                                        <div className="relative">
+                                          <input
+                                            type="number"
+                                            value={customBrokerage}
+                                            onChange={e => {
+                                              const val = e.target.value;
+                                              if (val === "" || parseFloat(val) >= 0) {
+                                                setCustomBrokerage(val);
+                                              }
+                                            }}
+                                            onKeyDown={handleAmountKeyDown}
+                                            min="0"
+                                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
+                                          />
+                                          <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
+                                            {formatHelperAmount(customBrokerage)}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      <label className="flex items-center gap-2 cursor-pointer w-fit border border-slate-200 rounded-lg px-4 py-3 hover:border-[#0a2540] transition-colors">
+                                        <input
+                                          type="checkbox"
+                                          checked={brokerageNegotiable}
+                                          onChange={e => setBrokerageNegotiable(e.target.checked)}
+                                          className="rounded text-[#0a2540] focus:ring-[#0a2540] w-4 h-4"
+                                        />
+                                        <span className="text-sm font-medium text-slate-800">Brokerage Negotiable</span>
+                                      </label>
+                                    </div>
+                                  )}
+                                  {brokerageCharge !== "Custom" && brokerageCharge !== "None" && (
+                                    <div className="mt-4">
+                                      <label className="flex items-center gap-2 cursor-pointer w-fit border border-slate-200 rounded-lg px-4 py-3 hover:border-[#0a2540] transition-colors">
+                                        <input
+                                          type="checkbox"
+                                          checked={brokerageNegotiable}
+                                          onChange={e => setBrokerageNegotiable(e.target.checked)}
+                                          className="rounded text-[#0a2540] focus:ring-[#0a2540] w-4 h-4"
+                                        />
+                                        <span className="text-sm font-medium text-slate-800">Brokerage Negotiable</span>
+                                      </label>
+                                    </div>
+                                  )}
                                 </div>
-                                {maintenanceCharges === "Separate" && (
-                                  <div className="mt-6">
-                                    <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Maintenance Charges (per month) <span className="text-rose-500">*</span></label>
+
+                                <hr className="border-slate-100" />
+
+                                {/* Carpet Area & Floors */}
+                                <div className={`grid grid-cols-1 ${propertyType === "Plot" || propertyType === "Agricultural Land" ? "md:grid-cols-1" : "md:grid-cols-3"} gap-6`}>
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Super Area (Sq. Ft.)</label>
                                     <div className="relative">
+                                      <Maximize2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <input
+                                        name="area"
+                                        value={formData.area}
+                                        onChange={handleInputChange}
+                                        type="number"
+                                        placeholder="1500"
+                                        min="0"
+                                        max="100000"
+                                        className="w-full pl-12 pr-28 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                      />
+                                      {formData.area && (
+                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                          {formData.area} Sq. ft.
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  {propertyType !== "Plot" && propertyType !== "Agricultural Land" && (
+                                    <>
+                                      <div>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Carpet Area (Sq. Ft.)</label>
+                                        <div className="relative">
+                                          <Maximize2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                          <input
+                                            type="number"
+                                            value={carpetArea}
+                                            onChange={e => {
+                                              const val = e.target.value;
+                                              if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 100000)) {
+                                                setCarpetArea(val);
+                                              }
+                                            }}
+                                            placeholder="1200"
+                                            min="0"
+                                            max="100000"
+                                            className="w-full pl-12 pr-28 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                          />
+                                          {carpetArea && (
+                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                              {carpetArea} Sq. ft.
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Floor No <span className="text-rose-500">*</span></label>
+                                          <input
+                                            type="number"
+                                            value={floorNo}
+                                            onChange={e => {
+                                              const val = e.target.value;
+                                              if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 200)) {
+                                                setFloorNo(val);
+                                              }
+                                            }}
+                                            onKeyDown={handleAmountKeyDown}
+                                            placeholder="3"
+                                            min="0"
+                                            max="200"
+                                            className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Total Floors <span className="text-rose-500">*</span></label>
+                                          <input
+                                            type="number"
+                                            value={totalFloors}
+                                            onChange={e => {
+                                              const val = e.target.value;
+                                              if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 200)) {
+                                                setTotalFloors(val);
+                                              }
+                                            }}
+                                            onKeyDown={handleAmountKeyDown}
+                                            placeholder="12"
+                                            min="0"
+                                            max="200"
+                                            className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                          />
+                                        </div>
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+
+                                <hr className="border-slate-100" />
+
+                                {/* Local Address & Pincode */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Local Address / Area Details</label>
+                                    <div className="relative">
+                                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <input
+                                        name="address"
+                                        value={formData.address}
+                                        onChange={handleInputChange}
+                                        type="text"
+                                        placeholder="Flat 302, Block C, near Park"
+                                        className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Pincode</label>
+                                    <input
+                                      name="pincode"
+                                      value={formData.pincode}
+                                      onChange={handleInputChange}
+                                      type="text"
+                                      placeholder="110001"
+                                      className="w-full px-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Description */}
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Description</label>
+                                  <textarea
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleInputChange}
+                                    rows={4}
+                                    placeholder="Tell buyers about your property..."
+                                    className="w-full px-5 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold resize-none transition-all"
+                                  />
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                {/* COST * (Expected Price) */}
+                                <div className="grid grid-cols-1 gap-6">
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                                      Cost <span className="text-rose-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                      <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <input
+                                        name="price"
+                                        value={formData.price}
+                                        onChange={handleInputChange}
+                                        onKeyDown={handleAmountKeyDown}
+                                        type="number"
+                                        placeholder="7500000"
+                                        min="0"
+                                        max="10000000000"
+                                        className="w-full pl-12 pr-28 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                      />
+                                      {formData.price && (
+                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                          {formatHelperAmount(formData.price)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* MAINTENANCE CHARGES (per month) */}
+                                <div className="grid grid-cols-1 gap-6">
+                                  <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                                      Maintenance Charges (per month)
+                                    </label>
+                                    <div className="relative">
+                                      <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                       <input
                                         type="number"
                                         value={customMaintenance}
@@ -2542,179 +2923,85 @@ ${formData.description}`
                                           }
                                         }}
                                         onKeyDown={handleAmountKeyDown}
+                                        placeholder="2000"
                                         min="0"
                                         max="100000"
-                                        className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
+                                        className="w-full pl-12 pr-28 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
                                       />
-                                      <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
-                                        {formatHelperAmount(customMaintenance)}
-                                      </span>
+                                      {customMaintenance && (
+                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                          {formatHelperAmount(customMaintenance)}
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
-                                )}
-                              </div>
+                                </div>
 
-                              {/* Security Deposit & Lock-in Period */}
-                              <div className="grid grid-cols-1 gap-6">
+                                {/* DO YOU CHARGE BROKERAGE? * */}
                                 <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Security Deposit <span className="text-rose-500">*</span></label>
-                                  <div className="flex flex-wrap gap-2">
-                                    {["None", "1 month", "2 month", "Custom"].map(opt => (
-                                      <button
-                                        key={opt}
-                                        type="button"
-                                        onClick={() => setSecurityDeposit(opt)}
-                                        className={`px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${securityDeposit === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
-                                          }`}
-                                      >
-                                        {opt}
-                                      </button>
-                                    ))}
+                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-3">
+                                    Do you charge brokerage? <span className="text-rose-500">*</span>
+                                  </label>
+                                  <div className="flex gap-3">
+                                    {["Yes", "No"].map(opt => {
+                                      const isActive = opt === "Yes" ? brokerageCharge === "Yes" : (brokerageCharge === "No" || brokerageCharge === "None")
+                                      return (
+                                        <button
+                                          key={opt}
+                                          type="button"
+                                          onClick={() => setBrokerageCharge(opt)}
+                                          className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isActive ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
+                                        >
+                                          {opt}
+                                        </button>
+                                      )
+                                    })}
                                   </div>
-                                  {securityDeposit === "Custom" && (
-                                    <div className="mt-6">
-                                      <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Security Deposit <span className="text-rose-500">*</span></label>
-                                      <div className="relative">
-                                        <input
-                                          type="number"
-                                          value={customSecurityDeposit}
-                                          onChange={e => {
-                                            const val = e.target.value;
-                                            if (val === "" || parseFloat(val) >= 0) {
-                                              setCustomSecurityDeposit(val);
-                                            }
-                                          }}
-                                          onKeyDown={handleAmountKeyDown}
-                                          min="0"
-                                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
-                                        />
-                                        <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
-                                          {formatHelperAmount(customSecurityDeposit)}
-                                        </span>
+
+                                  {brokerageCharge === "Yes" && (
+                                    <div className="mt-6 space-y-4">
+                                      <div>
+                                        <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">
+                                          Brokerage (in Rupees) <span className="text-rose-500">*</span>
+                                        </label>
+                                        <div className="relative">
+                                          <input
+                                            type="number"
+                                            value={customBrokerage}
+                                            onChange={e => {
+                                              const val = e.target.value;
+                                              if (val === "" || parseFloat(val) >= 0) {
+                                                setCustomBrokerage(val);
+                                              }
+                                            }}
+                                            onKeyDown={handleAmountKeyDown}
+                                            placeholder="50000"
+                                            min="0"
+                                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
+                                          />
+                                          <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
+                                            {formatHelperAmount(customBrokerage)}
+                                          </span>
+                                        </div>
                                       </div>
+                                      <label className="flex items-center gap-2 cursor-pointer w-fit border border-slate-200 rounded-lg px-4 py-3 hover:border-[#0a2540] transition-colors">
+                                        <input
+                                          type="checkbox"
+                                          checked={brokerageNegotiable}
+                                          onChange={e => setBrokerageNegotiable(e.target.checked)}
+                                          className="rounded text-[#0a2540] focus:ring-[#0a2540] w-4 h-4"
+                                        />
+                                        <span className="text-sm font-medium text-slate-800">Brokerage Negotiable</span>
+                                      </label>
                                     </div>
                                   )}
                                 </div>
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Lock-in Period <span className="text-rose-500">*</span></label>
-                                  <div className="flex flex-wrap gap-2">
-                                    {["None", "1 month", "6 month", "Custom"].map(opt => (
-                                      <button
-                                        key={opt}
-                                        type="button"
-                                        onClick={() => setLockInPeriod(opt)}
-                                        className={`px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${lockInPeriod === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
-                                          }`}
-                                      >
-                                        {opt}
-                                      </button>
-                                    ))}
-                                  </div>
-                                  {lockInPeriod === "Custom" && (
-                                    <div className="mt-6 relative">
-                                      <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Lock in Period <span className="text-rose-500">*</span></label>
-                                      <input type="number" value={customLockInPeriod} onChange={e => setCustomLockInPeriod(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-16" />
-                                      <span className="absolute right-0 bottom-2 text-sm font-bold text-slate-400">months</span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
 
-                              {/* Do you charge brokerage? */}
-                              <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Do you charge brokerage? <span className="text-rose-500">*</span></label>
-                                <div className="flex flex-wrap gap-2 items-center">
-                                  {["None", "15 Days", "30 Days", "Custom"].map(opt => (
-                                    <button
-                                      key={opt}
-                                      type="button"
-                                      onClick={() => setBrokerageCharge(opt)}
-                                      className={`px-4 py-2 rounded-lg text-xs font-bold border transition-colors ${brokerageCharge === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
-                                        }`}
-                                    >
-                                      {opt}
-                                    </button>
-                                  ))}
-                                </div>
-
-                                {brokerageCharge === "Custom" && (
-                                  <div className="mt-6 space-y-4">
-                                    <div>
-                                      <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Brokerage (in Rupees) <span className="text-rose-500">*</span></label>
-                                      <div className="relative">
-                                        <input
-                                          type="number"
-                                          value={customBrokerage}
-                                          onChange={e => {
-                                            const val = e.target.value;
-                                            if (val === "" || parseFloat(val) >= 0) {
-                                              setCustomBrokerage(val);
-                                            }
-                                          }}
-                                          onKeyDown={handleAmountKeyDown}
-                                          min="0"
-                                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
-                                        />
-                                        <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
-                                          {formatHelperAmount(customBrokerage)}
-                                        </span>
-                                      </div>
-                                    </div>
-                                    <label className="flex items-center gap-2 cursor-pointer w-fit border border-slate-200 rounded-lg px-4 py-3 hover:border-[#0a2540] transition-colors">
-                                      <input
-                                        type="checkbox"
-                                        checked={brokerageNegotiable}
-                                        onChange={e => setBrokerageNegotiable(e.target.checked)}
-                                        className="rounded text-[#0a2540] focus:ring-[#0a2540] w-4 h-4"
-                                      />
-                                      <span className="text-sm font-medium text-slate-800">Brokerage Negotiable</span>
-                                    </label>
-                                  </div>
-                                )}
-                                {brokerageCharge !== "Custom" && brokerageCharge !== "None" && (
-                                  <div className="mt-4">
-                                    <label className="flex items-center gap-2 cursor-pointer w-fit border border-slate-200 rounded-lg px-4 py-3 hover:border-[#0a2540] transition-colors">
-                                      <input
-                                        type="checkbox"
-                                        checked={brokerageNegotiable}
-                                        onChange={e => setBrokerageNegotiable(e.target.checked)}
-                                        className="rounded text-[#0a2540] focus:ring-[#0a2540] w-4 h-4"
-                                      />
-                                      <span className="text-sm font-medium text-slate-800">Brokerage Negotiable</span>
-                                    </label>
-                                  </div>
-                                )}
-                              </div>
-
-                              <hr className="border-slate-100" />
-
-                              {/* Carpet Area & Floors */}
-                              <div className={`grid grid-cols-1 ${propertyType === "Plot" || propertyType === "Agricultural Land" ? "md:grid-cols-1" : "md:grid-cols-3"} gap-6`}>
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Super Area (Sq. Ft.)</label>
-                                  <div className="relative">
-                                    <Maximize2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input
-                                      name="area"
-                                      value={formData.area}
-                                      onChange={handleInputChange}
-                                      type="number"
-                                      placeholder="1500"
-                                      min="0"
-                                      max="100000"
-                                      className="w-full pl-12 pr-28 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                                    />
-                                    {formData.area && (
-                                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                                        {formData.area} Sq. ft.
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
+                                {/* CARPET AREA */}
                                 {propertyType !== "Plot" && propertyType !== "Agricultural Land" && (
-                                  <>
+                                  <div className="grid grid-cols-1 gap-6">
                                     <div>
-                                      <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Carpet Area (Sq. Ft.)</label>
+                                      <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Carpet Area</label>
                                       <div className="relative">
                                         <Maximize2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                         <input
@@ -2738,550 +3025,314 @@ ${formData.description}`
                                         )}
                                       </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-3">
-                                      <div>
-                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Floor No <span className="text-rose-500">*</span></label>
-                                        <input
-                                          type="number"
-                                          value={floorNo}
-                                          onChange={e => {
-                                            const val = e.target.value;
-                                            if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 200)) {
-                                              setFloorNo(val);
-                                            }
-                                          }}
-                                          onKeyDown={handleAmountKeyDown}
-                                          placeholder="3"
-                                          min="0"
-                                          max="200"
-                                          className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                                        />
-                                      </div>
-                                      <div>
-                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Total Floors <span className="text-rose-500">*</span></label>
-                                        <input
-                                          type="number"
-                                          value={totalFloors}
-                                          onChange={e => {
-                                            const val = e.target.value;
-                                            if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 200)) {
-                                              setTotalFloors(val);
-                                            }
-                                          }}
-                                          onKeyDown={handleAmountKeyDown}
-                                          placeholder="12"
-                                          min="0"
-                                          max="200"
-                                          className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                                        />
-                                      </div>
-                                    </div>
-                                  </>
+                                  </div>
                                 )}
-                              </div>
 
-                              <hr className="border-slate-100" />
-
-                              {/* Local Address & Pincode */}
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Local Address / Area Details</label>
-                                  <div className="relative">
-                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input
-                                      name="address"
-                                      value={formData.address}
-                                      onChange={handleInputChange}
-                                      type="text"
-                                      placeholder="Flat 302, Block C, near Park"
-                                      className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                                    />
-                                  </div>
-                                </div>
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Pincode</label>
-                                  <input
-                                    name="pincode"
-                                    value={formData.pincode}
-                                    onChange={handleInputChange}
-                                    type="text"
-                                    placeholder="110001"
-                                    className="w-full px-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                                  />
-                                </div>
-                              </div>
-
-                              {/* Description */}
-                              <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Description</label>
-                                <textarea
-                                  name="description"
-                                  value={formData.description}
-                                  onChange={handleInputChange}
-                                  rows={4}
-                                  placeholder="Tell buyers about your property..."
-                                  className="w-full px-5 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold resize-none transition-all"
-                                />
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              {/* COST * (Expected Price) */}
-                              <div className="grid grid-cols-1 gap-6">
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
-                                    Cost <span className="text-rose-500">*</span>
-                                  </label>
-                                  <div className="relative">
-                                    <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input
-                                      name="price"
-                                      value={formData.price}
-                                      onChange={handleInputChange}
-                                      onKeyDown={handleAmountKeyDown}
-                                      type="number"
-                                      placeholder="7500000"
-                                      min="0"
-                                      max="10000000000"
-                                      className="w-full pl-12 pr-28 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                                    />
-                                    {formData.price && (
-                                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                                        {formatHelperAmount(formData.price)}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* MAINTENANCE CHARGES (per month) */}
-                              <div className="grid grid-cols-1 gap-6">
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
-                                    Maintenance Charges (per month)
-                                  </label>
-                                  <div className="relative">
-                                    <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                    <input
-                                      type="number"
-                                      value={customMaintenance}
-                                      onChange={e => {
-                                        const val = e.target.value;
-                                        if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 100000)) {
-                                          setCustomMaintenance(val);
-                                        }
-                                      }}
-                                      onKeyDown={handleAmountKeyDown}
-                                      placeholder="2000"
-                                      min="0"
-                                      max="100000"
-                                      className="w-full pl-12 pr-28 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                                    />
-                                    {customMaintenance && (
-                                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                                        {formatHelperAmount(customMaintenance)}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* DO YOU CHARGE BROKERAGE? * */}
-                              <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-3">
-                                  Do you charge brokerage? <span className="text-rose-500">*</span>
-                                </label>
-                                <div className="flex gap-3">
-                                  {["Yes", "No"].map(opt => {
-                                    const isActive = opt === "Yes" ? brokerageCharge === "Yes" : (brokerageCharge === "No" || brokerageCharge === "None")
-                                    return (
-                                      <button
-                                        key={opt}
-                                        type="button"
-                                        onClick={() => setBrokerageCharge(opt)}
-                                        className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isActive ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
-                                      >
-                                        {opt}
-                                      </button>
-                                    )
-                                  })}
-                                </div>
-
-                                {brokerageCharge === "Yes" && (
-                                  <div className="mt-6 space-y-4">
+                                {/* FLOOR NO. * & TOTAL FLOORS * */}
+                                {propertyType !== "Plot" && propertyType !== "Agricultural Land" && (
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                      <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">
-                                        Brokerage (in Rupees) <span className="text-rose-500">*</span>
-                                      </label>
-                                      <div className="relative">
-                                        <input
-                                          type="number"
-                                          value={customBrokerage}
-                                          onChange={e => {
-                                            const val = e.target.value;
-                                            if (val === "" || parseFloat(val) >= 0) {
-                                              setCustomBrokerage(val);
-                                            }
-                                          }}
-                                          onKeyDown={handleAmountKeyDown}
-                                          placeholder="50000"
-                                          min="0"
-                                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
-                                        />
-                                        <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
-                                          {formatHelperAmount(customBrokerage)}
-                                        </span>
-                                      </div>
-                                    </div>
-                                    <label className="flex items-center gap-2 cursor-pointer w-fit border border-slate-200 rounded-lg px-4 py-3 hover:border-[#0a2540] transition-colors">
-                                      <input
-                                        type="checkbox"
-                                        checked={brokerageNegotiable}
-                                        onChange={e => setBrokerageNegotiable(e.target.checked)}
-                                        className="rounded text-[#0a2540] focus:ring-[#0a2540] w-4 h-4"
-                                      />
-                                      <span className="text-sm font-medium text-slate-800">Brokerage Negotiable</span>
-                                    </label>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* CARPET AREA */}
-                              {propertyType !== "Plot" && propertyType !== "Agricultural Land" && (
-                                <div className="grid grid-cols-1 gap-6">
-                                  <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Carpet Area</label>
-                                    <div className="relative">
-                                      <Maximize2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                      <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Floor No. <span className="text-rose-500">*</span></label>
                                       <input
                                         type="number"
-                                        value={carpetArea}
+                                        value={floorNo}
                                         onChange={e => {
                                           const val = e.target.value;
-                                          if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 100000)) {
-                                            setCarpetArea(val);
+                                          if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 200)) {
+                                            setFloorNo(val);
                                           }
                                         }}
-                                        placeholder="1200"
+                                        onKeyDown={handleAmountKeyDown}
+                                        placeholder="3"
                                         min="0"
-                                        max="100000"
-                                        className="w-full pl-12 pr-28 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                        max="200"
+                                        className="w-full px-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
                                       />
-                                      {carpetArea && (
-                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                                          {carpetArea} Sq. ft.
-                                        </span>
-                                      )}
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Total Floors <span className="text-rose-500">*</span></label>
+                                      <input
+                                        type="number"
+                                        value={totalFloors}
+                                        onChange={e => {
+                                          const val = e.target.value;
+                                          if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 200)) {
+                                            setTotalFloors(val);
+                                          }
+                                        }}
+                                        onKeyDown={handleAmountKeyDown}
+                                        placeholder="12"
+                                        min="0"
+                                        max="200"
+                                        className="w-full px-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                                      />
                                     </div>
                                   </div>
-                                </div>
-                              )}
+                                )}
+                              </>
+                            )}
 
-                              {/* FLOOR NO. * & TOTAL FLOORS * */}
-                              {propertyType !== "Plot" && propertyType !== "Agricultural Land" && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                  <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Floor No. <span className="text-rose-500">*</span></label>
-                                    <input
-                                      type="number"
-                                      value={floorNo}
-                                      onChange={e => {
-                                        const val = e.target.value;
-                                        if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 200)) {
-                                          setFloorNo(val);
-                                        }
-                                      }}
-                                      onKeyDown={handleAmountKeyDown}
-                                      placeholder="3"
-                                      min="0"
-                                      max="200"
-                                      className="w-full px-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Total Floors <span className="text-rose-500">*</span></label>
-                                    <input
-                                      type="number"
-                                      value={totalFloors}
-                                      onChange={e => {
-                                        const val = e.target.value;
-                                        if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 200)) {
-                                          setTotalFloors(val);
-                                        }
-                                      }}
-                                      onKeyDown={handleAmountKeyDown}
-                                      placeholder="12"
-                                      min="0"
-                                      max="200"
-                                      className="w-full px-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                                    />
-                                  </div>
+                            {/* Additional Details Accordion */}
+                            <div className="border border-[#0a2540]/10 rounded-xl overflow-hidden shadow-sm">
+                              <button
+                                type="button"
+                                onClick={() => setShowAdditionalDetails(!showAdditionalDetails)}
+                                className="w-full flex items-center justify-between p-4 bg-[#0a2540]/5/40 hover:bg-[#0a2540]/5 transition-colors"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-slate-800 text-sm">Add Additional Details</span>
+                                  <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Score ↑5%</span>
                                 </div>
-                              )}
-                            </>
-                          )}
+                                {showAdditionalDetails ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+                              </button>
 
-                          {/* Additional Details Accordion */}
-                          <div className="border border-[#0a2540]/10 rounded-xl overflow-hidden shadow-sm">
+                              <AnimatePresence>
+                                {showAdditionalDetails && (
+                                  <motion.div
+                                    initial={{ height: 0 }}
+                                    animate={{ height: "auto" }}
+                                    exit={{ height: 0 }}
+                                    className="overflow-hidden bg-white border-t border-[#0a2540]/10/50"
+                                  >
+                                    <div className="p-6 space-y-10">
+                                      {lookingTo === "Rent" ? (
+                                        <>
+                                          {/* Parking Charges */}
+                                          <div>
+                                            <label className="block text-sm font-semibold text-slate-400 mb-4">Parking Charges</label>
+                                            <div className="flex flex-wrap gap-4">
+                                              {["Include in rent", "Separate"].map(opt => (
+                                                <button
+                                                  key={opt}
+                                                  type="button"
+                                                  onClick={() => setParkingCharges(opt)}
+                                                  className={`px-6 py-2.5 rounded-xl text-sm font-medium border transition-colors ${parkingCharges === opt ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600"}`}
+                                                >
+                                                  {opt}
+                                                </button>
+                                              ))}
+                                            </div>
+                                            {parkingCharges === "Separate" && (
+                                              <div className="mt-4">
+                                                <label className="text-xs font-semibold text-slate-400 mb-1 flex items-center gap-1">
+                                                  Parking Charges (per month) <span className="text-rose-500">*</span>
+                                                </label>
+                                                <div className="relative">
+                                                  <input
+                                                    type="number"
+                                                    value={customParkingCharges}
+                                                    onChange={e => {
+                                                      const val = e.target.value;
+                                                      if (val === "" || parseFloat(val) >= 0) {
+                                                        setCustomParkingCharges(val);
+                                                      }
+                                                    }}
+                                                    onKeyDown={handleAmountKeyDown}
+                                                    min="0"
+                                                    className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
+                                                  />
+                                                  <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
+                                                    {formatHelperAmount(customParkingCharges)}
+                                                  </span>
+                                                </div>
+                                              </div>
+                                            )}
+                                          </div>
+
+                                          {/* Painting Charges */}
+                                          <div>
+                                            <label className="block text-sm font-semibold text-slate-400 mb-4">Painting Charges</label>
+                                            <div className="flex flex-wrap gap-4">
+                                              {["None", "As per cost", "1 month", "Custom"].map(opt => (
+                                                <button
+                                                  key={opt}
+                                                  type="button"
+                                                  onClick={() => setPaintingCharges(opt)}
+                                                  className={`px-6 py-2.5 rounded-xl text-sm font-medium border transition-colors ${paintingCharges === opt ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600"}`}
+                                                >
+                                                  {opt}
+                                                </button>
+                                              ))}
+                                            </div>
+                                            {paintingCharges === "Custom" && (
+                                              <div className="mt-4">
+                                                <label className="text-xs font-semibold text-slate-400 mb-1 flex items-center gap-1">
+                                                  Painting Charges <span className="text-rose-500">*</span>
+                                                </label>
+                                                <div className="relative">
+                                                  <input
+                                                    type="number"
+                                                    value={customPaintingCharges}
+                                                    onChange={e => {
+                                                      const val = e.target.value;
+                                                      if (val === "" || parseFloat(val) >= 0) {
+                                                        setCustomPaintingCharges(val);
+                                                      }
+                                                    }}
+                                                    onKeyDown={handleAmountKeyDown}
+                                                    min="0"
+                                                    className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
+                                                  />
+                                                  <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
+                                                    {formatHelperAmount(customPaintingCharges)}
+                                                  </span>
+                                                </div>
+                                              </div>
+                                            )}
+                                          </div>
+
+                                          {/* Facing */}
+                                          <div>
+                                            <label className="block text-sm font-semibold text-slate-400 mb-4">Facing</label>
+                                            <div className="flex flex-wrap gap-4">
+                                              {["North", "East", "West", "South", "North - East", "North - West", "South - East", "South - West"].map(opt => (
+                                                <button
+                                                  key={opt}
+                                                  type="button"
+                                                  onClick={() => setFacing(opt)}
+                                                  className={`px-6 py-2.5 rounded-xl text-sm font-medium border transition-colors ${facing === opt ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600"}`}
+                                                >
+                                                  {opt}
+                                                </button>
+                                              ))}
+                                            </div>
+                                          </div>
+
+                                          {/* Address */}
+                                          <div>
+                                            <label className="block text-lg font-semibold text-slate-400 mb-2">Address</label>
+                                            <input
+                                              type="text"
+                                              value={additionalAddress}
+                                              onChange={e => setAdditionalAddress(e.target.value)}
+                                              className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 outline-none"
+                                            />
+                                          </div>
+
+                                          {/* Servant Room */}
+                                          <div>
+                                            <label className="block text-sm font-semibold text-slate-400 mb-4">Servant Room</label>
+                                            <div className="flex flex-wrap gap-4">
+                                              {["Yes", "No"].map(opt => (
+                                                <button
+                                                  key={opt}
+                                                  type="button"
+                                                  onClick={() => setServantRoom(opt)}
+                                                  className={`px-8 py-2.5 rounded-xl text-sm font-medium border transition-colors ${servantRoom === opt ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600"}`}
+                                                >
+                                                  {opt}
+                                                </button>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        </>
+                                      ) : (
+                                        <>
+                                          {/* Facing */}
+                                          <div>
+                                            <label className="block text-sm font-semibold text-slate-500 mb-3">Facing</label>
+                                            <div className="flex flex-wrap gap-3">
+                                              {["North", "East", "West", "South", "North - East", "North - West", "South - East", "South - West"].map(opt => (
+                                                <button
+                                                  key={opt}
+                                                  type="button"
+                                                  onClick={() => setFacing(opt)}
+                                                  className={`px-5 py-2.5 rounded-xl text-sm font-semibold border transition-all ${facing === opt
+                                                    ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm"
+                                                    : "bg-white border-slate-200 text-slate-700 hover:border-[#0a2540]"
+                                                    }`}
+                                                >
+                                                  {opt}
+                                                </button>
+                                              ))}
+                                            </div>
+                                          </div>
+
+                                          {/* Address */}
+                                          <div>
+                                            <label className="block text-sm font-semibold text-slate-500 mb-2">Address</label>
+                                            <input
+                                              type="text"
+                                              value={additionalAddress}
+                                              onChange={e => setAdditionalAddress(e.target.value)}
+                                              className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                                            />
+                                          </div>
+
+                                          {/* Servant Room */}
+                                          <div>
+                                            <label className="block text-sm font-semibold text-slate-500 mb-3">Servant Room</label>
+                                            <div className="flex gap-3">
+                                              {["Yes", "No"].map(opt => (
+                                                <button
+                                                  key={opt}
+                                                  type="button"
+                                                  onClick={() => setServantRoom(opt)}
+                                                  className={`px-6 py-2.5 rounded-xl text-sm font-semibold border transition-all ${servantRoom === opt
+                                                    ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm"
+                                                    : "bg-white border-slate-200 text-slate-700 hover:border-[#0a2540]"
+                                                    }`}
+                                                >
+                                                  {opt}
+                                                </button>
+                                              ))}
+                                            </div>
+                                          </div>
+
+                                          {/* RERA ID */}
+                                          <div>
+                                            <label className="block text-sm font-semibold text-slate-500 mb-2">RERA ID</label>
+                                            <input
+                                              type="text"
+                                              value={reraId}
+                                              onChange={e => setReraId(e.target.value)}
+                                              className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                                            />
+                                          </div>
+
+                                          {/* Property Description */}
+                                          <div>
+                                            <div className="flex justify-between items-center mb-2">
+                                              <label className="block text-sm font-semibold text-slate-500">Property Description</label>
+                                              <span className="text-xs font-semibold text-slate-400">
+                                                {(formData.description || "").length} / 1500
+                                              </span>
+                                            </div>
+                                            <textarea
+                                              name="description"
+                                              value={formData.description}
+                                              onChange={e => {
+                                                if (e.target.value.length <= 1500) {
+                                                  handleInputChange(e);
+                                                }
+                                              }}
+                                              rows={2}
+                                              className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none resize-none transition-colors"
+                                            />
+                                          </div>
+                                        </>
+                                      )}
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="pt-4">
                             <button
-                              type="button"
-                              onClick={() => setShowAdditionalDetails(!showAdditionalDetails)}
-                              className="w-full flex items-center justify-between p-4 bg-[#0a2540]/5/40 hover:bg-[#0a2540]/5 transition-colors"
+                              onClick={handleNext}
+                              className="w-full py-4 rounded-xl text-base font-bold bg-[#38D39F] text-white hover:bg-[#2bc490] transition-colors shadow-lg shadow-emerald-200/50"
                             >
-                              <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-800 text-sm">Add Additional Details</span>
-                                <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Score ↑5%</span>
-                              </div>
-                              {showAdditionalDetails ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+                              Continues
                             </button>
-
-                            <AnimatePresence>
-                              {showAdditionalDetails && (
-                                <motion.div
-                                  initial={{ height: 0 }}
-                                  animate={{ height: "auto" }}
-                                  exit={{ height: 0 }}
-                                  className="overflow-hidden bg-white border-t border-[#0a2540]/10/50"
-                                >
-                                  <div className="p-6 space-y-10">
-                                    {lookingTo === "Rent" ? (
-                                      <>
-                                        {/* Parking Charges */}
-                                        <div>
-                                          <label className="block text-sm font-semibold text-slate-400 mb-4">Parking Charges</label>
-                                          <div className="flex flex-wrap gap-4">
-                                            {["Include in rent", "Separate"].map(opt => (
-                                              <button
-                                                key={opt}
-                                                type="button"
-                                                onClick={() => setParkingCharges(opt)}
-                                                className={`px-6 py-2.5 rounded-xl text-sm font-medium border transition-colors ${parkingCharges === opt ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600"}`}
-                                              >
-                                                {opt}
-                                              </button>
-                                            ))}
-                                          </div>
-                                          {parkingCharges === "Separate" && (
-                                            <div className="mt-4">
-                                              <label className="text-xs font-semibold text-slate-400 mb-1 flex items-center gap-1">
-                                                Parking Charges (per month) <span className="text-rose-500">*</span>
-                                              </label>
-                                              <div className="relative">
-                                                <input
-                                                  type="number"
-                                                  value={customParkingCharges}
-                                                  onChange={e => {
-                                                    const val = e.target.value;
-                                                    if (val === "" || parseFloat(val) >= 0) {
-                                                      setCustomParkingCharges(val);
-                                                    }
-                                                  }}
-                                                  onKeyDown={handleAmountKeyDown}
-                                                  min="0"
-                                                  className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
-                                                />
-                                                <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
-                                                  {formatHelperAmount(customParkingCharges)}
-                                                </span>
-                                              </div>
-                                            </div>
-                                          )}
-                                        </div>
-
-                                        {/* Painting Charges */}
-                                        <div>
-                                          <label className="block text-sm font-semibold text-slate-400 mb-4">Painting Charges</label>
-                                          <div className="flex flex-wrap gap-4">
-                                            {["None", "As per cost", "1 month", "Custom"].map(opt => (
-                                              <button
-                                                key={opt}
-                                                type="button"
-                                                onClick={() => setPaintingCharges(opt)}
-                                                className={`px-6 py-2.5 rounded-xl text-sm font-medium border transition-colors ${paintingCharges === opt ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600"}`}
-                                              >
-                                                {opt}
-                                              </button>
-                                            ))}
-                                          </div>
-                                          {paintingCharges === "Custom" && (
-                                            <div className="mt-4">
-                                              <label className="text-xs font-semibold text-slate-400 mb-1 flex items-center gap-1">
-                                                Painting Charges <span className="text-rose-500">*</span>
-                                              </label>
-                                              <div className="relative">
-                                                <input
-                                                  type="number"
-                                                  value={customPaintingCharges}
-                                                  onChange={e => {
-                                                    const val = e.target.value;
-                                                    if (val === "" || parseFloat(val) >= 0) {
-                                                      setCustomPaintingCharges(val);
-                                                    }
-                                                  }}
-                                                  onKeyDown={handleAmountKeyDown}
-                                                  min="0"
-                                                  className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
-                                                />
-                                                <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
-                                                  {formatHelperAmount(customPaintingCharges)}
-                                                </span>
-                                              </div>
-                                            </div>
-                                          )}
-                                        </div>
-
-                                        {/* Facing */}
-                                        <div>
-                                          <label className="block text-sm font-semibold text-slate-400 mb-4">Facing</label>
-                                          <div className="flex flex-wrap gap-4">
-                                            {["North", "East", "West", "South", "North - East", "North - West", "South - East", "South - West"].map(opt => (
-                                              <button
-                                                key={opt}
-                                                type="button"
-                                                onClick={() => setFacing(opt)}
-                                                className={`px-6 py-2.5 rounded-xl text-sm font-medium border transition-colors ${facing === opt ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600"}`}
-                                              >
-                                                {opt}
-                                              </button>
-                                            ))}
-                                          </div>
-                                        </div>
-
-                                        {/* Address */}
-                                        <div>
-                                          <label className="block text-lg font-semibold text-slate-400 mb-2">Address</label>
-                                          <input
-                                            type="text"
-                                            value={additionalAddress}
-                                            onChange={e => setAdditionalAddress(e.target.value)}
-                                            className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 outline-none"
-                                          />
-                                        </div>
-
-                                        {/* Servant Room */}
-                                        <div>
-                                          <label className="block text-sm font-semibold text-slate-400 mb-4">Servant Room</label>
-                                          <div className="flex flex-wrap gap-4">
-                                            {["Yes", "No"].map(opt => (
-                                              <button
-                                                key={opt}
-                                                type="button"
-                                                onClick={() => setServantRoom(opt)}
-                                                className={`px-8 py-2.5 rounded-xl text-sm font-medium border transition-colors ${servantRoom === opt ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600"}`}
-                                              >
-                                                {opt}
-                                              </button>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      </>
-                                    ) : (
-                                      <>
-                                        {/* Facing */}
-                                        <div>
-                                          <label className="block text-sm font-semibold text-slate-500 mb-3">Facing</label>
-                                          <div className="flex flex-wrap gap-3">
-                                            {["North", "East", "West", "South", "North - East", "North - West", "South - East", "South - West"].map(opt => (
-                                              <button
-                                                key={opt}
-                                                type="button"
-                                                onClick={() => setFacing(opt)}
-                                                className={`px-5 py-2.5 rounded-xl text-sm font-semibold border transition-all ${facing === opt
-                                                  ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm"
-                                                  : "bg-white border-slate-200 text-slate-700 hover:border-[#0a2540]"
-                                                  }`}
-                                              >
-                                                {opt}
-                                              </button>
-                                            ))}
-                                          </div>
-                                        </div>
-
-                                        {/* Address */}
-                                        <div>
-                                          <label className="block text-sm font-semibold text-slate-500 mb-2">Address</label>
-                                          <input
-                                            type="text"
-                                            value={additionalAddress}
-                                            onChange={e => setAdditionalAddress(e.target.value)}
-                                            className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
-                                          />
-                                        </div>
-
-                                        {/* Servant Room */}
-                                        <div>
-                                          <label className="block text-sm font-semibold text-slate-500 mb-3">Servant Room</label>
-                                          <div className="flex gap-3">
-                                            {["Yes", "No"].map(opt => (
-                                              <button
-                                                key={opt}
-                                                type="button"
-                                                onClick={() => setServantRoom(opt)}
-                                                className={`px-6 py-2.5 rounded-xl text-sm font-semibold border transition-all ${servantRoom === opt
-                                                  ? "bg-[#0a2540] border-[#0a2540] text-white shadow-sm"
-                                                  : "bg-white border-slate-200 text-slate-700 hover:border-[#0a2540]"
-                                                  }`}
-                                              >
-                                                {opt}
-                                              </button>
-                                            ))}
-                                          </div>
-                                        </div>
-
-                                        {/* RERA ID */}
-                                        <div>
-                                          <label className="block text-sm font-semibold text-slate-500 mb-2">RERA ID</label>
-                                          <input
-                                            type="text"
-                                            value={reraId}
-                                            onChange={e => setReraId(e.target.value)}
-                                            className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
-                                          />
-                                        </div>
-
-                                        {/* Property Description */}
-                                        <div>
-                                          <div className="flex justify-between items-center mb-2">
-                                            <label className="block text-sm font-semibold text-slate-500">Property Description</label>
-                                            <span className="text-xs font-semibold text-slate-400">
-                                              {(formData.description || "").length} / 1500
-                                            </span>
-                                          </div>
-                                          <textarea
-                                            name="description"
-                                            value={formData.description}
-                                            onChange={e => {
-                                              if (e.target.value.length <= 1500) {
-                                                handleInputChange(e);
-                                              }
-                                            }}
-                                            rows={2}
-                                            className="w-full text-base font-semibold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none resize-none transition-colors"
-                                          />
-                                        </div>
-                                      </>
-                                    )}
-                                  </div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
                           </div>
-                        </>
-                      ) : (
-                        <div className="pt-4">
-                          <button
-                            onClick={handleNext}
-                            className="w-full py-4 rounded-xl text-base font-bold bg-[#38D39F] text-white hover:bg-[#2bc490] transition-colors shadow-lg shadow-emerald-200/50"
-                          >
-                            Continues
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              )
-            )}
+                        )}
+                      </>
+                    )}
+                  </div>
+                )
+              )}
 
               {/* STEP: Room Details */}
               {currentStepName === "Room Details" && (
@@ -3517,8 +3568,8 @@ ${formData.description}`
                                 });
                               }}
                               className={`flex flex-col items-center justify-center p-6 rounded-2xl border transition-all ${isSelected
-                                  ? "bg-[#0a2540] border-[#0a2540] text-white shadow-md scale-[1.02]"
-                                  : "bg-white border-slate-200 text-slate-700 hover:border-[#0a2540] hover:shadow-sm"
+                                ? "bg-[#0a2540] border-[#0a2540] text-white shadow-md scale-[1.02]"
+                                : "bg-white border-slate-200 text-slate-700 hover:border-[#0a2540] hover:shadow-sm"
                                 }`}
                             >
                               <item.icon
