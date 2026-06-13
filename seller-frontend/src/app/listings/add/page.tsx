@@ -455,6 +455,10 @@ export default function AddPropertyPage() {
           alert("Please select Property Condition.")
           return
         }
+        if (propertyCondition === "Ready to use" && !carpetArea) {
+          alert("Please enter Carpet Area.")
+          return
+        }
         if (!formData.area) {
           alert("Please enter Built Up Area.")
           return
@@ -671,7 +675,7 @@ export default function AddPropertyPage() {
 ${possessionStatus === "Ready to move" ? `• Age of Property: ${ageOfProperty ? ageOfProperty + ' years' : 'N/A'}\n` : ''}• Zone Type: ${zoneType}
 • Location Hub: ${locationHub === "Others" ? customLocationHub : locationHub}
 • Property Condition: ${propertyCondition}
-• Built Up Area: ${formData.area} Sq. Ft.
+${propertyCondition === "Ready to use" ? `• Carpet Area: ${carpetArea ? carpetArea + ' Sq. Ft.' : 'N/A'}\n` : ''}• Built Up Area: ${formData.area} Sq. Ft.
 • Electricity Charges Included: ${electricityChargesIncluded}
 • Water Charges Included: ${waterChargesIncluded}
 • Lock-in Period: ${lockInPeriod || 'None'}
@@ -1344,13 +1348,34 @@ ${formData.description}`
                               key={opt}
                               type="button"
                               onClick={() => setPropertyCondition(opt)}
-                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${propertyCondition === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${propertyCondition === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
                             >
                               {opt}
                             </button>
                           ))}
                         </div>
                       </div>
+
+                      {propertyCondition === "Ready to use" && (
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 mb-1">Carpet Area <span className="text-rose-500">*</span></label>
+                          <div className="relative">
+                            <input
+                              type="number"
+                              value={carpetArea}
+                              onChange={e => {
+                                const val = e.target.value;
+                                if (val === "" || parseFloat(val) >= 0) {
+                                  setCarpetArea(val);
+                                }
+                              }}
+                              className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-20"
+                              placeholder="e.g. 1200"
+                            />
+                            <span className="absolute right-0 bottom-2 text-sm font-bold text-slate-400">sq. ft.</span>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Built Up Area */}
                       <div>
