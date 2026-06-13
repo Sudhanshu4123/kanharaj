@@ -240,6 +240,7 @@ export default function AddPropertyPage() {
   // Commercial Specific State
   const [zoneType, setZoneType] = useState("Commercial")
   const [locationHub, setLocationHub] = useState("Others")
+  const [customLocationHub, setCustomLocationHub] = useState("")
   const [propertyCondition, setPropertyCondition] = useState("Ready to use")
   const [electricityChargesIncluded, setElectricityChargesIncluded] = useState("No")
   const [waterChargesIncluded, setWaterChargesIncluded] = useState("No")
@@ -444,6 +445,10 @@ export default function AddPropertyPage() {
         }
         if (!locationHub) {
           alert("Please select Location Hub.")
+          return
+        }
+        if (locationHub === "Others" && !customLocationHub) {
+          alert("Please enter custom Location Hub.")
           return
         }
         if (!propertyCondition) {
@@ -664,7 +669,7 @@ export default function AddPropertyPage() {
 • Possession Status: ${possessionStatus}
 • Available From: ${availableFrom || 'Immediately'}
 ${possessionStatus === "Ready to move" ? `• Age of Property: ${ageOfProperty ? ageOfProperty + ' years' : 'N/A'}\n` : ''}• Zone Type: ${zoneType}
-• Location Hub: ${locationHub}
+• Location Hub: ${locationHub === "Others" ? customLocationHub : locationHub}
 • Property Condition: ${propertyCondition}
 • Built Up Area: ${formData.area} Sq. Ft.
 • Electricity Charges Included: ${electricityChargesIncluded}
@@ -1305,13 +1310,30 @@ ${formData.description}`
                               key={opt}
                               type="button"
                               onClick={() => setLocationHub(opt)}
-                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${locationHub === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${locationHub === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
                             >
                               {opt}
                             </button>
                           ))}
                         </div>
                       </div>
+
+                      {locationHub === "Others" && (
+                        <div>
+                          <label className="text-xs font-bold text-slate-500 mb-1 block">
+                            Others(Location Hub) <span className="text-rose-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              value={customLocationHub}
+                              onChange={e => setCustomLocationHub(e.target.value)}
+                              className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-10"
+                              placeholder="e.g. Industrial Area"
+                            />
+                          </div>
+                        </div>
+                      )}
 
                       {/* Property Condition */}
                       <div>
