@@ -46,7 +46,13 @@ import {
   Dumbbell,
   Droplets,
   Waves,
-  Zap
+  Zap,
+  Shield,
+  Flame,
+  Battery,
+  Wind,
+  Compass,
+  FileCheck
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -3689,57 +3695,35 @@ ${formData.description}`
                     </button>
                     <div>
                       <h2 className="text-xl font-black text-slate-800">Add Amenities</h2>
-                      <p className="text-xs font-semibold text-slate-400">Select the amenities available in this PG</p>
+                      <p className="text-xs font-semibold text-slate-400">
+                        {sector === "Commercial" ? "Select the amenities available in this commercial property" : "Select the amenities available in this PG"}
+                      </p>
                     </div>
                   </div>
 
-                  {[
-                    {
-                      title: "Security Amenities",
-                      items: [
-                        { name: "CCTV", icon: Video },
-                        { name: "Gated Community", icon: Lock },
-                        { name: "Security", icon: ShieldCheck },
-                        { name: "Biometric", icon: Fingerprint }
-                      ]
-                    },
-                    {
-                      title: "Furnishings in Property",
-                      items: [
-                        { name: "Fridge", icon: Server },
-                        { name: "Washing Machine", icon: WashingMachine },
-                        { name: "Microwave", icon: Microwave },
-                        { name: "Water Purifier", icon: Droplet },
-                        { name: "TT Table", icon: Trophy },
-                        { name: "TV", icon: Tv },
-                        { name: "Coffee Machine", icon: Coffee },
-                        { name: "Snacks Machine", icon: Cookie }
-                      ]
-                    },
-                    {
-                      title: "Services",
-                      items: [
-                        { name: "Laundry", icon: Shirt },
-                        { name: "Housekeeping", icon: Brush },
-                        { name: "Internet/Wi-Fi Connectivity", icon: Wifi }
-                      ]
-                    },
-                    {
-                      title: "Top Amenities",
-                      items: [
-                        { name: "Gym", icon: Dumbbell },
-                        { name: "Lift", icon: Building },
-                        { name: "Regular Water Supply", icon: Droplets },
-                        { name: "Swimming Pool", icon: Waves },
-                        { name: "Reserved Parking", icon: Car },
-                        { name: "Power Backup", icon: Zap }
-                      ]
-                    }
-                  ].map(category => (
-                    <div key={category.title} className="space-y-4">
-                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider">{category.title}</h3>
+                  {sector === "Commercial" ? (
+                    <div className="space-y-4">
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {category.items.map(item => {
+                        {[
+                          { name: "CCTV", icon: Video },
+                          { name: "Power Backup", icon: Zap },
+                          { name: "Furnishing", icon: Sofa },
+                          { name: "UPS", icon: Battery },
+                          { name: "Central Air Conditioning", icon: Wind },
+                          { name: "oxygen Duct", icon: Wind },
+                          { name: "Internet Connectivity", icon: Wifi },
+                          { name: "Vastu Compliant", icon: Compass },
+                          { name: "Fire extinguishers", icon: Shield },
+                          { name: "Fire sensors", icon: Flame },
+                          { name: "Security Personnel", icon: ShieldCheck },
+                          { name: "Water Storage", icon: Droplets },
+                          { name: "DG Availabilty", icon: Server },
+                          { name: "Cafeteria", icon: Coffee },
+                          { name: "Reception Area", icon: Users },
+                          { name: "Pantry", icon: Cookie },
+                          { name: "Fire NOC Certified", icon: FileCheck },
+                          { name: "Occupancy Certificate", icon: FileCheck }
+                        ].map(item => {
                           const isSelected = formData.amenities.includes(item.name);
                           return (
                             <button
@@ -3771,7 +3755,89 @@ ${formData.description}`
                         })}
                       </div>
                     </div>
-                  ))}
+                  ) : (
+                    <>
+                      {[
+                        {
+                          title: "Security Amenities",
+                          items: [
+                            { name: "CCTV", icon: Video },
+                            { name: "Gated Community", icon: Lock },
+                            { name: "Security", icon: ShieldCheck },
+                            { name: "Biometric", icon: Fingerprint }
+                          ]
+                        },
+                        {
+                          title: "Furnishings in Property",
+                          items: [
+                            { name: "Fridge", icon: Server },
+                            { name: "Washing Machine", icon: WashingMachine },
+                            { name: "Microwave", icon: Microwave },
+                            { name: "Water Purifier", icon: Droplet },
+                            { name: "TT Table", icon: Trophy },
+                            { name: "TV", icon: Tv },
+                            { name: "Coffee Machine", icon: Coffee },
+                            { name: "Snacks Machine", icon: Cookie }
+                          ]
+                        },
+                        {
+                          title: "Services",
+                          items: [
+                            { name: "Laundry", icon: Shirt },
+                            { name: "Housekeeping", icon: Brush },
+                            { name: "Internet/Wi-Fi Connectivity", icon: Wifi }
+                          ]
+                        },
+                        {
+                          title: "Top Amenities",
+                          items: [
+                            { name: "Gym", icon: Dumbbell },
+                            { name: "Lift", icon: Building },
+                            { name: "Regular Water Supply", icon: Droplets },
+                            { name: "Swimming Pool", icon: Waves },
+                            { name: "Reserved Parking", icon: Car },
+                            { name: "Power Backup", icon: Zap }
+                          ]
+                        }
+                      ].map(category => (
+                        <div key={category.title} className="space-y-4">
+                          <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider">{category.title}</h3>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {category.items.map(item => {
+                              const isSelected = formData.amenities.includes(item.name);
+                              return (
+                                <button
+                                  key={item.name}
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData(prev => {
+                                      const newAmenities = isSelected
+                                        ? prev.amenities.filter(a => a !== item.name)
+                                        : [...prev.amenities, item.name];
+                                      return { ...prev, amenities: newAmenities };
+                                    });
+                                  }}
+                                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border transition-all ${isSelected
+                                    ? "bg-[#0a2540] border-[#0a2540] text-white shadow-md scale-[1.02]"
+                                    : "bg-white border-slate-200 text-slate-700 hover:border-[#0a2540] hover:shadow-sm"
+                                    }`}
+                                >
+                                  <item.icon
+                                    size={28}
+                                    strokeWidth={1.5}
+                                    className={`mb-3 transition-colors ${isSelected ? "text-white" : "text-slate-500"}`}
+                                  />
+                                  <span className="text-xs font-bold text-center leading-tight">
+                                    {item.name}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  )}
 
                   <div className="pt-6">
                     <button
@@ -3779,7 +3845,7 @@ ${formData.description}`
                       onClick={handleNext}
                       className="w-full py-4 rounded-xl text-base font-bold bg-[#38D39F] text-white hover:bg-[#2bc490] transition-colors shadow-lg shadow-emerald-200/50"
                     >
-                      Next, add other details
+                      {sector === "Commercial" ? "Next, upload photos" : "Next, add other details"}
                     </button>
                   </div>
                 </div>
