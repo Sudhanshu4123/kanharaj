@@ -1356,6 +1356,22 @@ ${formData.description}`
                         </div>
                       </div>
 
+                      {/* Built Up Area */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 mb-1">Built Up Area <span className="text-rose-500">*</span></label>
+                        <div className="relative">
+                          <input
+                            name="area"
+                            type="number"
+                            value={formData.area}
+                            onChange={handleInputChange}
+                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-20"
+                            placeholder="e.g. 1500"
+                          />
+                          <span className="absolute right-0 bottom-2 text-sm font-bold text-slate-400">sq. ft.</span>
+                        </div>
+                      </div>
+
                       {propertyCondition === "Ready to use" && (
                         <div>
                           <label className="block text-xs font-bold text-slate-500 mb-1">Carpet Area <span className="text-rose-500">*</span></label>
@@ -1376,22 +1392,6 @@ ${formData.description}`
                           </div>
                         </div>
                       )}
-
-                      {/* Built Up Area */}
-                      <div>
-                        <label className="block text-xs font-bold text-slate-400 mb-1">Built Up Area <span className="text-rose-500">*</span></label>
-                        <div className="relative">
-                          <input
-                            name="area"
-                            type="number"
-                            value={formData.area}
-                            onChange={handleInputChange}
-                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-20"
-                            placeholder="e.g. 1500"
-                          />
-                          <span className="absolute right-0 bottom-2 text-sm font-bold text-slate-400">sq. ft.</span>
-                        </div>
-                      </div>
                     </div>
 
                     {/* Charges & Inclusions */}
