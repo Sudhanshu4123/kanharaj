@@ -1207,7 +1207,7 @@ ${formData.description}`
                               key={opt}
                               type="button"
                               onClick={() => setPossessionStatus(opt)}
-                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${possessionStatus === opt ? "bg-[#eae6f9] text-[#7f56d9] border-[#7f56d9]" : "bg-white text-slate-600 border-slate-200"}`}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${possessionStatus === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
                             >
                               {opt}
                             </button>
