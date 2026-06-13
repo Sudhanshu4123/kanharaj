@@ -250,6 +250,11 @@ export default function AddPropertyPage() {
   const [priceNegotiable, setPriceNegotiable] = useState("No")
   const [commercialConstructionStatus, setCommercialConstructionStatus] = useState("")
   const [flooring, setFlooring] = useState("")
+  const [staircaseCount, setStaircaseCount] = useState("")
+  const [passengerLifts, setPassengerLifts] = useState("")
+  const [serviceLifts, setServiceLifts] = useState("")
+  const [privateParking, setPrivateParking] = useState("")
+  const [publicParking, setPublicParking] = useState("")
 
   // Room Details State
   const [rooms, setRooms] = useState<Array<{
@@ -481,6 +486,14 @@ export default function AddPropertyPage() {
           alert("Please select Construction Status.")
           return
         }
+        if (!passengerLifts) {
+          alert("Please enter number of Passenger Lifts.")
+          return
+        }
+        if (!serviceLifts) {
+          alert("Please enter number of Service Lifts.")
+          return
+        }
         if (!formData.price) {
           alert(lookingTo === "Rent" ? "Please enter Expected Rent." : "Please enter Expected Price.")
           return
@@ -690,6 +703,11 @@ ${propertyCondition === "Ready to use" ? `• Carpet Area: ${carpetArea ? carpet
 • Ownership: ${ownership}
 • Construction Status: ${commercialConstructionStatus}
 • Flooring: ${flooring || 'None'}
+• Staircases: ${staircaseCount || 'None'}
+• Passenger Lifts: ${passengerLifts}
+• Service Lifts: ${serviceLifts}
+• Private Parking: ${privateParking || 'None'}
+• Public Parking: ${publicParking || 'None'}
 • Expected ${lookingTo === "Rent" ? "Rent" : "Price"}: ₹ ${parseFloat(formData.price || "0").toLocaleString('en-IN')}
 • Security Deposit: ${formatCommercialDepositValue()}
 • Price Negotiable: ${priceNegotiable}
@@ -1625,6 +1643,87 @@ ${formData.description}`
                             </select>
                             <ChevronDown className="absolute right-0 bottom-2 w-4 h-4 text-slate-400 pointer-events-none" />
                           </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* LIFTS & STAIRCASES */}
+                    <div className="space-y-6 pt-8 border-t border-slate-100">
+                      <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">LIFTS & STAIRCASES</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="text-xs font-bold text-slate-400 mb-1 block">Number of staircase</label>
+                          <input
+                            type="number"
+                            value={staircaseCount}
+                            onChange={e => {
+                              const val = e.target.value;
+                              if (val === "" || parseFloat(val) >= 0) setStaircaseCount(val);
+                            }}
+                            placeholder="e.g. 2"
+                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-slate-400 mb-1 block">Passengers Lifts <span className="text-rose-500">*</span></label>
+                          <input
+                            type="number"
+                            value={passengerLifts}
+                            onChange={e => {
+                              const val = e.target.value;
+                              if (val === "" || parseFloat(val) >= 0) setPassengerLifts(val);
+                            }}
+                            placeholder="e.g. 3"
+                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="text-xs font-bold text-slate-400 mb-1 block">Service Lifts <span className="text-rose-500">*</span></label>
+                          <input
+                            type="number"
+                            value={serviceLifts}
+                            onChange={e => {
+                              const val = e.target.value;
+                              if (val === "" || parseFloat(val) >= 0) setServiceLifts(val);
+                            }}
+                            placeholder="e.g. 1"
+                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* PARKING */}
+                    <div className="space-y-6 pt-8 border-t border-slate-100">
+                      <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">PARKING</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="text-xs font-bold text-slate-400 mb-1 block">Private Parking</label>
+                          <input
+                            type="number"
+                            value={privateParking}
+                            onChange={e => {
+                              const val = e.target.value;
+                              if (val === "" || parseFloat(val) >= 0) setPrivateParking(val);
+                            }}
+                            placeholder="e.g. 2"
+                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-slate-400 mb-1 block">Public Parking</label>
+                          <input
+                            type="number"
+                            value={publicParking}
+                            onChange={e => {
+                              const val = e.target.value;
+                              if (val === "" || parseFloat(val) >= 0) setPublicParking(val);
+                            }}
+                            placeholder="e.g. 10"
+                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                          />
                         </div>
                       </div>
                     </div>
