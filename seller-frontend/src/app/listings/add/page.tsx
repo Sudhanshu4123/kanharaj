@@ -248,6 +248,8 @@ export default function AddPropertyPage() {
   const [dgUpsChargesIncluded, setDgUpsChargesIncluded] = useState("No")
   const [ownership, setOwnership] = useState("Freehold")
   const [priceNegotiable, setPriceNegotiable] = useState("No")
+  const [commercialConstructionStatus, setCommercialConstructionStatus] = useState("")
+  const [flooring, setFlooring] = useState("")
 
   // Room Details State
   const [rooms, setRooms] = useState<Array<{
@@ -475,6 +477,10 @@ export default function AddPropertyPage() {
           alert("Please select Ownership.")
           return
         }
+        if (!commercialConstructionStatus) {
+          alert("Please select Construction Status.")
+          return
+        }
         if (!formData.price) {
           alert(lookingTo === "Rent" ? "Please enter Expected Rent." : "Please enter Expected Price.")
           return
@@ -682,6 +688,8 @@ ${propertyCondition === "Ready to use" ? `• Carpet Area: ${carpetArea ? carpet
 • Expected Rent Increase: ${expectedRentIncrease || 'None'}
 • Floor Details: Floor ${floorNo} of ${totalFloors}
 • Ownership: ${ownership}
+• Construction Status: ${commercialConstructionStatus}
+• Flooring: ${flooring || 'None'}
 • Expected ${lookingTo === "Rent" ? "Rent" : "Price"}: ₹ ${parseFloat(formData.price || "0").toLocaleString('en-IN')}
 • Security Deposit: ${formatCommercialDepositValue()}
 • Price Negotiable: ${priceNegotiable}
@@ -1403,6 +1411,40 @@ ${formData.description}`
                               type="button"
                               onClick={() => setOwnership(opt)}
                               className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${ownership === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Construction Status */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-3">Construction Status <span className="text-rose-500">*</span></label>
+                        <div className="flex flex-wrap gap-3">
+                          {["No walls", "Brick walls", "Cemented walls", "Plastered walls"].map(opt => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setCommercialConstructionStatus(opt)}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${commercialConstructionStatus === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Flooring */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-3">Flooring</label>
+                        <div className="flex flex-wrap gap-3">
+                          {["Marble", "Concrete", "Granite", "Ceramic", "Cement", "Others"].map(opt => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setFlooring(opt)}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${flooring === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
                             >
                               {opt}
                             </button>
