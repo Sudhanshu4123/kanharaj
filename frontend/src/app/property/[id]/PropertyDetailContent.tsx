@@ -75,6 +75,18 @@ interface ParsedHighlights {
   mealCharges?: string;
   electricityCharges?: string;
   roomDetails?: string;
+  // Commercial Fields
+  zoneType?: string;
+  locationHub?: string;
+  propertyCondition?: string;
+  electricityChargesIncluded?: string;
+  waterChargesIncluded?: string;
+  expectedRentIncrease?: string;
+  dgUpsChargesIncluded?: string;
+  ownership?: string;
+  priceNegotiable?: string;
+  subPropertyType?: string;
+  possessionStatus?: string;
 }
 
 function parsePropertyHighlights(description: string): { highlights: ParsedHighlights; cleanDescription: string } {
@@ -188,9 +200,6 @@ function parsePropertyHighlights(description: string): { highlights: ParsedHighl
           case 'Notice Period':
             highlights.noticePeriod = value;
             break;
-          case 'Lock-in Period':
-            highlights.lockInPeriod = value;
-            break;
           case 'Common Areas':
             highlights.commonAreas = value;
             break;
@@ -232,6 +241,39 @@ function parsePropertyHighlights(description: string): { highlights: ParsedHighl
             break;
           case 'Room Details':
             highlights.roomDetails = value;
+            break;
+          case 'Zone Type':
+            highlights.zoneType = value;
+            break;
+          case 'Location Hub':
+            highlights.locationHub = value;
+            break;
+          case 'Property Condition':
+            highlights.propertyCondition = value;
+            break;
+          case 'Electricity Charges Included':
+            highlights.electricityChargesIncluded = value;
+            break;
+          case 'Water Charges Included':
+            highlights.waterChargesIncluded = value;
+            break;
+          case 'Expected Rent Increase':
+            highlights.expectedRentIncrease = value;
+            break;
+          case 'DG & UPS Charges Included':
+            highlights.dgUpsChargesIncluded = value;
+            break;
+          case 'Ownership':
+            highlights.ownership = value;
+            break;
+          case 'Price Negotiable':
+            highlights.priceNegotiable = value;
+            break;
+          case 'Sub Property Type':
+            highlights.subPropertyType = value;
+            break;
+          case 'Possession Status':
+            highlights.possessionStatus = value;
             break;
         }
       }
@@ -341,16 +383,19 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
   }, [highlights.roomDetails])
 
   const isPlotOrLand = property.propertyType?.toUpperCase() === 'PLOT' || property.propertyType?.toUpperCase() === 'PLOTS/LAND'
+  const isCommercial = property.propertyType?.toUpperCase() === 'OFFICE_SPACE' || 
+                        property.propertyType?.toUpperCase() === 'SHOP' || 
+                        property.propertyType?.toUpperCase() === 'COMMERCIAL'
 
   // Derived metadata display values
-  const bedroomsVal = isPlotOrLand ? null : (highlights.bhk || (property.bedrooms ? `${property.bedrooms} BHK` : '3 BHK'))
-  const bathroomsVal = isPlotOrLand ? null : (highlights.bathrooms ? `${highlights.bathrooms} Baths` : (property.bathrooms ? `${property.bathrooms} Baths` : '3 Baths'))
+  const bedroomsVal = (isPlotOrLand || isCommercial) ? null : (highlights.bhk || (property.bedrooms ? `${property.bedrooms} BHK` : '3 BHK'))
+  const bathroomsVal = (isPlotOrLand || isCommercial) ? null : (highlights.bathrooms ? `${highlights.bathrooms} Baths` : (property.bathrooms ? `${property.bathrooms} Baths` : '3 Baths'))
   const areaVal = highlights.carpetArea || (property.area ? `${formatNumber(property.area)} Sq.Ft.` : 'N/A')
-  const areaLabel = isPlotOrLand ? 'Plot Area' : (highlights.carpetArea ? 'Carpet Area' : 'Super Area')
+  const areaLabel = isPlotOrLand ? 'Plot Area' : isCommercial ? 'Built Up Area' : (highlights.carpetArea ? 'Carpet Area' : 'Super Area')
   const facingVal = highlights.facing ? `${highlights.facing} Facing` : 'East Facing'
-  const possessionVal = property.listingType === 'RENT'
+  const possessionVal = highlights.possessionStatus || (property.listingType === 'RENT'
     ? (highlights.availableFrom ? `From ${highlights.availableFrom}` : 'Immediately')
-    : (highlights.constructionStatus || 'Ready To Move')
+    : (highlights.constructionStatus || 'Ready To Move'))
   const ageVal = highlights.ageOfProperty
     ? highlights.ageOfProperty
     : (property.yearBuilt ? `${new Date().getFullYear() - property.yearBuilt} Years` : 'Newly Built')
@@ -1142,6 +1187,66 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     <div className="flex justify-between py-2 border-b border-slate-100">
                       <span className="text-slate-500">RERA ID</span>
                       <span className="text-slate-800">{highlights.reraId}</span>
+                    </div>
+                  )}
+                  {highlights.subPropertyType && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Commercial Subtype</span>
+                      <span className="text-slate-800">{highlights.subPropertyType}</span>
+                    </div>
+                  )}
+                  {highlights.zoneType && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Zone Type</span>
+                      <span className="text-slate-800">{highlights.zoneType}</span>
+                    </div>
+                  )}
+                  {highlights.locationHub && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Location Hub</span>
+                      <span className="text-slate-800">{highlights.locationHub}</span>
+                    </div>
+                  )}
+                  {highlights.propertyCondition && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Property Condition</span>
+                      <span className="text-slate-800">{highlights.propertyCondition}</span>
+                    </div>
+                  )}
+                  {highlights.electricityChargesIncluded && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Electricity Charges Included</span>
+                      <span className="text-slate-800">{highlights.electricityChargesIncluded}</span>
+                    </div>
+                  )}
+                  {highlights.waterChargesIncluded && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Water Charges Included</span>
+                      <span className="text-slate-800">{highlights.waterChargesIncluded}</span>
+                    </div>
+                  )}
+                  {highlights.expectedRentIncrease && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Expected Rent Increase</span>
+                      <span className="text-slate-800">{highlights.expectedRentIncrease}</span>
+                    </div>
+                  )}
+                  {highlights.dgUpsChargesIncluded && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">DG & UPS Charges Included</span>
+                      <span className="text-slate-800">{highlights.dgUpsChargesIncluded}</span>
+                    </div>
+                  )}
+                  {highlights.ownership && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Ownership</span>
+                      <span className="text-slate-800">{highlights.ownership}</span>
+                    </div>
+                  )}
+                  {highlights.priceNegotiable && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Price Negotiable</span>
+                      <span className="text-slate-800">{highlights.priceNegotiable}</span>
                     </div>
                   )}
                   {highlights.pgName && (

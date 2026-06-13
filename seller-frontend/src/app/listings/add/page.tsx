@@ -237,6 +237,17 @@ export default function AddPropertyPage() {
     smokingAllowed: "No"
   })
 
+  // Commercial Specific State
+  const [zoneType, setZoneType] = useState("Commercial")
+  const [locationHub, setLocationHub] = useState("Others")
+  const [propertyCondition, setPropertyCondition] = useState("Ready to use")
+  const [electricityChargesIncluded, setElectricityChargesIncluded] = useState("No")
+  const [waterChargesIncluded, setWaterChargesIncluded] = useState("No")
+  const [expectedRentIncrease, setExpectedRentIncrease] = useState("")
+  const [dgUpsChargesIncluded, setDgUpsChargesIncluded] = useState("No")
+  const [ownership, setOwnership] = useState("Freehold")
+  const [priceNegotiable, setPriceNegotiable] = useState("No")
+
   // Room Details State
   const [rooms, setRooms] = useState<Array<{
     roomType: string;
@@ -265,6 +276,12 @@ export default function AddPropertyPage() {
     { id: 3, label: "Other Details", status: currentStep > 3 ? "Completed" : currentStep === 3 ? "In progress" : "Pending", score: "" },
     { id: 4, label: "Photos", status: currentStep > 4 ? "Completed" : currentStep === 4 ? "In progress" : "Pending", score: "Score ↑15%" },
     { id: 5, label: "Review", status: currentStep === 5 ? "In progress" : "Pending", score: "" },
+  ] : sector === "Commercial" ? [
+    { id: 0, label: "Basic Details", status: currentStep > 0 ? "Completed" : "In progress", score: "" },
+    { id: 1, label: "Property Details", status: currentStep > 1 ? "Completed" : currentStep === 1 ? "In progress" : "Pending", score: "" },
+    { id: 2, label: "Amenities", status: currentStep > 2 ? "Completed" : currentStep === 2 ? "In progress" : "Pending", score: "" },
+    { id: 3, label: "Photos", status: currentStep > 3 ? "Completed" : currentStep === 3 ? "In progress" : "Pending", score: "Score ↑15%" },
+    { id: 4, label: "Review", status: currentStep === 4 ? "In progress" : "Pending", score: "" },
   ] : [
     { id: 0, label: "Property Details", status: currentStep > 0 ? "Completed" : "In progress", score: "" },
     { id: 1, label: "Photos", status: currentStep > 1 ? "Completed" : currentStep === 1 ? "In progress" : "Pending", score: "Score ↑15%" },
@@ -276,6 +293,9 @@ export default function AddPropertyPage() {
     if (lookingTo === "PG/Co-living") {
       const percents = [5, 14, 30, 50, 75, 95];
       return percents[currentStep] || 5;
+    } else if (sector === "Commercial") {
+      const percents = [10, 25, 50, 75, 95];
+      return percents[currentStep] || 10;
     } else {
       const percents = [26, 50, 75, 100];
       return percents[currentStep] || 26;
@@ -390,6 +410,62 @@ export default function AddPropertyPage() {
         }
       } else if (currentStep === 3) {
         // Other Details Validation - everything is optional
+      }
+    } else if (sector === "Commercial") {
+      if (currentStep === 0) {
+        if (!city) {
+          alert("Please select or enter a city.")
+          return
+        }
+        if (!propertyType) {
+          alert("Please select a Commercial Sub Property Type.")
+          return
+        }
+      } else if (currentStep === 1) {
+        if (!locality) {
+          alert("Please select or enter a valid locality.")
+          return
+        }
+        if (!possessionStatus) {
+          alert("Please select Possession Status.")
+          return
+        }
+        if (!availableFrom) {
+          alert("Please select Available From date.")
+          return
+        }
+        if (!zoneType) {
+          alert("Please select Zone Type.")
+          return
+        }
+        if (!locationHub) {
+          alert("Please select Location Hub.")
+          return
+        }
+        if (!propertyCondition) {
+          alert("Please select Property Condition.")
+          return
+        }
+        if (!formData.area) {
+          alert("Please enter Built Up Area.")
+          return
+        }
+        if (!totalFloors) {
+          alert("Please enter Total Floors.")
+          return
+        }
+        if (!floorNo) {
+          alert("Please select Floor Number.")
+          return
+        }
+        if (!ownership) {
+          alert("Please select Ownership.")
+          return
+        }
+        if (!formData.price) {
+          alert(lookingTo === "Rent" ? "Please enter Expected Rent." : "Please enter Expected Price.")
+          return
+        }
       }
     } else {
       if (currentStep === 0) {
@@ -572,7 +648,35 @@ export default function AddPropertyPage() {
         return `${val}${brokerageNegotiable ? ' (Negotiable)' : ''}`
       }
 
-      const richDescription = lookingTo === "PG/Co-living" ? `PROPERTY HIGHLIGHTS:
+      const formatCommercialDepositValue = () => {
+        if (!securityDeposit) return "None"
+        if (!isNaN(parseFloat(securityDeposit))) return `₹ ${parseFloat(securityDeposit).toLocaleString('en-IN')}`
+        return securityDeposit
+      }
+
+      const richDescription = sector === "Commercial" ? `PROPERTY HIGHLIGHTS:
+• Sub Property Type: ${propertyType}
+• Locality: ${locality}
+• Possession Status: ${possessionStatus}
+• Available From: ${availableFrom || 'Immediately'}
+• Zone Type: ${zoneType}
+• Location Hub: ${locationHub}
+• Property Condition: ${propertyCondition}
+• Built Up Area: ${formData.area} Sq. Ft.
+• Electricity Charges Included: ${electricityChargesIncluded}
+• Water Charges Included: ${waterChargesIncluded}
+• Lock-in Period: ${lockInPeriod || 'None'}
+• Expected Rent Increase: ${expectedRentIncrease || 'None'}
+• Floor Details: Floor ${floorNo} of ${totalFloors}
+• Ownership: ${ownership}
+• Expected ${lookingTo === "Rent" ? "Rent" : "Price"}: ₹ ${parseFloat(formData.price || "0").toLocaleString('en-IN')}
+• Security Deposit: ${formatCommercialDepositValue()}
+• Price Negotiable: ${priceNegotiable}
+• DG & UPS Charges Included: ${dgUpsChargesIncluded}
+
+---
+
+${formData.description}` : lookingTo === "PG/Co-living" ? `PROPERTY HIGHLIGHTS:
 • PG Name: ${pgName}
 • Locality: ${locality}
 • Total Beds: ${totalBeds}
@@ -635,17 +739,21 @@ ${isPlotOrLand ? '' : `• Carpet Area: ${carpetArea ? carpetArea + ' Sq. Ft.' :
 ${formData.description}`
 
       const payload = {
-        title: formData.title || (isPlotOrLand ? `${propertyType} in ${buildingName}` : `${bhk} ${propertyType} in ${buildingName}`),
+        title: formData.title || (sector === "Commercial" ? `${propertyType} in ${buildingName || locality}` : isPlotOrLand ? `${propertyType} in ${buildingName}` : `${bhk} ${propertyType} in ${buildingName}`),
         description: richDescription,
         price: parseFloat(formData.price) || 0,
         propertyType: mappedPropertyType,
         listingType: mapSellerListingType(lookingTo),
-        address: lookingTo === "Rent" ? `${buildingName}, ${formData.address}` : (additionalAddress ? `${buildingName}, ${additionalAddress}` : buildingName),
+        address: sector === "Commercial"
+          ? (buildingName ? `${buildingName}, ${locality}` : locality)
+          : lookingTo === "Rent"
+            ? `${buildingName}, ${formData.address}`
+            : (additionalAddress ? `${buildingName}, ${additionalAddress}` : buildingName),
         city: city,
         state: "Delhi",
-        pincode: lookingTo === "Rent" ? formData.pincode : "",
-        bedrooms: bedroomsCount,
-        bathrooms: isPlotOrLand ? 0 : bathroomCount,
+        pincode: sector === "Commercial" ? "" : (lookingTo === "Rent" ? formData.pincode : ""),
+        bedrooms: sector === "Commercial" ? 0 : bedroomsCount,
+        bathrooms: (sector === "Commercial" || isPlotOrLand) ? 0 : bathroomCount,
         area: parseFloat(formData.area) || parseFloat(carpetArea) || 0,
         yearBuilt: yearBuiltVal,
         status: "ACTIVE",
@@ -814,9 +922,587 @@ ${formData.description}`
               transition={{ duration: 0.2 }}
               className="flex-1"
             >
+              {/* STEP: Basic Details (Commercial Step 0 only) */}
+              {currentStepName === "Basic Details" && (
+                <div className="space-y-12 max-w-2xl mx-auto">
+                  <div className="flex flex-col items-center justify-center pb-6 border-b border-slate-50 space-y-2 text-center">
+                    <h2 className="text-2xl font-black text-slate-800">Post Your Property</h2>
+                    <p className="text-sm font-medium text-slate-400 flex items-center gap-1.5">
+                      <Info className="w-4 h-4" /> Start by filling in the basic details
+                    </p>
+                  </div>
+
+                  {/* Property Type Group */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-500 mb-3 block">
+                      Property Type <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="flex gap-3">
+                      {["Residential", "Commercial"].map(t => (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => {
+                            setSector(t);
+                            setPropertyType(t === "Commercial" ? "Office" : "Apartment");
+                            if (t === "Commercial" && lookingTo === "PG/Co-living") {
+                              setLookingTo("Rent");
+                            }
+                          }}
+                          className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${sector === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Looking to */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-500 mb-3 block">
+                      Looking to <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="flex gap-3">
+                      {["Rent", "Sell"].map(t => (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => setLookingTo(t)}
+                          className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${lookingTo === t ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* City */}
+                  <div className="relative" ref={cityDropdownRef}>
+                    <label className="text-xs font-bold text-slate-500 mb-1 block">City <span className="text-rose-500">*</span></label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={city}
+                        onChange={e => {
+                          setCity(e.target.value)
+                          setIsCityDropdownOpen(true)
+                        }}
+                        onFocus={e => {
+                          setIsCityDropdownOpen(true)
+                          e.target.select()
+                        }}
+                        onKeyDown={e => {
+                          if (e.key === "Enter") {
+                            e.preventDefault()
+                            const query = city.trim()
+                            if (query) {
+                              const match = topCities.concat(otherCities).find(c => c.toLowerCase() === query.toLowerCase())
+                              if (match) {
+                                setCity(match)
+                              } else {
+                                setCity(query)
+                              }
+                              setIsCityDropdownOpen(false)
+                            }
+                          }
+                        }}
+                        className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-8"
+                        placeholder="Search or type city name..."
+                      />
+                      <ChevronDown
+                        className={`absolute right-2 bottom-3 w-4 h-4 text-slate-400 cursor-pointer transition-transform ${isCityDropdownOpen ? "rotate-180 text-[#0a2540]" : ""}`}
+                        onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                      />
+                    </div>
+
+                    <AnimatePresence>
+                      {isCityDropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 8 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl z-[60] flex flex-col overflow-hidden max-h-60"
+                        >
+                          <div className="flex-1 overflow-y-auto py-1.5 text-left custom-scrollbar">
+                            {city.trim() && !topCities.concat(otherCities).some(c => c.toLowerCase() === city.toLowerCase().trim()) && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIsCityDropdownOpen(false)
+                                }}
+                                className="w-full text-left px-4 py-2 text-xs font-bold text-[#0a2540] bg-[#0a2540]/5 hover:bg-[#0a2540]/10 transition-colors border-b border-slate-100"
+                              >
+                                Use custom city: &ldquo;{city.trim()}&rdquo;
+                              </button>
+                            )}
+
+                            {/* Top Cities */}
+                            {(() => {
+                              const filteredTop = topCities.filter(c => c.toLowerCase().includes(city.toLowerCase()))
+                              if (filteredTop.length > 0) {
+                                return (
+                                  <div>
+                                    <div className="px-4 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                                      Top Cities
+                                    </div>
+                                    {filteredTop.map(c => (
+                                      <button
+                                        key={c}
+                                        type="button"
+                                        onClick={() => {
+                                          setCity(c)
+                                          setIsCityDropdownOpen(false)
+                                        }}
+                                        className={`w-full text-left px-4 py-1.5 text-xs font-bold transition-colors flex items-center justify-between ${city === c ? "bg-[#0a2540]/5 text-[#0a2540]" : "text-slate-700 hover:bg-slate-50"}`}
+                                      >
+                                        <span>{c}</span>
+                                        {city === c && <span className="text-[10px] font-black">✓</span>}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )
+                              }
+                              return null
+                            })()}
+
+                            {/* Other Cities */}
+                            {(() => {
+                              const filteredOther = otherCities.filter(c => c.toLowerCase().includes(city.toLowerCase()))
+                              if (filteredOther.length > 0) {
+                                return (
+                                  <div className="mt-1">
+                                    <div className="px-4 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                                      Other Cities
+                                    </div>
+                                    {filteredOther.map(c => (
+                                      <button
+                                        key={c}
+                                        type="button"
+                                        onClick={() => {
+                                          setCity(c)
+                                          setIsCityDropdownOpen(false)
+                                        }}
+                                        className={`w-full text-left px-4 py-1.5 text-xs font-bold transition-colors flex items-center justify-between ${city === c ? "bg-[#0a2540]/5 text-[#0a2540]" : "text-slate-700 hover:bg-slate-50"}`}
+                                      >
+                                        <span>{c}</span>
+                                        {city === c && <span className="text-[10px] font-black">✓</span>}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )
+                              }
+                              return null
+                            })()}
+
+                            {/* No matches fallback */}
+                            {city.trim() && topCities.filter(c => c.toLowerCase().includes(city.toLowerCase())).length === 0 && otherCities.filter(c => c.toLowerCase().includes(city.toLowerCase())).length === 0 && (
+                              <div className="px-4 py-3 text-xs font-semibold text-slate-400 text-center">
+                                No matching cities found. Click custom city above to save.
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Sub Property Type */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-500 mb-4 block">
+                      Sub Property Type <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="flex flex-wrap gap-3">
+                      {[
+                        { name: "Office", icon: Building },
+                        { name: "Retail Shop", icon: Store },
+                        { name: "Showroom", icon: Store },
+                        { name: "Warehouse", icon: Warehouse },
+                        { name: "Plot", icon: Map },
+                        { name: "Others", icon: MoreHorizontal }
+                      ].map(type => (
+                        <button
+                          key={type.name}
+                          type="button"
+                          onClick={() => setPropertyType(type.name)}
+                          className={`flex flex-col items-center justify-center w-24 h-24 rounded-xl border transition-all ${propertyType === type.name
+                            ? "bg-[#0a2540] border-[#0a2540] text-white"
+                            : "bg-white border-slate-200 text-slate-500 hover:border-[#0a2540] hover:text-[#0a2540]"}`}
+                        >
+                          <type.icon strokeWidth={1.5} className={`w-8 h-8 mb-2 ${propertyType === type.name ? 'text-white' : 'text-slate-300'}`} />
+                          <span className="text-[11px] font-bold text-center leading-tight px-1">
+                            {type.name}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-8">
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="w-full py-4 rounded-xl text-base font-bold bg-[#38D39F] text-white hover:bg-[#2bc490] transition-colors shadow-lg shadow-emerald-200/50"
+                    >
+                      Continues
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* STEP 0: Property Details (Consolidated Form) */}
               {currentStepName === "Property Details" && (
-                <div className="space-y-12 max-w-2xl mx-auto">
+                sector === "Commercial" ? (
+                  <div className="space-y-12 max-w-2xl mx-auto">
+                    <div className="flex flex-col items-center justify-center pb-6 border-b border-slate-50 space-y-2 text-center">
+                      <h2 className="text-2xl font-black text-slate-800">Add Property Details</h2>
+                      <p className="text-sm font-medium text-slate-400 flex items-center gap-1.5">
+                        <Info className="w-4 h-4" /> Please fill in the details of your commercial property
+                      </p>
+                    </div>
+
+                    {/* Building Name & Locality */}
+                    <div className="space-y-6">
+                      <div>
+                        <label className="text-xs font-bold text-slate-400 mb-1 block">
+                          Building / Project / Society Name (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          value={buildingName}
+                          onChange={e => setBuildingName(e.target.value)}
+                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors placeholder:text-slate-400/70"
+                          placeholder="e.g. DLF Cyber City"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-slate-400 mb-1 block">
+                          Locality <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={locality}
+                          onChange={e => setLocality(e.target.value)}
+                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors placeholder:text-slate-400/70"
+                          placeholder="e.g. Sector 21"
+                        />
+                        {!locality && (
+                          <p className="text-xs font-bold text-rose-500 mt-1">Please select a valid locality</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* POSSESSION INFO */}
+                    <div className="space-y-6 pt-4 border-t border-slate-100">
+                      <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">POSSESSION INFO</h3>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-3">Possession status <span className="text-rose-500">*</span></label>
+                        <div className="flex gap-3">
+                          {["Ready to move", "Under construction"].map(opt => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setPossessionStatus(opt)}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${possessionStatus === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 mb-2">Available From <span className="text-rose-500">*</span></label>
+                        <div className="relative">
+                          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                          <input
+                            type="date"
+                            value={availableFrom}
+                            onChange={e => setAvailableFrom(e.target.value)}
+                            className="w-full pl-12 pr-5 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ABOUT THE PROPERTY */}
+                    <div className="space-y-6 pt-8 border-t border-slate-100">
+                      <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">ABOUT THE PROPERTY</h3>
+                      
+                      {/* Zone Type */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-3">Zone Type <span className="text-rose-500">*</span></label>
+                        <div className="flex flex-wrap gap-3">
+                          {["Industrial", "Commercial", "Residential", "Special economic zone", "Open Spaces", "Agricultural zone", "Others"].map(opt => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setZoneType(opt)}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${zoneType === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Location Hub */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-3">Location Hub <span className="text-rose-500">*</span></label>
+                        <div className="flex gap-3">
+                          {["IT Park", "Business Park", "Others"].map(opt => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setLocationHub(opt)}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${locationHub === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Property Condition */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-3">Property Condition <span className="text-rose-500">*</span></label>
+                        <div className="flex gap-3">
+                          {["Ready to use", "Bare shell"].map(opt => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setPropertyCondition(opt)}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${propertyCondition === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Built Up Area */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 mb-1">Built Up Area <span className="text-rose-500">*</span></label>
+                        <div className="relative">
+                          <input
+                            name="area"
+                            type="number"
+                            value={formData.area}
+                            onChange={handleInputChange}
+                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-20"
+                            placeholder="e.g. 1500"
+                          />
+                          <span className="absolute right-0 bottom-2 text-sm font-bold text-slate-400">sq. ft.</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Charges & Inclusions */}
+                    <div className="space-y-6 pt-8 border-t border-slate-100">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-3">Electricity charges included?</label>
+                        <div className="flex gap-3">
+                          {["Yes", "No"].map(opt => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setElectricityChargesIncluded(opt)}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${electricityChargesIncluded === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-3">Water charges included?</label>
+                        <div className="flex gap-3">
+                          {["Yes", "No"].map(opt => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setWaterChargesIncluded(opt)}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${waterChargesIncluded === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="text-xs font-bold text-slate-400 mb-1 block">Lock-in Period</label>
+                          <input
+                            type="text"
+                            value={lockInPeriod}
+                            onChange={e => setLockInPeriod(e.target.value)}
+                            placeholder="e.g. 1 year"
+                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-slate-400 mb-1 block">Expected Rent Increase</label>
+                          <input
+                            type="text"
+                            value={expectedRentIncrease}
+                            onChange={e => setExpectedRentIncrease(e.target.value)}
+                            placeholder="e.g. 5% after 1 year"
+                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* FLOORS AVAILABLE */}
+                    <div className="space-y-6 pt-8 border-t border-slate-100">
+                      <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">FLOORS AVAILABLE</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="text-xs font-bold text-slate-400 mb-1 block">Total Floors <span className="text-rose-500">*</span></label>
+                          <input
+                            type="number"
+                            value={totalFloors}
+                            onChange={e => setTotalFloors(e.target.value)}
+                            placeholder="e.g. 5"
+                            className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-slate-400 mb-1 block">Your Floor <span className="text-rose-500">*</span></label>
+                          <div className="relative">
+                            <select
+                              value={floorNo}
+                              onChange={e => setFloorNo(e.target.value)}
+                              className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none bg-transparent appearance-none cursor-pointer"
+                            >
+                              <option value="">Select Floor</option>
+                              <option value="Ground">Ground</option>
+                              <option value="Basement">Basement</option>
+                              {Array.from({ length: 100 }, (_, i) => String(i + 1)).map(num => (
+                                <option key={num} value={num}>{num}</option>
+                              ))}
+                            </select>
+                            <ChevronDown className="absolute right-0 bottom-2 w-4 h-4 text-slate-400 pointer-events-none" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Ownership details */}
+                    <div className="space-y-6 pt-8 border-t border-slate-100">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-3">Ownership <span className="text-rose-500">*</span></label>
+                        <div className="flex flex-wrap gap-3">
+                          {["Freehold", "Leasehold", "Cooperative society", "Power of attorney"].map(opt => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setOwnership(opt)}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${ownership === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* FINANCIALS */}
+                    <div className="space-y-6 pt-8 border-t border-slate-100">
+                      <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">FINANCIALS</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 mb-2">
+                            Expected {lookingTo === "Rent" ? "Rent" : "Price"} (in ₹) <span className="text-rose-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <input
+                              name="price"
+                              value={formData.price}
+                              onChange={handleInputChange}
+                              type="number"
+                              placeholder="e.g. 50000"
+                              className="w-full pl-12 pr-20 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                            />
+                            {formData.price && (
+                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                {formatHelperAmount(formData.price)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {lookingTo === "Rent" && (
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 mb-2">Security Deposit (in ₹)</label>
+                            <div className="relative">
+                              <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                              <input
+                                type="number"
+                                value={securityDeposit}
+                                onChange={e => setSecurityDeposit(e.target.value)}
+                                placeholder="e.g. 150000"
+                                className="w-full pl-12 pr-20 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                              />
+                              {securityDeposit && (
+                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                  {formatHelperAmount(securityDeposit)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 mb-3">Negotiable</label>
+                          <div className="flex gap-3">
+                            {["Yes", "No"].map(opt => (
+                              <button
+                                key={opt}
+                                type="button"
+                                onClick={() => setPriceNegotiable(opt)}
+                                className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${priceNegotiable === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                              >
+                                {opt}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 mb-3">DG & UPS Charge included?</label>
+                          <div className="flex gap-3">
+                            {["Yes", "No"].map(opt => (
+                              <button
+                                key={opt}
+                                type="button"
+                                onClick={() => setDgUpsChargesIncluded(opt)}
+                                className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${dgUpsChargesIncluded === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                              >
+                                {opt}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-8">
+                      <button
+                        type="button"
+                        onClick={handleNext}
+                        className="w-full py-4 rounded-xl text-base font-bold bg-[#38D39F] text-white hover:bg-[#2bc490] transition-colors shadow-lg shadow-emerald-200/50"
+                      >
+                        Next, add amenities
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-12 max-w-2xl mx-auto">
 
                   <div className="flex flex-col items-center justify-center pb-6 border-b border-slate-50 space-y-2 text-center">
                     <h2 className="text-2xl font-black text-slate-800">Add Property Details</h2>
@@ -1073,8 +1759,8 @@ ${formData.description}`
                                         });
                                       }}
                                       className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected
-                                          ? "bg-[#0a2540] text-white border-[#0a2540]"
-                                          : "bg-white text-slate-600 border-slate-200"
+                                        ? "bg-[#0a2540] text-white border-[#0a2540]"
+                                        : "bg-white text-slate-600 border-slate-200"
                                         }`}
                                     >
                                       {opt}
@@ -1102,8 +1788,8 @@ ${formData.description}`
                                         });
                                       }}
                                       className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${isSelected
-                                          ? "bg-[#0a2540] text-white border-[#0a2540]"
-                                          : "bg-white text-slate-600 border-slate-200"
+                                        ? "bg-[#0a2540] text-white border-[#0a2540]"
+                                        : "bg-white text-slate-600 border-slate-200"
                                         }`}
                                     >
                                       {opt}
@@ -1500,8 +2186,8 @@ ${formData.description}`
                                             type="button"
                                             onClick={() => setPossessionStatus(p)}
                                             className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${possessionStatus === p
-                                                ? "bg-[#0a2540] text-white border-[#0a2540]"
-                                                : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                                              ? "bg-[#0a2540] text-white border-[#0a2540]"
+                                              : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
                                               }`}
                                           >
                                             {p}
@@ -2594,7 +3280,8 @@ ${formData.description}`
                     </>
                   )}
                 </div>
-              )}
+              )
+            )}
 
               {/* STEP: Room Details */}
               {currentStepName === "Room Details" && (
@@ -2642,8 +3329,8 @@ ${formData.description}`
                                 setRooms(prev => prev.map((r, i) => i === idx ? { ...r, roomType: type } : r))
                               }}
                               className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${room.roomType === type
-                                  ? "bg-[#0a2540] text-white border-[#0a2540]"
-                                  : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
+                                ? "bg-[#0a2540] text-white border-[#0a2540]"
+                                : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"
                                 }`}
                             >
                               {type}
@@ -2716,8 +3403,8 @@ ${formData.description}`
                                   }))
                                 }}
                                 className={`px-4 py-2.5 rounded-xl border text-sm font-bold flex items-center gap-2 transition-all ${isSelected
-                                    ? "bg-[#0a2540] border-[#0a2540] text-white"
-                                    : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
+                                  ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                  : "bg-white border-slate-200 text-slate-600 hover:border-[#0a2540]"
                                   }`}
                               >
                                 <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? "border-white bg-white/20" : "border-slate-300"}`}>
@@ -2829,11 +3516,10 @@ ${formData.description}`
                                   return { ...prev, amenities: newAmenities };
                                 });
                               }}
-                              className={`flex flex-col items-center justify-center p-6 rounded-2xl border transition-all ${
-                                isSelected
+                              className={`flex flex-col items-center justify-center p-6 rounded-2xl border transition-all ${isSelected
                                   ? "bg-[#0a2540] border-[#0a2540] text-white shadow-md scale-[1.02]"
                                   : "bg-white border-slate-200 text-slate-700 hover:border-[#0a2540] hover:shadow-sm"
-                              }`}
+                                }`}
                             >
                               <item.icon
                                 size={28}
@@ -3033,7 +3719,8 @@ ${formData.description}`
           </AnimatePresence>
 
           {/* Form Actions Footer */}
-          {!(currentStepName === "Property Details" && (sector === "Commercial" || lookingTo === "PG/Co-living")) &&
+          {!(currentStepName === "Basic Details" && sector === "Commercial") &&
+            !(currentStepName === "Property Details" && (sector === "Commercial" || lookingTo === "PG/Co-living")) &&
             !(lookingTo === "PG/Co-living" && (currentStepName === "Room Details" || currentStepName === "Amenities" || currentStepName === "Other Details")) && (
               <div className="mt-auto pt-8 flex items-center justify-between border-t border-slate-100">
                 <button
