@@ -1392,6 +1392,23 @@ ${formData.description}`
                           </div>
                         </div>
                       )}
+
+                      {/* Ownership details */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-3">Ownership <span className="text-rose-500">*</span></label>
+                        <div className="flex flex-wrap gap-3">
+                          {["Freehold", "Leasehold", "Cooperative society", "Power of attorney"].map(opt => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setOwnership(opt)}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${ownership === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
 
                     {/* Charges & Inclusions */}
@@ -1483,25 +1500,6 @@ ${formData.description}`
                             </select>
                             <ChevronDown className="absolute right-0 bottom-2 w-4 h-4 text-slate-400 pointer-events-none" />
                           </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Ownership details */}
-                    <div className="space-y-6 pt-8 border-t border-slate-100">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-3">Ownership <span className="text-rose-500">*</span></label>
-                        <div className="flex flex-wrap gap-3">
-                          {["Freehold", "Leasehold", "Cooperative society", "Power of attorney"].map(opt => (
-                            <button
-                              key={opt}
-                              type="button"
-                              onClick={() => setOwnership(opt)}
-                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${ownership === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
-                            >
-                              {opt}
-                            </button>
-                          ))}
                         </div>
                       </div>
                     </div>
