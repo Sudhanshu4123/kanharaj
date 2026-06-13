@@ -1453,6 +1453,89 @@ ${formData.description}`
                       </div>
                     </div>
 
+                    {/* FINANCIALS */}
+                    <div className="space-y-6 pt-8 border-t border-slate-100">
+                      <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">FINANCIALS</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 mb-2">
+                            Expected {lookingTo === "Rent" ? "Rent" : "Price"} (in ₹) <span className="text-rose-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <input
+                              name="price"
+                              value={formData.price}
+                              onChange={handleInputChange}
+                              type="number"
+                              placeholder="e.g. 50000"
+                              className="w-full pl-12 pr-20 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                            />
+                            {formData.price && (
+                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                {formatHelperAmount(formData.price)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {lookingTo === "Rent" && (
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 mb-2">Security Deposit (in ₹)</label>
+                            <div className="relative">
+                              <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                              <input
+                                type="number"
+                                value={securityDeposit}
+                                onChange={e => setSecurityDeposit(e.target.value)}
+                                placeholder="e.g. 150000"
+                                className="w-full pl-12 pr-20 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
+                              />
+                              {securityDeposit && (
+                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                  {formatHelperAmount(securityDeposit)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 mb-3">Negotiable</label>
+                          <div className="flex gap-3">
+                            {["Yes", "No"].map(opt => (
+                              <button
+                                key={opt}
+                                type="button"
+                                onClick={() => setPriceNegotiable(opt)}
+                                className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${priceNegotiable === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
+                              >
+                                {opt}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 mb-3">DG & UPS Charge included?</label>
+                          <div className="flex gap-3">
+                            {["Yes", "No"].map(opt => (
+                              <button
+                                key={opt}
+                                type="button"
+                                onClick={() => setDgUpsChargesIncluded(opt)}
+                                className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${dgUpsChargesIncluded === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
+                              >
+                                {opt}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Charges & Inclusions */}
                     <div className="space-y-6 pt-8 border-t border-slate-100">
                       <div>
@@ -1463,7 +1546,7 @@ ${formData.description}`
                               key={opt}
                               type="button"
                               onClick={() => setElectricityChargesIncluded(opt)}
-                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${electricityChargesIncluded === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${electricityChargesIncluded === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
                             >
                               {opt}
                             </button>
@@ -1479,7 +1562,7 @@ ${formData.description}`
                               key={opt}
                               type="button"
                               onClick={() => setWaterChargesIncluded(opt)}
-                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${waterChargesIncluded === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
+                              className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${waterChargesIncluded === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540]"}`}
                             >
                               {opt}
                             </button>
@@ -1541,89 +1624,6 @@ ${formData.description}`
                               ))}
                             </select>
                             <ChevronDown className="absolute right-0 bottom-2 w-4 h-4 text-slate-400 pointer-events-none" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* FINANCIALS */}
-                    <div className="space-y-6 pt-8 border-t border-slate-100">
-                      <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">FINANCIALS</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 mb-2">
-                            Expected {lookingTo === "Rent" ? "Rent" : "Price"} (in ₹) <span className="text-rose-500">*</span>
-                          </label>
-                          <div className="relative">
-                            <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                            <input
-                              name="price"
-                              value={formData.price}
-                              onChange={handleInputChange}
-                              type="number"
-                              placeholder="e.g. 50000"
-                              className="w-full pl-12 pr-20 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                            />
-                            {formData.price && (
-                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                                {formatHelperAmount(formData.price)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {lookingTo === "Rent" && (
-                          <div>
-                            <label className="block text-xs font-bold text-slate-500 mb-2">Security Deposit (in ₹)</label>
-                            <div className="relative">
-                              <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                              <input
-                                type="number"
-                                value={securityDeposit}
-                                onChange={e => setSecurityDeposit(e.target.value)}
-                                placeholder="e.g. 150000"
-                                className="w-full pl-12 pr-20 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                              />
-                              {securityDeposit && (
-                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                                  {formatHelperAmount(securityDeposit)}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 mb-3">Negotiable</label>
-                          <div className="flex gap-3">
-                            {["Yes", "No"].map(opt => (
-                              <button
-                                key={opt}
-                                type="button"
-                                onClick={() => setPriceNegotiable(opt)}
-                                className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${priceNegotiable === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
-                              >
-                                {opt}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 mb-3">DG & UPS Charge included?</label>
-                          <div className="flex gap-3">
-                            {["Yes", "No"].map(opt => (
-                              <button
-                                key={opt}
-                                type="button"
-                                onClick={() => setDgUpsChargesIncluded(opt)}
-                                className={`px-5 py-2.5 rounded-lg text-sm font-bold border transition-colors ${dgUpsChargesIncluded === opt ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200"}`}
-                              >
-                                {opt}
-                              </button>
-                            ))}
                           </div>
                         </div>
                       </div>
