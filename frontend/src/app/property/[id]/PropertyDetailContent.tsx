@@ -945,11 +945,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                 {property.listingType === 'RENT' && <span className="text-sm font-semibold text-slate-400 ml-1">/mo</span>}
               </div>
               <div className="mt-2 pt-2 border-t border-slate-700 flex items-center justify-between text-[11px] font-semibold text-slate-400">
-                {property.listingType !== 'RENT' ? (
-                  <span>Avg: ₹{(property.price / (property.area || 1)).toFixed(0)}/sq.ft</span>
-                ) : (
-                  <span>Direct Deal</span>
-                )}
+                <span>Avg: ₹{(property.price / (property.area || 1)).toFixed(0)}/sq.ft{property.listingType === 'RENT' && '/mo'}</span>
                 <span className="text-emerald-400 flex items-center"><Check className="w-3.5 h-3.5 mr-0.5" /> Zero Brokerage</span>
               </div>
             </div>
@@ -1261,7 +1257,10 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   {highlights.expectedRentIncrease && (
                     <div className="flex justify-between py-2 border-b border-slate-100">
                       <span className="text-slate-500">Expected Rent Increase</span>
-                      <span className="text-slate-800">{highlights.expectedRentIncrease}</span>
+                      <span className="text-slate-800">
+                        {highlights.expectedRentIncrease}
+                        {!highlights.expectedRentIncrease.includes('%') && /^\d+(\.\d+)?$/.test(highlights.expectedRentIncrease.trim()) && '%'}
+                      </span>
                     </div>
                   )}
                   {highlights.dgUpsChargesIncluded && (

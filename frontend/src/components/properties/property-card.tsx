@@ -138,9 +138,9 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
                 {formatPrice(property.price)}
                 {isForRent && <span className="text-xs font-normal text-slate-500 ml-0.5">/month</span>}
               </span>
-              {property.area > 0 && !isForRent && (
+              {property.area > 0 && (
                 <span className="text-xs text-slate-500 font-medium">
-                  @{formatPrice(Math.round(property.price / property.area))}/sqft
+                  @{formatPrice(Math.round(property.price / property.area))}/sqft{isForRent && '/mo'}
                 </span>
               )}
             </div>

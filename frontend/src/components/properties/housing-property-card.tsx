@@ -131,12 +131,13 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
 
             {/* Footer — hidden on mobile */}
             <div className="mt-auto pt-3 hidden sm:flex flex-wrap items-center gap-4 text-xs text-slate-500 border-t border-slate-100">
-              {property.listingType !== 'RENT' && (
-                <>
-                  <span>Avg. Price: <span className="font-semibold text-slate-700">₹{(property.price / (property.area || 1)).toFixed(0)}/sq.ft</span></span>
-                  <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                </>
-              )}
+              <span>
+                {property.listingType === 'RENT' ? 'Avg. Rent: ' : 'Avg. Price: '}
+                <span className="font-semibold text-slate-700">
+                  ₹{(property.price / (property.area || 1)).toFixed(0)}/sq.ft{property.listingType === 'RENT' && '/mo'}
+                </span>
+              </span>
+              <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
               <span>Status: <span className="font-semibold text-slate-700">Ready to Move</span></span>
             </div>
 
