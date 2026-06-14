@@ -37,6 +37,11 @@ public class DataInitializer implements CommandLineRunner {
         } catch (Exception e) {
             System.out.println("Table alter failed (might already be VARCHAR or different DB): " + e.getMessage());
         }
+        try {
+            entityManager.createNativeQuery("ALTER TABLE properties MODIFY COLUMN property_type VARCHAR(255) NOT NULL").executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Table alter failed for properties.property_type: " + e.getMessage());
+        }
         String resolvedEmail = resolveAdminEmail();
         if (resolvedEmail == null || resolvedEmail.isBlank()) {
             System.err.println("Warning: ADMIN_EMAIL is not configured!");

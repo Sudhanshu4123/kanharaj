@@ -504,6 +504,30 @@ export default function AddPropertyPage() {
           alert(lookingTo === "Rent" ? "Please enter Expected Rent." : "Please enter Expected Price.")
           return
         }
+        if (expectedRentIncrease) {
+          const match = expectedRentIncrease.match(/(\d+(?:\.\d+)?)/)
+          if (match) {
+            const pct = parseFloat(match[1])
+            if (pct > 100) {
+              alert("Expected Rent Increase cannot exceed 100%.")
+              return
+            }
+          }
+        }
+        if (carpetArea) {
+          const areaNum = parseFloat(carpetArea)
+          if (areaNum > 10000) {
+            alert("Carpet Area cannot exceed 10000 sq.ft.")
+            return
+          }
+        }
+        if (formData.area) {
+          const areaNum = parseFloat(formData.area)
+          if (areaNum > 10000) {
+            alert("Built Up Area cannot exceed 10000 sq.ft.")
+            return
+          }
+        }
       }
     } else {
       if (currentStep === 0) {
@@ -655,6 +679,33 @@ export default function AddPropertyPage() {
     if (!userData || !authHeaders) {
       router.push("/login")
       return
+    }
+
+    if (sector === "Commercial") {
+      if (expectedRentIncrease) {
+        const match = expectedRentIncrease.match(/(\d+(?:\.\d+)?)/)
+        if (match) {
+          const pct = parseFloat(match[1])
+          if (pct > 100) {
+            alert("Expected Rent Increase cannot exceed 100%.")
+            return
+          }
+        }
+      }
+      if (carpetArea) {
+        const areaNum = parseFloat(carpetArea)
+        if (areaNum > 10000) {
+          alert("Carpet Area cannot exceed 10000 sq.ft.")
+          return
+        }
+      }
+      if (formData.area) {
+        const areaNum = parseFloat(formData.area)
+        if (areaNum > 10000) {
+          alert("Built Up Area cannot exceed 10000 sq.ft.")
+          return
+        }
+      }
     }
 
     setIsSubmitting(true)
@@ -1436,8 +1487,13 @@ ${formData.description}`
                               value={carpetArea}
                               onChange={e => {
                                 const val = e.target.value;
-                                if (val === "" || parseFloat(val) >= 0) {
+                                if (val === "") {
                                   setCarpetArea(val);
+                                } else {
+                                  const areaNum = parseFloat(val);
+                                  if (areaNum >= 0 && areaNum <= 10000) {
+                                    setCarpetArea(val);
+                                  }
                                 }
                               }}
                               className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-20"
@@ -1633,7 +1689,17 @@ ${formData.description}`
                           <input
                             type="text"
                             value={expectedRentIncrease}
-                            onChange={e => setExpectedRentIncrease(e.target.value)}
+                            onChange={e => {
+                              const val = e.target.value;
+                              const match = val.match(/(\d+(?:\.\d+)?)/);
+                              if (match) {
+                                const pct = parseFloat(match[1]);
+                                if (pct > 100) {
+                                  return;
+                                }
+                              }
+                              setExpectedRentIncrease(val);
+                            }}
                             placeholder="e.g. 5% after 1 year"
                             className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
                           />
