@@ -20,8 +20,11 @@ export function getApiUrl(): string {
     if (hostname === 'seller.kanharaj.com') {
       return 'https://kanharaj.com/api';
     }
-    // Use relative path for local/dev — Next.js rewrites proxy this to localhost:8080
-    return '/api';
+    // Return absolute API URL in development to bypass Next.js proxy rewrite bugs with multipart/form-data uploads
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      return process.env.NEXT_PUBLIC_API_URL;
+    }
+    return 'http://localhost:8080/api';
   }
   return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 }

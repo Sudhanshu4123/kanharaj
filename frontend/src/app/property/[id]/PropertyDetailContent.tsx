@@ -87,6 +87,13 @@ interface ParsedHighlights {
   priceNegotiable?: string;
   subPropertyType?: string;
   possessionStatus?: string;
+  flooring?: string;
+  staircases?: string;
+  passengerLifts?: string;
+  serviceLifts?: string;
+  privateParking?: string;
+  publicParking?: string;
+  builtUpArea?: string;
 }
 
 function parsePropertyHighlights(description: string): { highlights: ParsedHighlights; cleanDescription: string } {
@@ -165,6 +172,7 @@ function parsePropertyHighlights(description: string): { highlights: ParsedHighl
             highlights.carpetArea = value;
             break;
           case 'Floor details':
+          case 'Floor Details':
             highlights.floorDetails = value;
             break;
           case 'Facing':
@@ -274,6 +282,27 @@ function parsePropertyHighlights(description: string): { highlights: ParsedHighl
             break;
           case 'Possession Status':
             highlights.possessionStatus = value;
+            break;
+          case 'Flooring':
+            highlights.flooring = value;
+            break;
+          case 'Staircases':
+            highlights.staircases = value;
+            break;
+          case 'Passenger Lifts':
+            highlights.passengerLifts = value;
+            break;
+          case 'Service Lifts':
+            highlights.serviceLifts = value;
+            break;
+          case 'Private Parking':
+            highlights.privateParking = value;
+            break;
+          case 'Public Parking':
+            highlights.publicParking = value;
+            break;
+          case 'Built Up Area':
+            highlights.builtUpArea = value;
             break;
         }
       }
@@ -1247,6 +1276,54 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     <div className="flex justify-between py-2 border-b border-slate-100">
                       <span className="text-slate-500">Price Negotiable</span>
                       <span className="text-slate-800">{highlights.priceNegotiable}</span>
+                    </div>
+                  )}
+                  {highlights.flooring && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Flooring</span>
+                      <span className="text-slate-800">{highlights.flooring}</span>
+                    </div>
+                  )}
+                  {highlights.staircases && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Staircases</span>
+                      <span className="text-slate-800">{highlights.staircases}</span>
+                    </div>
+                  )}
+                  {highlights.passengerLifts && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Passenger Lifts</span>
+                      <span className="text-slate-800">{highlights.passengerLifts}</span>
+                    </div>
+                  )}
+                  {highlights.serviceLifts && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Service Lifts</span>
+                      <span className="text-slate-800">{highlights.serviceLifts}</span>
+                    </div>
+                  )}
+                  {highlights.privateParking && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Private Parking</span>
+                      <span className="text-slate-800">{highlights.privateParking}</span>
+                    </div>
+                  )}
+                  {highlights.publicParking && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Public Parking</span>
+                      <span className="text-slate-800">{highlights.publicParking}</span>
+                    </div>
+                  )}
+                  {highlights.builtUpArea && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Built Up Area</span>
+                      <span className="text-slate-800">{highlights.builtUpArea}</span>
+                    </div>
+                  )}
+                  {highlights.constructionStatus && (
+                    <div className="flex justify-between py-2 border-b border-slate-100">
+                      <span className="text-slate-500">Construction Status</span>
+                      <span className="text-slate-800">{highlights.constructionStatus}</span>
                     </div>
                   )}
                   {highlights.pgName && (

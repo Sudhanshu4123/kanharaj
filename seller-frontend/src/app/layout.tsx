@@ -68,6 +68,13 @@ export default function RootLayout({
             !isLoginPage) {
             router.push("/subscription")
           }
+        } else if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem("seller_token")
+          localStorage.removeItem("seller_user")
+          setUser(null)
+          if (!isLoginPage) {
+            router.replace("/login")
+          }
         }
       } catch (err) {
         console.error("Auth check failed", err)

@@ -2,13 +2,13 @@
 
 import { useState, useEffect, use } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { 
-  Building2, 
-  MapPin, 
-  IndianRupee, 
-  Bed, 
-  Bath, 
-  Maximize2, 
+import {
+  Building2,
+  MapPin,
+  IndianRupee,
+  Bed,
+  Bath,
+  Maximize2,
   Image as ImageIcon,
   CheckCircle2,
   ChevronRight,
@@ -28,12 +28,12 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const router = useRouter()
   const resolvedParams = use(params)
   const propertyId = resolvedParams.id
-  
+
   const [currentStep, setCurrentStep] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(true)
-  
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -91,7 +91,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files || files.length === 0) return
-    
+
     setUploading(true)
     const data = new FormData()
     for (let i = 0; i < files.length; i++) {
@@ -106,6 +106,13 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         headers: token ? { "Authorization": `Bearer ${token}` } : {},
         body: data
       })
+      if (res.status === 401 || res.status === 403) {
+        alert("Aapka login session expire ho gaya hai. Kripya fir se login karein.")
+        localStorage.removeItem("seller_token")
+        localStorage.removeItem("seller_user")
+        router.push("/login")
+        return
+      }
       const result = await res.json()
       if (result.urls) {
         const absoluteUrls = result.urls.map((url: string) => {
@@ -193,8 +200,8 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
       <div className="flex items-center justify-between">
         <div>
-           <h2 className="text-3xl font-black text-slate-900 tracking-tight">Edit Property</h2>
-           <p className="text-slate-500 mt-1">Update your property details to attract more buyers.</p>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Edit Property</h2>
+          <p className="text-slate-500 mt-1">Update your property details to attract more buyers.</p>
         </div>
       </div>
 
@@ -202,239 +209,242 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
         {steps.map((step, i) => (
           <div key={step} className="relative z-10 flex flex-col items-center">
-             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
-               i <= currentStep ? 'bg-[#0a2540] text-white shadow-lg shadow-slate-200' : 'bg-white border-2 border-slate-100 text-slate-400'
-             }`}>
-                {i < currentStep ? <CheckCircle2 size={20} /> : i + 1}
-             </div>
-             <span className={`text-[10px] font-bold uppercase mt-2 tracking-widest ${i <= currentStep ? 'text-[#0a2540]' : 'text-slate-400'}`}>
-                {step}
-             </span>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${i <= currentStep ? 'bg-[#0a2540] text-white shadow-lg shadow-slate-200' : 'bg-white border-2 border-slate-100 text-slate-400'
+              }`}>
+              {i < currentStep ? <CheckCircle2 size={20} /> : i + 1}
+            </div>
+            <span className={`text-[10px] font-bold uppercase mt-2 tracking-widest ${i <= currentStep ? 'text-[#0a2540]' : 'text-slate-400'}`}>
+              {step}
+            </span>
           </div>
         ))}
       </div>
 
       <div className="dashboard-card min-h-[400px]">
-         <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-               {currentStep === 0 && (
-                 <div className="space-y-6">
-                    <div className="grid grid-cols-1 gap-6">
-                       <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Property Title</label>
-                          <input 
-                            name="title"
-                            value={formData.title}
-                            onChange={handleInputChange}
-                            type="text" 
-                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
-                          />
-                       </div>
-                       <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Description</label>
-                          <textarea 
-                            name="description"
-                            value={formData.description}
-                            onChange={handleInputChange}
-                            rows={4}
-                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium resize-none"
-                          />
-                       </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
+            {currentStep === 0 && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Property Title</label>
+                    <input
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      type="text"
+                      className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Description</label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      rows={4}
+                      className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium resize-none"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Price (in ₹)</label>
+                    <div className="relative">
+                      <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                      <input
+                        name="price"
+                        value={formData.price}
+                        onChange={handleInputChange}
+                        type="number"
+                        className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
+                      />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                       <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Price (in ₹)</label>
-                          <div className="relative">
-                            <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                            <input 
-                              name="price"
-                              value={formData.price}
-                              onChange={handleInputChange}
-                              type="number" 
-                              className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
-                            />
-                          </div>
-                       </div>
-                       <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Property Type</label>
-                          <select 
-                            name="propertyType"
-                            value={formData.propertyType}
-                            onChange={handleInputChange}
-                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium bg-white"
-                          >
-                             <optgroup label="Residential">
-                                <option value="FLAT">Flat / Apartment</option>
-                                <option value="BUILDER_FLOOR">Builder Floor</option>
-                                <option value="HOUSE">Independent House</option>
-                                <option value="VILLA">Villa / Penthouse</option>
-                             </optgroup>
-                             <optgroup label="Commercial">
-                                <option value="SHOP">Shop</option>
-                                <option value="OFFICE_SPACE">Office Space</option>
-                             </optgroup>
-                          </select>
-                       </div>
-                    </div>
-                 </div>
-               )}
-
-               {currentStep === 1 && (
-                 <div className="space-y-6">
-                    <div>
-                       <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Complete Address</label>
-                       <div className="relative">
-                          <MapPin className="absolute left-4 top-4 text-slate-400" size={18} />
-                          <textarea 
-                            name="address"
-                            value={formData.address}
-                            onChange={handleInputChange}
-                            rows={3}
-                            className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium resize-none"
-                          />
-                       </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                       <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">City</label>
-                          <input 
-                            name="city"
-                            value={formData.city}
-                            onChange={handleInputChange}
-                            type="text" 
-                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
-                          />
-                       </div>
-                       <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Pincode</label>
-                          <input 
-                            name="pincode"
-                            value={formData.pincode}
-                            onChange={handleInputChange}
-                            type="text" 
-                            className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
-                          />
-                       </div>
-                    </div>
-                 </div>
-               )}
-
-               {currentStep === 2 && (
-                 <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                       <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Bedrooms</label>
-                          <div className="relative">
-                             <Bed className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                             <input 
-                               name="bedrooms"
-                               value={formData.bedrooms}
-                               onChange={handleInputChange}
-                               type="number" 
-                               className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
-                             />
-                          </div>
-                       </div>
-                       <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Bathrooms</label>
-                          <div className="relative">
-                             <Bath className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                             <input 
-                               name="bathrooms"
-                               value={formData.bathrooms}
-                               onChange={handleInputChange}
-                               type="number" 
-                               className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
-                             />
-                          </div>
-                       </div>
-                       <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Area (Sq. Ft.)</label>
-                          <div className="relative">
-                             <Maximize2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                             <input 
-                               name="area"
-                               value={formData.area}
-                               onChange={handleInputChange}
-                               type="number" 
-                               className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
-                             />
-                          </div>
-                       </div>
-                    </div>
-                 </div>
-               )}
-
-               {currentStep === 3 && (
-                 <div className="space-y-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                       {formData.images.map((url, i) => (
-                         <div key={i} className="aspect-square rounded-2xl border-2 border-slate-100 overflow-hidden relative group">
-                            <img src={url} alt="" className="w-full h-full object-cover" />
-                            <button 
-                              onClick={() => removeImage(i)}
-                              className="absolute top-2 right-2 bg-white/80 backdrop-blur-md p-1.5 rounded-full text-[#0a2540] opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-target"
-                            >
-                               <X size={14} />
-                            </button>
-                         </div>
-                       ))}
-                       <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-rose-500 hover:bg-[#0a2540]/5 transition-all">
-                          {uploading ? (
-                            <Loader2 className="animate-spin text-[#0a2540]" size={24} />
-                          ) : (
-                            <>
-                              <Upload className="text-slate-400" size={24} />
-                              <span className="text-[10px] font-bold text-slate-500 mt-2 uppercase tracking-tighter">Add Photos</span>
-                            </>
-                          )}
-                          <input 
-                            type="file" 
-                            multiple 
-                            accept="image/*" 
-                            className="hidden" 
-                            onChange={handleImageUpload}
-                            disabled={uploading}
-                          />
-                       </label>
-                    </div>
-                 </div>
-               )}
-            </motion.div>
-         </AnimatePresence>
-
-         <div className="mt-12 flex items-center justify-between pt-8 border-t border-slate-50">
-            <button 
-              onClick={() => setCurrentStep(prev => Math.max(0, prev - 1))}
-              disabled={currentStep === 0}
-              className={`btn-secondary !py-2.5 ${currentStep === 0 ? 'opacity-0' : 'opacity-100'}`}
-            >
-               <ChevronLeft size={20} /> Back
-            </button>
-            
-            {currentStep < steps.length - 1 ? (
-              <button 
-                onClick={() => setCurrentStep(prev => Math.min(steps.length - 1, prev + 1))}
-                className="btn-primary !py-2.5 !px-8"
-              >
-                 Next Step <ChevronRight size={20} />
-              </button>
-            ) : (
-              <button 
-                onClick={handleSubmit}
-                disabled={isSubmitting || formData.images.length === 0}
-                className="btn-primary !py-2.5 !px-10 disabled:opacity-50"
-              >
-                 {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Save Changes'}
-              </button>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Property Type</label>
+                    <select
+                      name="propertyType"
+                      value={formData.propertyType}
+                      onChange={handleInputChange}
+                      className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium bg-white"
+                    >
+                      <optgroup label="Residential">
+                        <option value="FLAT">Flat / Apartment</option>
+                        <option value="BUILDER_FLOOR">Builder Floor</option>
+                        <option value="HOUSE">Independent House</option>
+                        <option value="VILLA">Villa / Penthouse</option>
+                      </optgroup>
+                      <optgroup label="Commercial">
+                        <option value="SHOP">Shop</option>
+                        <option value="OFFICE_SPACE">Office Space</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                </div>
+              </div>
             )}
-         </div>
+
+            {currentStep === 1 && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Complete Address</label>
+                  <div className="relative">
+                    <MapPin className="absolute left-4 top-4 text-slate-400" size={18} />
+                    <textarea
+                      name="address"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      rows={3}
+                      className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium resize-none"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">City</label>
+                    <input
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      type="text"
+                      className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Pincode</label>
+                    <input
+                      name="pincode"
+                      value={formData.pincode}
+                      onChange={handleInputChange}
+                      type="text"
+                      className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentStep === 2 && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Bedrooms</label>
+                    <div className="relative">
+                      <Bed className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                      <input
+                        name="bedrooms"
+                        value={formData.bedrooms}
+                        onChange={handleInputChange}
+                        type="number"
+                        className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Bathrooms</label>
+                    <div className="relative">
+                      <Bath className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                      <input
+                        name="bathrooms"
+                        value={formData.bathrooms}
+                        onChange={handleInputChange}
+                        type="number"
+                        className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Area (Sq. Ft.)</label>
+                    <div className="relative">
+                      <Maximize2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                      <input
+                        name="area"
+                        value={formData.area}
+                        onChange={handleInputChange}
+                        type="number"
+                        className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentStep === 3 && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {formData.images.map((url, i) => (
+                    <div key={i} className="aspect-square rounded-2xl border-2 border-slate-100 overflow-hidden relative group">
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <button
+                        onClick={() => removeImage(i)}
+                        className="absolute top-2 right-2 bg-white/80 backdrop-blur-md p-1.5 rounded-full text-[#0a2540] opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-target"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                  <label 
+                    htmlFor="edit-property-image-upload"
+                    className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-rose-500 hover:bg-[#0a2540]/5 transition-all"
+                  >
+                    {uploading ? (
+                      <Loader2 className="animate-spin text-[#0a2540]" size={24} />
+                    ) : (
+                      <>
+                        <Upload className="text-slate-400" size={24} />
+                        <span className="text-[10px] font-bold text-slate-500 mt-2 uppercase tracking-tighter">Add Photos</span>
+                      </>
+                    )}
+                    <input
+                      id="edit-property-image-upload"
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                      disabled={uploading}
+                    />
+                  </label>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="mt-12 flex items-center justify-between pt-8 border-t border-slate-50">
+          <button
+            onClick={() => setCurrentStep(prev => Math.max(0, prev - 1))}
+            disabled={currentStep === 0}
+            className={`btn-secondary !py-2.5 ${currentStep === 0 ? 'opacity-0' : 'opacity-100'}`}
+          >
+            <ChevronLeft size={20} /> Back
+          </button>
+
+          {currentStep < steps.length - 1 ? (
+            <button
+              onClick={() => setCurrentStep(prev => Math.min(steps.length - 1, prev + 1))}
+              className="btn-primary !py-2.5 !px-8"
+            >
+              Next Step <ChevronRight size={20} />
+            </button>
+          ) : (
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting || formData.images.length === 0}
+              className="btn-primary !py-2.5 !px-10 disabled:opacity-50"
+            >
+              {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Save Changes'}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

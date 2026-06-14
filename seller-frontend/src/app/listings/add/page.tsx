@@ -590,6 +590,29 @@ export default function AddPropertyPage() {
         headers: token ? { "Authorization": `Bearer ${token}` } : {},
         body: data
       })
+      
+      if (res.status === 401 || res.status === 403) {
+        alert("Aapka login session expire ho gaya hai. Kripya fir se login karein.")
+        localStorage.removeItem("seller_token")
+        localStorage.removeItem("seller_user")
+        router.push("/login")
+        return
+      }
+
+      if (!res.ok) {
+        const errText = await res.text()
+        let errMsg = `Server responded with status ${res.status}`
+        try {
+          const errJson = JSON.parse(errText)
+          errMsg = errJson.message || errJson.error || errMsg
+          if (Array.isArray(errJson.error) && errJson.error.length > 0) {
+            errMsg = errJson.error.join(", ")
+          }
+        } catch {}
+        alert("Image upload failed: " + errMsg)
+        return
+      }
+
       const result = await res.json()
       if (result.urls) {
         const apiBase = getApiUrl()
@@ -607,9 +630,9 @@ export default function AddPropertyPage() {
         })
         setFormData(prev => ({ ...prev, images: [...prev.images, ...absoluteUrls] }))
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Upload failed", err)
-      alert("Image upload failed.")
+      alert("Image upload failed: " + (err.message || err))
     } finally {
       setUploading(false)
     }
@@ -3952,7 +3975,10 @@ ${formData.description}`
                         </button>
                       </div>
                     ))}
-                    <label className="aspect-square rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-[#0a2540] hover:bg-[#0a2540]/5 transition-all">
+                    <label 
+                      htmlFor="property-image-upload"
+                      className="aspect-square rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-[#0a2540] hover:bg-[#0a2540]/5 transition-all"
+                    >
                       {uploading ? (
                         <Loader2 className="animate-spin text-[#0a2540]" size={24} />
                       ) : (
@@ -3962,6 +3988,7 @@ ${formData.description}`
                         </>
                       )}
                       <input
+                        id="property-image-upload"
                         type="file"
                         multiple
                         accept="image/*"
@@ -4024,6 +4051,7 @@ ${formData.description}`
           {/* Form Actions Footer */}
           {!(currentStepName === "Basic Details" && sector === "Commercial") &&
             !(currentStepName === "Property Details" && (sector === "Commercial" || lookingTo === "PG/Co-living")) &&
+            !(currentStepName === "Amenities" && sector === "Commercial") &&
             !(lookingTo === "PG/Co-living" && (currentStepName === "Room Details" || currentStepName === "Amenities" || currentStepName === "Other Details")) && (
               <div className="mt-auto pt-8 flex items-center justify-between border-t border-slate-100">
                 <button
