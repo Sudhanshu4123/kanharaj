@@ -293,7 +293,7 @@ export default function HomeContent() {
               { title: 'Investment Advisory', icon: Star, desc: 'High-ROI <strong>real estate investing</strong> opportunities in Noida, Gurugram, and Delhi NCR.' },
               { title: 'Personalized Relocation', icon: Compass, desc: 'End-to-end support for moving families or businesses to premium NCR sectors.' },
             ].map((service, index) => (
-              <Link key={service.title} href={`/services/coming-soon?title=${encodeURIComponent(service.title)}`} className="block group">
+              <Link key={service.title} href={`/coming-soon?title=${encodeURIComponent(service.title)}`} className="block group">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}

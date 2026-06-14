@@ -83,7 +83,7 @@ const nextConfig = {
         destination: `${backendUrl}/api/uploads/:path*`,
       },
       {
-        source: '/api/:path*',
+        source: '/api/:path((?!auth(?:/|$)).*)',
         destination: `${backendUrl}/api/:path*`,
       },
     ];
