@@ -101,9 +101,9 @@ const servicesMegaData = {
   edge: {
     title: 'Kanharaj Services',
     items: [
-      { label: 'Home Loan', href: '/services/home-loan' },
-      { label: 'Property Protection', href: '/services/protect' },
-      { label: 'Premium Plan', href: '/services/premium' },
+      { label: 'Home Loan', href: `/coming-soon?title=${encodeURIComponent('Home Loan')}` },
+      { label: 'Property Protection', href: `/coming-soon?title=${encodeURIComponent('Property Protection')}` },
+      { label: 'Premium Plan', href: `/coming-soon?title=${encodeURIComponent('Premium Plan')}` },
     ]
   },
   tools: {
@@ -121,9 +121,9 @@ const newsMegaData = {
   title: 'Property market guide',
   items: [
     { label: 'Real Estate News', description: 'Latest market updates', href: '/#news' },
-    { label: 'Buying Guide', description: 'Expert homebuying tips', href: '/guide/buying' },
+    { label: 'Buying Guide', description: 'Expert homebuying tips', href: `/coming-soon?title=${encodeURIComponent('Buying Guide')}` },
     { label: 'Property Research', description: 'Data-driven insights', href: '/#research-insights' },
-    { label: 'New Delhi Overview', description: 'Real estate & area highlights', href: '/guide/new-delhi' },
+    { label: 'New Delhi Overview', description: 'Real estate & area highlights', href: `/coming-soon?title=${encodeURIComponent('New Delhi Overview')}` },
   ]
 }
 
