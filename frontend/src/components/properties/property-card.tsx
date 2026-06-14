@@ -134,8 +134,11 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
 
             {/* Price & Area Info */}
             <div className="flex items-baseline gap-2 mb-4">
-              <span className="text-xl font-bold text-slate-900">{formatPrice(property.price)}</span>
-              {property.area > 0 && (
+              <span className="text-xl font-bold text-slate-900">
+                {formatPrice(property.price)}
+                {isForRent && <span className="text-xs font-normal text-slate-500 ml-0.5">/month</span>}
+              </span>
+              {property.area > 0 && !isForRent && (
                 <span className="text-xs text-slate-500 font-medium">
                   @{formatPrice(Math.round(property.price / property.area))}/sqft
                 </span>
@@ -145,10 +148,17 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
             {/* Features Grid */}
             <div className="grid grid-cols-3 gap-2 py-3 border-t border-slate-100">
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-tight">Config</span>
+                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-tight">
+                  {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND') ? 'Type' : 'Config'}
+                </span>
                 <div className="flex items-center text-slate-700 text-sm font-semibold">
                   <Bed className="h-3.5 w-3.5 mr-1 text-rose-500" />
-                  <span>{property.bedrooms} BHK</span>
+                  <span className="truncate">
+                    {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND')
+                      ? property.propertyType
+                      : `${property.bedrooms} BHK`
+                    }
+                  </span>
                 </div>
               </div>
               <div className="flex flex-col">

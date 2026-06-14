@@ -88,6 +88,7 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
           <div className="absolute bottom-4 left-0">
              <div className="bg-black/70 backdrop-blur-md text-white px-3 py-1.5 text-sm font-black rounded-r-lg">
                 {formatPrice(property.price)}
+                {property.listingType === 'RENT' && <span className="text-xs font-normal text-slate-300 ml-0.5">/month</span>}
              </div>
           </div>
         </div>
@@ -103,8 +104,15 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
 
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Config</p>
-              <p className="text-sm font-bold text-slate-800">{property.bedrooms} BHK</p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">
+                {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND') ? 'Type' : 'Config'}
+              </p>
+              <p className="text-sm font-bold text-slate-800">
+                {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND') 
+                  ? property.propertyType 
+                  : `${property.bedrooms} BHK`
+                }
+              </p>
             </div>
             <div>
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Area</p>

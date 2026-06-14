@@ -945,7 +945,11 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                 {property.listingType === 'RENT' && <span className="text-sm font-semibold text-slate-400 ml-1">/mo</span>}
               </div>
               <div className="mt-2 pt-2 border-t border-slate-700 flex items-center justify-between text-[11px] font-semibold text-slate-400">
-                <span>Avg: ₹{(property.price / (property.area || 1)).toFixed(0)}/sq.ft</span>
+                {property.listingType !== 'RENT' ? (
+                  <span>Avg: ₹{(property.price / (property.area || 1)).toFixed(0)}/sq.ft</span>
+                ) : (
+                  <span>Direct Deal</span>
+                )}
                 <span className="text-emerald-400 flex items-center"><Check className="w-3.5 h-3.5 mr-0.5" /> Zero Brokerage</span>
               </div>
             </div>

@@ -208,7 +208,12 @@ export function countByListingType(properties: Property[], type: 'BUY' | 'RENT')
 }
 
 export function formatPropertyPriceDisplay(property: Property): string {
-  return formatPrice(typeof property.price === 'number' ? property.price : Number(property.price) || 0)
+  const priceVal = typeof property.price === 'number' ? property.price : Number(property.price) || 0
+  const formatted = formatPrice(priceVal)
+  if (property.listingType === 'RENT') {
+    return `${formatted}/month`
+  }
+  return formatted
 }
 
 export function formatAreaDisplay(area?: number): string {

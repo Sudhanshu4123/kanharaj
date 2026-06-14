@@ -103,14 +103,25 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
               {property.title}
             </h2>
             <p className="text-slate-500 text-[9px] sm:text-sm mb-1.5 sm:mb-4 line-clamp-1">
-              {property.bedrooms} BHK {property.propertyType} · {property.city || property.address}
+              {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND') 
+                ? `${property.propertyType} · ${property.city || property.address}`
+                : `${property.bedrooms} BHK ${property.propertyType} · ${property.city || property.address}`
+              }
             </p>
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-1 sm:gap-4 mt-0.5 sm:mt-2">
               <div>
-                <p className="text-slate-400 text-[7px] sm:text-xs font-medium mb-0 uppercase tracking-wider">{property.bedrooms} BHK</p>
-                <p className="text-slate-900 font-black text-[10px] sm:text-base leading-tight">{formattedPrice}</p>
+                <p className="text-slate-400 text-[7px] sm:text-xs font-medium mb-0 uppercase tracking-wider">
+                  {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND') 
+                    ? 'Type' 
+                    : 'Config'
+                  }
+                </p>
+                <p className="text-slate-900 font-black text-[10px] sm:text-base leading-tight">
+                  {formattedPrice}
+                  {property.listingType === 'RENT' && <span className="text-xs font-normal text-slate-500 ml-0.5">/month</span>}
+                </p>
               </div>
               <div>
                 <p className="text-slate-400 text-[7px] sm:text-xs font-medium mb-0 uppercase tracking-wider">Area</p>
@@ -120,8 +131,12 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
 
             {/* Footer — hidden on mobile */}
             <div className="mt-auto pt-3 hidden sm:flex flex-wrap items-center gap-4 text-xs text-slate-500 border-t border-slate-100">
-              <span>Avg. Price: <span className="font-semibold text-slate-700">₹{(property.price / (property.area || 1)).toFixed(0)}/sq.ft</span></span>
-              <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+              {property.listingType !== 'RENT' && (
+                <>
+                  <span>Avg. Price: <span className="font-semibold text-slate-700">₹{(property.price / (property.area || 1)).toFixed(0)}/sq.ft</span></span>
+                  <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                </>
+              )}
               <span>Status: <span className="font-semibold text-slate-700">Ready to Move</span></span>
             </div>
 
