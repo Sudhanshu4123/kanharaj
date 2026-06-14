@@ -263,6 +263,9 @@ public class PaymentController {
                 status = "EXPIRED";
             }
         }
+
+        if (plan == null) plan = "NONE";
+        if (status == null) status = "PENDING";
         
         return ResponseEntity.ok(Map.of(
             "plan", plan,
