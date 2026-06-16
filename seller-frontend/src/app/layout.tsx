@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Plus, ChevronDown, Menu, X, User, LogOut, FileText, Settings, ShieldAlert, Lock, Megaphone, ExternalLink, AlertTriangle } from "lucide-react"
 import { logoutFromSellerDashboard, getApiUrl, getMainSiteUrl } from "@/lib/auth"
+import { MotionConfig } from "framer-motion"
 import { normalizeProfileImageUrl } from "@/lib/profile-utils"
 import { MobileNav } from "@/components/mobile-nav"
 
@@ -129,6 +130,7 @@ export default function RootLayout({
         {/* End Google Tag Manager */}
       </head>
       <body className={`${inter.className} antialiased bg-[#F5F7FA] text-slate-800 overflow-x-hidden`}>
+        <MotionConfig reducedMotion="user">
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
@@ -386,6 +388,7 @@ export default function RootLayout({
             )}
           </div>
         )}
+        </MotionConfig>
         <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
       </body>
     </html>
