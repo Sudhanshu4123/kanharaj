@@ -21,12 +21,12 @@ import { MyActivityPanel, type ActivityTab } from '@/components/header/my-activi
 
 const buyersMegaData = {
   propertyTypes: [
-    { label: 'Flats', href: '/properties?type=flat&listing=buy', icon: Building },
-    { label: 'Houses', href: '/properties?type=house&listing=buy', icon: Home },
-    { label: 'Builder floors', href: '/properties?type=builder+floor&listing=buy', icon: Building2 },
-    { label: 'Plots', href: '/properties?type=plots%2Fland&listing=buy', icon: Grid },
-    { label: 'Villas', href: '/properties?type=villa&listing=buy', icon: Compass },
-    { label: 'Commercial properties', href: '/properties?type=commercial&listing=buy', icon: Store },
+    { label: 'Flats', href: '/buy/flat', icon: Building },
+    { label: 'Houses', href: '/buy/house', icon: Home },
+    { label: 'Builder floors', href: '/buy/floor', icon: Building2 },
+    { label: 'Plots', href: '/buy/plot', icon: Grid },
+    { label: 'Villas', href: '/buy/villa', icon: Compass },
+    { label: 'Commercial properties', href: '/buy/commercial', icon: Store },
   ],
   popularAreas: [
     { label: 'Vasant Kunj', href: '/properties?search=Vasant+Kunj&listing=buy' },
@@ -56,11 +56,11 @@ const buyersMegaData = {
 
 const tenantsMegaData = {
   propertyTypes: [
-    { label: 'Flats', href: '/properties?type=flat&listing=rent', icon: Building },
-    { label: 'Houses', href: '/properties?type=house&listing=rent', icon: Home },
-    { label: 'Builder floors', href: '/properties?type=builder+floor&listing=rent', icon: Building2 },
-    { label: 'Villas', href: '/properties?type=villa&listing=rent', icon: Compass },
-    { label: 'Commercial properties', href: '/properties?type=commercial&listing=rent', icon: Store },
+    { label: 'Flats', href: '/rent/flat', icon: Building },
+    { label: 'Houses', href: '/rent/house', icon: Home },
+    { label: 'Builder floors', href: '/rent/floor', icon: Building2 },
+    { label: 'Villas', href: '/rent/villa', icon: Compass },
+    { label: 'Commercial properties', href: '/rent/commercial', icon: Store },
   ],
   popularAreas: [
     { label: 'Saket', href: '/properties?search=Saket&listing=rent' },
@@ -133,17 +133,17 @@ const navLinks = [
     label: 'For Buyers',
     icon: Home,
     subLinks: [
-      { href: '/properties?listing=buy', label: 'Buy Residential' },
-      { href: '/properties?type=RESIDENTIAL+PROJECT&listing=buy', label: 'New Projects' },
-      { href: '/properties?type=PLOTS%2FLAND&listing=buy', label: 'Plots / Land' }
+      { href: '/buy', label: 'Buy Residential' },
+      { href: '/buy/residential-project', label: 'New Projects' },
+      { href: '/buy/plot', label: 'Plots / Land' }
     ]
   },
   {
     label: 'For Tenants',
     icon: Key,
     subLinks: [
-      { href: '/properties?listing=rent', label: 'Rent Residential' },
-      { href: '/properties?listing=rent&type=PG', label: 'PG / Co-Living' }
+      { href: '/rent', label: 'Rent Residential' },
+      { href: '/rent/pg', label: 'PG / Co-Living' }
     ]
   },
   {
@@ -176,7 +176,15 @@ export function Header() {
   const pathname = usePathname()
   const router = useRouter()
 
-  if (pathname === '/properties' || pathname?.startsWith('/property/')) {
+  const isPropertiesPage = 
+    pathname === '/properties' || 
+    pathname?.startsWith('/property/') ||
+    pathname === '/buy' || 
+    pathname?.startsWith('/buy/') ||
+    pathname === '/rent' || 
+    pathname?.startsWith('/rent/')
+
+  if (isPropertiesPage) {
     return null
   }
 
@@ -253,7 +261,7 @@ export function Header() {
     <header className={cn(
       "fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#0a2540] h-[60px] flex items-center px-4 sm:px-6 lg:px-10 justify-between border-b border-white/10",
       scrolled && "shadow-lg shadow-black/20",
-      pathname === '/properties' && "hidden"
+      isPropertiesPage && "hidden"
     )}>
       {/* Logo */}
       <div className="flex items-center shrink-0">

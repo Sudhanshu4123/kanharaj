@@ -670,10 +670,6 @@ export default function AddPropertyPage() {
   }
 
   const handleSubmit = async () => {
-    if (formData.images.length === 0) {
-      alert("Please upload at least one image.")
-      return
-    }
     const userData = localStorage.getItem("seller_user")
     const authHeaders = getSellerAuthHeaders()
     if (!userData || !authHeaders) {
@@ -4138,7 +4134,7 @@ ${formData.description}`
                 ) : (
                   <button
                     onClick={handleSubmit}
-                    disabled={isSubmitting || formData.images.length === 0}
+                    disabled={isSubmitting}
                     className="px-8 py-2.5 rounded-lg text-sm font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-200 flex items-center gap-2 disabled:opacity-50"
                   >
                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Publish Property'}

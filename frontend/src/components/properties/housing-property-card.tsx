@@ -92,10 +92,15 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
           <div className="p-2.5 sm:p-5 flex flex-col flex-1 relative">
 
             {/* Badge */}
-            <div className="mb-1 sm:mb-2">
+            <div className="mb-1 sm:mb-2 flex items-center gap-2">
               <span className="bg-slate-100 text-slate-600 px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-wider">
-                {property.listingType === 'BUY' ? 'Zero Brokerage' : 'Verified Listing'}
+                {property.listingType === 'BUY' ? 'Zero Brokerage' : 'Verified Agent Listing'}
               </span>
+              {property.verified && (
+                <span className="bg-emerald-100 text-emerald-700 px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[10px] font-bold uppercase tracking-wider flex items-center gap-0.5">
+                  ✓ Verified
+                </span>
+              )}
             </div>
 
             {/* Title */}

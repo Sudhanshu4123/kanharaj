@@ -94,6 +94,36 @@ const transformFromApi = (p: any): Property => {
         }
       : undefined)
 
+  let verificationPhotoUrl = p.verificationPhotoUrl;
+  if (verificationPhotoUrl) {
+    if (!verificationPhotoUrl.startsWith('http')) {
+      if (verificationPhotoUrl.startsWith('/api/uploads/') || verificationPhotoUrl.startsWith('/uploads/')) {
+        // keep as is
+      } else if (verificationPhotoUrl.startsWith('api/uploads/')) {
+        verificationPhotoUrl = `/${verificationPhotoUrl}`;
+      } else if (verificationPhotoUrl.startsWith('uploads/')) {
+        verificationPhotoUrl = `/api/${verificationPhotoUrl}`;
+      } else {
+        verificationPhotoUrl = `/api/uploads/${verificationPhotoUrl}`;
+      }
+    }
+  }
+
+  const normalizedImages = (Array.isArray(p.images) ? p.images : (p.images ? tryParse(p.images, []) : [])).map((img: string) => {
+    if (!img) return ''
+    if (img.startsWith('http')) return img 
+    if (img.startsWith('/api/uploads/') || img.startsWith('/uploads/')) return img 
+    if (img.startsWith('api/uploads/')) return `/${img}` 
+    if (img.startsWith('uploads/')) return `/api/${img}` 
+    return img
+  }).filter(Boolean);
+
+  if (p.verified && verificationPhotoUrl) {
+    if (!normalizedImages.includes(verificationPhotoUrl)) {
+      normalizedImages.unshift(verificationPhotoUrl);
+    }
+  }
+
   return {
     ...p,
     id: String(p.id),
@@ -103,14 +133,7 @@ const transformFromApi = (p: any): Property => {
     price: typeof p.price === 'object' ? Number(p.price) : p.price,
     user,
     userId: p.userId ? String(p.userId) : p.userId,
-    images: (Array.isArray(p.images) ? p.images : (p.images ? tryParse(p.images, []) : [])).map((img: string) => {
-      if (!img) return ''
-      if (img.startsWith('http')) return img // Cloudinary / Unsplash — keep as-is
-      if (img.startsWith('/api/uploads/') || img.startsWith('/uploads/')) return img // already relative ✓
-      if (img.startsWith('api/uploads/')) return `/${img}` // fix missing leading slash
-      if (img.startsWith('uploads/')) return `/api/${img}` // fix old db format
-      return img
-    }).filter(Boolean),
+    images: normalizedImages,
     amenities: Array.isArray(p.amenities) ? p.amenities : (p.amenities ? tryParse(p.amenities, []) : []),
   }
 }

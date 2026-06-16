@@ -26,6 +26,11 @@ export type SellerProperty = {
   createdAt?: string
   updatedAt?: string
   purpose?: string
+  verified?: boolean
+  verifiedAt?: string
+  verificationLatitude?: number
+  verificationLongitude?: number
+  verificationPhotoUrl?: string
 }
 
 export type SellerLead = {
@@ -63,6 +68,16 @@ export function normalizeSellerProperty(raw: Record<string, unknown>): SellerPro
   const images = Array.isArray(raw.images)
     ? (raw.images as string[]).map(normalizeImageUrl).filter(Boolean)
     : []
+  
+  const isVerified = !!raw.verified;
+  const rawVerificationPhoto = raw.verificationPhotoUrl ? String(raw.verificationPhotoUrl) : "";
+  if (isVerified && rawVerificationPhoto) {
+    const normVerifyPhoto = normalizeImageUrl(rawVerificationPhoto);
+    if (normVerifyPhoto && !images.includes(normVerifyPhoto)) {
+      images.unshift(normVerifyPhoto);
+    }
+  }
+
   const prop: SellerProperty = {
     ...(raw as SellerProperty),
     id: raw.id as number | string,

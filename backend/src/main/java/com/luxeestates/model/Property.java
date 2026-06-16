@@ -85,6 +85,21 @@ public class Property {
     @Builder.Default
     private Boolean featured = false;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean verified = false;
+
+    private LocalDateTime verifiedAt;
+
+    @Column(precision = 10, scale = 8)
+    private BigDecimal verificationLatitude;
+
+    @Column(precision = 11, scale = 8)
+    private BigDecimal verificationLongitude;
+
+    @Column(length = 500)
+    private String verificationPhotoUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

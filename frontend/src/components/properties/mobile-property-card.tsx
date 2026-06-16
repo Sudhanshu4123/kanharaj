@@ -61,11 +61,12 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
 
           {/* Badge: New Launch / Featured */}
           <div className="absolute top-3 left-3 flex gap-2">
-            {property.featured ? (
+            {property.featured && (
               <Badge className="bg-[#A21133] hover:bg-[#8B0E2B] text-white border-none rounded-md px-2 py-0.5 text-[10px] font-bold uppercase">
                 New Launch
               </Badge>
-            ) : (
+            )}
+            {property.verified && (
               <Badge className="bg-[#008060] hover:bg-[#006e52] text-white border-none rounded-md px-2 py-0.5 text-[10px] font-bold uppercase">
                 Verified
               </Badge>

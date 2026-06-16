@@ -139,11 +139,6 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   }
 
   const handleSubmit = async () => {
-    if (formData.images.length === 0) {
-      alert("Please upload at least one image.")
-      return
-    }
-
     const userData = localStorage.getItem("seller_user")
     const authHeaders = getSellerAuthHeaders()
     if (!userData || !authHeaders) {
@@ -438,7 +433,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
           ) : (
             <button
               onClick={handleSubmit}
-              disabled={isSubmitting || formData.images.length === 0}
+              disabled={isSubmitting}
               className="btn-primary !py-2.5 !px-10 disabled:opacity-50"
             >
               {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Save Changes'}

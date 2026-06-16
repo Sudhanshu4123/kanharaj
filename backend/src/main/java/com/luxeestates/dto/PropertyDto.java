@@ -35,6 +35,11 @@ public class PropertyDto {
     private BigDecimal longitude;
     private Property.Status status;
     private Boolean featured;
+    private Boolean verified;
+    private LocalDateTime verifiedAt;
+    private BigDecimal verificationLatitude;
+    private BigDecimal verificationLongitude;
+    private String verificationPhotoUrl;
     private Integer views;
     private Long userId;
     private String userName;
@@ -67,6 +72,11 @@ public class PropertyDto {
                 .longitude(property.getLongitude())
                 .status(property.getStatus())
                 .featured(property.getFeatured())
+                .verified(property.getVerified())
+                .verifiedAt(property.getVerifiedAt())
+                .verificationLatitude(property.getVerificationLatitude())
+                .verificationLongitude(property.getVerificationLongitude())
+                .verificationPhotoUrl(property.getVerificationPhotoUrl())
                 .views(property.getViews())
                 .userId(property.getUser().getId())
                 .userName(property.getUser().getName())

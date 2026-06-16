@@ -32,6 +32,7 @@ import {
   fetchMyProperties,
   fetchSellerLeads,
 } from "@/lib/seller-data"
+import { VerificationModal } from "@/components/verification-modal"
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function lqsColor(score: number): string {
@@ -54,13 +55,15 @@ function PropertyCard({
   index,
   onDelete,
   onEdit,
-  onView
+  onView,
+  onVerify
 }: {
   prop: any
   index: number
   onDelete: (id: number) => void
   onEdit: (id: number) => void
   onView: (id: number) => void
+  onVerify: (prop: any) => void
 }) {
   const lqsNum = prop.lqs ?? computeListingQualityScore(prop)
   const imgCount = prop.images?.length || 0
@@ -214,11 +217,21 @@ function PropertyCard({
             >
               Manage
             </button>
-            <button
-              className="px-4 py-1.5 rounded-lg text-xs font-black border border-emerald-400 text-emerald-600 hover:bg-emerald-50 transition-colors"
-            >
-              Verify
-            </button>
+            {prop.verified ? (
+              <button
+                disabled
+                className="px-4 py-1.5 bg-emerald-50 border border-emerald-300 text-emerald-600 rounded-lg text-xs font-black flex items-center gap-1 cursor-default"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" /> Verified
+              </button>
+            ) : (
+              <button
+                onClick={() => onVerify(prop)}
+                className="px-4 py-1.5 rounded-lg text-xs font-black border border-emerald-400 text-emerald-600 hover:bg-emerald-50 transition-colors"
+              >
+                Verify
+              </button>
+            )}
             <button
               className="px-4 py-1.5 rounded-lg text-xs font-black bg-[#0a2540]/5 border border-[#0a2540] text-[#0a2540] hover:bg-[#0a2540]/10 transition-colors"
             >
@@ -253,6 +266,7 @@ export default function ListingsPage() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [verifyingProperty, setVerifyingProperty] = useState<any | null>(null)
 
   // Tabs
   const [activeTab, setActiveTab] = useState("All")
@@ -345,6 +359,20 @@ export default function ListingsPage() {
   }
 
   const handleEdit = (id: number) => router.push(`/listings/edit/${id}`)
+  
+  const handleVerifySuccess = async () => {
+    const token = localStorage.getItem("seller_token")
+    const userData = localStorage.getItem("seller_user")
+    if (!userData || !token) return
+    const user = JSON.parse(userData)
+    try {
+      const rawProps = await fetchMyProperties(token)
+      const leads = await fetchSellerLeads(token, user.id)
+      setProperties(attachInquiryCounts(rawProps, leads))
+    } catch (err) {
+      console.error("Failed to reload properties", err)
+    }
+  }
   const handleView = (id: number) =>
     window.open(`${getMainSiteUrl()}/property/${id}`, "_blank")
 
@@ -831,6 +859,7 @@ export default function ListingsPage() {
                 onDelete={handleDelete}
                 onEdit={handleEdit}
                 onView={handleView}
+                onVerify={setVerifyingProperty}
               />
             ))
           ) : (
@@ -906,6 +935,14 @@ export default function ListingsPage() {
           </div>
         )}
       </AnimatePresence>
+      {/* ── Verification Modal ── */}
+      {verifyingProperty && (
+        <VerificationModal
+          property={verifyingProperty}
+          onClose={() => setVerifyingProperty(null)}
+          onSuccess={handleVerifySuccess}
+        />
+      )}
     </div>
   )
 }

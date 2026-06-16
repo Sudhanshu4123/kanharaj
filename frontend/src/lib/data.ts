@@ -19,6 +19,11 @@ export interface Property {
   longitude: number;
   status: 'ACTIVE' | 'INACTIVE' | 'SOLD';
   featured: boolean;
+  verified?: boolean;
+  verifiedAt?: string;
+  verificationLatitude?: number;
+  verificationLongitude?: number;
+  verificationPhotoUrl?: string;
   userId: string;
   user?: User;
   createdAt: string;

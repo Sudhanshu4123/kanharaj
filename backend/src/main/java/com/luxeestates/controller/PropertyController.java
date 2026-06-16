@@ -17,6 +17,7 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import java.util.concurrent.TimeUnit;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -197,5 +198,27 @@ public class PropertyController {
         if (userDetails == null) return ResponseEntity.status(401).build();
         propertyService.deleteProperty(id, userDetails.getId());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/verify-location")
+    public ResponseEntity<?> verifyPropertyLocation(
+            @PathVariable Long id,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files,
+            @RequestParam("latitude") double latitude,
+            @RequestParam("longitude") double longitude,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
+        try {
+            PropertyDto verifiedProp = propertyService.verifyPropertyLocation(
+                    id, file, files, latitude, longitude, userDetails.getId()
+            );
+            return ResponseEntity.ok(verifiedProp);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
-import { useSearchParams, useRouter, usePathname } from 'next/navigation'
+import { useSearchParams, useRouter, usePathname, useParams } from 'next/navigation'
 import { ChevronDown, Search, Info, Menu, User, Phone, X, Shield, ArrowUpDown, Waves, Dumbbell, Car, Flame, Check, LogOut, MapPin, Bell, SlidersHorizontal } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -14,7 +14,7 @@ import { usePropertyStore, useAuthStore } from '@/lib/store'
 import { countByBedrooms } from '@/lib/platform-data'
 import { cn, hasSellerDashboardAccess, BRAND_LOGO_SRC, getSellerUrl } from '@/lib/utils'
 import { useUserActivityStore } from '@/lib/user-activity-store'
-import { topCities, otherCities } from '@/components/home/search-bar'
+import { topCities, otherCities } from '@/lib/location-data'
 
 const BUDGET_MAX_LAKH = 100
 const BUDGET_STEP = 5
@@ -28,13 +28,70 @@ function formatBudgetLabel(lakh: number) {
 
 
 export default function PropertiesContent() {
+  const params = useParams()
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
 
+  let listingParam = params?.listing as string | undefined
+  if (!listingParam && pathname) {
+    if (pathname.startsWith('/buy')) {
+      listingParam = 'buy'
+    } else if (pathname.startsWith('/rent')) {
+      listingParam = 'rent'
+    }
+  }
+  const slugParams = params?.slug as string[] | undefined
+
+  let initialListing = (searchParams.get('listing') || '').toUpperCase()
+  let initialType = searchParams.get('type') || ''
+  let initialCity = searchParams.get('city') || ''
+
+  if (listingParam) {
+    initialListing = listingParam.toUpperCase()
+    if (slugParams && slugParams.length > 0) {
+      const firstSlug = decodeURIComponent(slugParams[0]).toLowerCase()
+      const knownTypes = ['flat', 'apartment', 'house', 'villa', 'floor', 'plot', 'land', 'commercial', 'studio', 'penthouse', 'duplex', 'project', 'pg']
+      const isType = knownTypes.some(kt => firstSlug.includes(kt))
+
+      if (isType) {
+        if (firstSlug.includes('flat') || firstSlug.includes('apartment')) {
+          initialType = 'Apartment'
+        } else if (firstSlug.includes('villa')) {
+          initialType = 'Villa'
+        } else if (firstSlug.includes('house')) {
+          initialType = 'Independent House'
+        } else if (firstSlug.includes('plot') || firstSlug.includes('land')) {
+          initialType = 'Plot'
+        } else if (firstSlug.includes('floor')) {
+          initialType = 'Independent Floor'
+        } else if (firstSlug.includes('project')) {
+          initialType = 'Residential Project'
+        } else if (firstSlug.includes('pg')) {
+          initialType = 'PG'
+        } else {
+          initialType = firstSlug.charAt(0).toUpperCase() + firstSlug.slice(1)
+        }
+
+        if (slugParams.length > 1) {
+          initialCity = decodeURIComponent(slugParams[1])
+        }
+      } else {
+        initialCity = decodeURIComponent(slugParams[0])
+      }
+    }
+  }
+
+  if (initialCity) {
+    const searchCity = initialCity.toLowerCase().replace(/[-\s]+/g, ' ')
+    const matchedTop = topCities.find(c => c.toLowerCase().replace(/[-\s]+/g, ' ') === searchCity)
+    const matchedOther = otherCities.find(c => c.toLowerCase().replace(/[-\s]+/g, ' ') === searchCity)
+    initialCity = matchedTop || matchedOther || (initialCity.charAt(0).toUpperCase() + initialCity.slice(1))
+  }
+
   const [mounted, setMounted] = useState(false)
   const [search, setSearch] = useState(searchParams.get('search') || '')
-  const [selectedCity, setSelectedCity] = useState(searchParams.get('city') || '')
+  const [selectedCity, setSelectedCity] = useState(initialCity)
   const [selectedState, setSelectedState] = useState(searchParams.get('state') || '')
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false)
   const [citySearchQuery, setCitySearchQuery] = useState('')
@@ -190,7 +247,7 @@ export default function PropertiesContent() {
   }
 
   // Sale/Rent type from URL param (used in header)
-  const [listingMode, setListingMode] = useState(searchParams.get('listing') || '')
+  const [listingMode, setListingMode] = useState(initialListing)
 
   const hasActiveFilters = propertyTypes.length > 0 || bhkTypes.length > 0 || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH || saleTypes.length > 0 || constructionStatus.length > 0 || isAnyMoreFilterActive;
 
@@ -226,12 +283,55 @@ export default function PropertiesContent() {
     setSelectedCity(city)
     setIsCityDropdownOpen(false)
     setCitySearchQuery('')
-    const params = new URLSearchParams(searchParams.toString())
-    if (city) params.set('city', city)
-    else params.delete('city')
-    if (search) params.set('search', search)
-    else params.delete('search')
-    router.replace(`${pathname}?${params.toString()}`)
+
+    const isCleanUrl = !!listingParam;
+
+    if (isCleanUrl) {
+      let typeSlug = ''
+      if (propertyTypes.length === 1) {
+        typeSlug = propertyTypes[0].toLowerCase()
+      } else if (slugParams && slugParams.length > 0) {
+        const firstSlug = decodeURIComponent(slugParams[0]).toLowerCase()
+        const knownTypes = ['flat', 'apartment', 'house', 'villa', 'floor', 'plot', 'land', 'commercial', 'studio', 'penthouse', 'duplex']
+        const isType = knownTypes.some(kt => firstSlug.includes(kt))
+        if (isType) {
+          typeSlug = firstSlug
+        }
+      }
+
+      const listingPart = listingParam!.toLowerCase()
+      let path = `/${listingPart}`
+      if (typeSlug) {
+        let mappedType = typeSlug
+        if (typeSlug.includes('flat') || typeSlug.includes('apartment') || typeSlug.includes('floor')) {
+          mappedType = 'flat'
+        } else if (typeSlug.includes('house') || typeSlug.includes('villa')) {
+          mappedType = 'house'
+        } else if (typeSlug.includes('plot') || typeSlug.includes('land')) {
+          mappedType = 'plot'
+        }
+        path += `/${mappedType}`
+      }
+      if (city) {
+        path += `/${city.toLowerCase().replace(/\s+/g, '-')}`
+      }
+
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete('city')
+      params.delete('type')
+      params.delete('listing')
+
+      const qs = params.toString()
+      const finalUrl = qs ? `${path}?${qs}` : path
+      router.replace(finalUrl)
+    } else {
+      const params = new URLSearchParams(searchParams.toString())
+      if (city) params.set('city', city)
+      else params.delete('city')
+      if (search) params.set('search', search)
+      else params.delete('search')
+      router.replace(`${pathname}?${params.toString()}`)
+    }
   }
 
   // Close dropdown on outside click
@@ -255,13 +355,13 @@ export default function PropertiesContent() {
 
     // Apply initial filters from URL
     const urlSearch = searchParams.get('search') || ''
-    const type = searchParams.get('type')
-    const listing = searchParams.get('listing')?.toUpperCase()
+    const type = initialType || searchParams.get('type')
+    const listing = initialListing || searchParams.get('listing')?.toUpperCase()
     const urlBhk = searchParams.get('bhk')
 
     setSearch(urlSearch)
 
-    const urlCity = searchParams.get('city') || ''
+    const urlCity = initialCity || searchParams.get('city') || ''
     setSelectedCity(urlCity)
 
     const urlState = searchParams.get('state') || ''
@@ -310,7 +410,7 @@ export default function PropertiesContent() {
         .join(' · ')
       useUserActivityStore.getState().recordSearch(label || 'Property search', `/properties?${qs}`)
     }
-  }, [searchParams, fetchProperties, setFilters])
+  }, [searchParams, fetchProperties, setFilters, initialListing, initialType, initialCity])
 
   const baseProperties = filteredProperties()
 
@@ -329,8 +429,7 @@ export default function PropertiesContent() {
 
     // 2. Verified
     if (verified) {
-      const isVerified = property.featured || (property.images && property.images.length > 0 && property.latitude !== 0);
-      if (!isVerified) return false;
+      if (!property.verified) return false;
     }
 
     // 3. Built-up Area
@@ -459,455 +558,455 @@ export default function PropertiesContent() {
         {/* Properties search bar — same on phone & desktop (responsive website) */}
         <div className="flex bg-[#0a2540] text-white py-2 px-3 sm:px-4 md:px-6 flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-5">
 
-        {/* Logo and Location Selector */}
-        <div className="flex items-center gap-2 sm:gap-4 md:border-r border-white/20 md:pr-4 shrink-0 pb-2 md:pb-0 border-b border-white/15 md:border-b-0">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="relative h-7 w-7 rounded overflow-hidden flex items-center justify-center bg-white shadow-sm">
-              <img src={BRAND_LOGO_SRC} alt="Kanharaj Logo" className="h-full w-full object-cover" />
-            </div>
-            <span className="font-heading text-lg font-black tracking-tighter text-white flex items-baseline">
-              KANHARAJ<span className="text-[9px] font-extrabold ml-0.5 opacity-85">.COM</span>
-            </span>
-          </Link>
-          <div className="w-px h-6 bg-white/20 mx-1" />
-          <div ref={cityDropdownRef} className="relative">
-            <button
-              type="button"
-              onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
-              className="flex items-center gap-1 text-xs sm:text-sm font-semibold cursor-pointer hover:text-white/80 transition whitespace-nowrap max-w-[140px] sm:max-w-none truncate"
-            >
-              <MapPin className="w-4 h-4 opacity-80" />
-              {listingMode === 'RENT' ? 'Rent In' : 'Buy In'} {selectedCity || 'All Cities'}
-              <ChevronDown className={cn("w-4 h-4 opacity-70 transition-transform", isCityDropdownOpen && "rotate-180")} />
-            </button>
+          {/* Logo and Location Selector */}
+          <div className="flex items-center gap-2 sm:gap-4 md:border-r border-white/20 md:pr-4 shrink-0 pb-2 md:pb-0 border-b border-white/15 md:border-b-0">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="relative h-7 w-7 rounded overflow-hidden flex items-center justify-center bg-white shadow-sm">
+                <img src={BRAND_LOGO_SRC} alt="Kanharaj Logo" className="h-full w-full object-cover" />
+              </div>
+              <span className="font-heading text-lg font-black tracking-tighter text-white flex items-baseline">
+                KANHARAJ<span className="text-[9px] font-extrabold ml-0.5 opacity-85">.COM</span>
+              </span>
+            </Link>
+            <div className="w-px h-6 bg-white/20 mx-1" />
+            <div ref={cityDropdownRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                className="flex items-center gap-1 text-xs sm:text-sm font-semibold cursor-pointer hover:text-white/80 transition whitespace-nowrap max-w-[140px] sm:max-w-none truncate"
+              >
+                <MapPin className="w-4 h-4 opacity-80" />
+                {listingMode === 'RENT' ? 'Rent In' : 'Buy In'} {selectedCity || 'All Cities'}
+                <ChevronDown className={cn("w-4 h-4 opacity-70 transition-transform", isCityDropdownOpen && "rotate-180")} />
+              </button>
 
-            <AnimatePresence>
-              {isCityDropdownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute left-0 top-full mt-2 w-[min(18rem,calc(100vw-1.5rem))] sm:w-72 max-h-[70vh] sm:max-h-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-[60] flex flex-col overflow-hidden text-slate-800"
-                >
-                  <div className="p-2 border-b border-slate-100 flex items-center bg-slate-50 gap-1.5 shrink-0">
-                    <Search className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                    <input
-                      type="text"
-                      value={citySearchQuery}
-                      onChange={(e) => setCitySearchQuery(e.target.value)}
-                      placeholder="Search city..."
-                      className="w-full bg-transparent focus:outline-none text-xs text-slate-800 font-bold placeholder:text-slate-400 h-6 border-0 p-0"
-                      autoFocus
-                    />
-                    {citySearchQuery && (
+              <AnimatePresence>
+                {isCityDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 top-full mt-2 w-[min(18rem,calc(100vw-1.5rem))] sm:w-72 max-h-[70vh] sm:max-h-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-[60] flex flex-col overflow-hidden text-slate-800"
+                  >
+                    <div className="p-2 border-b border-slate-100 flex items-center bg-slate-50 gap-1.5 shrink-0">
+                      <Search className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                      <input
+                        type="text"
+                        value={citySearchQuery}
+                        onChange={(e) => setCitySearchQuery(e.target.value)}
+                        placeholder="Search city..."
+                        className="w-full bg-transparent focus:outline-none text-xs text-slate-800 font-bold placeholder:text-slate-400 h-6 border-0 p-0"
+                        autoFocus
+                      />
+                      {citySearchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setCitySearchQuery('')}
+                          className="text-[9px] text-[#0a2540] hover:text-[#07192c] font-black px-1"
+                        >
+                          CLEAR
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto max-h-60 py-1.5 text-left">
                       <button
                         type="button"
-                        onClick={() => setCitySearchQuery('')}
-                        className="text-[9px] text-[#0a2540] hover:text-[#07192c] font-black px-1"
+                        onClick={() => handleCitySelect('')}
+                        className={cn(
+                          "w-full text-left px-3 py-2 text-xs font-bold transition-colors flex items-center justify-between border-b border-slate-100 mb-1",
+                          !selectedCity
+                            ? "bg-[#0a2540]/5 text-[#0a2540]"
+                            : "text-slate-700 hover:bg-slate-50"
+                        )}
                       >
-                        CLEAR
+                        <span>All Cities</span>
+                        {!selectedCity && <span className="text-[10px] font-black">✓</span>}
                       </button>
-                    )}
-                  </div>
+                      {filteredTopCities.length === 0 && filteredOtherCities.length === 0 ? (
+                        <div className="px-4 py-3 text-xs font-semibold text-slate-400 text-center">
+                          No cities found
+                        </div>
+                      ) : (
+                        <>
+                          {filteredTopCities.length > 0 && (
+                            <div>
+                              <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                                Top Cities
+                              </div>
+                              {filteredTopCities.map((city) => (
+                                <button
+                                  key={city}
+                                  type="button"
+                                  onClick={() => handleCitySelect(city)}
+                                  className={cn(
+                                    "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
+                                    selectedCity === city
+                                      ? "bg-[#0a2540]/5 text-[#0a2540]"
+                                      : "text-slate-700 hover:bg-slate-50"
+                                  )}
+                                >
+                                  <span>{city}</span>
+                                  {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
+                                </button>
+                              ))}
+                            </div>
+                          )}
 
-                  <div className="flex-1 overflow-y-auto max-h-60 py-1.5 text-left">
-                    <button
-                      type="button"
-                      onClick={() => handleCitySelect('')}
-                      className={cn(
-                        "w-full text-left px-3 py-2 text-xs font-bold transition-colors flex items-center justify-between border-b border-slate-100 mb-1",
-                        !selectedCity
-                          ? "bg-[#0a2540]/5 text-[#0a2540]"
-                          : "text-slate-700 hover:bg-slate-50"
+                          {filteredOtherCities.length > 0 && (
+                            <div className="mt-1">
+                              <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                                Other Cities
+                              </div>
+                              {filteredOtherCities.map((city) => (
+                                <button
+                                  key={city}
+                                  type="button"
+                                  onClick={() => handleCitySelect(city)}
+                                  className={cn(
+                                    "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
+                                    selectedCity === city
+                                      ? "bg-[#0a2540]/5 text-[#0a2540]"
+                                      : "text-slate-700 hover:bg-slate-50"
+                                  )}
+                                >
+                                  <span>{city}</span>
+                                  {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </>
                       )}
-                    >
-                      <span>All Cities</span>
-                      {!selectedCity && <span className="text-[10px] font-black">✓</span>}
-                    </button>
-                    {filteredTopCities.length === 0 && filteredOtherCities.length === 0 ? (
-                      <div className="px-4 py-3 text-xs font-semibold text-slate-400 text-center">
-                        No cities found
-                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <div className="flex-1 w-full min-w-0 max-w-[800px] relative order-3 md:order-none">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#0a2540]" />
+            <Input
+              placeholder="Enter Locality, Landmark, Project or builder"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-white border-0 text-slate-900 placeholder:text-slate-400 rounded-md h-[42px] pl-10 focus-visible:ring-0 shadow-inner w-full"
+            />
+          </div>
+
+          {/* Right Actions */}
+          <div className="flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-wrap">
+            <a href="tel:+919599801767" className="text-xs sm:text-sm font-bold flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded transition whitespace-nowrap">
+              <Phone className="w-4 h-4" /> Contact
+            </a>
+
+            {showSellerDashboard && (
+              <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
+                <Button className="bg-[#00D289] hover:bg-[#00c07d] text-white font-bold rounded shadow-none h-9 px-5 whitespace-nowrap cursor-pointer">
+                  Dashboard
+                </Button>
+              </a>
+            )}
+
+            {/* Profile Menu Dropdown */}
+            <div className="relative profile-menu-container">
+              <button
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className="flex items-center gap-2 bg-white rounded-full p-1 pl-3 shadow-sm hover:bg-slate-50 transition border border-slate-200 ml-1 cursor-pointer focus:outline-none"
+              >
+                <Menu className="w-4 h-4 text-slate-700" />
+                <div className="w-7 h-7 rounded-full bg-[#0a2540] flex items-center justify-center text-white text-[11px] font-black overflow-hidden shrink-0">
+                  {isAuthenticated && user?.profileImage ? (
+                    <img src={user.profileImage} alt={user.name || "User"} className="w-full h-full object-cover" />
+                  ) : isAuthenticated ? (
+                    user?.name?.charAt(0).toUpperCase()
+                  ) : (
+                    <User className="w-4 h-4" />
+                  )}
+                </div>
+              </button>
+
+              {profileDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setProfileDropdownOpen(false)} />
+                  <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 shadow-xl rounded-xl py-1.5 z-50 overflow-hidden text-slate-800">
+                    {isAuthenticated ? (
+                      <>
+                        <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
+                          <p className="text-xs font-black text-slate-800 truncate">{user?.name || "User Account"}</p>
+                          <p className="text-[10px] text-slate-400 truncate mt-0.5">{user?.email}</p>
+                        </div>
+                        <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                          <User className="w-3.5 h-3.5 text-slate-400" /> My Profile
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            handleLogout()
+                          }}
+                          className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-rose-600 hover:bg-slate-50 border-t border-slate-100 transition-colors text-left cursor-pointer"
+                        >
+                          <LogOut className="w-3.5 h-3.5" /> Log Out
+                        </button>
+                      </>
                     ) : (
                       <>
-                        {filteredTopCities.length > 0 && (
-                          <div>
-                            <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
-                              Top Cities
-                            </div>
-                            {filteredTopCities.map((city) => (
-                              <button
-                                key={city}
-                                type="button"
-                                onClick={() => handleCitySelect(city)}
-                                className={cn(
-                                  "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
-                                  selectedCity === city
-                                    ? "bg-[#0a2540]/5 text-[#0a2540]"
-                                    : "text-slate-700 hover:bg-slate-50"
-                                )}
-                              >
-                                <span>{city}</span>
-                                {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-
-                        {filteredOtherCities.length > 0 && (
-                          <div className="mt-1">
-                            <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
-                              Other Cities
-                            </div>
-                            {filteredOtherCities.map((city) => (
-                              <button
-                                key={city}
-                                type="button"
-                                onClick={() => handleCitySelect(city)}
-                                className={cn(
-                                  "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
-                                  selectedCity === city
-                                    ? "bg-[#0a2540]/5 text-[#0a2540]"
-                                    : "text-slate-700 hover:bg-slate-50"
-                                )}
-                              >
-                                <span>{city}</span>
-                                {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                        <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
+                          <p className="text-xs font-black text-slate-800">Welcome to Kanharaj</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">Login to access dashboard & profile</p>
+                        </div>
+                        <Link href="/login" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                          <User className="w-3.5 h-3.5 text-slate-400" /> Log In / Register
+                        </Link>
                       </>
                     )}
                   </div>
-                </motion.div>
+                </>
               )}
-            </AnimatePresence>
+            </div>
           </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="flex-1 w-full min-w-0 max-w-[800px] relative order-3 md:order-none">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#0a2540]" />
-          <Input
-            placeholder="Enter Locality, Landmark, Project or builder"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-white border-0 text-slate-900 placeholder:text-slate-400 rounded-md h-[42px] pl-10 focus-visible:ring-0 shadow-inner w-full"
-          />
-        </div>
+        {/* Filter bar — same website UI, scrollable on small screens */}
+        <div className="bg-white border-b border-slate-200 shadow-sm">
+          <div className={cn(
+            "max-w-[1400px] mx-auto px-4 md:px-8 py-2 flex items-center gap-3 flex-nowrap lg:flex-wrap",
+            activeDropdown ? "overflow-visible" : "overflow-x-auto no-scrollbar"
+          )}>
 
-        {/* Right Actions */}
-        <div className="flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-wrap">
-          <a href="tel:+919599801767" className="text-xs sm:text-sm font-bold flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded transition whitespace-nowrap">
-            <Phone className="w-4 h-4" /> Contact
-          </a>
+            {/* Property Type Dropdown */}
+            <div className="relative filter-dropdown-container">
+              <button
+                onClick={() => setActiveDropdown(activeDropdown === 'property' ? null : 'property')}
+                className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'property' || propertyTypes.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
+              >
+                {propertyTypes.length > 0 ? `Property Type (${propertyTypes.length})` : 'Property Type'} <ChevronDown className="w-4 h-4 opacity-70" />
+              </button>
+              {activeDropdown === 'property' && (
+                <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(480px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
+                  <div className="flex flex-wrap gap-3">
+                    {['Apartment', 'Independent House', 'Independent Floor', 'Plot', 'Studio', 'Duplex', 'Penthouse', 'Villa', 'Agricultural Land'].map(type => (
+                      <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
+                        <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", propertyTypes.includes(type) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
+                          {propertyTypes.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                        </div>
+                        <input type="checkbox" className="hidden" checked={propertyTypes.includes(type)} onChange={() => {
+                          setPropertyTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
+                        }} />
+                        <span className="text-sm font-medium text-slate-700 select-none">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
-          {showSellerDashboard && (
-            <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
-              <Button className="bg-[#00D289] hover:bg-[#00c07d] text-white font-bold rounded shadow-none h-9 px-5 whitespace-nowrap cursor-pointer">
-                Dashboard
-              </Button>
-            </a>
-          )}
+            {/* BHK Type Dropdown */}
+            <div className="relative filter-dropdown-container">
+              <button
+                onClick={() => setActiveDropdown(activeDropdown === 'bhk' ? null : 'bhk')}
+                className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'bhk' || bhkTypes.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
+              >
+                {bhkTypes.length > 0 ? `BHK Type (${bhkTypes.length})` : 'BHK Type'} <ChevronDown className="w-4 h-4 opacity-70" />
+              </button>
+              {activeDropdown === 'bhk' && (
+                <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(380px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
+                  <div className="flex flex-wrap gap-3">
+                    {['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK', '5 BHK', '5+ BHK'].map(type => (
+                      <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
+                        <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", bhkTypes.includes(type) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
+                          {bhkTypes.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                        </div>
+                        <input type="checkbox" className="hidden" checked={bhkTypes.includes(type)} onChange={() => {
+                          setBhkTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
+                        }} />
+                        <span className="text-sm font-medium text-slate-700 select-none">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
-          {/* Profile Menu Dropdown */}
-          <div className="relative profile-menu-container">
+            {/* Budget Dropdown */}
+            <div className="relative filter-dropdown-container">
+              <button
+                onClick={() => setActiveDropdown(activeDropdown === 'budget' ? null : 'budget')}
+                className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'budget' || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
+              >
+                ₹{formatBudgetLabel(budgetRange[0])} - ₹{formatBudgetLabel(budgetRange[1])} <ChevronDown className="w-4 h-4 opacity-70" />
+              </button>
+              {activeDropdown === 'budget' && (
+                <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 sm:p-6 w-full sm:w-[min(420px,calc(100vw-2rem))] max-h-[85vh] overflow-y-auto z-50">
+                  <div className="flex justify-between text-sm font-bold text-slate-700 mb-6">
+                    <span>₹{formatBudgetLabel(budgetRange[0])}</span>
+                    <span>₹{formatBudgetLabel(budgetRange[1])}</span>
+                  </div>
+
+                  <Slider.Root
+                    className="relative flex items-center select-none touch-none w-full h-5"
+                    value={budgetRange}
+                    max={BUDGET_MAX_LAKH}
+                    step={BUDGET_STEP}
+                    onValueChange={(val: [number, number]) => setBudgetRange(val)}
+                  >
+                    <Slider.Track className="bg-slate-200 relative grow rounded-full h-1.5">
+                      <Slider.Range className="absolute bg-[#0a2540] rounded-full h-full" />
+                    </Slider.Track>
+                    <Slider.Thumb className="block w-5 h-5 bg-[#f1f5f9] border-2 border-[#0a2540] rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-[#0a2540]/50 flex items-center justify-center cursor-grab">
+                      <div className="w-2 h-2 bg-[#0a2540] rounded-full" />
+                    </Slider.Thumb>
+                    <Slider.Thumb className="block w-5 h-5 bg-[#f1f5f9] border-2 border-[#0a2540] rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-[#0a2540]/50 flex items-center justify-center cursor-grab">
+                      <div className="w-2 h-2 bg-[#0a2540] rounded-full" />
+                    </Slider.Thumb>
+                  </Slider.Root>
+
+                  <div className="flex justify-between text-xs text-slate-400 mt-2 font-medium px-2">
+                    <div className="flex flex-col items-center gap-1"><span>|</span><span>₹0</span></div>
+                    <div className="flex flex-col items-center gap-1"><span>|</span><span>₹25 Lakh</span></div>
+                    <div className="flex flex-col items-center gap-1"><span>|</span><span>₹50 Lakh</span></div>
+                    <div className="flex flex-col items-center gap-1"><span>|</span><span>₹1Cr+</span></div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Sale Type Dropdown */}
+            <div className="relative filter-dropdown-container">
+              <button
+                onClick={() => setActiveDropdown(activeDropdown === 'sale' ? null : 'sale')}
+                className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'sale' || saleTypes.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
+              >
+                {saleTypes.length > 0 ? `Sale Type (${saleTypes.length})` : 'Sale Type'} <ChevronDown className="w-4 h-4 opacity-70" />
+              </button>
+              {activeDropdown === 'sale' && (
+                <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-[240px] z-50">
+                  <div className="flex flex-col gap-3">
+                    {['New Bookings', 'Resale'].map(type => (
+                      <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full">
+                        <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", saleTypes.includes(type) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
+                          {saleTypes.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                        </div>
+                        <input type="checkbox" className="hidden" checked={saleTypes.includes(type)} onChange={() => {
+                          setSaleTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
+                        }} />
+                        <span className="text-sm font-medium text-slate-700 select-none">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Construction Status Dropdown */}
+            <div className="relative filter-dropdown-container">
+              <button
+                onClick={() => setActiveDropdown(activeDropdown === 'construction' ? null : 'construction')}
+                className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'construction' || constructionStatus.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
+              >
+                {constructionStatus.length > 0 ? `Construction St... (${constructionStatus.length})` : 'Construction St...'} <ChevronDown className="w-4 h-4 opacity-70" />
+              </button>
+              {activeDropdown === 'construction' && (
+                <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-[240px] z-50">
+                  <div className="flex flex-col gap-3">
+                    {['Ready to move', 'Under Construction'].map(type => (
+                      <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full">
+                        <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", constructionStatus.includes(type) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
+                          {constructionStatus.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                        </div>
+                        <input type="checkbox" className="hidden" checked={constructionStatus.includes(type)} onChange={() => {
+                          setConstructionStatus(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
+                        }} />
+                        <span className="text-sm font-medium text-slate-700 select-none">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button
-              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="flex items-center gap-2 bg-white rounded-full p-1 pl-3 shadow-sm hover:bg-slate-50 transition border border-slate-200 ml-1 cursor-pointer focus:outline-none"
+              onClick={() => setVerified(!verified)}
+              className={cn(
+                "flex items-center gap-1.5 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+                verified ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
+              )}
             >
-              <Menu className="w-4 h-4 text-slate-700" />
-              <div className="w-7 h-7 rounded-full bg-[#0a2540] flex items-center justify-center text-white text-[11px] font-black overflow-hidden shrink-0">
-                {isAuthenticated && user?.profileImage ? (
-                  <img src={user.profileImage} alt={user.name || "User"} className="w-full h-full object-cover" />
-                ) : isAuthenticated ? (
-                  user?.name?.charAt(0).toUpperCase()
-                ) : (
-                  <User className="w-4 h-4" />
+              Verified <Info className="w-3.5 h-3.5 text-slate-400" />
+            </button>
+
+            {/* Project Dropdown */}
+            <div className="relative filter-dropdown-container">
+              <button
+                onClick={() => setActiveDropdown(activeDropdown === 'project' ? null : 'project')}
+                className={cn(
+                  "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+                  activeDropdown === 'project' || projects.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
                 )}
-              </div>
-            </button>
-
-            {profileDropdownOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setProfileDropdownOpen(false)} />
-                <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 shadow-xl rounded-xl py-1.5 z-50 overflow-hidden text-slate-800">
-                  {isAuthenticated ? (
-                    <>
-                      <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
-                        <p className="text-xs font-black text-slate-800 truncate">{user?.name || "User Account"}</p>
-                        <p className="text-[10px] text-slate-400 truncate mt-0.5">{user?.email}</p>
-                      </div>
-                      <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
-                        <User className="w-3.5 h-3.5 text-slate-400" /> My Profile
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          handleLogout()
-                        }}
-                        className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-rose-600 hover:bg-slate-50 border-t border-slate-100 transition-colors text-left cursor-pointer"
-                      >
-                        <LogOut className="w-3.5 h-3.5" /> Log Out
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
-                        <p className="text-xs font-black text-slate-800">Welcome to Kanharaj</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">Login to access dashboard & profile</p>
-                      </div>
-                      <Link href="/login" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
-                        <User className="w-3.5 h-3.5 text-slate-400" /> Log In / Register
-                      </Link>
-                    </>
-                  )}
+              >
+                {projects.length > 0 ? `Projects (${projects.length})` : 'Project'} <ChevronDown className="w-4 h-4 opacity-70" />
+              </button>
+              {activeDropdown === 'project' && (
+                <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(380px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
+                  <div className="flex flex-col gap-2">
+                    {[
+                      'Vaibhav Builders Floors', 'Goyal Smart Housing', 'Are Infra Rana Ji Enclave',
+                      'ARE Riviera Luxury Floors', 'G3 Builder Floors I', 'Manish Luxurious Floors',
+                      'Tulip Afford', 'Suraj Uttan', 'Goyal Prem'
+                    ].map(proj => (
+                      <label key={proj} className={cn("flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full", projects.includes(proj) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
+                        <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", projects.includes(proj) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
+                          {projects.includes(proj) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                        </div>
+                        <input type="checkbox" className="hidden" checked={projects.includes(proj)} onChange={() => {
+                          setProjects(prev => prev.includes(proj) ? prev.filter(p => p !== proj) : [...prev, proj])
+                        }} />
+                        <span className="text-sm font-medium text-slate-700 select-none">{proj}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
+              )}
+            </div>
 
-      {/* Filter bar — same website UI, scrollable on small screens */}
-      <div className="bg-white border-b border-slate-200 shadow-sm">
-        <div className={cn(
-          "max-w-[1400px] mx-auto px-4 md:px-8 py-2 flex items-center gap-3 flex-nowrap lg:flex-wrap",
-          activeDropdown ? "overflow-visible" : "overflow-x-auto no-scrollbar"
-        )}>
-
-          {/* Property Type Dropdown */}
-          <div className="relative filter-dropdown-container">
             <button
-              onClick={() => setActiveDropdown(activeDropdown === 'property' ? null : 'property')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'property' || propertyTypes.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
+              onClick={() => {
+                setListedBy(prev => prev.includes('Featured Agents') ? prev.filter(x => x !== 'Featured Agents') : [...prev, 'Featured Agents'])
+              }}
+              className={cn(
+                "flex items-center gap-1.5 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+                listedBy.includes('Featured Agents') ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
+              )}
             >
-              {propertyTypes.length > 0 ? `Property Type (${propertyTypes.length})` : 'Property Type'} <ChevronDown className="w-4 h-4 opacity-70" />
+              ⭐ Featured Agents
             </button>
-            {activeDropdown === 'property' && (
-              <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(480px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
-                <div className="flex flex-wrap gap-3">
-                  {['Apartment', 'Independent House', 'Independent Floor', 'Plot', 'Studio', 'Duplex', 'Penthouse', 'Villa', 'Agricultural Land'].map(type => (
-                    <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", propertyTypes.includes(type) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
-                        {propertyTypes.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                      </div>
-                      <input type="checkbox" className="hidden" checked={propertyTypes.includes(type)} onChange={() => {
-                        setPropertyTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
-                      }} />
-                      <span className="text-sm font-medium text-slate-700 select-none">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
 
-          {/* BHK Type Dropdown */}
-          <div className="relative filter-dropdown-container">
+
             <button
-              onClick={() => setActiveDropdown(activeDropdown === 'bhk' ? null : 'bhk')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'bhk' || bhkTypes.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
-            >
-              {bhkTypes.length > 0 ? `BHK Type (${bhkTypes.length})` : 'BHK Type'} <ChevronDown className="w-4 h-4 opacity-70" />
-            </button>
-            {activeDropdown === 'bhk' && (
-              <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(380px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
-                <div className="flex flex-wrap gap-3">
-                  {['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK', '5 BHK', '5+ BHK'].map(type => (
-                    <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", bhkTypes.includes(type) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
-                        {bhkTypes.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                      </div>
-                      <input type="checkbox" className="hidden" checked={bhkTypes.includes(type)} onChange={() => {
-                        setBhkTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
-                      }} />
-                      <span className="text-sm font-medium text-slate-700 select-none">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Budget Dropdown */}
-          <div className="relative filter-dropdown-container">
-            <button
-              onClick={() => setActiveDropdown(activeDropdown === 'budget' ? null : 'budget')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'budget' || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
-            >
-              ₹{formatBudgetLabel(budgetRange[0])} - ₹{formatBudgetLabel(budgetRange[1])} <ChevronDown className="w-4 h-4 opacity-70" />
-            </button>
-            {activeDropdown === 'budget' && (
-              <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 sm:p-6 w-full sm:w-[min(420px,calc(100vw-2rem))] max-h-[85vh] overflow-y-auto z-50">
-                <div className="flex justify-between text-sm font-bold text-slate-700 mb-6">
-                  <span>₹{formatBudgetLabel(budgetRange[0])}</span>
-                  <span>₹{formatBudgetLabel(budgetRange[1])}</span>
-                </div>
-
-                <Slider.Root
-                  className="relative flex items-center select-none touch-none w-full h-5"
-                  value={budgetRange}
-                  max={BUDGET_MAX_LAKH}
-                  step={BUDGET_STEP}
-                  onValueChange={(val: [number, number]) => setBudgetRange(val)}
-                >
-                  <Slider.Track className="bg-slate-200 relative grow rounded-full h-1.5">
-                    <Slider.Range className="absolute bg-[#0a2540] rounded-full h-full" />
-                  </Slider.Track>
-                  <Slider.Thumb className="block w-5 h-5 bg-[#f1f5f9] border-2 border-[#0a2540] rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-[#0a2540]/50 flex items-center justify-center cursor-grab">
-                    <div className="w-2 h-2 bg-[#0a2540] rounded-full" />
-                  </Slider.Thumb>
-                  <Slider.Thumb className="block w-5 h-5 bg-[#f1f5f9] border-2 border-[#0a2540] rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-[#0a2540]/50 flex items-center justify-center cursor-grab">
-                    <div className="w-2 h-2 bg-[#0a2540] rounded-full" />
-                  </Slider.Thumb>
-                </Slider.Root>
-
-                <div className="flex justify-between text-xs text-slate-400 mt-2 font-medium px-2">
-                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹0</span></div>
-                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹25 Lakh</span></div>
-                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹50 Lakh</span></div>
-                  <div className="flex flex-col items-center gap-1"><span>|</span><span>₹1Cr+</span></div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Sale Type Dropdown */}
-          <div className="relative filter-dropdown-container">
-            <button
-              onClick={() => setActiveDropdown(activeDropdown === 'sale' ? null : 'sale')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'sale' || saleTypes.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
-            >
-              {saleTypes.length > 0 ? `Sale Type (${saleTypes.length})` : 'Sale Type'} <ChevronDown className="w-4 h-4 opacity-70" />
-            </button>
-            {activeDropdown === 'sale' && (
-              <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-[240px] z-50">
-                <div className="flex flex-col gap-3">
-                  {['New Bookings', 'Resale'].map(type => (
-                    <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full">
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", saleTypes.includes(type) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
-                        {saleTypes.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                      </div>
-                      <input type="checkbox" className="hidden" checked={saleTypes.includes(type)} onChange={() => {
-                        setSaleTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
-                      }} />
-                      <span className="text-sm font-medium text-slate-700 select-none">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Construction Status Dropdown */}
-          <div className="relative filter-dropdown-container">
-            <button
-              onClick={() => setActiveDropdown(activeDropdown === 'construction' ? null : 'construction')}
-              className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'construction' || constructionStatus.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
-            >
-              {constructionStatus.length > 0 ? `Construction St... (${constructionStatus.length})` : 'Construction St...'} <ChevronDown className="w-4 h-4 opacity-70" />
-            </button>
-            {activeDropdown === 'construction' && (
-              <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-[240px] z-50">
-                <div className="flex flex-col gap-3">
-                  {['Ready to move', 'Under Construction'].map(type => (
-                    <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full">
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", constructionStatus.includes(type) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
-                        {constructionStatus.includes(type) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                      </div>
-                      <input type="checkbox" className="hidden" checked={constructionStatus.includes(type)} onChange={() => {
-                        setConstructionStatus(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
-                      }} />
-                      <span className="text-sm font-medium text-slate-700 select-none">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <button
-            onClick={() => setVerified(!verified)}
-            className={cn(
-              "flex items-center gap-1.5 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
-              verified ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
-            )}
-          >
-            Verified <Info className="w-3.5 h-3.5 text-slate-400" />
-          </button>
-
-          {/* Project Dropdown */}
-          <div className="relative filter-dropdown-container">
-            <button
-              onClick={() => setActiveDropdown(activeDropdown === 'project' ? null : 'project')}
+              onClick={handleOpenMoreFilters}
               className={cn(
                 "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
-                activeDropdown === 'project' || projects.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
+                isAnyMoreFilterActive ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
               )}
             >
-              {projects.length > 0 ? `Projects (${projects.length})` : 'Project'} <ChevronDown className="w-4 h-4 opacity-70" />
+              More Filters {activeMoreFiltersCount > 0 ? `(${activeMoreFiltersCount})` : ''} <ChevronDown className="w-4 h-4 text-slate-400" />
             </button>
-            {activeDropdown === 'project' && (
-              <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(380px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
-                <div className="flex flex-col gap-2">
-                  {[
-                    'Vaibhav Builders Floors', 'Goyal Smart Housing', 'Are Infra Rana Ji Enclave',
-                    'ARE Riviera Luxury Floors', 'G3 Builder Floors I', 'Manish Luxurious Floors',
-                    'Tulip Afford', 'Suraj Uttan', 'Goyal Prem'
-                  ].map(proj => (
-                    <label key={proj} className={cn("flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full", projects.includes(proj) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
-                      <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", projects.includes(proj) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
-                        {projects.includes(proj) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                      </div>
-                      <input type="checkbox" className="hidden" checked={projects.includes(proj)} onChange={() => {
-                        setProjects(prev => prev.includes(proj) ? prev.filter(p => p !== proj) : [...prev, proj])
-                      }} />
-                      <span className="text-sm font-medium text-slate-700 select-none">{proj}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+
+            {hasActiveFilters && (
+              <button
+                onClick={handleResetFilters}
+                className="flex items-center gap-1.5 text-[#E11D48] hover:text-red-700 font-semibold px-3 py-1.5 text-sm whitespace-nowrap transition-colors ml-auto"
+              >
+                Reset All
+              </button>
             )}
           </div>
-
-          <button
-            onClick={() => {
-              setListedBy(prev => prev.includes('Featured Agents') ? prev.filter(x => x !== 'Featured Agents') : [...prev, 'Featured Agents'])
-            }}
-            className={cn(
-              "flex items-center gap-1.5 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
-              listedBy.includes('Featured Agents') ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
-            )}
-          >
-            ⭐ Featured Agents
-          </button>
-
-
-          <button
-            onClick={handleOpenMoreFilters}
-            className={cn(
-              "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
-              isAnyMoreFilterActive ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
-            )}
-          >
-            More Filters {activeMoreFiltersCount > 0 ? `(${activeMoreFiltersCount})` : ''} <ChevronDown className="w-4 h-4 text-slate-400" />
-          </button>
-
-          {hasActiveFilters && (
-            <button
-              onClick={handleResetFilters}
-              className="flex items-center gap-1.5 text-[#E11D48] hover:text-red-700 font-semibold px-3 py-1.5 text-sm whitespace-nowrap transition-colors ml-auto"
-            >
-              Reset All
-            </button>
-          )}
         </div>
-      </div>
       </div> {/* Close Header Container */}
 
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 pt-[210px] sm:pt-[190px] md:pt-[130px] pb-6">

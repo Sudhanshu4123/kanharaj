@@ -29,7 +29,8 @@ export function MobileNav() {
         {navItems.map((item) => {
           const isActive =
             pathname === item.href ||
-            (item.href !== '/' && pathname.startsWith(item.href.split('?')[0]))
+            (item.href !== '/' && pathname.startsWith(item.href.split('?')[0])) ||
+            (item.href === '/properties' && (pathname.startsWith('/buy') || pathname.startsWith('/rent')))
 
           return (
             <Link

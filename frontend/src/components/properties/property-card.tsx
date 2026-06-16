@@ -96,9 +96,11 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
               {property.featured && (
                 <Badge variant="default" className="shadow-md">Featured</Badge>
               )}
-              <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-none flex items-center gap-1 shadow-md">
-                <CheckCircle2 className="h-3 w-3" /> Verified
-              </Badge>
+              {property.verified && (
+                <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-none flex items-center gap-1 shadow-md">
+                  <CheckCircle2 className="h-3 w-3" /> Verified
+                </Badge>
+              )}
             </div>
 
             {/* Property Type Floating Badge */}
