@@ -184,10 +184,6 @@ export function Header() {
     pathname === '/rent' || 
     pathname?.startsWith('/rent/')
 
-  if (isPropertiesPage) {
-    return null
-  }
-
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [activeActivityTab, setActiveActivityTab] = useState<ActivityTab>('seen')
@@ -256,6 +252,10 @@ export function Header() {
     document.addEventListener('mousedown', handleOutsideClick)
     return () => document.removeEventListener('mousedown', handleOutsideClick)
   }, [openDropdown])
+
+  if (isPropertiesPage) {
+    return null
+  }
 
   return (
     <header className={cn(
