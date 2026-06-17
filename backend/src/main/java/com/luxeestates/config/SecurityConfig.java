@@ -84,6 +84,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/otp/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/payments/create-order").permitAll()
                         .requestMatchers("/api/payments/**").authenticated()
                         .requestMatchers("/api/users/**").authenticated()
                         .anyRequest().authenticated())
