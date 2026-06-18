@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronRight, ChevronLeft } from "lucide-react"
 import Link from "next/link"
 
 // SVGs matching the layout
@@ -728,25 +727,6 @@ export default function BuyingGuidePage() {
                     </div>
                   </>
                 )}
-
-                {/* Bottom Step Navigation Panel */}
-                <div className="flex justify-between items-center bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
-                  <button
-                    onClick={() => setActiveStep(prev => Math.max(1, prev - 1))}
-                    disabled={activeStep === 1}
-                    className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg border border-slate-200 text-slate-700 font-bold text-xs transition-colors hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <ChevronLeft size={16} /> Previous Step
-                  </button>
-
-                  <button
-                    onClick={() => setActiveStep(prev => Math.min(4, prev + 1))}
-                    disabled={activeStep === 4}
-                    className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-purple-600 text-white hover:bg-purple-700 font-bold text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    Next Step <ChevronRight size={16} />
-                  </button>
-                </div>
 
               </motion.div>
             </AnimatePresence>
