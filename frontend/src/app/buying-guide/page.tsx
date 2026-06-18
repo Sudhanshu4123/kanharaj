@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronRight, ChevronLeft, Check } from "lucide-react"
+import { ChevronRight, ChevronLeft } from "lucide-react"
 import Link from "next/link"
 
 // SVGs matching the layout
@@ -156,128 +156,32 @@ const stepsData = [
     id: 1,
     title: "1. Finding a house",
     desc: "How to research for your dream home and location, and choose a property type that suits your requirements",
-    illustration: FindingHouseSVG,
-    cards: [
-      {
-        title: "How Do I Begin My Home Search?",
-        desc: "The most important step of buying a home, is choosing a property that's right for you. This involves several steps of research and due diligence. It's advisable to use a mix of resources for finding a home to stay informed.",
-        bullets: [
-          { text: "Online Realty Portals", isLink: true, href: "/properties?listing=buy" },
-          { text: "Online/Offline classifieds", isLink: false },
-          { text: "Print Ads in Newspaper", isLink: false },
-          { text: "Property Fairs / Exhibitions", isLink: true, href: "#" },
-          { text: "Agents", isLink: true, href: "#" },
-          { text: "Developers", isLink: true, href: "#" },
-          { text: "Hoardings/Ads", isLink: false },
-          { text: "Family/Friends", isLink: false }
-        ]
-      },
-      {
-        title: "Location",
-        desc: "Your quality of life will depend on the location you choose for your home. Choose a location based on:",
-        bullets: [
-          { text: "Connectivity with your workplace", isLink: false },
-          { text: "Ease of commute", isLink: false },
-          { text: "Presence of basic amenities/markets", isLink: false },
-          { text: "Future appreciation prospects", isLink: false },
-          { text: "Social infrastructure", isLink: false },
-          { text: "Explore More", isLink: true, href: "/properties" }
-        ]
-      }
-    ]
+    illustration: FindingHouseSVG
   },
   {
     id: 2,
     title: "2. Financials & budgeting",
     desc: "Calculate extra purchasing costs, registration fees, and setup your home loan timeline before booking",
-    illustration: BudgetingSVG,
-    cards: [
-      {
-        title: "Understanding Actual Cost of Buying",
-        desc: "The advertised price of a home is rarely the final cost. Ensure you plan for these mandatory extra costs:",
-        bullets: [
-          { text: "Circle rates and Stamp Duty charges (4-8% of property value)", isLink: true, href: "#" },
-          { text: "Registration Fees (usually 1% of property value)", isLink: false },
-          { text: "Goods & Services Tax (GST) for under-construction flats", isLink: false },
-          { text: "Society Maintenance advance & security deposits", isLink: true, href: "#" },
-          { text: "Home Loan Processing & legal verification fees", isLink: false }
-        ]
-      },
-      {
-        title: "Home Loan Timeline",
-        desc: "Securing a bank loan requires executing these key operational steps:",
-        bullets: [
-          { text: "Checking CIBIL score & eligibility criteria", isLink: true, href: "#" },
-          { text: "Submitting Income tax files (ITR) & bank sheets", isLink: false },
-          { text: "Bank legal valuation of site plan & approvals", isLink: false },
-          { text: "Sanction Letter execution by bank manager", isLink: true, href: "#" },
-          { text: "Disbursement Check handover directly to seller", isLink: false }
-        ]
-      }
-    ]
+    illustration: BudgetingSVG
   },
   {
     id: 3,
     title: "3. Legal & verification",
     desc: "Thoroughly inspect structural layouts, builder track records, and state title deeds to prevent legal disputes",
-    illustration: LegalVerificationSVG,
-    cards: [
-      {
-        title: "Mandatory Document Checklist",
-        desc: "Never transfer token deposits or sign contracts without examining certified copies of these core records:",
-        bullets: [
-          { text: "Original Sale Deed & historic title chains", isLink: true, href: "#" },
-          { text: "Mother Deed tracking for 30 years of history", isLink: false },
-          { text: "RERA Certificate checking on state portals", isLink: true, href: "#" },
-          { text: "Approved Building Layout Sanction Plan", isLink: false },
-          { text: "Encumbrance Certificate (EC) verifying zero mortgages", isLink: true, href: "#" }
-        ]
-      },
-      {
-        title: "Local Due Diligence",
-        desc: "Confirm regional factors and developer verification points before registry:",
-        bullets: [
-          { text: "Outstanding society maintenance dues verification", isLink: false },
-          { text: "Local municipality occupancy permissions (OC)", isLink: true, href: "#" },
-          { text: "Property tax receipt clearing records", isLink: false },
-          { text: "Water connection and electric sub-meter transfers", isLink: false }
-        ]
-      }
-    ]
+    illustration: LegalVerificationSVG
   },
   {
     id: 4,
     title: "4. Registry & possession",
     desc: "Schedule Sub-Registrar slots, execute registry deeds, and run snagging inspections before key handovers",
-    illustration: PossessionSVG,
-    cards: [
-      {
-        title: "Registry Execution Process",
-        desc: "The final transfer of property title occurs through these formal steps at the local Sub-Registrar office:",
-        bullets: [
-          { text: "Purchasing digital E-Stamp paper from state bank", isLink: true, href: "#" },
-          { text: "Booking slot timings online at municipal sub-registrar", isLink: false },
-          { text: "Executing Sale Deed with signatures from two witnesses", isLink: false },
-          { text: "Completing biometric registration & document submissions", isLink: true, href: "#" }
-        ]
-      },
-      {
-        title: "Possession Handover Snagging",
-        desc: "Perform a thorough visual and functional walk-through of the home before accepting keys:",
-        bullets: [
-          { text: "Inspecting walls for dampness, seepage, and cracks", isLink: false },
-          { text: "Testing all electric switches and MCB panel boards", isLink: false },
-          { text: "Running taps to check drainage blocks or leaks", isLink: true, href: "#" },
-          { text: "Verifying window slides and door lock functions", isLink: false },
-          { text: "Receiving NOC letters & previous invoice clearance sheets", isLink: true, href: "#" }
-        ]
-      }
-    ]
+    illustration: PossessionSVG
   }
 ]
 
 export default function BuyingGuidePage() {
   const [activeStep, setActiveStep] = useState(1)
+  const [propertyTab, setPropertyTab] = useState("under-construction")
+  const [selectedArea, setSelectedArea] = useState("carpet")
 
   const currentStepData = stepsData.find(s => s.id === activeStep) || stepsData[0]
   const Illustration = currentStepData.illustration
@@ -339,38 +243,491 @@ export default function BuyingGuidePage() {
                 transition={{ duration: 0.25 }}
                 className="space-y-6"
               >
-                {currentStepData.cards.map((card, idx) => (
-                  <div 
-                    key={idx} 
-                    className="bg-white p-8 rounded-xl border border-slate-100 shadow-sm"
-                  >
-                    <h3 className="text-xl font-bold text-slate-900 mb-4">
-                      {card.title}
-                    </h3>
-                    
-                    <p className="text-[14px] text-slate-600 leading-relaxed mb-6">
-                      {card.desc}
-                    </p>
+                
+                {/* STEP 1 DETAILS */}
+                {activeStep === 1 && (
+                  <>
+                    {/* Card 1: Begin Search */}
+                    <div className="bg-white p-8 rounded-xl border border-slate-100 shadow-sm">
+                      <h3 className="text-xl font-bold text-slate-900 mb-4">
+                        How Do I Begin My Home Search?
+                      </h3>
+                      
+                      <p className="text-[14px] text-slate-600 leading-relaxed mb-6">
+                        The most important step of buying a home, is choosing a property that's right for you. This involves several steps of research and due diligence. It's advisable to use a mix of resources for finding a home to stay informed.
+                      </p>
 
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-                      {card.bullets.map((bullet, bulletIdx) => (
-                        <li key={bulletIdx} className="flex items-start gap-2.5 text-[14px]">
-                          <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-2.5 shrink-0" />
-                          {bullet.isLink ? (
-                            <Link 
-                              href={bullet.href || "#"} 
-                              className="text-purple-600 font-semibold hover:text-purple-800 hover:underline transition-colors"
-                            >
-                              {bullet.text}
-                            </Link>
-                          ) : (
-                            <span className="text-slate-700">{bullet.text}</span>
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                        {[
+                          { text: "Online Realty Portals", isLink: true, href: "/properties?listing=buy" },
+                          { text: "Online/Offline classifieds", isLink: false },
+                          { text: "Print Ads in Newspaper", isLink: false },
+                          { text: "Property Fairs / Exhibitions", isLink: true, href: "#" },
+                          { text: "Agents", isLink: true, href: "#" },
+                          { text: "Developers", isLink: true, href: "#" },
+                          { text: "Hoardings/Ads", isLink: false },
+                          { text: "Family/Friends", isLink: false }
+                        ].map((bullet, bulletIdx) => (
+                          <li key={bulletIdx} className="flex items-start gap-2.5 text-[14px]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-2.5 shrink-0" />
+                            {bullet.isLink ? (
+                              <Link 
+                                href={bullet.href || "#"} 
+                                className="text-purple-600 font-semibold hover:text-purple-800 hover:underline transition-colors"
+                              >
+                                {bullet.text}
+                              </Link>
+                            ) : (
+                              <span className="text-slate-700">{bullet.text}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Card 2: Location */}
+                    <div className="bg-white p-8 rounded-xl border border-slate-100 shadow-sm">
+                      <h3 className="text-xl font-bold text-slate-900 mb-4">
+                        Location
+                      </h3>
+                      
+                      <p className="text-[14px] text-slate-600 leading-relaxed mb-6">
+                        Your quality of life will depend on the location you choose for your home. Choose a location based on:
+                      </p>
+
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                        {[
+                          { text: "Connectivity with your workplace", isLink: false },
+                          { text: "Ease of commute", isLink: false },
+                          { text: "Presence of basic amenities/markets", isLink: false },
+                          { text: "Future appreciation prospects", isLink: false },
+                          { text: "Social infrastructure", isLink: false },
+                          { text: "Explore More", isLink: true, href: "/properties" }
+                        ].map((bullet, bulletIdx) => (
+                          <li key={bulletIdx} className="flex items-start gap-2.5 text-[14px]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-2.5 shrink-0" />
+                            {bullet.isLink ? (
+                              <Link 
+                                href={bullet.href || "#"} 
+                                className="text-purple-600 font-semibold hover:text-purple-800 hover:underline transition-colors"
+                              >
+                                {bullet.text}
+                              </Link>
+                            ) : (
+                              <span className="text-slate-700">{bullet.text}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Card 3: Property Types */}
+                    <div className="bg-white p-8 rounded-xl border border-slate-100 shadow-sm">
+                      <h3 className="text-xl font-bold text-slate-900 mb-4">
+                        Property Types
+                      </h3>
+
+                      {/* Horizontal Tabs with Purple Underline */}
+                      <div className="flex border-b border-slate-150 mb-6 overflow-x-auto gap-2">
+                        {[
+                          { id: "under-construction", label: "Under Construction Properties" },
+                          { id: "ready-to-move", label: "Ready-To-Move Properties" },
+                          { id: "resale", label: "Resale Properties" }
+                        ].map(tab => (
+                          <button
+                            key={tab.id}
+                            onClick={() => setPropertyTab(tab.id)}
+                            className={`pb-3 px-4 text-xs font-semibold whitespace-nowrap transition-all relative -mb-[1px] ${
+                              propertyTab === tab.id
+                                ? "text-purple-600 border-b-2 border-purple-600"
+                                : "text-slate-400 hover:text-slate-600"
+                            }`}
+                          >
+                            {tab.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Content metrics matching screenshot */}
+                      <div className="space-y-3 text-[14px]">
+                        {propertyTab === "under-construction" && (
+                          <>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Property price</b> - Discount over market rate</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Fund security</b>- Risky</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Possession delivery</b> - Delays possible</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Construction quality check</b> - Verifiable at possession time</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Social infrastructure</b> - Not present</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Physical infrastructure</b> - May not be present</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Return on investment</b> - High</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Loan facility</b> - Depends on project</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Overall risk</b>- High</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Suitable for</b> - Investor</p>
+                          </>
+                        )}
+                        {propertyTab === "ready-to-move" && (
+                          <>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Property price</b> - Market rate</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Fund security</b>- Safe</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Possession delivery</b> - Immediate</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Construction quality check</b> - Can check before purchase</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Social infrastructure</b> - Developed</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Physical infrastructure</b> - Developed</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Return on investment</b> - Moderate</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Loan facility</b> - Easy sanction</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Overall risk</b>- Low</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Suitable for</b> - Self use / Immediate rental</p>
+                          </>
+                        )}
+                        {propertyTab === "resale" && (
+                          <>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Property price</b> - Negotiable</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Fund security</b>- Safe (registered owner transfer)</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Possession delivery</b> - Immediate</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Construction quality check</b> - Check wear & tear</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Social infrastructure</b> - Developed</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Physical infrastructure</b> - Developed</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Return on investment</b> - Stable</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Loan facility</b> - Depends on property age</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Overall risk</b>- Low</p>
+                            <p className="text-slate-500"><b className="text-slate-800 font-semibold">Suitable for</b> - Self use</p>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Custom lightbulb tip box */}
+                      <div className="p-4 rounded-lg bg-white border border-slate-100 text-[13px] text-slate-600 flex items-start gap-4 mt-6">
+                        <div className="shrink-0 mt-0.5">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C8.13 2 5 5.13 5 9C5 11.38 6.19 13.47 8 14.74V17C8 17.55 8.45 18 9 18H15C15.55 18 16 17.55 16 17V14.74C17.81 13.47 19 11.38 19 9C19 5.13 15.87 2 12 2Z" fill="#FACC15" />
+                            <path d="M9 21C9 21.55 9.45 22 10 22H14C14.55 22 15 21.55 15 21V20H9V21Z" fill="#94A3B8" />
+                            <path d="M11.5 6V8M11.5 10V12M11.5 8C11.5 8.28 11.72 8.5 12 8.5C12.28 8.5 12.5 8.28 12.5 8H11.5ZM11.5 10C11.5 9.72 11.72 9.5 12 9.5C12.28 9.5 12.5 9.72 12.5 10H11.5Z" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                          </svg>
+                        </div>
+                        <p className="leading-relaxed">
+                          {propertyTab === "under-construction" 
+                            ? "Under Construction properties appreciate faster, but ready-to-move flats can earn 1.5% to 2% (of the property value) per annum if you lease it."
+                            : propertyTab === "ready-to-move"
+                            ? "Ready-To-Move properties save you from double expenditure (rent + loan EMIs) and carry zero GST liabilities in India."
+                            : "For resale properties, ensure you verify that all past society maintenance dues, electricity, and water bills are fully paid before signing."
+                          }
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Card 4: Areas Explained */}
+                    <div className="bg-white p-8 rounded-xl border border-slate-100 shadow-sm">
+                      <h3 className="text-xl font-bold text-slate-900 mb-4">
+                        Areas Explained
+                      </h3>
+
+                      {/* Area tabs */}
+                      <div className="flex border-b border-slate-100 mb-6 overflow-x-auto gap-2">
+                        {[
+                          { id: "carpet", label: "Carpet Area" },
+                          { id: "built-up", label: "Built-Up Area" },
+                          { id: "super-built-up", label: "Super Built-Up" }
+                        ].map(tab => (
+                          <button
+                            key={tab.id}
+                            onClick={() => setSelectedArea(tab.id)}
+                            className={`pb-3 px-4 text-xs font-semibold whitespace-nowrap transition-all relative -mb-[1px] ${
+                              selectedArea === tab.id
+                                ? "text-purple-600 border-b-2 border-purple-600"
+                                : "text-slate-400 hover:text-slate-600"
+                            }`}
+                          >
+                            {tab.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                        <div className="md:col-span-7 space-y-4">
+                          {selectedArea === "carpet" && (
+                            <>
+                              <h4 className="font-bold text-slate-900 text-base">What is Carpet Area?</h4>
+                              <p className="text-slate-600 text-sm leading-relaxed">
+                                This is the net usable floor area of an apartment, excluding the area covered by the external walls, areas under services shafts, exclusive balcony or verandah area and exclusive open terrace area, but including the area covered by the internal partition walls of the apartment.
+                              </p>
+                              <div className="p-3 bg-purple-50 rounded-lg border border-purple-100 text-[12px] text-purple-800 font-semibold">
+                                🔑 <b>Simple rule:</b> The area where you can literally spread a carpet (wall-to-wall space inside rooms).
+                              </div>
+                            </>
                           )}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+                          {selectedArea === "built-up" && (
+                            <>
+                              <h4 className="font-bold text-slate-900 text-base">What is Built-Up Area?</h4>
+                              <p className="text-slate-600 text-sm leading-relaxed">
+                                Built-up Area is the sum of carpet area, wall thickness, and other unusable utility areas like balconies, utility ducts, and private terraces. Typically, it is 10% to 15% more than the carpet area.
+                              </p>
+                              <div className="p-3 bg-purple-50 rounded-lg border border-purple-100 text-[12px] text-purple-800 font-semibold font-mono">
+                                📝 <b>Formula:</b> Carpet Area + Wall Area + Balcony Space = Built-Up Area.
+                              </div>
+                            </>
+                          )}
+                          {selectedArea === "super-built-up" && (
+                            <>
+                              <h4 className="font-bold text-slate-900 text-base">What is Super Built-Up Area?</h4>
+                              <p className="text-slate-600 text-sm leading-relaxed">
+                                This is the built-up area plus a proportionate share of the building's common areas like elevators, lobby corridors, staircases, generator rooms, security cabins, and clubhouse amenities.
+                              </p>
+                              <div className="p-3 bg-purple-50 rounded-lg border border-purple-100 text-[12px] text-purple-800 font-semibold font-mono">
+                                📊 <b>Calculation:</b> Carpet Area x (1 + Loading Factor) = Super Built-Up Area.
+                              </div>
+                            </>
+                          )}
+                        </div>
+
+                        {/* Interactive Blueprint Graphic using Purple/Violet accent */}
+                        <div className="md:col-span-5 bg-slate-900 rounded-2xl p-6 text-white text-center space-y-4 shadow-xl">
+                          <h5 className="text-xs font-semibold text-purple-400 uppercase tracking-wider">Visual Blueprint Map</h5>
+                          
+                          <div className="w-full h-36 bg-slate-800 rounded-xl border border-slate-700 relative flex items-center justify-center p-2">
+                            {/* Visual Grid representing rooms */}
+                            <div className="absolute inset-2 border border-dashed border-slate-600 rounded grid grid-cols-3 grid-rows-2 gap-1 bg-slate-950/40">
+                              <div className={`border-r border-b border-dashed border-slate-600 flex items-center justify-center text-[10px] transition-all duration-300 ${selectedArea === "carpet" || selectedArea === "built-up" || selectedArea === "super-built-up" ? "bg-purple-600/30 text-purple-300 font-bold" : "text-slate-500"}`}>Bedroom</div>
+                              <div className="border-r border-b border-dashed border-slate-600 flex items-center justify-center text-[10px] text-slate-500">Kitchen</div>
+                              <div className={`border-b border-dashed border-slate-600 flex items-center justify-center text-[10px] transition-all duration-300 ${selectedArea === "built-up" || selectedArea === "super-built-up" ? "bg-purple-700/60 text-purple-200 font-bold" : "text-slate-500"}`}>Balcony</div>
+                              <div className="border-r border-dashed border-slate-600 flex items-center justify-center text-[10px] text-slate-500">Bath</div>
+                              <div className="border-r border-dashed border-slate-600 flex items-center justify-center text-[10px] text-slate-500">Living</div>
+                              <div className={`flex items-center justify-center text-[9px] transition-all duration-300 ${selectedArea === "super-built-up" ? "bg-purple-500/20 text-purple-400 font-bold" : "text-slate-500"}`}>Lobby (Common)</div>
+                            </div>
+                          </div>
+
+                          <div className="text-left space-y-1">
+                            <span className="text-[10px] text-purple-300 font-semibold">Measurement Loading Factor</span>
+                            <p className="text-[11px] text-slate-300 leading-normal">
+                              In India, loading factors range from <b>20% to 40%</b>. Builders charge prices based on the Super Built-Up area.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* STEP 2 DETAILS */}
+                {activeStep === 2 && (
+                  <>
+                    {/* Card 1: Actual Cost */}
+                    <div className="bg-white p-8 rounded-xl border border-slate-100 shadow-sm">
+                      <h3 className="text-xl font-bold text-slate-900 mb-4">
+                        Understanding Actual Cost of Buying
+                      </h3>
+                      
+                      <p className="text-[14px] text-slate-600 leading-relaxed mb-6">
+                        The advertised price of a home is rarely the final cost. Ensure you plan for these mandatory extra costs:
+                      </p>
+
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                        {[
+                          { text: "Circle rates and Stamp Duty charges (4-8% of property value)", isLink: true, href: "#" },
+                          { text: "Registration Fees (usually 1% of property value)", isLink: false },
+                          { text: "Goods & Services Tax (GST) for under-construction flats", isLink: false },
+                          { text: "Society Maintenance advance & security deposits", isLink: true, href: "#" },
+                          { text: "Home Loan Processing & legal verification fees", isLink: false }
+                        ].map((bullet, bulletIdx) => (
+                          <li key={bulletIdx} className="flex items-start gap-2.5 text-[14px]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-2.5 shrink-0" />
+                            {bullet.isLink ? (
+                              <Link 
+                                href={bullet.href || "#"} 
+                                className="text-purple-600 font-semibold hover:text-purple-800 hover:underline transition-colors"
+                              >
+                                {bullet.text}
+                              </Link>
+                            ) : (
+                              <span className="text-slate-700">{bullet.text}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Card 2: Home Loan Timeline */}
+                    <div className="bg-white p-8 rounded-xl border border-slate-100 shadow-sm">
+                      <h3 className="text-xl font-bold text-slate-900 mb-4">
+                        Home Loan Timeline
+                      </h3>
+                      
+                      <p className="text-[14px] text-slate-600 leading-relaxed mb-6">
+                        Securing a bank loan requires executing these key operational steps:
+                      </p>
+
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                        {[
+                          { text: "Checking CIBIL score & eligibility criteria", isLink: true, href: "#" },
+                          { text: "Submitting Income tax files (ITR) & bank sheets", isLink: false },
+                          { text: "Bank legal valuation of site plan & approvals", isLink: false },
+                          { text: "Sanction Letter execution by bank manager", isLink: true, href: "#" },
+                          { text: "Disbursement Check handover directly to seller", isLink: false }
+                        ].map((bullet, bulletIdx) => (
+                          <li key={bulletIdx} className="flex items-start gap-2.5 text-[14px]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-2.5 shrink-0" />
+                            {bullet.isLink ? (
+                              <Link 
+                                href={bullet.href || "#"} 
+                                className="text-purple-600 font-semibold hover:text-purple-800 hover:underline transition-colors"
+                              >
+                                {bullet.text}
+                              </Link>
+                            ) : (
+                              <span className="text-slate-700">{bullet.text}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </>
+                )}
+
+                {/* STEP 3 DETAILS */}
+                {activeStep === 3 && (
+                  <>
+                    {/* Card 1: Checklist */}
+                    <div className="bg-white p-8 rounded-xl border border-slate-100 shadow-sm">
+                      <h3 className="text-xl font-bold text-slate-900 mb-4">
+                        Mandatory Document Checklist
+                      </h3>
+                      
+                      <p className="text-[14px] text-slate-600 leading-relaxed mb-6">
+                        Never transfer token deposits or sign contracts without examining certified copies of these core records:
+                      </p>
+
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                        {[
+                          { text: "Original Sale Deed & historic title chains", isLink: true, href: "#" },
+                          { text: "Mother Deed tracking for 30 years of history", isLink: false },
+                          { text: "RERA Certificate checking on state portals", isLink: true, href: "#" },
+                          { text: "Approved Building Layout Sanction Plan", isLink: false },
+                          { text: "Encumbrance Certificate (EC) verifying zero mortgages", isLink: true, href: "#" }
+                        ].map((bullet, bulletIdx) => (
+                          <li key={bulletIdx} className="flex items-start gap-2.5 text-[14px]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-2.5 shrink-0" />
+                            {bullet.isLink ? (
+                              <Link 
+                                href={bullet.href || "#"} 
+                                className="text-purple-600 font-semibold hover:text-purple-800 hover:underline transition-colors"
+                              >
+                                {bullet.text}
+                              </Link>
+                            ) : (
+                              <span className="text-slate-700">{bullet.text}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Card 2: Local Due Diligence */}
+                    <div className="bg-white p-8 rounded-xl border border-slate-100 shadow-sm">
+                      <h3 className="text-xl font-bold text-slate-900 mb-4">
+                        Local Due Diligence
+                      </h3>
+                      
+                      <p className="text-[14px] text-slate-600 leading-relaxed mb-6">
+                        Confirm regional factors and developer verification points before registry:
+                      </p>
+
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                        {[
+                          { text: "Outstanding society maintenance dues verification", isLink: false },
+                          { text: "Local municipality occupancy permissions (OC)", isLink: true, href: "#" },
+                          { text: "Property tax receipt clearing records", isLink: false },
+                          { text: "Water connection and electric sub-meter transfers", isLink: false }
+                        ].map((bullet, bulletIdx) => (
+                          <li key={bulletIdx} className="flex items-start gap-2.5 text-[14px]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-2.5 shrink-0" />
+                            {bullet.isLink ? (
+                              <Link 
+                                href={bullet.href || "#"} 
+                                className="text-purple-600 font-semibold hover:text-purple-800 hover:underline transition-colors"
+                              >
+                                {bullet.text}
+                              </Link>
+                            ) : (
+                              <span className="text-slate-700">{bullet.text}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </>
+                )}
+
+                {/* STEP 4 DETAILS */}
+                {activeStep === 4 && (
+                  <>
+                    {/* Card 1: Registry */}
+                    <div className="bg-white p-8 rounded-xl border border-slate-100 shadow-sm">
+                      <h3 className="text-xl font-bold text-slate-900 mb-4">
+                        Registry Execution Process
+                      </h3>
+                      
+                      <p className="text-[14px] text-slate-600 leading-relaxed mb-6">
+                        The final transfer of property title occurs through these formal steps at the local Sub-Registrar office:
+                      </p>
+
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                        {[
+                          { text: "Purchasing digital E-Stamp paper from state bank", isLink: true, href: "#" },
+                          { text: "Booking slot timings online at municipal sub-registrar", isLink: false },
+                          { text: "Executing Sale Deed with signatures from two witnesses", isLink: false },
+                          { text: "Completing biometric registration & document submissions", isLink: true, href: "#" }
+                        ].map((bullet, bulletIdx) => (
+                          <li key={bulletIdx} className="flex items-start gap-2.5 text-[14px]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-2.5 shrink-0" />
+                            {bullet.isLink ? (
+                              <Link 
+                                href={bullet.href || "#"} 
+                                className="text-purple-600 font-semibold hover:text-purple-800 hover:underline transition-colors"
+                              >
+                                {bullet.text}
+                              </Link>
+                            ) : (
+                              <span className="text-slate-700">{bullet.text}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Card 2: Snagging */}
+                    <div className="bg-white p-8 rounded-xl border border-slate-100 shadow-sm">
+                      <h3 className="text-xl font-bold text-slate-900 mb-4">
+                        Possession Handover Snagging
+                      </h3>
+                      
+                      <p className="text-[14px] text-slate-600 leading-relaxed mb-6">
+                        Perform a thorough visual and functional walk-through of the home before accepting keys:
+                      </p>
+
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                        {[
+                          { text: "Inspecting walls for dampness, seepage, and cracks", isLink: false },
+                          { text: "Testing all electric switches and MCB panel boards", isLink: false },
+                          { text: "Running taps to check drainage blocks or leaks", isLink: true, href: "#" },
+                          { text: "Verifying window slides and door lock functions", isLink: false },
+                          { text: "Receiving NOC letters & previous invoice clearance sheets", isLink: true, href: "#" }
+                        ].map((bullet, bulletIdx) => (
+                          <li key={bulletIdx} className="flex items-start gap-2.5 text-[14px]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-2.5 shrink-0" />
+                            {bullet.isLink ? (
+                              <Link 
+                                href={bullet.href || "#"} 
+                                className="text-purple-600 font-semibold hover:text-purple-800 hover:underline transition-colors"
+                              >
+                                {bullet.text}
+                              </Link>
+                            ) : (
+                              <span className="text-slate-700">{bullet.text}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </>
+                )}
 
                 {/* Bottom Step Navigation Panel */}
                 <div className="flex justify-between items-center bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
