@@ -9,6 +9,16 @@ export const SITE = {
   description:
     "Your trusted real estate platform. Buy, rent & sell verified flats, builder floors, plots & villas in All india. Zero brokerage options. Expert guidance for home loans.",
   keywords: [
+    '3bhk luxury dda sfs flat',
+    '3bhk dda sfs flats dwarka',
+    'dda sfs flats for sale in dwarka',
+    'dda sfs flats dwarka',
+    'luxury sfs flats in dwarka',
+    'dda flats dwarka sector 22',
+    'dda flats dwarka sector 11',
+    'dda flat dwarka',
+    'dda flats for sale in delhi',
+    'luxury dda flats dwarka',
     'property dealer in dwarka',
     'best real estate agent dwarka',
     'flats for sale in dwarka delhi',
