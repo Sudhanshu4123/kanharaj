@@ -121,7 +121,7 @@ const newsMegaData = {
   title: 'Property market guide',
   items: [
     { label: 'Real Estate News', description: 'Latest market updates', href: '/#news' },
-    { label: 'Buying Guide', description: 'Expert homebuying tips', href: `/coming-soon?title=${encodeURIComponent('Buying Guide')}` },
+    { label: 'Buying Guide', description: 'Expert homebuying tips', href: '/buying-guide' },
     { label: 'Property Research', description: 'Data-driven insights', href: '/#research-insights' },
     { label: 'New Delhi Overview', description: 'Real estate & area highlights', href: `/coming-soon?title=${encodeURIComponent('New Delhi Overview')}` },
   ]
