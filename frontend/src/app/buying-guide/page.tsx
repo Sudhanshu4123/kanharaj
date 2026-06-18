@@ -72,10 +72,10 @@ export default function BuyingGuidePage() {
         
         {/* Page Header */}
         <div className="text-center mb-16 max-w-3xl mx-auto">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-rose-600/10 text-rose-600 text-xs font-bold tracking-widest uppercase mb-4">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-rose-600/10 text-rose-600 text-xs font-semibold mb-4">
             Kanharaj Knowledge Hub
           </span>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-none mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-none mb-6">
             Home Buying <span className="text-rose-600">Guide</span>
           </h1>
           <p className="text-lg text-slate-600 leading-relaxed">
@@ -94,8 +94,8 @@ export default function BuyingGuidePage() {
                   <Activity size={20} />
                 </div>
                 <div>
-                  <h3 className="font-black text-slate-900 text-sm">Step-by-Step Roadmap</h3>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Current Stage: {activeStep} / 4</p>
+                  <h3 className="font-bold text-slate-900 text-sm">Step-by-Step Roadmap</h3>
+                  <p className="text-xs text-slate-500 font-semibold">Current Stage: {activeStep} / 4</p>
                 </div>
               </div>
 
@@ -119,7 +119,7 @@ export default function BuyingGuidePage() {
                         <Icon size={20} />
                       </div>
                       <div className="space-y-1">
-                        <h4 className={`font-black text-sm ${isActive ? "text-white" : "text-slate-900"}`}>
+                        <h4 className={`font-bold text-sm ${isActive ? "text-white" : "text-slate-900"}`}>
                           {step.id}. {step.title}
                         </h4>
                         <p className={`text-xs leading-normal ${isActive ? "text-slate-400" : "text-slate-500"} line-clamp-2`}>
@@ -133,7 +133,7 @@ export default function BuyingGuidePage() {
 
               {/* Progress Bar indicator */}
               <div className="mt-8 pt-4 border-t border-slate-100">
-                <div className="flex justify-between text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
+                <div className="flex justify-between text-xs font-semibold text-slate-500 mb-2">
                   <span>Buying Journey</span>
                   <span>{activeStep * 25}% Complete</span>
                 </div>
@@ -152,7 +152,7 @@ export default function BuyingGuidePage() {
             <div className="bg-slate-900 rounded-[2rem] p-6 text-white relative overflow-hidden shadow-xl">
               <div className="absolute top-0 right-0 w-32 h-32 bg-rose-600/10 rounded-full blur-2xl" />
               <div className="relative z-10 space-y-4">
-                <h4 className="font-black text-lg">Confused about buying?</h4>
+                <h4 className="font-bold text-lg">Confused about buying?</h4>
                 <p className="text-xs text-slate-400 leading-relaxed">
                   Connect with a certified Kanharaj Property Advisor for legal registration & zero-brokerage deals.
                 </p>
@@ -185,7 +185,7 @@ export default function BuyingGuidePage() {
                   <>
                     {/* Intro Card */}
                     <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-100/30 space-y-6">
-                      <h2 className="text-2xl font-black text-slate-900">Step 1: Finding Your Dream House</h2>
+                      <h2 className="text-2xl font-bold text-slate-900">Step 1: Finding Your Dream House</h2>
                       <p className="text-slate-600 leading-relaxed text-sm">
                         The journey begins with choosing a property that fits your lifestyle, budget, and long-term targets. This involves comparing structural choices, selecting locations, and checking the measurement rules.
                       </p>
@@ -193,7 +193,7 @@ export default function BuyingGuidePage() {
                       {/* Property Types Comparison */}
                       <div className="space-y-6 pt-4 border-t border-slate-100">
                         <div>
-                          <h3 className="text-lg font-black text-slate-900 mb-2">Compare Property Types</h3>
+                          <h3 className="text-lg font-bold text-slate-900 mb-2">Compare Property Types</h3>
                           <p className="text-xs text-slate-500">Select a structural status to view its financial, legal, and operational metrics.</p>
                         </div>
 
@@ -222,32 +222,32 @@ export default function BuyingGuidePage() {
                         <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-4">
                           {propertyTab === "under-construction" && (
                             <>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Property Price</span><p className="text-sm font-bold text-slate-800">Discounted (10% to 20% lower than market rate)</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Fund Security</span><p className="text-sm font-bold text-slate-800">Medium-Risky (Depends on developer reputation)</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Possession Delivery</span><p className="text-sm font-bold text-slate-800">Delays possible (Buffer periods required)</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Construction Quality</span><p className="text-sm font-bold text-slate-800">Verifiable at final possession time</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Return on Investment</span><p className="text-sm font-bold text-emerald-600 flex items-center gap-1">High Appreciation Prospects <TrendingUp size={14} /></p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Loan Facility</span><p className="text-sm font-bold text-slate-800">Linked to construction milestones (APF project)</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Property Price</span><p className="text-sm font-semibold text-slate-800">Discounted (10% to 20% lower than market rate)</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Fund Security</span><p className="text-sm font-semibold text-slate-800">Medium-Risky (Depends on developer reputation)</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Possession Delivery</span><p className="text-sm font-semibold text-slate-800">Delays possible (Buffer periods required)</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Construction Quality</span><p className="text-sm font-semibold text-slate-800">Verifiable at final possession time</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Return on Investment</span><p className="text-sm font-semibold text-emerald-600 flex items-center gap-1">High Appreciation Prospects <TrendingUp size={14} /></p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Loan Facility</span><p className="text-sm font-semibold text-slate-800">Linked to construction milestones (APF project)</p></div>
                             </>
                           )}
                           {propertyTab === "ready-to-move" && (
                             <>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Property Price</span><p className="text-sm font-bold text-slate-800">Standard market rates (Higher upfront cost)</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Fund Security</span><p className="text-sm font-bold text-slate-800">Highly Secure (What you see is what you buy)</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Possession Delivery</span><p className="text-sm font-bold text-slate-800">Immediate handover (Zero delay risk)</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Construction Quality</span><p className="text-sm font-bold text-slate-800">Inspectable prior to buying</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Return on Investment</span><p className="text-sm font-bold text-slate-800">Stable, includes immediate rental income</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Loan Facility</span><p className="text-sm font-bold text-slate-800">Standard home loans (Easy bank sanctions)</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Property Price</span><p className="text-sm font-semibold text-slate-800">Standard market rates (Higher upfront cost)</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Fund Security</span><p className="text-sm font-semibold text-slate-800">Highly Secure (What you see is what you buy)</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Possession Delivery</span><p className="text-sm font-semibold text-slate-800">Immediate handover (Zero delay risk)</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Construction Quality</span><p className="text-sm font-semibold text-slate-800">Inspectable prior to buying</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Return on Investment</span><p className="text-sm font-semibold text-slate-800">Stable, includes immediate rental income</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Loan Facility</span><p className="text-sm font-semibold text-slate-800">Standard home loans (Easy bank sanctions)</p></div>
                             </>
                           )}
                           {propertyTab === "resale" && (
                             <>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Property Price</span><p className="text-sm font-bold text-slate-800">Negotiable (Depends on owner urgency & age)</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Fund Security</span><p className="text-sm font-bold text-slate-800">Highly Secure (Registry transfer direct from owner)</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Possession Delivery</span><p className="text-sm font-bold text-slate-800">Immediate handover on registry execution</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Construction Quality</span><p className="text-sm font-bold text-slate-800">Pre-existing condition (Check wear and tear)</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Return on Investment</span><p className="text-sm font-bold text-slate-800">Stable (Lower appreciation but immediately liveable)</p></div>
-                              <div className="space-y-1"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Loan Facility</span><p className="text-sm font-bold text-slate-800">Depends on building age & society approvals</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Property Price</span><p className="text-sm font-semibold text-slate-800">Negotiable (Depends on owner urgency & age)</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Fund Security</span><p className="text-sm font-semibold text-slate-800">Highly Secure (Registry transfer direct from owner)</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Possession Delivery</span><p className="text-sm font-semibold text-slate-800">Immediate handover on registry execution</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Construction Quality</span><p className="text-sm font-semibold text-slate-800">Pre-existing condition (Check wear and tear)</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Return on Investment</span><p className="text-sm font-semibold text-slate-800">Stable (Lower appreciation but immediately liveable)</p></div>
+                              <div className="space-y-1"><span className="text-xs text-slate-500 font-semibold">Loan Facility</span><p className="text-sm font-semibold text-slate-800">Depends on building age & society approvals</p></div>
                             </>
                           )}
                         </div>
@@ -269,7 +269,7 @@ export default function BuyingGuidePage() {
 
                     {/* How Do I Begin My Home Search */}
                     <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-100/30 space-y-6">
-                      <h3 className="text-xl font-black text-slate-900">How Do I Begin My Home Search?</h3>
+                      <h3 className="text-xl font-bold text-slate-900">How Do I Begin My Home Search?</h3>
                       <p className="text-slate-600 text-sm leading-relaxed">
                         To find properties and stay informed without falling for fake postings, utilize a balanced mix of search channels:
                       </p>
@@ -283,7 +283,7 @@ export default function BuyingGuidePage() {
                         ].map((item, idx) => (
                           <div key={idx} className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
                             <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                              <span className="w-5 h-5 rounded-full bg-rose-600/15 text-rose-600 flex items-center justify-center text-[10px] font-black">{idx + 1}</span>
+                              <span className="w-5 h-5 rounded-full bg-rose-600/15 text-rose-600 flex items-center justify-center text-[10px] font-bold">{idx + 1}</span>
                               {item.title}
                             </h4>
                             <p className="text-xs text-slate-500 leading-normal">{item.desc}</p>
@@ -299,7 +299,7 @@ export default function BuyingGuidePage() {
                           <MapPin size={24} />
                         </div>
                         <div>
-                          <h3 className="text-xl font-black text-slate-900">Location & Neighborhood Due Diligence</h3>
+                          <h3 className="text-xl font-bold text-slate-900">Location & Neighborhood Due Diligence</h3>
                           <p className="text-xs text-slate-500">Your quality of life and future property value depend strongly on where you buy.</p>
                         </div>
                       </div>
@@ -315,7 +315,7 @@ export default function BuyingGuidePage() {
                           <div key={idx} className="flex gap-4 p-4 rounded-xl border border-slate-50 bg-slate-50/50 hover:bg-white hover:border-slate-100 transition-colors">
                             <Check size={16} className="text-rose-600 mt-1 shrink-0" />
                             <div className="space-y-1">
-                              <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider">{loc.label}</h4>
+                              <h4 className="font-semibold text-slate-900 text-sm">{loc.label}</h4>
                               <p className="text-xs text-slate-500 leading-normal">{loc.desc}</p>
                             </div>
                           </div>
@@ -330,7 +330,7 @@ export default function BuyingGuidePage() {
                           <Building size={24} />
                         </div>
                         <div>
-                          <h3 className="text-xl font-black text-slate-900">Measurement Areas Explained</h3>
+                          <h3 className="text-xl font-bold text-slate-900">Measurement Areas Explained</h3>
                           <p className="text-xs text-slate-500">Understand what Carpet, Built-up, and Super Built-up areas mean to avoid paying for empty spaces.</p>
                         </div>
                       </div>
@@ -370,7 +370,7 @@ export default function BuyingGuidePage() {
                             >
                               {selectedArea === "carpet" && (
                                 <>
-                                  <h4 className="font-black text-slate-900 text-base">What is Carpet Area?</h4>
+                                  <h4 className="font-bold text-slate-900 text-base">What is Carpet Area?</h4>
                                   <p className="text-slate-600 text-xs leading-relaxed">
                                     This is the net usable floor area of an apartment, excluding the area covered by the external walls, areas under services shafts, exclusive balcony or verandah area and exclusive open terrace area, but including the area covered by the internal partition walls of the apartment.
                                   </p>
@@ -381,7 +381,7 @@ export default function BuyingGuidePage() {
                               )}
                               {selectedArea === "built-up" && (
                                 <>
-                                  <h4 className="font-black text-slate-900 text-base">What is Built-Up Area?</h4>
+                                  <h4 className="font-bold text-slate-900 text-base">What is Built-Up Area?</h4>
                                   <p className="text-slate-600 text-xs leading-relaxed">
                                     Built-up Area is the sum of carpet area, wall thickness, and other unusable utility areas like balconies, utility ducts, and private terraces. Typically, it is 10% to 15% more than the carpet area.
                                   </p>
@@ -392,7 +392,7 @@ export default function BuyingGuidePage() {
                               )}
                               {selectedArea === "super-built-up" && (
                                 <>
-                                  <h4 className="font-black text-slate-900 text-base">What is Super Built-Up Area?</h4>
+                                  <h4 className="font-bold text-slate-900 text-base">What is Super Built-Up Area?</h4>
                                   <p className="text-slate-600 text-xs leading-relaxed">
                                     This is the built-up area plus a proportionate share of the building's common areas like elevators, lobby corridors, staircases, generator rooms, security cabins, and clubhouse amenities. It excludes personal terraces, open yards, and parking spaces.
                                   </p>
@@ -407,7 +407,7 @@ export default function BuyingGuidePage() {
 
                         {/* Interactive Floorplan / Diagram (Right Side) */}
                         <div className="md:col-span-5 bg-slate-900 rounded-[2rem] p-6 text-white text-center space-y-4 shadow-xl">
-                          <h5 className="text-xs font-bold uppercase tracking-wider text-rose-500">Visual Blueprint Map</h5>
+                          <h5 className="text-xs font-semibold text-rose-500">Visual Blueprint Map</h5>
                           
                           {/* Floorplan Box Mock */}
                           <div className="w-full h-36 bg-slate-800 rounded-xl border border-slate-700 relative flex items-center justify-center p-2">
@@ -423,7 +423,7 @@ export default function BuyingGuidePage() {
                           </div>
 
                           <div className="text-left space-y-1">
-                            <span className="text-[9px] text-slate-500 uppercase tracking-widest font-black">Measurement Loading Factor</span>
+                            <span className="text-xs font-semibold text-slate-400">Measurement Loading Factor</span>
                             <p className="text-[11px] text-slate-300 leading-normal">
                               In India, loading factors range from <b>20% to 40%</b>. Builders charge prices based on the Super Built-Up area, so a 1200 sq.ft flat may only have a 900 sq.ft usable Carpet Area.
                             </p>
@@ -439,14 +439,14 @@ export default function BuyingGuidePage() {
                 {activeStep === 2 && (
                   <>
                     <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-100/30 space-y-6">
-                      <h2 className="text-2xl font-black text-slate-900">Step 2: Financials & Budgeting</h2>
+                      <h2 className="text-2xl font-bold text-slate-900">Step 2: Financials & Budgeting</h2>
                       <p className="text-slate-600 leading-relaxed text-sm">
                         Calculating the purchasing cost goes far beyond the advertised base price. Understanding other fees and configuring home loan timelines beforehand will prevent payment failures.
                       </p>
 
                       {/* Cost Breakdown Structure */}
                       <div className="space-y-4 pt-4 border-t border-slate-100">
-                        <h3 className="text-lg font-black text-slate-900">Advertised Base Price vs Actual Price</h3>
+                        <h3 className="text-lg font-bold text-slate-900">Advertised Base Price vs Actual Price</h3>
                         <div className="space-y-2">
                           {[
                             { name: "Base Sale Price (BSP)", desc: "The cost per square foot of the property area.", percentage: "80%" },
@@ -460,7 +460,7 @@ export default function BuyingGuidePage() {
                                 <h4 className="font-bold text-slate-800 text-xs">{cost.name}</h4>
                                 <p className="text-[11px] text-slate-500 leading-normal">{cost.desc}</p>
                               </div>
-                              <span className="text-xs font-black text-slate-900 bg-slate-200/50 px-3 py-1 rounded-lg shrink-0">{cost.percentage}</span>
+                              <span className="text-xs font-bold text-slate-900 bg-slate-200/50 px-3 py-1 rounded-lg shrink-0">{cost.percentage}</span>
                             </div>
                           ))}
                         </div>
@@ -476,7 +476,7 @@ export default function BuyingGuidePage() {
 
                     {/* Home Loan Step-by-Step Guide */}
                     <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-100/30 space-y-6">
-                      <h3 className="text-xl font-black text-slate-900">Home Loan Procedure</h3>
+                      <h3 className="text-xl font-bold text-slate-900">Home Loan Procedure</h3>
                       <p className="text-slate-500 text-xs">A comprehensive timeline of how banks process and disburse home loans.</p>
 
                       <div className="space-y-4">
@@ -488,8 +488,8 @@ export default function BuyingGuidePage() {
                         ].map((item, idx) => (
                           <div key={idx} className="flex gap-4 items-start">
                             <div className="w-12 h-12 rounded-xl bg-slate-900 text-rose-500 flex flex-col items-center justify-center shrink-0 border border-slate-800">
-                              <span className="text-[9px] uppercase tracking-widest text-slate-500 font-black">Step</span>
-                              <span className="text-sm font-black -mt-1">{idx + 1}</span>
+                              <span className="text-[10px] text-slate-400 font-semibold">Step</span>
+                              <span className="text-sm font-bold -mt-1">{idx + 1}</span>
                             </div>
                             <div className="space-y-1">
                               <h4 className="font-bold text-slate-900 text-sm">{item.title}</h4>
@@ -511,7 +511,7 @@ export default function BuyingGuidePage() {
                           <ShieldCheck size={24} />
                         </div>
                         <div>
-                          <h2 className="text-2xl font-black text-slate-900">Step 3: Legal Documents Verification</h2>
+                          <h2 className="text-2xl font-bold text-slate-900">Step 3: Legal Documents Verification</h2>
                           <p className="text-xs text-slate-500">Run through this legal checklist to ensure the property is free of legal disputes.</p>
                         </div>
                       </div>
@@ -546,7 +546,7 @@ export default function BuyingGuidePage() {
                                 {isChecked && <Check size={14} strokeWidth={4} />}
                               </div>
                               <div className="space-y-1">
-                                <h4 className={`font-black text-xs uppercase tracking-wider ${isChecked ? "text-rose-700" : "text-slate-900"}`}>{doc.name}</h4>
+                                <h4 className={`font-semibold text-sm ${isChecked ? "text-rose-700" : "text-slate-900"}`}>{doc.name}</h4>
                                 <p className="text-xs text-slate-500 leading-normal">{doc.desc}</p>
                               </div>
                             </div>
@@ -561,14 +561,14 @@ export default function BuyingGuidePage() {
                 {activeStep === 4 && (
                   <>
                     <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-100/30 space-y-6">
-                      <h2 className="text-2xl font-black text-slate-900">Step 4: Registry & Final Possession</h2>
+                      <h2 className="text-2xl font-bold text-slate-900">Step 4: Registry & Final Possession</h2>
                       <p className="text-slate-600 leading-relaxed text-sm">
                         This is the final stage of your home-buying journey. You pay the remaining balance, execute the registry, pay stamp duty, and physically verify the property before taking keys.
                       </p>
 
                       {/* Registry Steps */}
                       <div className="space-y-4 pt-4 border-t border-slate-100">
-                        <h3 className="text-lg font-black text-slate-900">The Sub-Registrar Registry Flow</h3>
+                        <h3 className="text-lg font-bold text-slate-900">The Sub-Registrar Registry Flow</h3>
                         <div className="space-y-3">
                           {[
                             { step: "A", title: "Calculate and Buy E-Stamp Paper", desc: "Purchase the stamp duty papers online or via authorized banks matching the exact transaction value or circle rate (whichever is higher)." },
@@ -577,9 +577,9 @@ export default function BuyingGuidePage() {
                             { step: "D", title: "Submit Original Documents & Biometrics", desc: "Provide biometric fingerprints, facial photos, and submit the copy of deeds for state records validation." }
                           ].map((step, idx) => (
                             <div key={idx} className="flex gap-4 p-4 rounded-xl border border-slate-50 bg-slate-50/50">
-                              <span className="w-6 h-6 rounded-lg bg-rose-600/10 text-rose-600 flex items-center justify-center text-xs font-black shrink-0">{step.step}</span>
+                              <span className="w-6 h-6 rounded-lg bg-rose-600/10 text-rose-600 flex items-center justify-center text-xs font-bold shrink-0">{step.step}</span>
                               <div className="space-y-1">
-                                <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider">{step.title}</h4>
+                                <h4 className="font-semibold text-slate-900 text-sm">{step.title}</h4>
                                 <p className="text-xs text-slate-500 leading-normal">{step.desc}</p>
                               </div>
                             </div>
@@ -590,7 +590,7 @@ export default function BuyingGuidePage() {
 
                     {/* Possession Snagging Checklist */}
                     <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-100/30 space-y-6">
-                      <h3 className="text-xl font-black text-slate-900">Handover Possession Checkmarks</h3>
+                      <h3 className="text-xl font-bold text-slate-900">Handover Possession Checkmarks</h3>
                       <p className="text-slate-500 text-xs">Run this physical walkthrough inspection check before accepting key handovers.</p>
 
                       <div className="space-y-3">
@@ -618,7 +618,7 @@ export default function BuyingGuidePage() {
                                 {isChecked && <Check size={12} strokeWidth={4} />}
                               </div>
                               <div className="space-y-1">
-                                <h4 className={`font-bold text-xs uppercase tracking-wider ${isChecked ? "text-rose-400" : "text-slate-900"}`}>{item.name}</h4>
+                                <h4 className={`font-semibold text-sm ${isChecked ? "text-rose-400" : "text-slate-900"}`}>{item.name}</h4>
                                 <p className={`text-xs leading-normal ${isChecked ? "text-slate-400" : "text-slate-500"}`}>{item.desc}</p>
                               </div>
                             </div>
