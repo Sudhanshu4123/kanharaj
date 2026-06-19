@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter, usePathname, useParams } from 'next/navigation'
-import { ChevronDown, Search, Info, Menu, User, Phone, X, Shield, ArrowUpDown, Waves, Dumbbell, Car, Flame, Check, LogOut, MapPin, Bell, SlidersHorizontal } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, Search, Info, Menu, User, Phone, X, Shield, ArrowUpDown, Waves, Dumbbell, Car, Flame, Check, LogOut, MapPin, Bell, SlidersHorizontal } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import * as Slider from '@radix-ui/react-slider'
@@ -249,6 +249,67 @@ export default function PropertiesContent() {
   // Sale/Rent type from URL param (used in header)
   const [listingMode, setListingMode] = useState(initialListing)
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1)
+  const propertiesPerPage = 30
+  const listTopRef = useRef<HTMLDivElement>(null)
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    if (listTopRef.current) {
+      const yOffset = -140 // compensate for fixed search header
+      const element = listTopRef.current
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+      window.scrollTo({ top: y, behavior: 'smooth' })
+    }
+  }
+
+  // Reset page to 1 when any filter state changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [
+    search,
+    selectedCity,
+    selectedState,
+    propertyTypes,
+    bhkTypes,
+    budgetRange,
+    saleTypes,
+    constructionStatus,
+    listedBy,
+    verified,
+    areaRange,
+    amenities,
+    age,
+    facing,
+    propertyDetails,
+    rera,
+    projects,
+    listingMode
+  ])
+
+  const getPageNumbers = (totalPages: number) => {
+    const pages = []
+    const start = Math.max(1, currentPage - 2)
+    const end = Math.min(totalPages, currentPage + 2)
+
+    if (start > 1) {
+      pages.push(1)
+      if (start > 2) pages.push('...')
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i)
+    }
+
+    if (end < totalPages) {
+      if (end < totalPages - 1) pages.push('...')
+      pages.push(totalPages)
+    }
+
+    return pages
+  }
+
   const hasActiveFilters = propertyTypes.length > 0 || bhkTypes.length > 0 || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH || saleTypes.length > 0 || constructionStatus.length > 0 || isAnyMoreFilterActive;
 
   const handleResetFilters = () => {
@@ -429,7 +490,8 @@ export default function PropertiesContent() {
 
     // 2. Verified
     if (verified) {
-      if (!property.verified) return false;
+      const isVerified = property.featured || (property.images && property.images.length > 0 && property.latitude !== 0);
+      if (!isVerified) return false;
     }
 
     // 3. Built-up Area
@@ -545,6 +607,9 @@ export default function PropertiesContent() {
       })
     }
   }, [search, propertyTypes, listingMode, bhkTypes, budgetRange, selectedCity, selectedState, mounted, setFilters])
+
+  const totalPages = Math.ceil(properties.length / propertiesPerPage)
+  const paginatedProperties = properties.slice((currentPage - 1) * propertiesPerPage, currentPage * propertiesPerPage)
 
   if (!mounted) {
     return <PropertiesPageSkeleton />
@@ -1023,7 +1088,7 @@ export default function PropertiesContent() {
 
           {/* Left Column - Properties List */}
           <div className="lg:col-span-12">
-            <div className="lg:flex flex-col sm:flex-row sm:items-center justify-between mb-4 px-4 sm:px-0">
+            <div ref={listTopRef} className="lg:flex flex-col sm:flex-row sm:items-center justify-between mb-4 px-4 sm:px-0">
               <div className="mb-4 sm:mb-0 pt-4 sm:pt-0">
                 <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Showing results for</p>
                 <h1 className="text-lg sm:text-xl font-bold text-slate-900 leading-tight">
@@ -1056,11 +1121,74 @@ export default function PropertiesContent() {
                 <p className="text-slate-500 mt-2">Try adjusting your filters or location</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-0">
-                {properties.map((property) => (
-                  <HousingPropertyCard key={property.id} property={property} />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-0">
+                  {paginatedProperties.map((property) => (
+                    <HousingPropertyCard key={property.id} property={property} />
+                  ))}
+                </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-8 pb-8">
+                    {/* Previous Button */}
+                    <button
+                      type="button"
+                      disabled={currentPage === 1}
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      className={cn(
+                        "flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 bg-white hover:bg-slate-50 transition-colors shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+                      )}
+                    >
+                      <ChevronLeft className="w-4 h-4" /> Prev
+                    </button>
+
+                    {/* Page Numbers */}
+                    <div className="flex items-center gap-1.5">
+                      {getPageNumbers(totalPages).map((page, idx) => {
+                        if (page === '...') {
+                          return (
+                            <span key={`dots-${idx}`} className="px-3 py-1.5 text-xs font-bold text-slate-400">
+                              ...
+                            </span>
+                          )
+                        }
+
+                        const pageNum = page as number
+                        const isSelected = currentPage === pageNum
+
+                        return (
+                          <button
+                            key={`page-${pageNum}`}
+                            type="button"
+                            onClick={() => handlePageChange(pageNum)}
+                            className={cn(
+                              "w-9 h-9 flex items-center justify-center rounded-lg border text-xs font-bold transition-all shadow-sm cursor-pointer",
+                              isSelected
+                                ? "bg-[#0a2540] border-[#0a2540] text-white"
+                                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-[#0a2540]"
+                            )}
+                          >
+                            {pageNum}
+                          </button>
+                        )
+                      })}
+                    </div>
+
+                    {/* Next Button */}
+                    <button
+                      type="button"
+                      disabled={currentPage === totalPages}
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      className={cn(
+                        "flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 bg-white hover:bg-slate-50 transition-colors shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+                      )}
+                    >
+                      Next <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
 

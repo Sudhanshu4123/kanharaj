@@ -14,6 +14,7 @@ import {
   getPropertyImageUrl,
 } from '@/lib/platform-data'
 import { cn } from '@/lib/utils'
+import { parseSearchInput, getRoutingUrl } from '@/lib/routing-utils'
 
 const quickCategories = [
   { label: 'Buy', icon: Home, href: '/properties?listing=buy', bg: 'bg-[#A21133]' },
@@ -58,7 +59,13 @@ export function MobileHome() {
     e.preventDefault()
     const q = searchQuery.trim()
     if (q) {
-      window.location.href = `/properties?search=${encodeURIComponent(q)}`
+      const parsed = parseSearchInput(q, 'Delhi')
+      const href = getRoutingUrl({
+        listing: 'buy',
+        city: parsed.city,
+        search: parsed.search,
+      })
+      window.location.href = href
     } else {
       window.location.href = '/properties'
     }

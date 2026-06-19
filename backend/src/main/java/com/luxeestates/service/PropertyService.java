@@ -270,14 +270,87 @@ public class PropertyService {
         System.out
                 .println("VERIFICATION DEBUG: Incoming Device coordinates: Lat = " + latitude + ", Lng = " + longitude);
 
-        if (latitude != 0 || longitude != 0) {
-            System.out.println("VERIFICATION DEBUG: Setting property and verification coordinates to Lat=" + latitude
-                    + ", Lng=" + longitude);
-            property.setLatitude(java.math.BigDecimal.valueOf(latitude));
-            property.setLongitude(java.math.BigDecimal.valueOf(longitude));
-            property.setVerificationLatitude(java.math.BigDecimal.valueOf(latitude));
-            property.setVerificationLongitude(java.math.BigDecimal.valueOf(longitude));
+        if (latitude == 0.0 && longitude == 0.0) {
+            throw new RuntimeException("Device coordinates are missing. Geolocation is required for verification.");
         }
+
+        double refLat = 0.0;
+        double refLon = 0.0;
+        boolean hasRef = false;
+        boolean geocoded = false;
+
+        // 1. Try to geocode cleaned address + city
+        String cleanedAddr = cleanAddress(property.getAddress());
+        double[] coords = geocodeAddress(cleanedAddr, property.getCity());
+        if (coords != null) {
+            refLat = coords[0];
+            refLon = coords[1];
+            hasRef = true;
+            geocoded = true;
+            System.out.println("VERIFICATION DEBUG: Geocoded (cleaned) address to Lat=" + refLat + ", Lng=" + refLon);
+        } else {
+            // Try with raw address + city
+            coords = geocodeAddress(property.getAddress(), property.getCity());
+            if (coords != null) {
+                refLat = coords[0];
+                refLon = coords[1];
+                hasRef = true;
+                geocoded = true;
+                System.out.println("VERIFICATION DEBUG: Geocoded (raw) address to Lat=" + refLat + ", Lng=" + refLon);
+            }
+        }
+
+        // 2. Fallback to property's already saved coordinates if available and non-zero
+        if (!hasRef && property.getLatitude() != null && property.getLongitude() != null &&
+                property.getLatitude().doubleValue() != 0.0 && property.getLongitude().doubleValue() != 0.0) {
+            refLat = property.getLatitude().doubleValue();
+            refLon = property.getLongitude().doubleValue();
+            hasRef = true;
+            System.out.println("VERIFICATION DEBUG: Using saved coordinates Lat=" + refLat + ", Lng=" + refLon);
+        }
+
+        // 3. Fallback to geocoding just the city
+        if (!hasRef) {
+            coords = geocodeAddress("", property.getCity());
+            if (coords != null) {
+                refLat = coords[0];
+                refLon = coords[1];
+                hasRef = true;
+                System.out.println("VERIFICATION DEBUG: Geocoded city center to Lat=" + refLat + ", Lng=" + refLon);
+                
+                // For city center fallback, use 25 km tolerance
+                double distance = calculateDistance(refLat, refLon, latitude, longitude);
+                if (distance > 25000.0) {
+                    throw new RuntimeException("Verification mismatch: You must be present in the city of the property (" + property.getCity() + ").");
+                }
+            }
+        }
+
+        // Enforce the 1500 meters check if we successfully geocoded the address/locality
+        if (hasRef) {
+            double distance = calculateDistance(refLat, refLon, latitude, longitude);
+            System.out.println("VERIFICATION DEBUG: Calculated distance: " + distance + " meters");
+            
+            if (geocoded) {
+                if (distance > 1500.0) {
+                    throw new RuntimeException("Verification mismatch: You must be present at the property location (within 1.5 km of " + property.getAddress() + ", " + property.getCity() + "). Current distance: " + Math.round(distance) + " meters.");
+                }
+            } else {
+                // If using saved coordinates, enforce 1500m tolerance as well
+                if (distance > 1500.0) {
+                    throw new RuntimeException("Verification mismatch: You must be present at the property location (within 1.5 km). Current distance: " + Math.round(distance) + " meters.");
+                }
+            }
+        } else {
+            // If completely unable to determine location, throw an error to be safe
+            throw new RuntimeException("Unable to verify property address location. Please ensure the City and Address are valid.");
+        }
+
+        // Update the property's coordinates to device GPS coordinates on successful verification
+        property.setLatitude(java.math.BigDecimal.valueOf(latitude));
+        property.setLongitude(java.math.BigDecimal.valueOf(longitude));
+        property.setVerificationLatitude(java.math.BigDecimal.valueOf(latitude));
+        property.setVerificationLongitude(java.math.BigDecimal.valueOf(longitude));
 
         List<String> uploadedUrls = new java.util.ArrayList<>();
 
@@ -309,30 +382,13 @@ public class PropertyService {
 
         property.setVerified(true);
         property.setVerifiedAt(java.time.LocalDateTime.now());
-        if (latitude != 0 || longitude != 0) {
-            property.setVerificationLatitude(java.math.BigDecimal.valueOf(latitude));
-            property.setVerificationLongitude(java.math.BigDecimal.valueOf(longitude));
-        }
-
         if (!uploadedUrls.isEmpty()) {
             property.setVerificationPhotoUrl(uploadedUrls.get(0));
             try {
-                java.util.List<String> imgList = objectMapper.readValue(property.getImages(), new com.fasterxml.jackson.core.type.TypeReference<java.util.List<String>>() {});
-                if (imgList == null) {
-                    imgList = new java.util.ArrayList<>();
-                }
-                for (String url : uploadedUrls) {
-                    if (!imgList.contains(url)) {
-                        imgList.add(0, url);
-                    }
-                }
-                property.setImages(objectMapper.writeValueAsString(imgList));
+                // Completely replace the existing images with the newly verified images list
+                property.setImages(objectMapper.writeValueAsString(uploadedUrls));
             } catch (Exception e) {
-                try {
-                    property.setImages(objectMapper.writeValueAsString(uploadedUrls));
-                } catch (Exception ex) {
-                    System.out.println("VERIFICATION DEBUG: Failed to save images: " + ex.getMessage());
-                }
+                System.out.println("VERIFICATION DEBUG: Failed to save verified images: " + e.getMessage());
             }
         }
 
@@ -347,5 +403,61 @@ public class PropertyService {
                         Math.sin(dLon / 2) * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return 6371000 * c;
+    }
+
+    private String cleanAddress(String address) {
+        if (address == null) return "";
+        // Remove patterns like H.No, Flat, Flat No, Room, Unit, Shop, 1st Floor, 2nd Floor, etc.
+        String cleaned = address.replaceAll("(?i)\\b(flat|h\\.no|house|plot|shop|office|unit|room|floor|pocket|block|sector)\\s*\\d*\\w*\\b", "");
+        cleaned = cleaned.replaceAll("(?i)\\b\\d+(st|nd|rd|th)\\s*floor\\b", "");
+        cleaned = cleaned.replaceAll("(?i)\\b\\d+\\b", ""); // Remove isolated digits
+        cleaned = cleaned.replaceAll("\\s+", " ").trim();
+        // Remove leading/trailing commas and spaces
+        cleaned = cleaned.replaceAll("^[,\\s]+|[,\\s]+$", "");
+        return cleaned.isEmpty() ? address : cleaned;
+    }
+
+    private double[] geocodeAddress(String address, String city) {
+        try {
+            String query = (address + ", " + city).trim();
+            if (query.isEmpty()) return null;
+            
+            String url = "https://nominatim.openstreetmap.org/search?q=" 
+                + java.net.URLEncoder.encode(query, "UTF-8") 
+                + "&format=json&limit=1";
+            
+            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("User-Agent", "KanharajPropertyVerificationAgent/1.0");
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
+            
+            if (conn.getResponseCode() == 200) {
+                java.io.InputStream in = conn.getInputStream();
+                java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(in));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+                
+                String json = response.toString();
+                if (json.contains("\"lat\":\"") && json.contains("\"lon\":\"")) {
+                    int latIdx = json.indexOf("\"lat\":\"") + 7;
+                    int latEnd = json.indexOf("\"", latIdx);
+                    double lat = Double.parseDouble(json.substring(latIdx, latEnd));
+                    
+                    int lonIdx = json.indexOf("\"lon\":\"") + 7;
+                    int lonEnd = json.indexOf("\"", lonIdx);
+                    double lon = Double.parseDouble(json.substring(lonIdx, lonEnd));
+                    
+                    return new double[] { lat, lon };
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("GEOCODING ERROR: " + e.getMessage());
+        }
+        return null;
     }
 }

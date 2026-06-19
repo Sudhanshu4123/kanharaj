@@ -54,7 +54,7 @@ export default function RootLayout({
         </Script>
         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       </head>
-      <body className="min-h-screen flex flex-col overflow-x-hidden">
+      <body className="min-h-screen flex flex-col overflow-x-clip">
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe

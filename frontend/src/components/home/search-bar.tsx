@@ -11,6 +11,7 @@ import { useUserActivityStore } from '@/lib/user-activity-store'
 import { usePropertyStore } from '@/lib/store'
 import { formatStatCount } from '@/lib/platform-data'
 import { topCities, otherCities } from '@/lib/location-data'
+import { parseSearchInput, getRoutingUrl } from '@/lib/routing-utils'
 
 type TabType = 'buy' | 'rent' | 'commercial' | 'pg' | 'plots'
 
@@ -77,29 +78,37 @@ export function SearchBar({
 
   const handleSearch = (customSearchTerm?: string) => {
     const searchTerm = customSearchTerm !== undefined ? customSearchTerm : search
-    const params = new URLSearchParams()
+    const parsed = parseSearchInput(searchTerm, selectedCity)
 
-    if (searchTerm) params.set('search', searchTerm)
-    if (selectedCity) params.set('city', selectedCity)
+    let listing = 'buy'
+    let type = ''
+    let commercialMode = ''
 
     if (activeTab === 'plots') {
-      params.set('type', 'PLOTS/LAND')
-      params.set('listing', 'buy')
+      type = 'PLOTS/LAND'
+      listing = 'buy'
     } else if (activeTab === 'pg') {
-      params.set('type', 'PG')
-      params.set('listing', 'rent')
+      type = 'PG'
+      listing = 'rent'
     } else if (activeTab === 'commercial') {
-      params.set('type', 'COMMERCIAL')
-      params.set('listing', commercialType === 'buy' ? 'buy' : 'rent')
-      params.set('commercial_mode', commercialType)
+      type = 'COMMERCIAL'
+      listing = commercialType === 'buy' ? 'buy' : 'rent'
+      commercialMode = commercialType
     } else {
-      params.set('listing', activeTab)
+      listing = activeTab
     }
 
-    const href = `/properties?${params.toString()}`
+    const href = getRoutingUrl({
+      listing,
+      type,
+      city: parsed.city,
+      search: parsed.search,
+      commercialMode,
+    })
+
     const labelParts = [
-      searchTerm || null,
-      selectedCity || null,
+      parsed.search || null,
+      parsed.city || null,
       activeTab === 'plots' ? 'Plots / Land' : activeTab === 'pg' ? 'PG' : activeTab === 'commercial' ? 'Commercial' : activeTab,
     ].filter(Boolean)
     useUserActivityStore.getState().recordSearch(labelParts.join(' · ') || 'Property search', href)

@@ -182,7 +182,8 @@ export function Header() {
     pathname === '/buy' || 
     pathname?.startsWith('/buy/') ||
     pathname === '/rent' || 
-    pathname?.startsWith('/rent/')
+    pathname?.startsWith('/rent/') ||
+    pathname === '/buying-guide'
 
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
