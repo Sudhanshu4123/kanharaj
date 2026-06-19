@@ -41,10 +41,22 @@ export function PropertyLocalityMap({ property }: PropertyLocalityMapProps) {
   const [proximityScore, setProximityScore] = useState<number | null>(null)
   const [nearby, setNearby] = useState<NearbyPlace[]>([])
 
-  useEffect(() => {
-    let cancelled = false
+  const propertyKey = `${property.id}-${property.address}-${property.city}-${property.latitude}-${property.longitude}`
+  const [prevPropertyKey, setPrevPropertyKey] = useState(propertyKey)
+
+  if (propertyKey !== prevPropertyKey) {
+    setPrevPropertyKey(propertyKey)
     setLoading(true)
     setError(null)
+    setDisplayName('')
+    setMapEmbedUrl('')
+    setGoogleMapsUrl('')
+    setProximityScore(null)
+    setNearby([])
+  }
+
+  useEffect(() => {
+    let cancelled = false
 
     fetchLocalityData(property)
       .then((data) => {
