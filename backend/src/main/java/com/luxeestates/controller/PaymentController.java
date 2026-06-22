@@ -241,38 +241,12 @@ public class PaymentController {
         
         User user = userRepository.findById(userDetails.getId()).orElseThrow();
         
-        String plan = "NONE";
-        String status = "PENDING";
-        LocalDateTime expiry = null;
-
-        Seller seller = sellerRepository.findByUserId(user.getId()).orElse(null);
-        if (seller != null) {
-            plan = seller.getSubscriptionPlan();
-            expiry = seller.getSubscriptionExpiry();
-            // Real-time expiry check
-            if (expiry != null && expiry.isBefore(LocalDateTime.now())) {
-                status = "EXPIRED";
-            } else {
-                status = seller.getStatus();
-            }
-        } else {
-            plan = user.getSubscriptionPlan();
-            status = user.getPaymentStatus();
-            expiry = user.getSubscriptionExpiry();
-            if (expiry != null && expiry.isBefore(LocalDateTime.now())) {
-                status = "EXPIRED";
-            }
-        }
-
-        if (plan == null) plan = "NONE";
-        if (status == null) status = "PENDING";
-        
         return ResponseEntity.ok(Map.of(
-            "plan", plan,
-            "status", status,
-            "expiry", expiry != null ? expiry : "NONE",
-            "freePostsUsed", user.getFreePostsUsed() != null ? user.getFreePostsUsed() : 0,
-            "freePostsLimit", 3
+            "plan", "SUPER",
+            "status", "ACTIVE",
+            "expiry", LocalDateTime.now().plusYears(100),
+            "freePostsUsed", 0,
+            "freePostsLimit", 999999
         ));
     }
 

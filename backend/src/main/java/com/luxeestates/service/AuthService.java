@@ -54,18 +54,18 @@ public class AuthService {
                         adminEmail = adminEmail.trim();
                 if (adminPassword != null)
                         adminPassword = adminPassword.trim();
-                
+
                 // One-time fix for existing users (Migration)
                 try {
-                    userRepository.findAll().forEach(user -> {
-                        if (user.getEnabled() == null || !user.getEnabled()) {
-                            user.setEnabled(true);
-                            userRepository.save(user);
-                        }
-                    });
-                    System.out.println("Data Migration: All users have been enabled successfully.");
+                        userRepository.findAll().forEach(user -> {
+                                if (user.getEnabled() == null || !user.getEnabled()) {
+                                        user.setEnabled(true);
+                                        userRepository.save(user);
+                                }
+                        });
+                        System.out.println("Data Migration: All users have been enabled successfully.");
                 } catch (Exception e) {
-                    System.err.println("Migration failed: " + e.getMessage());
+                        System.err.println("Migration failed: " + e.getMessage());
                 }
         }
 
@@ -84,7 +84,9 @@ public class AuthService {
                                         .role(User.Role.USER)
                                         .enabled(true) // Enabled for authentication, but emailVerified handles access
                                         .emailVerified(false)
-                                        .verificationToken(String.valueOf(100000 + new java.util.Random().nextInt(900000))) // 6-digit OTP
+                                        .verificationToken(
+                                                        String.valueOf(100000 + new java.util.Random().nextInt(900000))) // 6-digit
+                                                                                                                         // OTP
                                         .otpExpiry(LocalDateTime.now().plusMinutes(15))
                                         .createdAt(LocalDateTime.now())
                                         .build();
@@ -248,11 +250,14 @@ public class AuthService {
 
                 UserDto dto = UserDto.fromEntity(user);
 
-                // Fetch professional seller data if it exists
+                // Fetch professional seller data if it exists (but override with dynamic free SUPER plan details)
                 sellerRepository.findByUserId(user.getId()).ifPresent(seller -> {
                         dto.setSubscriptionPlan(seller.getSubscriptionPlan());
                         dto.setSubscriptionExpiry(seller.getSubscriptionExpiry());
                 });
+
+                dto.setSubscriptionPlan("SUPER");
+                dto.setSubscriptionExpiry(LocalDateTime.now().plusYears(100));
 
                 return dto;
         }
@@ -309,10 +314,13 @@ public class AuthService {
                 System.out.println("=================================================");
 
                 try {
-                        emailService.sendSimpleMessage(user.getEmail(), "Password Reset Request - Kanharaj", emailContent);
+                        emailService.sendSimpleMessage(user.getEmail(), "Password Reset Request - Kanharaj",
+                                        emailContent);
                 } catch (Exception e) {
-                        System.err.println("Failed to send reset email via SMTP, but generated link successfully: " + e.getMessage());
-                        // Catching email sending failure for local/development robustness so the request still succeeds
+                        System.err.println("Failed to send reset email via SMTP, but generated link successfully: "
+                                        + e.getMessage());
+                        // Catching email sending failure for local/development robustness so the
+                        // request still succeeds
                         // and developer can copy the link from the console.
                 }
         }
@@ -355,7 +363,7 @@ public class AuthService {
         public void resendOtp(String email) {
                 User user = userRepository.findByEmail(email)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
-                
+
                 if (user.getEmailVerified()) {
                         throw new RuntimeException("Email is already verified");
                 }

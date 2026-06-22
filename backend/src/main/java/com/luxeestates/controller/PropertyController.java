@@ -120,17 +120,8 @@ public class PropertyController {
         }
 
         // ── Check active subscription ──────────────────────────────────────────
-        Seller seller = sellerRepository.findByUserId(user.getId()).orElse(null);
-        boolean hasActiveSub = false;
-        String activePlan = "NONE";
-
-        if (seller != null
-                && seller.getSubscriptionExpiry() != null
-                && seller.getSubscriptionExpiry().isAfter(LocalDateTime.now())
-                && "ACTIVE".equalsIgnoreCase(seller.getStatus())) {
-            hasActiveSub = true;
-            activePlan = seller.getSubscriptionPlan(); // BASIC | PREMIUM | SUPER
-        }
+        boolean hasActiveSub = true;
+        String activePlan = "SUPER";
 
         // Listing type: BUY or RENT
         Property.ListingType listingType = dto.getListingType();

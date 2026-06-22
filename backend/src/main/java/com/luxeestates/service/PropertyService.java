@@ -66,15 +66,7 @@ public class PropertyService {
         // Strict Backend Validation: Active Subscription Required for Sellers, or Free
         // Posts limit (3 posts)
         if (user.getRole() != User.Role.ADMIN) {
-            String plan = user.getSubscriptionPlan();
-            java.time.LocalDateTime expiry = user.getSubscriptionExpiry();
-
-            boolean hasActiveSubscription = false;
-            if (plan != null && !"NONE".equalsIgnoreCase(plan)) {
-                if (expiry == null || expiry.isAfter(java.time.LocalDateTime.now())) {
-                    hasActiveSubscription = true;
-                }
-            }
+            boolean hasActiveSubscription = true;
 
             if (!hasActiveSubscription) {
                 // Check free posts count

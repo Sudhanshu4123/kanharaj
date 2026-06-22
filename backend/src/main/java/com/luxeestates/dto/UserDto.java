@@ -38,14 +38,14 @@ public class UserDto {
                 .name(user.getName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
-                .role(user.getRole())
+                .role(user.getRole() == User.Role.USER ? User.Role.SELLER : user.getRole())
                 .enabled(user.getEnabled())
                 .createdAt(user.getCreatedAt())
                 .profileImage(user.getProfileImage())
                 .description(user.getDescription())
                 .experienceYears(user.getExperienceYears())
-                .subscriptionPlan(user.getSubscriptionPlan() != null ? user.getSubscriptionPlan() : "NONE")
-                .subscriptionExpiry(user.getSubscriptionExpiry())
+                .subscriptionPlan("SUPER")
+                .subscriptionExpiry(LocalDateTime.now().plusYears(100))
                 .freePostsUsed(user.getFreePostsUsed() != null ? user.getFreePostsUsed() : 0)
                 .build();
     }

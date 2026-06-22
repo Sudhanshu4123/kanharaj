@@ -22,9 +22,16 @@ public class CustomUserDetails implements UserDetails {
         this.id = user.getId();
         this.username = user.getEmail();
         this.password = user.getPassword();
-        this.authorities = Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
-        );
+        if (user.getRole() == User.Role.USER) {
+            this.authorities = java.util.Arrays.asList(
+                    new SimpleGrantedAuthority("ROLE_USER"),
+                    new SimpleGrantedAuthority("ROLE_SELLER")
+            );
+        } else {
+            this.authorities = Collections.singletonList(
+                    new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+            );
+        }
         this.enabled = user.getEnabled();
     }
     
