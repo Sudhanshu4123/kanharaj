@@ -37,9 +37,11 @@ public class User {
     @Column(nullable = false, length = 20)
     private Role role;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean enabled = true;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean emailVerified = false;
 
@@ -60,16 +62,20 @@ public class User {
     private String experienceYears;
 
     // Subscription & Payment Fields
+    @Builder.Default
     @Column(length = 20)
     private String subscriptionPlan = "NONE";
 
     private LocalDateTime subscriptionExpiry;
 
+    @Builder.Default
     private Double lastPaymentAmount = 0.0;
 
+    @Builder.Default
     @Column(length = 20)
     private String paymentStatus = "PENDING";
 
+    @Builder.Default
     @Column(nullable = false)
     private Integer freePostsUsed = 0;
 

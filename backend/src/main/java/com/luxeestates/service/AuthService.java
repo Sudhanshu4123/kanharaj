@@ -88,6 +88,7 @@ public class AuthService {
                                                         String.valueOf(100000 + new java.util.Random().nextInt(900000))) // 6-digit
                                                                                                                          // OTP
                                         .otpExpiry(LocalDateTime.now().plusMinutes(15))
+                                        .freePostsUsed(0)
                                         .createdAt(LocalDateTime.now())
                                         .build();
 
@@ -228,6 +229,7 @@ public class AuthService {
                                                                         .encode("SOCIAL_LOGIN_" + Math.random()))
                                                         .role(User.Role.USER)
                                                         .enabled(true)
+                                                        .freePostsUsed(0)
                                                         .createdAt(LocalDateTime.now())
                                                         .build();
                                         return userRepository.save(newUser);
