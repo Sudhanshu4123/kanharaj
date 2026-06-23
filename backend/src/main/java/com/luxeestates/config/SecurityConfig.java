@@ -83,6 +83,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/feedbacks/**", "/api/feedbacks").authenticated()
 
                         .requestMatchers("/api/otp/**").permitAll()
+                        .requestMatchers("/ws-notifications/**", "/ws-notifications").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/payments/create-order").permitAll()
                         .requestMatchers("/api/payments/**").authenticated()
