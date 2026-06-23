@@ -10,6 +10,7 @@ import { logoutFromSellerDashboard, getApiUrl, getMainSiteUrl } from "@/lib/auth
 import { MotionConfig } from "framer-motion"
 import { normalizeProfileImageUrl } from "@/lib/profile-utils"
 import { MobileNav } from "@/components/mobile-nav"
+import { NotificationBell } from "@/components/NotificationBell"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -275,6 +276,9 @@ export default function RootLayout({
                   >
                     <Plus className="w-4 h-4" /> Add Property
                   </Link>
+
+                  {/* Notification Bell Dropdown */}
+                  <NotificationBell />
 
                   {/* Profile Avatar Button */}
                   <div className="relative">

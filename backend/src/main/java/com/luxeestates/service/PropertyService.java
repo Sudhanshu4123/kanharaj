@@ -26,6 +26,7 @@ public class PropertyService {
     private final InquiryRepository inquiryRepository;
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
     private final CloudinaryService cloudinaryService;
+    private final NotificationService notificationService;
 
     public Page<PropertyDto> getAllProperties(Pageable pageable) {
         org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort
@@ -384,7 +385,16 @@ public class PropertyService {
             }
         }
 
-        return PropertyDto.fromEntity(propertyRepository.save(property));
+        Property savedProp = propertyRepository.save(property);
+        notificationService.sendNotification(
+                savedProp.getUser().getId(),
+                "Listing Verified",
+                "Your property listing '" + savedProp.getTitle() + "' has been successfully verified!",
+                "PROPERTY_VERIFIED",
+                "/listings"
+        );
+
+        return PropertyDto.fromEntity(savedProp);
     }
 
     private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {

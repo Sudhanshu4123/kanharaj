@@ -23,6 +23,7 @@ public class InquiryService {
     private final InquiryRepository inquiryRepository;
     private final PropertyRepository propertyRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public InquiryDto createInquiry(InquiryDto dto) {
@@ -46,7 +47,20 @@ public class InquiryService {
                 .status(Inquiry.InquiryStatus.PENDING)
                 .build();
 
-        return InquiryDto.fromEntity(inquiryRepository.save(inquiry));
+        Inquiry saved = inquiryRepository.save(inquiry);
+
+        // Send real-time notification to the property seller
+        if (property != null && property.getUser() != null) {
+            notificationService.sendNotification(
+                    property.getUser().getId(),
+                    "New Lead Received",
+                    "You received a new inquiry from " + dto.getName() + " on your property '" + property.getTitle() + "'",
+                    "LEAD_RECEIVED",
+                    "/leads"
+            );
+        }
+
+        return InquiryDto.fromEntity(saved);
     }
 
     public List<InquiryDto> getAllInquiries() {
