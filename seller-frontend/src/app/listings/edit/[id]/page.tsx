@@ -427,16 +427,17 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                         <span className="text-[10px] font-bold text-slate-500 mt-2 uppercase tracking-tighter">Add Photos</span>
                       </>
                     )}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageUpload}
-                      disabled={uploading}
-                    />
                   </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                    onClick={e => e.stopPropagation()}
+                  />
                 </div>
                 {photosConsentStatus === "denied" && (
                   <div className="bg-rose-50 rounded-xl p-4 border border-rose-100/50 flex items-start justify-between gap-3 animate-in fade-in slide-in-from-top-2">
