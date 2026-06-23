@@ -52,7 +52,8 @@ import {
   Battery,
   Wind,
   Compass,
-  FileCheck
+  FileCheck,
+  ShieldAlert
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -69,6 +70,43 @@ import {
 export default function AddPropertyPage() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
+
+  const [showPhotosConsentModal, setShowPhotosConsentModal] = useState(false)
+  const [photosConsentStatus, setPhotosConsentStatus] = useState<"default" | "granted" | "denied">("default")
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [locPermission, setLocPermission] = useState<string>("default")
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const consent = localStorage.getItem("kanharaj_photos_consent")
+      if (consent === "true") {
+        setPhotosConsentStatus("granted")
+      } else if (consent === "false") {
+        setPhotosConsentStatus("denied")
+      }
+
+      if (navigator.permissions) {
+        navigator.permissions.query({ name: "geolocation" }).then(res => {
+          setLocPermission(res.state)
+          res.onchange = () => setLocPermission(res.state)
+        }).catch(() => {
+          setLocPermission("default")
+        })
+      }
+    }
+  }, [])
+
+  const handlePhotoUploadClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const consent = localStorage.getItem("kanharaj_photos_consent")
+    if (consent === "true") {
+      fileInputRef.current?.click()
+    } else if (consent === "false") {
+      setPhotosConsentStatus("denied")
+    } else {
+      setShowPhotosConsentModal(true)
+    }
+  }
 
   const [loadingSubscription, setLoadingSubscription] = useState(true)
   const [hasSubscription, setHasSubscription] = useState(false)
@@ -4037,8 +4075,8 @@ ${formData.description}`
                         </button>
                       </div>
                     ))}
-                    <label 
-                      htmlFor="property-image-upload"
+                    <div 
+                      onClick={handlePhotoUploadClick}
                       className="aspect-square rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-[#0a2540] hover:bg-[#0a2540]/5 transition-all"
                     >
                       {uploading ? (
@@ -4050,7 +4088,7 @@ ${formData.description}`
                         </>
                       )}
                       <input
-                        id="property-image-upload"
+                        ref={fileInputRef}
                         type="file"
                         multiple
                         accept="image/*"
@@ -4058,14 +4096,109 @@ ${formData.description}`
                         onChange={handleImageUpload}
                         disabled={uploading}
                       />
-                    </label>
+                    </div>
                   </div>
+                  {photosConsentStatus === "denied" && (
+                    <div className="bg-rose-50 rounded-xl p-4 border border-rose-100/50 flex items-start justify-between gap-3 animate-in fade-in slide-in-from-top-2">
+                      <div className="flex items-start gap-3">
+                        <ShieldAlert className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs text-rose-800 font-bold leading-relaxed">
+                            Photos / Gallery permission is denied.
+                          </p>
+                          <p className="text-[11px] text-rose-600 font-medium leading-relaxed mt-0.5">
+                            You cannot upload property images until you enable permission. Click "Grant Permission" below to ask again.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          localStorage.removeItem("kanharaj_photos_consent")
+                          setPhotosConsentStatus("default")
+                          setShowPhotosConsentModal(true)
+                        }}
+                        className="text-xs font-black text-rose-800 bg-rose-100 hover:bg-rose-200 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap shrink-0 self-center"
+                      >
+                        Grant Permission
+                      </button>
+                    </div>
+                  )}
                   <div className="bg-blue-50/50 rounded-lg p-4 border border-blue-100/50 flex items-start gap-3">
                     <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                     <p className="text-xs text-blue-800 font-medium leading-relaxed">
                       Add at least 3 high-quality photos. Only images are allowed (JPG, PNG, WEBP). Properties with more photos tend to get 3x more views!
                     </p>
                   </div>
+
+                  <AnimatePresence>
+                    {showPhotosConsentModal && (
+                      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                          onClick={() => setShowPhotosConsentModal(false)}
+                        />
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                          transition={{ type: "spring", duration: 0.5 }}
+                          className="relative bg-white w-full max-w-md rounded-[32px] p-8 shadow-2xl border border-slate-100 overflow-hidden z-10"
+                        >
+                          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#0a2540] to-yellow-400" />
+                          <button
+                            type="button"
+                            onClick={() => setShowPhotosConsentModal(false)}
+                            className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+
+                          <div className="w-14 h-14 bg-[#0a2540]/5 text-[#0a2540] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                            <Upload size={28} />
+                          </div>
+
+                          <h3 className="text-xl font-black text-slate-900 tracking-tight leading-tight">
+                            Allow Photos & Gallery Access
+                          </h3>
+                          <p className="text-xs text-slate-500 mt-2 font-medium leading-relaxed">
+                            Allow Kanharaj to access your Photos / Gallery to select and upload beautiful property images?
+                          </p>
+
+                          <div className="mt-6 flex gap-4">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                localStorage.setItem("kanharaj_photos_consent", "false")
+                                setPhotosConsentStatus("denied")
+                                setShowPhotosConsentModal(false)
+                              }}
+                              className="flex-1 py-3 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-black rounded-xl transition-all cursor-pointer text-center"
+                            >
+                              Deny
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                localStorage.setItem("kanharaj_photos_consent", "true")
+                                setPhotosConsentStatus("granted")
+                                setShowPhotosConsentModal(false)
+                                setTimeout(() => {
+                                  fileInputRef.current?.click()
+                                }, 100)
+                              }}
+                              className="flex-1 py-3 bg-[#0a2540] hover:bg-[#07192c] text-white text-xs font-black rounded-xl transition-all cursor-pointer text-center shadow-lg shadow-slate-200"
+                            >
+                              Allow Access
+                            </button>
+                          </div>
+                        </motion.div>
+                      </div>
+                    )}
+                  </AnimatePresence>
                 </div>
               )}
 
@@ -4091,7 +4224,47 @@ ${formData.description}`
                         <span>Ownership Status Declaration</span>
                         <span className="text-[#0a2540] hover:underline cursor-pointer font-bold">Declared</span>
                       </div>
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+                        <span>Location Permission Status</span>
+                        {locPermission === "granted" ? (
+                          <span className="text-emerald-600 flex items-center gap-1"><Check className="w-3.5 h-3.5" /> Enabled</span>
+                        ) : locPermission === "denied" ? (
+                          <span className="text-rose-500 font-bold">Blocked / Denied</span>
+                        ) : (
+                          <span className="text-amber-500 font-bold">Not Enabled</span>
+                        )}
+                      </div>
                     </div>
+                    {locPermission !== "granted" && (
+                      <div className="mt-4 bg-amber-50/50 rounded-xl p-4 border border-amber-100/50 flex items-start gap-3">
+                        <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs text-amber-800 font-bold leading-relaxed">
+                            Location Access Required for Property Self-Verification
+                          </p>
+                          <p className="text-[11px] text-amber-600 font-medium leading-relaxed mt-0.5">
+                            {locPermission === "denied" 
+                              ? "Location access is currently blocked in your browser settings. Please enable location permissions for this website to proceed with verification."
+                              : "Please enable location permission when prompted to verify that you are at the property location."}
+                          </p>
+                          {locPermission !== "denied" && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.geolocation.getCurrentPosition(
+                                  () => setLocPermission("granted"),
+                                  () => setLocPermission("denied"),
+                                  { enableHighAccuracy: true }
+                                )
+                              }}
+                              className="mt-2.5 px-3 py-1.5 bg-[#0a2540] hover:bg-[#07192c] text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer"
+                            >
+                              Request Location Permission
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

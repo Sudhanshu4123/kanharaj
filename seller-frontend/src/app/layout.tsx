@@ -11,6 +11,7 @@ import { MotionConfig } from "framer-motion"
 import { normalizeProfileImageUrl } from "@/lib/profile-utils"
 import { MobileNav } from "@/components/mobile-nav"
 import { NotificationBell } from "@/components/NotificationBell"
+import { PermissionConsentModal } from "@/components/PermissionConsentModal"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -388,6 +389,7 @@ export default function RootLayout({
             {!isLoginPage && (
               <>
                 <MobileNav />
+                <PermissionConsentModal />
               </>
             )}
           </div>
