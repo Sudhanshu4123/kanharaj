@@ -444,6 +444,10 @@ export default function AddPropertyPage() {
           alert("Please enter Lock-in Period.")
           return
         }
+        if (parseFloat(pgLockInDays) > 100) {
+          alert("Lock-in Period cannot exceed 100.")
+          return
+        }
         if (pgCommonAreas.length === 0) {
           alert("Please select at least one Common Area.")
           return
@@ -457,6 +461,10 @@ export default function AddPropertyPage() {
           }
           if (!rooms[i].securityDeposit) {
             alert(`Please enter Security Deposit for Room ${i + 1}.`)
+            return
+          }
+          if (parseFloat(rooms[i].securityDeposit) > 1000000) {
+            alert(`Security Deposit for Room ${i + 1} cannot exceed ₹ 10 Lacs.`)
             return
           }
         }
@@ -542,6 +550,20 @@ export default function AddPropertyPage() {
           alert(lookingTo === "Rent" ? "Please enter Expected Rent." : "Please enter Expected Price.")
           return
         }
+        if (lookingTo === "Rent" && securityDeposit && parseFloat(securityDeposit) > 1000000) {
+          alert("Security Deposit cannot exceed ₹ 10 Lacs.")
+          return
+        }
+        if (lockInPeriod) {
+          const match = lockInPeriod.match(/(\d+(?:\.\d+)?)/)
+          if (match) {
+            const val = parseFloat(match[1])
+            if (val > 100) {
+              alert("Lock-in Period cannot exceed 100.")
+              return
+            }
+          }
+        }
         if (expectedRentIncrease) {
           const match = expectedRentIncrease.match(/(\d+(?:\.\d+)?)/)
           if (match) {
@@ -580,6 +602,20 @@ export default function AddPropertyPage() {
         if (lookingTo === "Rent" && !availableFrom) {
           alert("Please fill 'Available From' date.")
           return
+        }
+        if (lookingTo === "Rent" && lockInPeriod === "Custom" && customLockInPeriod && parseFloat(customLockInPeriod) > 100) {
+          alert("Lock-in Period cannot exceed 100.")
+          return
+        }
+        if (lookingTo === "Rent" && securityDeposit === "Custom" && customSecurityDeposit && parseFloat(customSecurityDeposit) > 1000000) {
+          alert("Security Deposit cannot exceed ₹ 10 Lacs.")
+          return
+        }
+        if (brokerageCharge === "Custom" || (lookingTo === "Sell" && brokerageCharge === "Yes")) {
+          if (customBrokerage && parseFloat(customBrokerage) > 1000000) {
+            alert("Brokerage cannot exceed ₹ 10 Lacs.")
+            return
+          }
         }
         if (!formData.price) {
           alert("Please enter price / rent.")
@@ -715,7 +751,38 @@ export default function AddPropertyPage() {
       return
     }
 
+    if (lookingTo === "Rent" && lockInPeriod === "Custom" && customLockInPeriod && parseFloat(customLockInPeriod) > 100) {
+      alert("Lock-in Period cannot exceed 100.")
+      return
+    }
+
+    if (lookingTo === "Rent" && securityDeposit === "Custom" && customSecurityDeposit && parseFloat(customSecurityDeposit) > 1000000) {
+      alert("Security Deposit cannot exceed ₹ 10 Lacs.")
+      return
+    }
+
+    if (brokerageCharge === "Custom" || (lookingTo === "Sell" && brokerageCharge === "Yes")) {
+      if (customBrokerage && parseFloat(customBrokerage) > 1000000) {
+        alert("Brokerage cannot exceed ₹ 10 Lacs.")
+        return
+      }
+    }
+
     if (sector === "Commercial") {
+      if (lookingTo === "Rent" && securityDeposit && parseFloat(securityDeposit) > 1000000) {
+        alert("Security Deposit cannot exceed ₹ 10 Lacs.")
+        return
+      }
+      if (lockInPeriod) {
+        const match = lockInPeriod.match(/(\d+(?:\.\d+)?)/)
+        if (match) {
+          const val = parseFloat(match[1])
+          if (val > 100) {
+            alert("Lock-in Period cannot exceed 100.")
+            return
+          }
+        }
+      }
       if (expectedRentIncrease) {
         const match = expectedRentIncrease.match(/(\d+(?:\.\d+)?)/)
         if (match) {
@@ -1624,7 +1691,13 @@ ${formData.description}`
                               <input
                                 type="number"
                                 value={securityDeposit}
-                                onChange={e => setSecurityDeposit(e.target.value)}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 1000000)) {
+                                    setSecurityDeposit(val);
+                                  }
+                                }}
+                                max="1000000"
                                 placeholder="e.g. 150000"
                                 className="w-full pl-12 pr-20 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
                               />
@@ -1713,7 +1786,17 @@ ${formData.description}`
                           <input
                             type="text"
                             value={lockInPeriod}
-                            onChange={e => setLockInPeriod(e.target.value)}
+                            onChange={e => {
+                              const val = e.target.value;
+                              const match = val.match(/(\d+(?:\.\d+)?)/);
+                              if (match) {
+                                const num = parseFloat(match[1]);
+                                if (num > 100) {
+                                  return;
+                                }
+                              }
+                              setLockInPeriod(val);
+                            }}
                             placeholder="e.g. 1 year"
                             className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
                           />
@@ -2219,7 +2302,18 @@ ${formData.description}`
                           </div>
                           <div>
                             <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Lock in Period (Days) <span className="text-rose-500">*</span></label>
-                            <input type="number" value={pgLockInDays} onChange={e => setPgLockInDays(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors" />
+                            <input
+                              type="number"
+                              value={pgLockInDays}
+                              onChange={e => {
+                                const val = e.target.value;
+                                if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 100)) {
+                                  setPgLockInDays(val);
+                                }
+                              }}
+                              max="100"
+                              className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                            />
                           </div>
                         </div>
 
@@ -2946,12 +3040,13 @@ ${formData.description}`
                                             value={customSecurityDeposit}
                                             onChange={e => {
                                               const val = e.target.value;
-                                              if (val === "" || parseFloat(val) >= 0) {
+                                              if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 1000000)) {
                                                 setCustomSecurityDeposit(val);
                                               }
                                             }}
                                             onKeyDown={handleAmountKeyDown}
                                             min="0"
+                                            max="1000000"
                                             className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
                                           />
                                           <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
@@ -2979,7 +3074,18 @@ ${formData.description}`
                                     {lockInPeriod === "Custom" && (
                                       <div className="mt-6 relative">
                                         <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1">Lock in Period <span className="text-rose-500">*</span></label>
-                                        <input type="number" value={customLockInPeriod} onChange={e => setCustomLockInPeriod(e.target.value)} className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-16" />
+                                        <input
+                                          type="number"
+                                          value={customLockInPeriod}
+                                          onChange={e => {
+                                            const val = e.target.value;
+                                            if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 100)) {
+                                              setCustomLockInPeriod(val);
+                                            }
+                                          }}
+                                          max="100"
+                                          className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-16"
+                                        />
                                         <span className="absolute right-0 bottom-2 text-sm font-bold text-slate-400">months</span>
                                       </div>
                                     )}
@@ -3013,12 +3119,13 @@ ${formData.description}`
                                             value={customBrokerage}
                                             onChange={e => {
                                               const val = e.target.value;
-                                              if (val === "" || parseFloat(val) >= 0) {
+                                              if (val === "" || (parseFloat(val) >= 0 && parseFloat(val) <= 1000000)) {
                                                 setCustomBrokerage(val);
                                               }
                                             }}
                                             onKeyDown={handleAmountKeyDown}
                                             min="0"
+                                            max="1000000"
                                             className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors pr-24"
                                           />
                                           <span className="absolute right-0 bottom-3 text-sm font-bold text-slate-400">
@@ -3055,30 +3162,10 @@ ${formData.description}`
                                 <hr className="border-slate-100" />
 
                                 {/* Carpet Area & Floors */}
-                                <div className={`grid grid-cols-1 ${propertyType === "Plot" || propertyType === "Agricultural Land" ? "md:grid-cols-1" : "md:grid-cols-3"} gap-6`}>
-                                  <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Super Area (Sq. Ft.)</label>
-                                    <div className="relative">
-                                      <Maximize2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                      <input
-                                        name="area"
-                                        value={formData.area}
-                                        onChange={handleInputChange}
-                                        type="number"
-                                        placeholder="1500"
-                                        min="0"
-                                        max="100000"
-                                        className="w-full pl-12 pr-28 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#0a2540]/20 focus:border-[#0a2540] outline-none text-sm font-semibold transition-all"
-                                      />
-                                      {formData.area && (
-                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                                          {formData.area} Sq. ft.
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                  {propertyType !== "Plot" && propertyType !== "Agricultural Land" && (
-                                    <>
+                                {propertyType !== "Plot" && propertyType !== "Agricultural Land" && (
+                                  <>
+                                    <hr className="border-slate-100" />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                       <div>
                                         <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Carpet Area (Sq. Ft.)</label>
                                         <div className="relative">
@@ -3142,9 +3229,9 @@ ${formData.description}`
                                           />
                                         </div>
                                       </div>
-                                    </>
-                                  )}
-                                </div>
+                                    </div>
+                                  </>
+                                )}
 
                                 <hr className="border-slate-100" />
 
