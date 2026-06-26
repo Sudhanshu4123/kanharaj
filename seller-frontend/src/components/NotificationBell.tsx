@@ -86,7 +86,13 @@ export function NotificationBell() {
     let reconnectTimeout: NodeJS.Timeout
 
     const connectWebSocket = () => {
-      const wsUrl = `${getWsUrl()}?token=${token}`
+      const currentToken = localStorage.getItem("seller_token")
+      if (!currentToken) {
+        console.log("No seller_token found, aborting WebSocket connection.")
+        return
+      }
+
+      const wsUrl = `${getWsUrl()}?token=${currentToken}`
       console.log("Connecting to WebSocket notifications at:", wsUrl)
       
       socket = new WebSocket(wsUrl)
@@ -111,7 +117,11 @@ export function NotificationBell() {
       }
 
       socket.onclose = (event) => {
-        console.log("WebSocket connection closed, reconnecting soon...", event.reason)
+        console.log("WebSocket connection closed, code:", event.code, "reason:", event.reason)
+        if (event.code === 1007) {
+          console.log("Aborting WebSocket reconnection due to invalid token/bad data.")
+          return
+        }
         reconnectTimeout = setTimeout(connectWebSocket, 5000)
       }
 
