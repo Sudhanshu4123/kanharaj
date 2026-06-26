@@ -67,7 +67,30 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     description = `Find the best ${typeLabel.toLowerCase()} for ${listing === 'rent' ? 'rent' : 'sale'} in ${place}. Explore verified listings, builder floors, flats & villas with zero brokerage options on Kanharaj.`
   }
 
+  const customKeywords: string[] = []
+  const normalizedPlace = place.toLowerCase().trim()
+  const listingLower = listing.toLowerCase()
+
+  if (normalizedPlace === 'new delhi' || normalizedPlace === 'delhi') {
+    if (listingLower === 'rent') {
+      title = 'Real Estate in New Delhi | Rent Property in New Delhi'
+      description = 'Real Estate New Delhi - Browse best properties for rent in New Delhi - View ✓Top Localities. ✓Bachelor Friendly Properties. ✓Owners Listings. Visit Now!'
+      customKeywords.push('Real Estate in New Delhi', 'Rent Property in New Delhi')
+    } else {
+      title = 'Real Estate in New Delhi | Buy/Sell Property in New Delhi'
+      description = 'Browse residential properties for sale in New Delhi - New Projects, Resale Flats, Ready To Move in Apartments. Buy, Rent, Sell'
+      customKeywords.push('Real Estate in New Delhi', 'Buy/Sell Property in New Delhi')
+    }
+  } else if (normalizedPlace === 'noida') {
+    if (listingLower === 'buy' || listingLower === 'sell' || !listingLower) {
+      title = 'Real Estate in Noida | Buy/Sell Property in Noida |'
+      description = 'Real Estate Noida - Browse residential properties for sale in Noida - New Projects, Resale Flats, Ready To Move in Apartments. 100% Verified Listings.'
+      customKeywords.push('Real Estate in Noida', 'Buy/Sell Property in Noida')
+    }
+  }
+
   const keywords = [
+    ...customKeywords,
     `properties in ${place}`,
     `flats for sale in ${place}`,
     `rent flat in ${place}`,
