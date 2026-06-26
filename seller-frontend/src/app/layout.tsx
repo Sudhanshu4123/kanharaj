@@ -114,7 +114,7 @@ export default function RootLayout({
       <head>
         <title>Post Your Property for Sale or Rent Online | Kanharaj Seller Dashboard</title>
         <meta name="description" content="Post your property for sale or rent online on Kanharaj Seller Portal. Reach verified buyers and tenants with zero brokerage." />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />
         <meta name="theme-color" content="#0a2540" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="Kanharaj Seller" />
