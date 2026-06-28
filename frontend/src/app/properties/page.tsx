@@ -71,10 +71,14 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const normalizedPlace = place.toLowerCase().trim()
   const listingLower = listing.toLowerCase()
 
-  if (normalizedPlace === 'new delhi' || normalizedPlace === 'delhi') {
+  if (type.toLowerCase() === 'commercial' && (normalizedPlace === 'all india' || normalizedPlace === 'india' || normalizedPlace === '')) {
+    title = 'Commercial Real Estate in India | kanharaj.com'
+    description = 'Explore Commercial Real Estate Market in India, only at kanharaj.com. Find latest commercial projects, top properties & insights.'
+    customKeywords.push('Commercial Real Estate in India')
+  } else if (normalizedPlace === 'new delhi' || normalizedPlace === 'delhi') {
     if (listingLower === 'rent') {
-      title = 'Real Estate in New Delhi | Rent Property in New Delhi'
-      description = 'Real Estate New Delhi - Browse best properties for rent in New Delhi - View ✓Top Localities. ✓Bachelor Friendly Properties. ✓Owners Listings. Visit Now!'
+      title = 'Real Estate in New Delhi | Rent Property in New Delhi - KANHARAJ'
+      description = 'Real Estate New Delhi - Browse best properties for rent in New Delhi - View ✓Top Localities.\n✓Bachelor Friendly Properties. ✓Owners Listings. Visit Now!'
       customKeywords.push('Real Estate in New Delhi', 'Rent Property in New Delhi')
     } else {
       title = 'Real Estate in New Delhi | Buy/Sell Property in New Delhi'
@@ -82,10 +86,58 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       customKeywords.push('Real Estate in New Delhi', 'Buy/Sell Property in New Delhi')
     }
   } else if (normalizedPlace === 'noida') {
-    if (listingLower === 'buy' || listingLower === 'sell' || !listingLower) {
-      title = 'Real Estate in Noida | Buy/Sell Property in Noida |'
-      description = 'Real Estate Noida - Browse residential properties for sale in Noida - New Projects, Resale Flats, Ready To Move in Apartments. 100% Verified Listings.'
+    if (listingLower === 'rent') {
+      title = 'Real Estate in Noida | Rent Property in Noida | kanharaj.com'
+      description = 'Real Estate Noida - Browse best properties for rent in Noida - View ✓Top Localities.\n✓Bachelor Friendly Properties. ✓Owners Listings. Visit Now!'
+      customKeywords.push('Real Estate in Noida', 'Rent Property in Noida')
+    } else {
+      title = 'Real Estate in Noida | Buy/Sell Property in Noida | kanharaj.com'
+      description = 'Real Estate Noida - Browse residential properties for sale in Noida -\nNew Projects, Resale Flats, Ready To Move in Apartments. 100% Verified Listings.'
       customKeywords.push('Real Estate in Noida', 'Buy/Sell Property in Noida')
+    }
+  } else if (normalizedPlace === 'faridabad') {
+    if (listingLower !== 'rent') {
+      title = 'Real Estate in Faridabad | Buy/Sell Property in Faridabad'
+      description = 'Real Estate Faridabad - Browse residential properties for sale in Faridabad -\nNew Projects, Resale Flats, Ready To Move in Apartments.'
+      customKeywords.push('Real Estate in Faridabad', 'Buy/Sell Property in Faridabad')
+    }
+  } else if (normalizedPlace === 'ghaziabad') {
+    if (listingLower !== 'rent') {
+      title = 'Real Estate in Ghaziabad | Buy/Sell Property in Ghaziabad'
+      description = 'Real Estate Ghaziabad - Browse residential properties for sale in Ghaziabad -\nNew Projects, Resale Flats, Ready To Move in Apartments.'
+      customKeywords.push('Real Estate in Ghaziabad', 'Buy/Sell Property in Ghaziabad')
+    }
+  } else if (normalizedPlace === 'bengaluru' || normalizedPlace === 'bangalore') {
+    if (listingLower === 'rent') {
+      title = 'Real Estate in Bengaluru | Rent Property in Bengaluru - kanharaj'
+      description = 'Real Estate Bengaluru - Browse best properties for rent in Bengaluru - View ✓Top Localities.\n✓Bachelor Friendly Properties. ✓Owners Listings. Visit Now!'
+      customKeywords.push('Real Estate in Bengaluru', 'Rent Property in Bengaluru')
+    }
+  } else if (normalizedPlace === 'pune') {
+    if (listingLower === 'rent') {
+      title = 'Real Estate in Pune | Rent Property in Pune | kanharaj.com'
+      description = 'Real Estate Pune - Browse best properties for rent in Pune - View ✓Top Localities.\n✓Bachelor Friendly Properties. ✓Owners Listings. Visit Now!'
+      customKeywords.push('Real Estate in Pune', 'Rent Property in Pune')
+    }
+  } else if (normalizedPlace === 'jaipur') {
+    if (listingLower !== 'rent') {
+      title = 'Real Estate in Jaipur | Buy/Sell Property in Jaipur - kanharaj'
+      description = 'Real Estate Jaipur - Browse residential properties for sale in Jaipur -\nNew Projects, Resale Flats, Ready To Move in Apartments. 100% Verified Listings.'
+      customKeywords.push('Real Estate in Jaipur', 'Buy/Sell Property in Jaipur')
+    }
+  } else if (normalizedPlace === 'india' || normalizedPlace === 'all india' || normalizedPlace === '') {
+    if (listingLower === 'rent') {
+      title = 'Real Estate in India | Rent Property in India | kanharaj.com'
+      description = 'Real Estate India - Browse best properties for rent in India - View ✓Top Localities.\n✓Bachelor Friendly Properties. ✓Owners Listings. Visit Now!'
+      customKeywords.push('Real Estate in India', 'Rent Property in India')
+    } else if (listingLower === 'buy' || listingLower === 'sell') {
+      title = 'Search India Real Estate and Properties'
+      description = 'Find your dream home or next investment opportunity with our extensive amount of available properties. Research localities with up to date property rates.'
+      customKeywords.push('Search India Real Estate and Properties')
+    } else {
+      title = 'Real Estate in India | Rent Property in India | kanharaj.com'
+      description = 'Search Property in India\'s first Map Based Real Estate Portal.\nBrowse New projects, flats, ready to move apartments for rent and sale\n#kanharaj.com.'
+      customKeywords.push('Real Estate in India', 'Rent Property in India')
     }
   }
 

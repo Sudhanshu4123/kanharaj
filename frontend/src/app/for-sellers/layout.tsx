@@ -2,11 +2,13 @@ import type { Metadata } from 'next'
 import { buildPageMetadata } from '@/lib/seo'
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Sell or List Your Property Online in Dwarka | Kanharaj',
+  title: 'kanharaj.com: Post Your Property for Sale or Rent Online',
   description:
-    'List your flat, plot or commercial property on Kanharaj. Reach verified buyers & tenants in Dwarka and Delhi NCR. Seller dashboard with leads & analytics.',
+    'Create a free property listing and reach high-intent verified buyers and tenants across India.\nSell, rent or lease your property faster with kanharaj.com.',
   path: '/for-sellers',
   keywords: [
+    'Post Your Property for Sale or Rent Online',
+    'Create a free property listing',
     'list property dwarka',
     'sell flat dwarka',
     'property listing delhi',
