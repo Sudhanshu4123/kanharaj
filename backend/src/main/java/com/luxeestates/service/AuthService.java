@@ -32,6 +32,7 @@ public class AuthService {
         private final AuthenticationManager authenticationManager;
         private final PasswordResetTokenRepository passwordResetTokenRepository;
         private final EmailService emailService;
+        private final NotificationService notificationService;
 
         @Value("${admin.email}")
         private String adminEmail;
@@ -96,6 +97,37 @@ public class AuthService {
 
                         // Send Verification Email
                         sendVerificationEmail(user);
+
+                        // Welcome Notification to User
+                        try {
+                                notificationService.sendNotification(
+                                                user.getId(),
+                                                "Welcome to Kanharaj",
+                                                "Welcome " + user.getName() + "! Your account has been registered successfully. We are excited to have you here.",
+                                                "WELCOME",
+                                                "/"
+                                );
+                        } catch (Exception ex) {
+                                System.err.println("Failed to send welcome notification to user: " + ex.getMessage());
+                        }
+
+                        // Notification to Admins
+                        try {
+                                java.util.List<User> admins = userRepository.findByRole(User.Role.ADMIN);
+                                if (admins != null) {
+                                        for (User admin : admins) {
+                                                notificationService.sendNotification(
+                                                                admin.getId(),
+                                                                "New User Registered",
+                                                                "A new user " + user.getName() + " (" + user.getEmail() + ") has registered.",
+                                                                "NEW_USER_REGISTRATION",
+                                                                "/admin"
+                                                );
+                                        }
+                                }
+                        } catch (Exception ex) {
+                                System.err.println("Failed to notify admins of new user registration: " + ex.getMessage());
+                        }
 
                         return AuthDto.AuthResponse.builder()
                                         .message("Registration successful! Please check your email to verify your account.")

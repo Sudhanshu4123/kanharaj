@@ -107,7 +107,40 @@ public class PropertyService {
                 .user(user)
                 .build();
 
-        return PropertyDto.fromEntity(propertyRepository.save(property));
+        Property savedProperty = propertyRepository.save(property);
+
+        // Send notification to the user listing the property
+        try {
+            notificationService.sendNotification(
+                    user.getId(),
+                    "Property Listed Successfully",
+                    "Your property '" + savedProperty.getTitle() + "' has been listed successfully!",
+                    "PROPERTY_LISTED",
+                    "/listings"
+            );
+        } catch (Exception e) {
+            System.err.println("Failed to send property listing notification to user: " + e.getMessage());
+        }
+
+        // Notify admins about the new property listing
+        try {
+            java.util.List<User> admins = userRepository.findByRole(User.Role.ADMIN);
+            if (admins != null) {
+                for (User admin : admins) {
+                    notificationService.sendNotification(
+                            admin.getId(),
+                            "New Property Listed",
+                            "A new property '" + savedProperty.getTitle() + "' has been listed by " + user.getName() + " and is pending verification.",
+                            "NEW_PROPERTY_LISTED",
+                            "/admin"
+                    );
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to notify admins of new property listing: " + e.getMessage());
+        }
+
+        return PropertyDto.fromEntity(savedProperty);
     }
 
     @Transactional
