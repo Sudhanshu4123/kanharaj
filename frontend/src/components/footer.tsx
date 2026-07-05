@@ -29,7 +29,7 @@ const socialLinks = [
   { icon: Facebook, href: '#', label: 'Facebook' },
   { icon: Twitter, href: '#', label: 'Twitter' },
   { icon: Instagram, href: '#', label: 'Instagram' },
-  { icon: Linkedin, href: '#', label: 'LinkedIn' },
+  { icon: Linkedin, href: 'https://www.linkedin.com/company/kanharaj-com/?viewAsMember=true', label: 'LinkedIn' },
   { icon: Youtube, href: '#', label: 'YouTube' },
 ]
 
@@ -171,6 +171,8 @@ export function Footer() {
               <Link
                 key={social.label}
                 href={social.href}
+                target={social.href.startsWith('http') ? '_blank' : undefined}
+                rel={social.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                 className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-rose-600 transition-all"
               >
                 <social.icon className="h-5 w-5" />

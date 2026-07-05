@@ -692,7 +692,7 @@ export function Header() {
                       <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#1877f2] flex items-center justify-center transition-colors"><Facebook className="w-3.5 h-3.5" /></a>
                       <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#c13584] flex items-center justify-center transition-colors"><Instagram className="w-3.5 h-3.5" /></a>
                       <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#1da1f2] flex items-center justify-center transition-colors"><Twitter className="w-3.5 h-3.5" /></a>
-                      <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#0077b5] flex items-center justify-center transition-colors"><Linkedin className="w-3.5 h-3.5" /></a>
+                      <a href="https://www.linkedin.com/company/kanharaj-com/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#0077b5] flex items-center justify-center transition-colors"><Linkedin className="w-3.5 h-3.5" /></a>
                       <a href="#" className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 hover:text-[#ff0000] flex items-center justify-center transition-colors"><Youtube className="w-3.5 h-3.5" /></a>
                     </div>
                   </div>
