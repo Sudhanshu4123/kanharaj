@@ -99,6 +99,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       description = 'Real Estate Noida - Browse residential properties for sale in Noida -\nNew Projects, Resale Flats, Ready To Move in Apartments. 100% Verified Listings.'
       customKeywords.push('Real Estate in Noida', 'Buy/Sell Property in Noida')
     }
+  } else if (normalizedPlace.includes('ats greens') || normalizedPlace.includes('sector- 50, gurgaon') || normalizedPlace.includes('sector 50 gurgaon')) {
+    title = '3 BHK Apartment in Ats greens a block sector- 50, gurgaon'
+    description = 'Explore premium 3 BHK apartments for sale & rent in ATS Greens A Block, Sector 50, Gurgaon. Browse verified listings, floor plans, zero brokerage options, and top amenities at kanharaj.com.'
+    customKeywords.push('3 BHK Apartment in Ats greens a block sector- 50, gurgaon', 'ATS Greens Sector 50 Gurgaon')
   } else if (normalizedPlace === 'gurgaon' || normalizedPlace === 'gurugram') {
     title = 'Properties in Gurgaon'
     description = 'Looking for Property in Gurgaon? Kanharaj has 67 active listings, including 17× 2 BHK and 46× 3 BHK options.'
