@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Property } from '@/lib/data'
 import { Heart, ChevronLeft, ChevronRight, Home } from 'lucide-react'
 import { Button } from '../ui/button'
-import { cn } from '@/lib/utils'
+import { cn, formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 import { usePropertyStore } from '@/lib/store'
 import { ContactSellerModal } from '@/components/properties/contact-seller-modal'
@@ -36,11 +36,7 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
   }
 
   // Format price nicely
-  const formattedPrice = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0
-  }).format(property.price)
+  const formattedPrice = formatPrice(property.price)
 
   return (
     <>

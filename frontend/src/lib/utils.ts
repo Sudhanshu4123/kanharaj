@@ -10,6 +10,17 @@ export function cn(...inputs: ClassValue[]) {
 export const BRAND_LOGO_SRC = '/logo.png?v=3'
 
 export function formatPrice(price: number): string {
+  if (price === 0) return '₹0'
+  if (!price) return 'N/A'
+
+  if (price >= 10000000) {
+    const val = price / 10000000
+    return `₹${val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)} Cr`
+  }
+  if (price >= 100000) {
+    const val = price / 100000
+    return `₹${val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)} Lakh`
+  }
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
