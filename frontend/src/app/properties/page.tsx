@@ -86,7 +86,11 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       customKeywords.push('Real Estate in New Delhi', 'Buy/Sell Property in New Delhi')
     }
   } else if (normalizedPlace === 'noida') {
-    if (listingLower === 'rent') {
+    if (type.toLowerCase().includes('project')) {
+      title = 'New Residential Projects in Noida'
+      description = 'Searching for Residential Projects in Noida? kanharaj.com offers 1461+ Ready to Move, 184+ Under Construction and 5735+ Resale Projects in Noida. Choose from 6244+ new & upcoming projects in Noida. ✓100% Verified Projects.'
+      customKeywords.push('New Residential Projects in Noida', 'Residential Projects in Noida')
+    } else if (listingLower === 'rent') {
       title = 'Real Estate in Noida | Rent Property in Noida | kanharaj.com'
       description = 'Real Estate Noida - Browse best properties for rent in Noida - View ✓Top Localities.\n✓Bachelor Friendly Properties. ✓Owners Listings. Visit Now!'
       customKeywords.push('Real Estate in Noida', 'Rent Property in Noida')

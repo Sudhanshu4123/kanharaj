@@ -13,8 +13,8 @@ import {
 } from "@/lib/seo"
 
 export const metadata: Metadata = buildPageMetadata({
-  title: `${SITE.name} Official Website - ${SITE.tagline}`,
-  description: SITE.description,
+  title: 'kanharaj.com: Search India Real Estate and Properties.',
+  description: 'Find your dream home or next investment opportunity with our extensive amount of available properties. Research localities with up to date property rates.',
   path: '/',
 })
 
