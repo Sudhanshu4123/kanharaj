@@ -435,6 +435,57 @@ export default function LeadsPage() {
     setFollowUpDate("")
   }
 
+  const exportToCSV = () => {
+    if (filteredLeads.length === 0) return
+
+    const headers = [
+      "Lead ID",
+      "Name",
+      "Email",
+      "Phone",
+      "Status",
+      "Property ID",
+      "Property Title",
+      "Property Location",
+      "Price (Budget)",
+      "Bedrooms",
+      "Area (sq.ft.)",
+      "Created At",
+      "Buyer Message"
+    ]
+
+    const rows = filteredLeads.map(l => [
+      l.id || "",
+      l.name || "Unknown Buyer",
+      l.email || "",
+      l.phone || "",
+      l.status || "PENDING",
+      l.propertyId || "",
+      l.propertyTitle || "General Inquiry",
+      l.propertyLocation || "",
+      l.price || "",
+      l.bedrooms || "",
+      l.area || "",
+      l.createdAt ? new Date(l.createdAt).toLocaleString("en-IN") : "",
+      (l.message || "").replace(/"/g, '""')
+    ])
+
+    const csvContent = "\uFEFF" + [
+      headers.join(","),
+      ...rows.map(row => row.map(val => `"${val}"`).join(","))
+    ].join("\n")
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.setAttribute("href", url)
+    link.setAttribute("download", `Kanharaj_Leads_${new Date().toISOString().slice(0, 10)}.csv`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -712,7 +763,11 @@ export default function LeadsPage() {
               <RefreshCw className="w-3.5 h-3.5" /> Sync lead status
             </button>
             <span className="text-slate-200">|</span>
-            <button className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 hover:underline">
+            <button 
+              onClick={exportToCSV}
+              disabled={filteredLeads.length === 0}
+              className={`flex items-center gap-1.5 text-xs font-bold transition-all ${filteredLeads.length === 0 ? "text-slate-300 cursor-not-allowed" : "text-slate-600 hover:text-slate-900 hover:underline"}`}
+            >
               <Download className="w-3.5 h-3.5" /> Export Leads
             </button>
           </div>
