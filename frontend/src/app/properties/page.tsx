@@ -99,6 +99,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       description = 'Real Estate Noida - Browse residential properties for sale in Noida -\nNew Projects, Resale Flats, Ready To Move in Apartments. 100% Verified Listings.'
       customKeywords.push('Real Estate in Noida', 'Buy/Sell Property in Noida')
     }
+  } else if (normalizedPlace === 'gurgaon' || normalizedPlace === 'gurugram') {
+    title = 'Properties in Gurgaon'
+    description = 'Looking for Property in Gurgaon? Kanharaj has 67 active listings, including 17× 2 BHK and 46× 3 BHK options.'
+    customKeywords.push('Properties in Gurgaon', 'Properties in Gurugram')
   } else if (normalizedPlace === 'faridabad') {
     if (listingLower !== 'rent') {
       title = 'Real Estate in Faridabad | Buy/Sell Property in Faridabad'
