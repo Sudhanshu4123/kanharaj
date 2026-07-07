@@ -84,6 +84,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/otp/**").permitAll()
                         .requestMatchers("/ws-notifications/**", "/ws-notifications").permitAll()
+                        .requestMatchers("/ws-chat/**", "/ws-chat").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/payments/create-order").permitAll()
                         .requestMatchers("/api/payments/**").authenticated()

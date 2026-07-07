@@ -187,7 +187,11 @@ function ChatContent() {
     } else if (typeof window !== 'undefined') {
       const loc = window.location
       const proto = loc.protocol === 'https:' ? 'wss:' : 'ws:'
-      wsUrl = `${proto}//${loc.host}/ws-chat?token=${token}`
+      if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1' || loc.hostname.startsWith('192.168.')) {
+        wsUrl = `ws://localhost:8080/ws-chat?token=${token}`
+      } else {
+        wsUrl = `${proto}//${loc.host}/ws-chat?token=${token}`
+      }
     }
 
     if (!wsUrl) return

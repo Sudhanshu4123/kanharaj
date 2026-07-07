@@ -68,6 +68,7 @@ public class ChatController {
             );
             return ResponseEntity.ok(conversation);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(null);
         }
     }
@@ -93,6 +94,7 @@ public class ChatController {
         } catch (org.springframework.security.access.AccessDeniedException e) {
             return ResponseEntity.status(403).build();
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
