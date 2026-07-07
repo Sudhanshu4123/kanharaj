@@ -32,10 +32,12 @@ export function NotificationBell() {
     let wsUrl = ""
     if (apiUrl.startsWith("http")) {
       wsUrl = apiUrl.replace(/^http/, "ws")
-    } else {
-      if (typeof window !== "undefined") {
-        const loc = window.location
-        const newProto = loc.protocol === "https:" ? "wss:" : "ws:"
+    } else if (typeof window !== "undefined") {
+      const loc = window.location
+      const newProto = loc.protocol === "https:" ? "wss:" : "ws:"
+      if (loc.hostname === "localhost" || loc.hostname === "127.0.0.1" || loc.hostname.startsWith("192.168.")) {
+        return "ws://localhost:8080/ws-notifications"
+      } else {
         const portStr = loc.port ? `:${loc.port}` : ""
         wsUrl = `${newProto}//${loc.hostname}${portStr}${apiUrl}`
       }
@@ -126,7 +128,7 @@ export function NotificationBell() {
       }
 
       socket.onerror = (err) => {
-        console.error("WebSocket connection error:", err)
+        console.warn("WebSocket connection error:", err)
         socket?.close()
       }
     }
