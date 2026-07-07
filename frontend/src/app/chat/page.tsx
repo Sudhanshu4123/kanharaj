@@ -86,7 +86,7 @@ function ChatContent() {
 
       // If selectId is passed, make it the active conversation
       if (selectId) {
-        const found = data.find((c: any) => c.id === selectId)
+        const found = data.find((c: any) => String(c.id) === String(selectId))
         if (found) {
           setActiveConv(found)
         }
