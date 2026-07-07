@@ -3,14 +3,14 @@
 import { useAuthStore } from '@/lib/store'
 import { getApiUrl, BRAND_LOGO_SRC } from '@/lib/utils'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef, useState, useMemo } from 'react'
+import { useEffect, useRef, useState, useMemo, Suspense } from 'react'
 import Link from 'next/link'
 import {
   Send, User, Phone, ArrowLeft, Search, MessageSquare, Loader2,
   Building2, CheckCircle, ChevronLeft, Calendar, Badge, ShieldCheck, Mail
 } from 'lucide-react'
 
-export default function ChatPage() {
+function ChatContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, isAuthenticated, token } = useAuthStore()
@@ -584,3 +584,17 @@ export default function ChatPage() {
     </div>
   )
 }
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white">
+        <Loader2 className="w-10 h-10 animate-spin text-purple-500 mb-4" />
+        <p className="text-sm font-semibold text-slate-400">Loading your inbox...</p>
+      </div>
+    }>
+      <ChatContent />
+    </Suspense>
+  )
+}
+
