@@ -87,10 +87,10 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
 
           {/* Price Label */}
           <div className="absolute bottom-4 left-0">
-             <div className="bg-black/70 backdrop-blur-md text-white px-3 py-1.5 text-sm font-black rounded-r-lg">
-                {formatPrice(property.price)}
-                {property.listingType === 'RENT' && <span className="text-xs font-normal text-slate-300 ml-0.5">/month</span>}
-             </div>
+            <div className="bg-black/70 backdrop-blur-md text-white px-3 py-1.5 text-sm font-black rounded-r-lg">
+              {formatPrice(property.price)}
+              {property.listingType === 'RENT' && <span className="text-xs font-normal text-slate-300 ml-0.5">/month</span>}
+            </div>
           </div>
         </div>
 
@@ -109,8 +109,8 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
                 {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND') ? 'Type' : 'Config'}
               </p>
               <p className="text-sm font-bold text-slate-800">
-                {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND') 
-                  ? property.propertyType 
+                {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND')
+                  ? property.propertyType
                   : `${property.bedrooms} BHK`
                 }
               </p>

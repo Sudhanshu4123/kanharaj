@@ -176,12 +176,12 @@ export function Header() {
   const pathname = usePathname()
   const router = useRouter()
 
-  const isPropertiesPage = 
-    pathname === '/properties' || 
+  const isPropertiesPage =
+    pathname === '/properties' ||
     pathname?.startsWith('/property/') ||
-    pathname === '/buy' || 
+    pathname === '/buy' ||
     pathname?.startsWith('/buy/') ||
-    pathname === '/rent' || 
+    pathname === '/rent' ||
     pathname?.startsWith('/rent/') ||
     pathname === '/buying-guide'
 

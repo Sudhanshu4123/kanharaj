@@ -412,9 +412,9 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
   }, [highlights.roomDetails])
 
   const isPlotOrLand = property.propertyType?.toUpperCase() === 'PLOT' || property.propertyType?.toUpperCase() === 'PLOTS/LAND'
-  const isCommercial = property.propertyType?.toUpperCase() === 'OFFICE_SPACE' || 
-                        property.propertyType?.toUpperCase() === 'SHOP' || 
-                        property.propertyType?.toUpperCase() === 'COMMERCIAL'
+  const isCommercial = property.propertyType?.toUpperCase() === 'OFFICE_SPACE' ||
+    property.propertyType?.toUpperCase() === 'SHOP' ||
+    property.propertyType?.toUpperCase() === 'COMMERCIAL'
 
   // Derived metadata display values
   const bedroomsVal = (isPlotOrLand || isCommercial) ? null : (highlights.bhk || (property.bedrooms ? `${property.bedrooms} BHK` : '3 BHK'))
@@ -1532,7 +1532,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                           )}
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4 mb-4 bg-white p-3 rounded-xl border border-slate-100">
                         <div>
                           <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Rent</span>

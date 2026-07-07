@@ -224,7 +224,7 @@ function ChatContent() {
     socket.onmessage = (event) => {
       try {
         const newMsg = JSON.parse(event.data)
-        
+
         // If message is for currently active conversation, append to list
         if (activeConv && newMsg.conversationId === activeConv.id) {
           setMessages(prev => [...prev, newMsg])
@@ -285,9 +285,9 @@ function ChatContent() {
       })
 
       if (!res.ok) throw new Error('Failed to send message')
-      
+
       const savedMsg = await res.json()
-      
+
       // Update local messages state (fallback if WS latency occurs)
       if (!messages.find(m => m.id === savedMsg.id)) {
         setMessages(prev => [...prev, savedMsg])
@@ -334,7 +334,7 @@ function ChatContent() {
 
   return (
     <div className="h-screen bg-slate-950 flex flex-col overflow-hidden text-slate-100 font-sans md:-mt-16 sm:-mt-20">
-      
+
       {/* Dynamic Header */}
       <div className="h-14 bg-slate-900 border-b border-slate-800/80 flex items-center justify-between px-4 sm:px-6 z-10 shrink-0">
         <div className="flex items-center gap-3">
@@ -367,11 +367,10 @@ function ChatContent() {
 
       {/* Main Grid View */}
       <div className="flex-1 flex overflow-hidden">
-        
+
         {/* Left Side: Conversations Inbox List */}
-        <div className={`w-full md:w-[360px] lg:w-[400px] border-r border-slate-850 flex flex-col bg-slate-900/60 backdrop-blur-md shrink-0 transition-all duration-300 ${
-          activeConv ? 'hidden md:flex' : 'flex'
-        }`}>
+        <div className={`w-full md:w-[360px] lg:w-[400px] border-r border-slate-850 flex flex-col bg-slate-900/60 backdrop-blur-md shrink-0 transition-all duration-300 ${activeConv ? 'hidden md:flex' : 'flex'
+          }`}>
           {/* Inbox Search Bar */}
           <div className="p-4 border-b border-slate-850">
             <div className="relative">
@@ -402,11 +401,10 @@ function ChatContent() {
                   <button
                     key={conv.id}
                     onClick={() => setActiveConv(conv)}
-                    className={`w-full text-left p-3.5 rounded-xl transition-all flex items-start gap-3 select-none ${
-                      isSelected
+                    className={`w-full text-left p-3.5 rounded-xl transition-all flex items-start gap-3 select-none ${isSelected
                         ? 'bg-purple-600/15 border border-purple-500/30'
                         : 'hover:bg-slate-850/50 border border-transparent'
-                    }`}
+                      }`}
                   >
                     {/* User profile icon */}
                     <div className="w-11 h-11 rounded-xl bg-slate-800 border border-slate-750 flex items-center justify-center text-slate-300 font-extrabold text-sm shrink-0 overflow-hidden relative shadow-md">
@@ -430,7 +428,7 @@ function ChatContent() {
                           }
                         </span>
                       </div>
-                      
+
                       {/* Last message content */}
                       <p className="text-[11px] text-slate-400 truncate leading-snug font-medium">
                         {conv.lastMessage || 'No messages yet'}
@@ -459,9 +457,8 @@ function ChatContent() {
         </div>
 
         {/* Right Side: Conversation Area */}
-        <div className={`flex-1 flex flex-col bg-slate-950/80 transition-all duration-300 ${
-          activeConv ? 'flex' : 'hidden md:flex items-center justify-center p-8'
-        }`}>
+        <div className={`flex-1 flex flex-col bg-slate-950/80 transition-all duration-300 ${activeConv ? 'flex' : 'hidden md:flex items-center justify-center p-8'
+          }`}>
           {activeConv ? (
             <>
               {/* Chat View Header */}
@@ -547,8 +544,8 @@ function ChatContent() {
                 ) : (
                   messages.map((msg, idx) => {
                     const isOwnMessage = String(msg.senderId) === String(user.id)
-                    const showTimestamp = idx === 0 || new Date(msg.createdAt).getTime() - new Date(messages[idx-1].createdAt).getTime() > 300000 // 5 mins gap
-                    
+                    const showTimestamp = idx === 0 || new Date(msg.createdAt).getTime() - new Date(messages[idx - 1].createdAt).getTime() > 300000 // 5 mins gap
+
                     return (
                       <div key={msg.id || idx} className="space-y-1">
                         {showTimestamp && (
@@ -559,11 +556,10 @@ function ChatContent() {
                           </div>
                         )}
                         <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-[80%] sm:max-w-[70%] p-3 px-4 rounded-2xl text-xs font-medium leading-relaxed shadow-sm ${
-                            isOwnMessage
+                          <div className={`max-w-[80%] sm:max-w-[70%] p-3 px-4 rounded-2xl text-xs font-medium leading-relaxed shadow-sm ${isOwnMessage
                               ? 'bg-purple-600 text-white rounded-tr-none'
                               : 'bg-slate-900 text-slate-200 border border-slate-850 rounded-tl-none'
-                          }`}>
+                            }`}>
                             <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                           </div>
                         </div>

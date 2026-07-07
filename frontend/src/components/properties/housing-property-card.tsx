@@ -104,7 +104,7 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
               {property.title}
             </h2>
             <p className="text-slate-500 text-[9px] sm:text-sm mb-1.5 sm:mb-4 line-clamp-1">
-              {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND') 
+              {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND')
                 ? `${property.propertyType} · ${property.city || property.address}`
                 : `${property.bedrooms} BHK ${property.propertyType} · ${property.city || property.address}`
               }
@@ -114,8 +114,8 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
             <div className="grid grid-cols-2 gap-1 sm:gap-4 mt-0.5 sm:mt-2">
               <div>
                 <p className="text-slate-400 text-[7px] sm:text-xs font-medium mb-0 uppercase tracking-wider">
-                  {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND') 
-                    ? 'Type' 
+                  {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND')
+                    ? 'Type'
                     : 'Config'
                   }
                 </p>

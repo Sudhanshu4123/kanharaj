@@ -329,62 +329,73 @@ export function VerificationModal({
                   <p className="text-[10px] font-semibold text-slate-500">
                     Capture or upload a live photo for each checklist requirement one-by-one:
                   </p>
-                  <div className="flex flex-col gap-2 mt-1">
+                  <div className="flex flex-col gap-3 mt-1">
                     {guidelines.map((item, idx) => {
                       const isChecked = !!checkedItems[idx]
                       const preview = previews[idx]
                       return (
                         <div
                           key={idx}
-                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all duration-150 ${
-                            preview
-                              ? "bg-emerald-50/40 border-emerald-200"
-                              : "bg-white border-slate-200 hover:border-slate-300"
-                          }`}
-                        >
-                          {/* Checkbox */}
-                          <button
-                            type="button"
-                            onClick={() => toggleCheck(idx)}
-                            className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border transition-all duration-150 ${
-                              isChecked || preview
-                                ? "bg-emerald-600 border-emerald-600 text-white"
-                                : "border-slate-300 bg-white text-transparent"
+                          className={`flex flex-col gap-2.5 p-3 rounded-xl border transition-all duration-150 ${preview
+                            ? "bg-emerald-50/25 border-emerald-200"
+                            : "bg-white border-slate-150 hover:border-slate-200"
                             }`}
-                          >
-                            <svg className="w-2.5 h-2.5 stroke-[3.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                            </svg>
-                          </button>
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-2.5">
+                              <button
+                                type="button"
+                                onClick={() => toggleCheck(idx)}
+                                className={`w-4 h-4 rounded mt-0.5 flex items-center justify-center shrink-0 border transition-all duration-150 ${isChecked || preview
+                                  ? "bg-emerald-600 border-emerald-600 text-white"
+                                  : "border-slate-300 bg-white text-transparent"
+                                  }`}
+                              >
+                                <svg
+                                  className="w-2.5 h-2.5 stroke-[3.5]"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M5 13l4 4L19 7"
+                                  />
+                                </svg>
+                              </button>
+                              <span className={`text-[11px] font-bold leading-tight text-slate-700 ${(isChecked || preview) ? "line-through opacity-60" : ""}`}>
+                                {item}
+                              </span>
+                            </div>
 
-                          {/* Label — takes remaining space */}
-                          <span className={`flex-1 text-[11px] font-semibold leading-tight text-slate-700 ${(isChecked || preview) ? "line-through opacity-50" : ""}`}>
-                            {item}
-                          </span>
+                            {/* Camera upload input specifically for this item */}
+                            {!preview && (
+                              <label className="p-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-700 border border-slate-200 hover:border-slate-300 cursor-pointer transition-all shrink-0">
+                                <Camera size={14} />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  capture="environment"
+                                  onChange={(e) => handleIndividualPhotoChange(e, idx)}
+                                  className="hidden"
+                                />
+                              </label>
+                            )}
+                          </div>
 
-                          {/* Right side: thumbnail if uploaded, else camera button */}
-                          {preview ? (
-                            <div className="relative w-10 h-9 rounded-lg overflow-hidden border border-emerald-300 shrink-0">
+                          {/* Preview container */}
+                          {preview && (
+                            <div className="relative aspect-[16/10] w-full rounded-lg overflow-hidden bg-slate-100 border border-slate-200 mt-1 animate-in fade-in slide-in-from-top-1 duration-150">
                               <img src={preview} alt={item} className="w-full h-full object-cover" />
                               <button
                                 type="button"
                                 onClick={() => removeIndividualPhoto(idx)}
-                                className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+                                className="absolute top-1.5 right-1.5 p-1 bg-black/60 hover:bg-black/80 text-white rounded-full transition-colors"
                               >
-                                <X size={11} className="text-white" />
+                                <X size={12} />
                               </button>
                             </div>
-                          ) : (
-                            <label className="p-1.5 bg-slate-50 hover:bg-[#0a2540] rounded-lg text-slate-400 hover:text-white border border-slate-200 hover:border-[#0a2540] cursor-pointer transition-all shrink-0">
-                              <Camera size={14} />
-                              <input
-                                type="file"
-                                accept="image/*"
-                                capture="environment"
-                                onChange={(e) => handleIndividualPhotoChange(e, idx)}
-                                className="hidden"
-                              />
-                            </label>
                           )}
                         </div>
                       )
