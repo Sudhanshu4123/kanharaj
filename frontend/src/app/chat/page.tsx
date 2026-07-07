@@ -89,6 +89,24 @@ function ChatContent() {
         const found = data.find((c: any) => String(c.id) === String(selectId))
         if (found) {
           setActiveConv(found)
+        } else {
+          try {
+            const singleRes = await fetch(`${API_URL}/chat/conversations/${selectId}`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            })
+            if (singleRes.ok) {
+              const singleConv = await singleRes.json()
+              setConversations(prev => {
+                if (!prev.find(c => String(c.id) === String(selectId))) {
+                  return [singleConv, ...prev]
+                }
+                return prev
+              })
+              setActiveConv(singleConv)
+            }
+          } catch (err) {
+            console.error('Error fetching single conversation fallback:', err)
+          }
         }
       }
     } catch (err) {

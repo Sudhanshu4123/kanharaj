@@ -140,4 +140,15 @@ public class ChatService {
 
         return messageDto;
     }
+
+    public ConversationDto getConversationById(Long id, Long userId) {
+        Conversation conversation = conversationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Conversation not found"));
+        if (!conversation.getBuyer().getId().equals(userId) && !conversation.getSeller().getId().equals(userId)) {
+            throw new org.springframework.security.access.AccessDeniedException("Not authorized to view this conversation");
+        }
+        ConversationDto dto = ConversationDto.fromEntity(conversation);
+        dto.setUnreadCount(chatMessageRepository.countUnreadMessages(id, userId));
+        return dto;
+    }
 }

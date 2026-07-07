@@ -32,6 +32,24 @@ public class ChatController {
         return ResponseEntity.ok(chatService.getConversationsForUser(userDetails.getId()));
     }
 
+    @GetMapping("/conversations/{id}")
+    public ResponseEntity<ConversationDto> getConversation(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
+        try {
+            ConversationDto conversation = chatService.getConversationById(id, userDetails.getId());
+            return ResponseEntity.ok(conversation);
+        } catch (org.springframework.security.access.AccessDeniedException e) {
+            return ResponseEntity.status(403).build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @GetMapping("/conversations/{id}/messages")
     public ResponseEntity<List<ChatMessageDto>> getMessages(
             @PathVariable Long id,
