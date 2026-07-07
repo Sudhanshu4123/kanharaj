@@ -283,6 +283,10 @@ export default function ListingsPage() {
   const [priceMin, setPriceMin] = useState(0)
   const [priceMax, setPriceMax] = useState(35000000)
   const [furnishing, setFurnishing] = useState<string[]>([])
+  const [verificationStatus, setVerificationStatus] = useState<string[]>([])
+  const [possessionStatus, setPossessionStatus] = useState<string[]>([])
+  const [showArchived, setShowArchived] = useState(false)
+  const [listedBy, setListedBy] = useState("")
   const [sortBy, setSortBy] = useState("High to Low")
   const [sortDropdown, setSortDropdown] = useState(false)
   const sortRef = useRef<HTMLDivElement>(null)
@@ -380,7 +384,8 @@ export default function ListingsPage() {
     setSector("Residential"); setService([]); setListingStatus([])
     setLocality(""); setProjectName(""); setPropertyTypes([])
     setBhk([]); setPriceMin(0); setPriceMax(35000000); setFurnishing([])
-    setSearchId(""); setActiveTab("All")
+    setVerificationStatus([]); setPossessionStatus([]); setShowArchived(false)
+    setListedBy(""); setSearchId(""); setActiveTab("All")
   }
 
   // Derived tab counts
@@ -409,17 +414,90 @@ export default function ListingsPage() {
   else if (activeTab === "Expired")     filtered = expiredProps
 
   // Apply sidebar filters
+  if (searchId.trim()) {
+    const ids = searchId.split(/[,\s]+/).map(s => s.trim()).filter(Boolean)
+    filtered = filtered.filter(p => ids.includes(String(p.id)))
+  }
+  if (sector) {
+    // Residential = non-commercial types, Commercial = office/shop/showroom/warehouse etc.
+    const commercialTypes = ["office space", "shop", "showroom", "warehouse", "agricultural land"]
+    if (sector === "Residential") {
+      filtered = filtered.filter(p => !commercialTypes.some(ct => (p.propertyType || "").toLowerCase().includes(ct)))
+    } else if (sector === "Commercial") {
+      filtered = filtered.filter(p => commercialTypes.some(ct => (p.propertyType || "").toLowerCase().includes(ct)))
+    }
+  }
+  if (service.length > 0) {
+    filtered = filtered.filter(p => {
+      const purpose = (p.purpose || "").toUpperCase()
+      return service.some(s => {
+        if (s === "Buy") return purpose === "SALE" || purpose === "BUY"
+        if (s === "Rent") return purpose === "RENT"
+        if (s === "PG") return purpose === "PG"
+        return false
+      })
+    })
+  }
   if (listingStatus.length > 0) {
     filtered = filtered.filter(p => listingStatus.includes((p.status || "").toUpperCase()))
   }
   if (locality) {
     filtered = filtered.filter(p =>
-      (p.location || p.address || "").toLowerCase().includes(locality.toLowerCase())
+      (p.location || p.address || p.locality || "").toLowerCase().includes(locality.toLowerCase())
+    )
+  }
+  if (projectName) {
+    filtered = filtered.filter(p =>
+      (p.projectName || p.society || p.title || "").toLowerCase().includes(projectName.toLowerCase())
     )
   }
   if (propertyTypes.length > 0) {
     filtered = filtered.filter(p =>
-      propertyTypes.some(t => (p.propertyType || p.title || "").toLowerCase().includes(t.toLowerCase()))
+      propertyTypes.some(t => (p.propertyType || "").toLowerCase() === t.toLowerCase())
+    )
+  }
+  if (bhk.length > 0) {
+    filtered = filtered.filter(p =>
+      bhk.some(b => {
+        const val = (p.bedrooms || p.bhk || p.bhkType || "").toString().toLowerCase()
+        return val === b.toLowerCase() || (p.title || "").toLowerCase().includes(b.toLowerCase())
+      })
+    )
+  }
+  if (priceMin > 0) {
+    filtered = filtered.filter(p => (p.price || 0) >= priceMin)
+  }
+  if (priceMax < 35000000) {
+    filtered = filtered.filter(p => (p.price || 0) <= priceMax)
+  }
+  if (furnishing.length > 0) {
+    filtered = filtered.filter(p =>
+      furnishing.some(f => (p.furnishingStatus || p.furnishing || "").toLowerCase().includes(f.toLowerCase()))
+    )
+  }
+  if (verificationStatus.length > 0) {
+    filtered = filtered.filter(p => {
+      const isVerified = p.verified === true || p.verified === "true" || p.verificationStatus === "VERIFIED"
+      return verificationStatus.some(v => {
+        if (v === "Verified") return isVerified
+        if (v === "Unverified") return !isVerified
+        return false
+      })
+    })
+  }
+  if (possessionStatus.length > 0) {
+    filtered = filtered.filter(p =>
+      possessionStatus.some(ps =>
+        (p.possessionStatus || p.possession || "").toLowerCase().includes(ps.toLowerCase())
+      )
+    )
+  }
+  if (!showArchived) {
+    filtered = filtered.filter(p => (p.status || "").toUpperCase() !== "ARCHIVED")
+  }
+  if (listedBy) {
+    filtered = filtered.filter(p =>
+      (p.listedBy || p.subBrokerName || "").toLowerCase().includes(listedBy.toLowerCase())
     )
   }
 
@@ -429,7 +507,10 @@ export default function ListingsPage() {
   else if (sortBy === "Newest") filtered = [...filtered].sort((a, b) => b.id - a.id)
 
   const anyFilterActive = sector !== "Residential" || service.length > 0 ||
-    listingStatus.length > 0 || locality || propertyTypes.length > 0 || bhk.length > 0
+    listingStatus.length > 0 || !!locality || propertyTypes.length > 0 || bhk.length > 0 ||
+    priceMin > 0 || priceMax < 35000000 || furnishing.length > 0 ||
+    verificationStatus.length > 0 || possessionStatus.length > 0 || showArchived ||
+    !!listedBy || !!searchId.trim() || !!projectName
 
   if (loading) {
     return (
@@ -657,6 +738,8 @@ export default function ListingsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
               <input
                 type="text"
+                value={listedBy}
+                onChange={e => setListedBy(e.target.value)}
                 placeholder="Enter Sub Broker Name here"
                 className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#0a2540]/30 bg-white"
               />
@@ -721,9 +804,16 @@ export default function ListingsPage() {
           <div className="mb-5 pb-4 border-b border-slate-100">
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-3">Verification Status</p>
             <div className="flex gap-2">
-              {["Unverified", "Verified"].map(v => (
-                <button key={v} className="px-3 py-1 rounded-full text-[11px] font-bold bg-white text-slate-600 border border-slate-200 hover:border-[#0a2540] hover:text-[#0a2540] transition-all">{v}</button>
-              ))}
+              {["Unverified", "Verified"].map(v => {
+                const active = verificationStatus.includes(v)
+                return (
+                  <button
+                    key={v}
+                    onClick={() => setVerificationStatus(p => active ? p.filter(x => x !== v) : [...p, v])}
+                    className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all ${active ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540] hover:text-[#0a2540]"}`}
+                  >{v}</button>
+                )
+              })}
             </div>
           </div>
 
@@ -731,15 +821,28 @@ export default function ListingsPage() {
           <div className="mb-5 pb-4 border-b border-slate-100">
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-3">Possession Status</p>
             <div className="flex flex-wrap gap-2">
-              {["Ready to move", "Under Construction"].map(p => (
-                <button key={p} className="px-3 py-1 rounded-full text-[11px] font-bold bg-white text-slate-600 border border-slate-200 hover:border-[#0a2540] hover:text-[#0a2540] transition-all">{p}</button>
-              ))}
+              {["Ready to move", "Under Construction"].map(ps => {
+                const active = possessionStatus.includes(ps)
+                return (
+                  <button
+                    key={ps}
+                    onClick={() => setPossessionStatus(p => active ? p.filter(x => x !== ps) : [...p, ps])}
+                    className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all ${active ? "bg-[#0a2540] text-white border-[#0a2540]" : "bg-white text-slate-600 border-slate-200 hover:border-[#0a2540] hover:text-[#0a2540]"}`}
+                  >{ps}</button>
+                )
+              })}
             </div>
           </div>
 
           {/* Show Archived */}
           <div className="mb-5 flex items-center gap-2">
-            <input type="checkbox" id="archived" className="w-3.5 h-3.5 accent-[#0a2540] rounded" />
+            <input
+              type="checkbox"
+              id="archived"
+              checked={showArchived}
+              onChange={e => setShowArchived(e.target.checked)}
+              className="w-3.5 h-3.5 accent-[#0a2540] rounded"
+            />
             <label htmlFor="archived" className="text-xs font-semibold text-slate-700 cursor-pointer">
               Show archived listings
             </label>
