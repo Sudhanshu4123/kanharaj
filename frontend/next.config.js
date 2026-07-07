@@ -82,6 +82,48 @@ const nextConfig = {
         source: '/api/uploads/:path*',
         destination: `${backendUrl}/api/uploads/:path*`,
       },
+      // Explicitly proxy backend auth endpoints
+      {
+        source: '/api/auth/register',
+        destination: `${backendUrl}/api/auth/register`,
+      },
+      {
+        source: '/api/auth/login',
+        destination: `${backendUrl}/api/auth/login`,
+      },
+      {
+        source: '/api/auth/login-verify-otp',
+        destination: `${backendUrl}/api/auth/login-verify-otp`,
+      },
+      {
+        source: '/api/auth/forgot-password',
+        destination: `${backendUrl}/api/auth/forgot-password`,
+      },
+      {
+        source: '/api/auth/reset-password',
+        destination: `${backendUrl}/api/auth/reset-password`,
+      },
+      {
+        source: '/api/auth/verify',
+        destination: `${backendUrl}/api/auth/verify`,
+      },
+      {
+        source: '/api/auth/resend-otp',
+        destination: `${backendUrl}/api/auth/resend-otp`,
+      },
+      {
+        source: '/api/auth/refresh',
+        destination: `${backendUrl}/api/auth/refresh`,
+      },
+      {
+        source: '/api/auth/me',
+        destination: `${backendUrl}/api/auth/me`,
+      },
+      {
+        source: '/api/auth/social-login',
+        destination: `${backendUrl}/api/auth/social-login`,
+      },
+      // Catch-all for non-auth api calls
       {
         source: '/api/:path((?!auth(?:/|$)).*)',
         destination: `${backendUrl}/api/:path*`,
