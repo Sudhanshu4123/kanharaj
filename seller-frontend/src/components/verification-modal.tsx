@@ -21,7 +21,7 @@ export function VerificationModal({
 }: VerificationModalProps) {
   const propertyId = property.id
   const propertyTitle = property.title || "Property"
-  
+
   const propertyType = (property.propertyType || "").toUpperCase()
   const listingType = (property.listingType || property.purpose || "").toUpperCase()
 
@@ -76,11 +76,11 @@ export function VerificationModal({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
       setPhotos(prev => ({ ...prev, [idx]: file }))
-      
+
       if (previews[idx]) {
         URL.revokeObjectURL(previews[idx])
       }
-      
+
       setPreviews(prev => ({ ...prev, [idx]: URL.createObjectURL(file) }))
       setStep("captured")
     }
@@ -163,7 +163,7 @@ export function VerificationModal({
 
     // Append the first one to "file" for backward compatibility
     formData.append("file", photoList[0])
-    
+
     // Append all captured files to "files"
     photoList.forEach((file) => {
       formData.append("files", file)
@@ -205,7 +205,7 @@ export function VerificationModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col relative animate-in fade-in zoom-in duration-200">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-slate-100">
           <div>
@@ -336,22 +336,20 @@ export function VerificationModal({
                       return (
                         <div
                           key={idx}
-                          className={`flex flex-col gap-2.5 p-3 rounded-xl border transition-all duration-150 ${
-                            preview
-                              ? "bg-emerald-50/25 border-emerald-200"
-                              : "bg-white border-slate-150 hover:border-slate-200"
-                          }`}
+                          className={`flex flex-col gap-2.5 p-3 rounded-xl border transition-all duration-150 ${preview
+                            ? "bg-emerald-50/25 border-emerald-200"
+                            : "bg-white border-slate-150 hover:border-slate-200"
+                            }`}
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex items-start gap-2.5">
                               <button
                                 type="button"
                                 onClick={() => toggleCheck(idx)}
-                                className={`w-4 h-4 rounded mt-0.5 flex items-center justify-center shrink-0 border transition-all duration-150 ${
-                                  isChecked || preview
-                                    ? "bg-emerald-600 border-emerald-600 text-white"
-                                    : "border-slate-300 bg-white text-transparent"
-                                }`}
+                                className={`w-4 h-4 rounded mt-0.5 flex items-center justify-center shrink-0 border transition-all duration-150 ${isChecked || preview
+                                  ? "bg-emerald-600 border-emerald-600 text-white"
+                                  : "border-slate-300 bg-white text-transparent"
+                                  }`}
                               >
                                 <svg
                                   className="w-2.5 h-2.5 stroke-[3.5]"
