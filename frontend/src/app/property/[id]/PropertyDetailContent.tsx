@@ -600,6 +600,39 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     setTimeout(() => setShareTooltip(false), 2000);
   }
 
+  const handleChatStart = async () => {
+    if (!isAuthenticated || !user) {
+      router.push(`/login?redirect=/property/${property.id}`)
+      return
+    }
+
+    if (String(user.id) === String(property.user?.id || property.userId)) {
+      alert("You cannot chat with yourself on your own listing.");
+      return;
+    }
+
+    try {
+      const apiUrl = getApiUrl()
+      const res = await fetch(`${apiUrl}/chat/conversations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          sellerId: Number(property.user?.id || property.userId),
+          propertyId: Number(property.id)
+        })
+      })
+      if (!res.ok) throw new Error('Failed to create conversation')
+      const conv = await res.json()
+      router.push(`/chat?id=${conv.id}`)
+    } catch (err) {
+      alert('Could not start chat. Please try again.')
+      console.error(err)
+    }
+  }
+
   const floorPlanMeta = useMemo(
     () => (isResidentialFloorPlan(property) ? buildFloorPlanRooms(property) : null),
     [property]
@@ -806,6 +839,9 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                       </div>
                       <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
                         <User className="w-3.5 h-3.5 text-slate-400" /> My Profile
+                      </Link>
+                      <Link href="/chat" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                        <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg> My Chats
                       </Link>
                       <button
                         type="button"
@@ -1756,25 +1792,33 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                 </div>
               </div>
 
-              <div className="mt-6 pt-5 border-t border-slate-100 flex items-center gap-3">
-                <a
-                  href={`tel:+91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}
-                  className="flex-1"
+              <div className="mt-6 pt-5 border-t border-slate-100 flex flex-col gap-3">
+                <div className="flex gap-3">
+                  <a
+                    href={`tel:+91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}
+                    className="flex-1"
+                  >
+                    <Button variant="outline" className="w-full h-11 border-slate-200 text-slate-700 font-bold rounded-xl flex items-center justify-center gap-1.5">
+                      <Phone className="w-4 h-4 text-rose-500" /> Call Owner
+                    </Button>
+                  </a>
+                  <a
+                    href={`https://wa.me/91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1"
+                  >
+                    <Button className="w-full h-11 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl flex items-center justify-center gap-1.5">
+                      <MessageCircle className="w-4.5 h-4.5" /> WhatsApp
+                    </Button>
+                  </a>
+                </div>
+                <Button
+                  onClick={handleChatStart}
+                  className="w-full h-11 bg-[#6B46C1] hover:bg-[#5A38A7] text-white font-bold rounded-xl flex items-center justify-center gap-1.5"
                 >
-                  <Button variant="outline" className="w-full h-11 border-slate-200 text-slate-700 font-bold rounded-xl flex items-center justify-center gap-1.5">
-                    <Phone className="w-4 h-4 text-rose-500" /> Call Owner
-                  </Button>
-                </a>
-                <a
-                  href={`https://wa.me/91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex-1"
-                >
-                  <Button className="w-full h-11 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl flex items-center justify-center gap-1.5">
-                    <MessageCircle className="w-4.5 h-4.5" /> WhatsApp
-                  </Button>
-                </a>
+                  <MessageCircle className="w-4.5 h-4.5" /> Chat with Owner
+                </Button>
               </div>
             </Card>
 
@@ -1857,14 +1901,18 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
 
       {/* Sticky Mobile Call Actions bar */}
       <div className="fixed bottom-mobile-nav left-0 right-0 z-40 bg-white border-t border-slate-200 p-3.5 pb-safe block lg:hidden shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
-        <div className="flex gap-3">
-          <Button variant="outline" className="flex-1 h-12 rounded-xl border-slate-200 font-bold text-slate-700" onClick={() => window.location.href = `tel:+91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}>
-            <Phone className="h-4.5 w-4.5 mr-2 text-rose-500" />
+        <div className="flex gap-2">
+          <Button variant="outline" className="flex-1 h-12 rounded-xl border-slate-200 font-bold text-slate-700 text-xs px-2" onClick={() => window.location.href = `tel:+91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}>
+            <Phone className="h-4.5 w-4.5 mr-1 text-rose-500" />
             CALL
           </Button>
-          <Button className="flex-1 h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-500/10" onClick={() => window.location.href = `https://wa.me/91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}>
-            <MessageCircle className="h-4.5 w-4.5 mr-2" />
+          <Button className="flex-1 h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs px-2" onClick={() => window.location.href = `https://wa.me/91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}>
+            <MessageCircle className="h-4.5 w-4.5 mr-1" />
             WHATSAPP
+          </Button>
+          <Button className="flex-1 h-12 rounded-xl bg-[#6B46C1] hover:bg-[#5A38A7] text-white font-bold text-xs px-2" onClick={handleChatStart}>
+            <MessageCircle className="h-4.5 w-4.5 mr-1" />
+            CHAT
           </Button>
         </div>
       </div>

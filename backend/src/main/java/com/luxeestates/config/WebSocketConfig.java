@@ -1,5 +1,6 @@
 package com.luxeestates.config;
 
+import com.luxeestates.security.ChatWebSocketHandler;
 import com.luxeestates.security.NotificationWebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -13,10 +14,13 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final NotificationWebSocketHandler notificationWebSocketHandler;
+    private final ChatWebSocketHandler chatWebSocketHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(notificationWebSocketHandler, "/ws-notifications")
+                .setAllowedOriginPatterns("*");
+        registry.addHandler(chatWebSocketHandler, "/ws-chat")
                 .setAllowedOriginPatterns("*");
     }
 }
