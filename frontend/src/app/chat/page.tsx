@@ -13,7 +13,7 @@ import {
 function ChatContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { user, isAuthenticated, token } = useAuthStore()
+  const { user, isAuthenticated, token, logout } = useAuthStore()
 
   // API Config
   const API_URL = useMemo(() => getApiUrl(), [])
@@ -81,7 +81,15 @@ function ChatContent() {
       const res = await fetch(`${API_URL}/chat/conversations`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      if (!res.ok) throw new Error('Failed to load conversations')
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          logout()
+          alert("Your session has expired. Please log in again to continue.")
+          router.push('/login?redirect=/chat')
+          return
+        }
+        throw new Error('Failed to load conversations')
+      }
       const data = await res.json()
       setConversations(data)
 

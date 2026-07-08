@@ -130,6 +130,15 @@ export function ChatBox() {
         })
 
         if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            useAuthStore.getState().logout()
+            closeChat()
+            alert("Your session has expired. Please log in again to start chatting.")
+            if (typeof window !== 'undefined') {
+              window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`
+            }
+            return
+          }
           let errMsg = `HTTP ${res.status}`
           try {
             const errJson = await res.json()
@@ -286,6 +295,10 @@ export function ChatBox() {
         const res = await fetch(`${API_URL}/chat/conversations`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
+        if (res.status === 401 || res.status === 403) {
+          useAuthStore.getState().logout()
+          return
+        }
         if (res.ok) {
           const data = await res.json()
           setConversations(data)
@@ -334,7 +347,18 @@ export function ChatBox() {
         })
       })
 
-      if (!res.ok) throw new Error('Failed to send message')
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          useAuthStore.getState().logout()
+          closeChat()
+          alert("Your session has expired. Please log in again to send messages.")
+          if (typeof window !== 'undefined') {
+            window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`
+          }
+          return
+        }
+        throw new Error('Failed to send message')
+      }
 
       const savedMsg = await res.json()
 
