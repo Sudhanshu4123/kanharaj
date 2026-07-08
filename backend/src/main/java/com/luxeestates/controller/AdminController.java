@@ -1,15 +1,19 @@
 package com.luxeestates.controller;
 
 import com.luxeestates.dto.UserDto;
+import com.luxeestates.dto.PropertyDto;
+import com.luxeestates.model.User;
+import com.luxeestates.model.Property;
+import com.luxeestates.repository.UserRepository;
+import com.luxeestates.repository.PropertyRepository;
 import com.luxeestates.service.AuthService;
 import com.luxeestates.service.InquiryService;
 import com.luxeestates.service.PropertyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,11 +22,14 @@ import java.util.Map;
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+@CrossOrigin(origins = "*")
 public class AdminController {
     
     private final PropertyService propertyService;
     private final AuthService authService;
     private final InquiryService inquiryService;
+    private final UserRepository userRepository;
+    private final PropertyRepository propertyRepository;
     
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> getDashboard() {
@@ -52,5 +59,46 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<List<UserDto>> getAllUsers() {
         return ResponseEntity.ok(authService.getAllUsers());
+    }
+
+    @PutMapping("/users/{id}/role")
+    public ResponseEntity<UserDto> updateUserRole(
+            @PathVariable Long id,
+            @RequestParam User.Role role
+    ) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setRole(role);
+        userRepository.save(user);
+        return ResponseEntity.ok(UserDto.fromEntity(user));
+    }
+
+    @PutMapping("/properties/{id}/verify")
+    public ResponseEntity<PropertyDto> verifyProperty(
+            @PathVariable Long id,
+            @RequestParam boolean verified
+    ) {
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Property not found"));
+        property.setVerified(verified);
+        if (verified) {
+            property.setVerifiedAt(LocalDateTime.now());
+        } else {
+            property.setVerifiedAt(null);
+        }
+        propertyRepository.save(property);
+        return ResponseEntity.ok(PropertyDto.fromEntity(property));
+    }
+
+    @PutMapping("/properties/{id}/featured")
+    public ResponseEntity<PropertyDto> togglePropertyFeatured(
+            @PathVariable Long id,
+            @RequestParam boolean featured
+    ) {
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Property not found"));
+        property.setFeatured(featured);
+        propertyRepository.save(property);
+        return ResponseEntity.ok(PropertyDto.fromEntity(property));
     }
 }

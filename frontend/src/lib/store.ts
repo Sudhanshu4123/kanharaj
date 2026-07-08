@@ -605,3 +605,42 @@ export const fetchProperties = (pageSize?: number) => usePropertyStore.getState(
 export const createPropertyAPI = (prop: Partial<Property>, token?: string) => usePropertyStore.getState().createProperty(prop, token)
 export const updatePropertyAPI = (id: string, prop: Partial<Property>, token?: string) => usePropertyStore.getState().updateProperty(id, prop, token)
 export const deletePropertyAPI = (id: string, token?: string) => usePropertyStore.getState().deleteProperty(id, token)
+
+export const verifyPropertyAPI = async (id: string, verified: boolean, token?: string) => {
+  const apiUrl = getApiUrl()
+  const res = await fetch(`${apiUrl}/admin/properties/${id}/verify?verified=${verified}`, {
+    method: 'PUT',
+    headers: { ...(token ? { 'Authorization': `Bearer ${token}` } : {}) }
+  })
+  if (!res.ok) {
+    const errText = await res.text().catch(() => 'Unknown error')
+    throw new Error(`HTTP ${res.status}: ${errText}`)
+  }
+  return res.json()
+}
+
+export const togglePropertyFeaturedAPI = async (id: string, featured: boolean, token?: string) => {
+  const apiUrl = getApiUrl()
+  const res = await fetch(`${apiUrl}/admin/properties/${id}/featured?featured=${featured}`, {
+    method: 'PUT',
+    headers: { ...(token ? { 'Authorization': `Bearer ${token}` } : {}) }
+  })
+  if (!res.ok) {
+    const errText = await res.text().catch(() => 'Unknown error')
+    throw new Error(`HTTP ${res.status}: ${errText}`)
+  }
+  return res.json()
+}
+
+export const updateUserRoleAPI = async (userId: string, role: string, token?: string) => {
+  const apiUrl = getApiUrl()
+  const res = await fetch(`${apiUrl}/admin/users/${userId}/role?role=${role.toUpperCase()}`, {
+    method: 'PUT',
+    headers: { ...(token ? { 'Authorization': `Bearer ${token}` } : {}) }
+  })
+  if (!res.ok) {
+    const errText = await res.text().catch(() => 'Unknown error')
+    throw new Error(`HTTP ${res.status}: ${errText}`)
+  }
+  return res.json()
+}
