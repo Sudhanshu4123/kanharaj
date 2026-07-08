@@ -615,7 +615,14 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
       return
     }
 
-    useChatBoxStore.getState().openChat(String(sId), String(property.id))
+    useChatBoxStore.getState().openChat(String(sId), String(property.id), {
+      sellerName: property.user?.name || `Owner #${String(sId).slice(0, 4)}`,
+      sellerPhone: property.user?.phone || '',
+      sellerProfileImage: property.user?.profileImage || '',
+      propertyTitle: property.title,
+      propertyPrice: property.price,
+      propertyImage: (property.images && property.images.length > 0) ? property.images[0] : ''
+    })
   }
 
   const floorPlanMeta = useMemo(

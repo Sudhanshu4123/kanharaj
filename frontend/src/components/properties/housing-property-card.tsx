@@ -36,7 +36,14 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
       router.push(`/login?redirect=${encodeURIComponent(target)}`)
       return
     }
-    useChatBoxStore.getState().openChat(String(property.userId), String(property.id))
+    useChatBoxStore.getState().openChat(String(property.userId), String(property.id), {
+      sellerName: property.user?.name || `Owner #${String(property.userId).slice(0, 4)}`,
+      sellerPhone: property.user?.phone || '',
+      sellerProfileImage: property.user?.profileImage || '',
+      propertyTitle: property.title,
+      propertyPrice: property.price,
+      propertyImage: (property.images && property.images.length > 0) ? property.images[0] : ''
+    })
   }
 
   const images = property.images && property.images.length > 0

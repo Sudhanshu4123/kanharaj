@@ -9,7 +9,21 @@ import { Button } from './ui/button'
 import Link from 'next/link'
 
 export function ChatBox() {
-  const { isOpen, sellerId, propertyId, conversationId, setConversationId, openChat, closeChat } = useChatBoxStore()
+  const {
+    isOpen,
+    sellerId,
+    propertyId,
+    conversationId,
+    setConversationId,
+    openChat,
+    closeChat,
+    sellerName,
+    sellerPhone,
+    sellerProfileImage,
+    propertyTitle,
+    propertyPrice,
+    propertyImage
+  } = useChatBoxStore()
   const { user, isAuthenticated, token } = useAuthStore()
 
   // Auto-open if query params exist (e.g. after login redirect)
@@ -39,6 +53,25 @@ export function ChatBox() {
   const [propertyInfo, setPropertyInfo] = useState<any | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Set fallback state immediately when chat is opened
+  useEffect(() => {
+    if (!isOpen) return
+    setSellerInfo({
+      name: sellerName || 'Owner',
+      phone: sellerPhone || '',
+      profileImage: sellerProfileImage || ''
+    })
+    if (propertyTitle) {
+      setPropertyInfo({
+        title: propertyTitle,
+        price: propertyPrice,
+        images: propertyImage ? [propertyImage] : []
+      })
+    } else {
+      setPropertyInfo(null)
+    }
+  }, [isOpen, sellerName, sellerPhone, sellerProfileImage, propertyTitle, propertyPrice, propertyImage])
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -76,8 +109,6 @@ export function ChatBox() {
   useEffect(() => {
     if (!isOpen || !sellerId || !token || !isAuthenticated) {
       setMessages([])
-      setSellerInfo(null)
-      setPropertyInfo(null)
       return
     }
 
@@ -102,23 +133,30 @@ export function ChatBox() {
         setConversationId(conv.id)
 
         // Set Seller and Property info from conversation payload
-        if (conv.property) {
-          setPropertyInfo(conv.property)
-        }
+        const resolvedProp = conv.property || (propertyId ? {
+          title: propertyTitle,
+          price: propertyPrice,
+          images: propertyImage ? [propertyImage] : []
+        } : null)
+        setPropertyInfo(resolvedProp)
         
         const otherUser = String(conv.buyer?.id) === String(user?.id) ? conv.seller : conv.buyer
         if (otherUser) {
-          const realName = (otherUser.name && otherUser.name !== 'Seller' && otherUser.name !== 'User')
-            ? otherUser.name
-            : (conv.property?.userName || 'Owner')
-          const realPhone = otherUser.phone || conv.property?.userPhone || ''
-          const realProfileImage = otherUser.profileImage || conv.property?.userProfileImage || ''
+          const nameLower = (otherUser.name || '').trim().toLowerCase()
+          const isGenericName = !otherUser.name || nameLower === 'seller' || nameLower === 'user' || nameLower === 'owner' || nameLower === 'customer'
           
+          const resolvedName = !isGenericName
+            ? otherUser.name
+            : (conv.property?.userName || sellerName || 'Owner')
+
+          const resolvedPhone = otherUser.phone || conv.property?.userPhone || sellerPhone || ''
+          const resolvedProfileImage = otherUser.profileImage || conv.property?.userProfileImage || sellerProfileImage || ''
+
           setSellerInfo({
             ...otherUser,
-            name: realName,
-            phone: realPhone,
-            profileImage: realProfileImage
+            name: resolvedName,
+            phone: resolvedPhone,
+            profileImage: resolvedProfileImage
           })
         }
 
@@ -132,8 +170,8 @@ export function ChatBox() {
           setMessages(data)
 
           // Pre-populate input text with availability check if conversation is empty
-          if (data.length === 0 && conv.property) {
-            setInputText(`Hi, is the property "${conv.property.title}" still available?`)
+          if (data.length === 0 && resolvedProp) {
+            setInputText(`Hi, is the property "${resolvedProp.title}" still available?`)
           } else {
             setInputText('')
           }
