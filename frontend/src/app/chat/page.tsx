@@ -42,7 +42,8 @@ function ChatContent() {
   useEffect(() => {
     if (!authReady) return
     if (!isAuthenticated) {
-      router.replace('/login?redirect=/chat')
+      const currentPath = window.location.pathname + window.location.search
+      router.replace(`/login?redirect=${encodeURIComponent(currentPath)}`)
     }
   }, [authReady, isAuthenticated, router])
 

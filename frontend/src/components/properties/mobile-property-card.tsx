@@ -3,22 +3,40 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MapPin, Heart, Share2, Phone } from 'lucide-react'
+import { MapPin, Heart, Share2, Phone, MessageSquare } from 'lucide-react'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Property } from '@/lib/data'
-import { usePropertyStore } from '@/lib/store'
+import { useRouter } from 'next/navigation'
+import { usePropertyStore, useAuthStore } from '@/lib/store'
 import { formatPrice, cn, getApiUrl } from '@/lib/utils'
-import { ContactSellerModal } from './contact-seller-modal'
 
 interface MobilePropertyCardProps {
   property: Property
 }
 
 export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
-  const [contactOpen, setContactOpen] = useState(false)
   const { toggleWishlist, isInWishlist } = usePropertyStore()
+  const { isAuthenticated } = useAuthStore()
+  const router = useRouter()
   const isWishlisted = isInWishlist(String(property.id))
+
+  const handleChatClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (String(property.userId) === String(useAuthStore.getState().user?.id)) {
+      alert("You cannot chat with yourself on your own listing.")
+      return
+    }
+
+    if (!isAuthenticated) {
+      const target = `/chat?sellerId=${property.userId}&propertyId=${property.id}`
+      router.push(`/login?redirect=${encodeURIComponent(target)}`)
+      return
+    }
+    router.push(`/chat?sellerId=${property.userId}&propertyId=${property.id}`)
+  }
 
   const getImageUrl = (imageInput: any) => {
     if (!imageInput || imageInput === '[]') return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
@@ -138,19 +156,13 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
           Shortlist
         </Button>
         <Button
-          className="flex-1 bg-[#A21133] hover:bg-[#8B0E2B] text-white font-bold h-11 rounded-lg shadow-md"
-          onClick={() => setContactOpen(true)}
+          className="flex-1 bg-[#6B46C1] hover:bg-[#5A38A7] text-white font-bold h-11 rounded-lg shadow-md flex items-center justify-center gap-1.5"
+          onClick={handleChatClick}
         >
-          Contact
+          <MessageSquare className="w-4.5 h-4.5" />
+          Chat
         </Button>
       </div>
-
-      {contactOpen && (
-        <ContactSellerModal
-          property={property}
-          onClose={() => setContactOpen(false)}
-        />
-      )}
     </div>
   )
 }

@@ -1,12 +1,12 @@
 'use client'
 import { useState } from 'react'
 import { Property } from '@/lib/data'
-import { Heart, ChevronLeft, ChevronRight, Home } from 'lucide-react'
+import { Heart, ChevronLeft, ChevronRight, Home, MessageSquare } from 'lucide-react'
 import { Button } from '../ui/button'
 import { cn, formatPrice } from '@/lib/utils'
 import Link from 'next/link'
-import { usePropertyStore } from '@/lib/store'
-import { ContactSellerModal } from '@/components/properties/contact-seller-modal'
+import { useRouter } from 'next/navigation'
+import { usePropertyStore, useAuthStore } from '@/lib/store'
 
 interface HousingPropertyCardProps {
   property: Property
@@ -15,9 +15,27 @@ interface HousingPropertyCardProps {
 // ─── Property Card ────────────────────────────────────────────────────────────
 export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
   const [currentImageIdx, setCurrentImageIdx] = useState(0)
-  const [contactOpen, setContactOpen] = useState(false)
   const { toggleWishlist, isInWishlist } = usePropertyStore()
+  const { isAuthenticated } = useAuthStore()
+  const router = useRouter()
   const isWishlisted = isInWishlist(String(property.id))
+
+  const handleChatClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (String(property.userId) === String(useAuthStore.getState().user?.id)) {
+      alert("You cannot chat with yourself on your own listing.")
+      return
+    }
+
+    if (!isAuthenticated) {
+      const target = `/chat?sellerId=${property.userId}&propertyId=${property.id}`
+      router.push(`/login?redirect=${encodeURIComponent(target)}`)
+      return
+    }
+    router.push(`/chat?sellerId=${property.userId}&propertyId=${property.id}`)
+  }
 
   const images = property.images && property.images.length > 0
     ? property.images
@@ -162,27 +180,16 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
                 <Heart className={cn('w-3.5 h-3.5 sm:w-5 sm:h-5', isWishlisted && 'fill-current')} />
               </button>
               <Button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  setContactOpen(true)
-                }}
-                className="flex-1 sm:flex-none bg-[#0a2540] hover:bg-[#07192c] text-white px-3 sm:px-6 h-7 sm:h-10 rounded-lg font-bold text-[10px] sm:text-sm shadow-md"
+                onClick={handleChatClick}
+                className="flex-1 sm:flex-none bg-[#6B46C1] hover:bg-[#5A38A7] text-white px-3 sm:px-6 h-7 sm:h-10 rounded-lg font-bold text-[10px] sm:text-sm shadow-md flex items-center gap-1"
               >
-                Contact
+                <MessageSquare className="w-3.5 h-3.5" />
+                Chat
               </Button>
             </div>
           </div>
         </div>
       </Link>
-
-      {/* Contact Modal */}
-      {contactOpen && (
-        <ContactSellerModal
-          property={property}
-          onClose={() => setContactOpen(false)}
-        />
-      )}
     </>
   )
 }

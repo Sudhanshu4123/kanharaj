@@ -602,7 +602,8 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
 
   const handleChatStart = async () => {
     if (!isAuthenticated || !user) {
-      router.push(`/login?redirect=/property/${property.id}`)
+      const target = `/chat?sellerId=${property.user?.id || property.userId}&propertyId=${property.id}`
+      router.push(`/login?redirect=${encodeURIComponent(target)}`)
       return
     }
 

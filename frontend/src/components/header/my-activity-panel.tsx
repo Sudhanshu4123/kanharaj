@@ -7,14 +7,14 @@ import {
   CheckSquare,
   Heart,
   Clock,
-  PhoneCall,
   Search,
+  MessageSquare
 } from 'lucide-react'
 import { cn, formatPrice } from '@/lib/utils'
-import { usePropertyStore } from '@/lib/store'
+import { useRouter } from 'next/navigation'
+import { usePropertyStore, useAuthStore } from '@/lib/store'
 import { useUserActivityStore } from '@/lib/user-activity-store'
 import { Property } from '@/lib/data'
-import { ContactSellerModal } from '@/components/properties/contact-seller-modal'
 import { ActivityMiniCardsSkeleton } from '@/components/skeletons/property-skeletons'
 
 export type ActivityTab = 'contacted' | 'seen' | 'saved' | 'searches'
@@ -37,17 +37,33 @@ export function MyActivityPanel({
   onNavigate,
 }: MyActivityPanelProps) {
   const { properties, wishlist, fetchProperties, loading } = usePropertyStore()
+  const { isAuthenticated } = useAuthStore()
+  const router = useRouter()
   const {
     seenPropertyIds,
     contactedPropertyIds,
     recentSearches,
   } = useUserActivityStore()
 
-  const [contactProperty, setContactProperty] = useState<Property | null>(null)
-
   useEffect(() => {
     if (properties.length === 0) fetchProperties()
   }, [properties.length, fetchProperties])
+
+  const handleChatClick = (property: Property) => {
+    if (onNavigate) onNavigate()
+
+    if (String(property.userId) === String(useAuthStore.getState().user?.id)) {
+      alert("You cannot chat with yourself on your own listing.")
+      return
+    }
+
+    if (!isAuthenticated) {
+      const target = `/chat?sellerId=${property.userId}&propertyId=${property.id}`
+      router.push(`/login?redirect=${encodeURIComponent(target)}`)
+      return
+    }
+    router.push(`/chat?sellerId=${property.userId}&propertyId=${property.id}`)
+  }
 
   const savedIds = wishlist
   const counts = useMemo(
@@ -212,14 +228,14 @@ export function MyActivityPanel({
               <div className={cn(isMobile ? 'p-1 pt-0' : 'p-1.5 pt-0')}>
                 <button
                   type="button"
-                  onClick={() => setContactProperty(property)}
+                  onClick={() => handleChatClick(property)}
                   className={cn(
-                    'w-full bg-[#10b981] hover:bg-[#059669] text-white rounded-lg flex items-center justify-center gap-1 font-extrabold shadow-sm transition-colors',
+                    'w-full bg-[#6B46C1] hover:bg-[#5A38A7] text-white rounded-lg flex items-center justify-center gap-1 font-extrabold shadow-sm transition-colors',
                     isMobile ? 'h-6.5 text-[9px] rounded-md' : 'h-8 text-[11px]'
                   )}
                 >
-                  <PhoneCall className={isMobile ? 'h-2.5 w-2.5' : 'h-3 w-3'} />
-                  Contact
+                  <MessageSquare className={isMobile ? 'h-2.5 w-2.5' : 'h-3.5 w-3.5'} />
+                  Chat
                 </button>
               </div>
             </div>
@@ -237,13 +253,6 @@ export function MyActivityPanel({
           />
         )}
       </div>
-
-      {contactProperty && (
-        <ContactSellerModal
-          property={contactProperty}
-          onClose={() => setContactProperty(null)}
-        />
-      )}
     </>
   )
 }
