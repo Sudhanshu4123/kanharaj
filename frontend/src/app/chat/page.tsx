@@ -181,6 +181,13 @@ function ChatContent() {
           setConversations(prev =>
             prev.map(c => c.id === activeConv.id ? { ...c, unreadCount: 0 } : c)
           )
+
+          // Pre-populate input text with availability check if conversation is empty
+          if (data.length === 0 && activeConv.property) {
+            setInputText(`Hi, is the property "${activeConv.property.title}" still available?`)
+          } else {
+            setInputText('')
+          }
         }
       } catch (err) {
         console.error('Error loading messages:', err)
