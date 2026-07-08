@@ -107,7 +107,20 @@ export function ChatBox() {
         }
         
         const otherUser = String(conv.buyer?.id) === String(user?.id) ? conv.seller : conv.buyer
-        setSellerInfo(otherUser)
+        if (otherUser) {
+          const realName = (otherUser.name && otherUser.name !== 'Seller' && otherUser.name !== 'User')
+            ? otherUser.name
+            : (conv.property?.userName || 'Owner')
+          const realPhone = otherUser.phone || conv.property?.userPhone || ''
+          const realProfileImage = otherUser.profileImage || conv.property?.userProfileImage || ''
+          
+          setSellerInfo({
+            ...otherUser,
+            name: realName,
+            phone: realPhone,
+            profileImage: realProfileImage
+          })
+        }
 
         // 2. Fetch message history
         const msgRes = await fetch(`${API_URL}/chat/conversations/${conv.id}/messages`, {

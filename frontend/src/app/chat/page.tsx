@@ -316,8 +316,8 @@ function ChatContent() {
   // Filter conversations based on search text
   const filteredConversations = useMemo(() => {
     return conversations.filter(c => {
-      const otherUser = String(c.buyer?.id) === String(user?.id) ? c.seller : c.buyer
-      const nameMatch = otherUser?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      const recipient = getRecipientInfo(c)
+      const nameMatch = recipient?.name?.toLowerCase().includes(searchTerm.toLowerCase())
       const propMatch = c.property?.title?.toLowerCase().includes(searchTerm.toLowerCase())
       return nameMatch || propMatch
     })
@@ -326,7 +326,21 @@ function ChatContent() {
   // Get recipient profile display info
   const getRecipientInfo = (conv: any) => {
     if (!user) return { name: '', email: '', phone: '', profileImage: '' }
-    return String(conv.buyer?.id) === String(user.id) ? conv.seller : conv.buyer
+    const otherUser = String(conv.buyer?.id) === String(user.id) ? conv.seller : conv.buyer
+    if (!otherUser) return { name: 'Owner', email: '', phone: '', profileImage: '' }
+
+    const realName = (otherUser.name && otherUser.name !== 'Seller' && otherUser.name !== 'User')
+      ? otherUser.name
+      : (conv.property?.userName || 'Owner')
+    const realPhone = otherUser.phone || conv.property?.userPhone || ''
+    const realProfileImage = otherUser.profileImage || conv.property?.userProfileImage || ''
+
+    return {
+      ...otherUser,
+      name: realName,
+      phone: realPhone,
+      profileImage: realProfileImage
+    }
   }
 
   if (!authReady || loading) {
