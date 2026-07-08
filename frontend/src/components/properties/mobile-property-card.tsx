@@ -9,6 +9,7 @@ import { Button } from '../ui/button'
 import { Property } from '@/lib/data'
 import { useRouter } from 'next/navigation'
 import { usePropertyStore, useAuthStore } from '@/lib/store'
+import { useChatBoxStore } from '@/lib/chat-box-store'
 import { formatPrice, cn, getApiUrl } from '@/lib/utils'
 
 interface MobilePropertyCardProps {
@@ -31,11 +32,12 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
     }
 
     if (!isAuthenticated) {
-      const target = `/chat?sellerId=${property.userId}&propertyId=${property.id}`
+      const currentPath = window.location.pathname
+      const target = `${currentPath}?sellerId=${property.userId}&propertyId=${property.id}`
       router.push(`/login?redirect=${encodeURIComponent(target)}`)
       return
     }
-    router.push(`/chat?sellerId=${property.userId}&propertyId=${property.id}`)
+    useChatBoxStore.getState().openChat(String(property.userId), String(property.id))
   }
 
   const getImageUrl = (imageInput: any) => {

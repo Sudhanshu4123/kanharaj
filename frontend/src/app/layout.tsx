@@ -10,6 +10,7 @@ import { AuthProvider } from "@/components/auth-provider"
 import { CrossSiteLogoutHandler } from "@/components/cross-site-logout"
 import { Suspense } from "react"
 import { buildRootMetadata } from "@/lib/seo"
+import { ChatBox } from "@/components/chat-box"
 
 export const viewport = {
   width: "device-width",
@@ -77,6 +78,7 @@ export default function RootLayout({
             </main>
             <MobileNav />
             <Footer />
+            <ChatBox />
           </LoadingProvider>
         </AuthProvider>
       </body>

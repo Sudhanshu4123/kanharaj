@@ -20,6 +20,7 @@ import { Card } from '@/components/ui/card'
 import { formatPrice, formatNumber, cn, BRAND_LOGO_SRC, hasSellerDashboardAccess, getSellerUrl, getApiUrl } from '@/lib/utils'
 import { useInquiryStore, useAuthStore } from '@/lib/store'
 import { useUserActivityStore } from '@/lib/user-activity-store'
+import { useChatBoxStore } from '@/lib/chat-box-store'
 import { Property } from '@/lib/data'
 import { FloorPlanSchematic } from '@/components/properties/floor-plan-schematic'
 import { PropertyLocalityMap } from '@/components/properties/property-locality-map'
@@ -600,38 +601,21 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     setTimeout(() => setShareTooltip(false), 2000);
   }
 
-  const handleChatStart = async () => {
-    if (!isAuthenticated || !user) {
-      const target = `/chat?sellerId=${property.user?.id || property.userId}&propertyId=${property.id}`
-      router.push(`/login?redirect=${encodeURIComponent(target)}`)
-      return
-    }
-
-    if (String(user.id) === String(property.user?.id || property.userId)) {
+  const handleChatStart = () => {
+    const sId = property.user?.id || property.userId
+    if (String(user?.id) === String(sId)) {
       alert("You cannot chat with yourself on your own listing.");
       return;
     }
 
-    try {
-      const apiUrl = getApiUrl()
-      const res = await fetch(`${apiUrl}/chat/conversations`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          sellerId: Number(property.user?.id || property.userId),
-          propertyId: Number(property.id)
-        })
-      })
-      if (!res.ok) throw new Error('Failed to create conversation')
-      const conv = await res.json()
-      router.push(`/chat?id=${conv.id}`)
-    } catch (err) {
-      alert('Could not start chat. Please try again.')
-      console.error(err)
+    if (!isAuthenticated || !user) {
+      const currentPath = window.location.pathname
+      const target = `${currentPath}?sellerId=${sId}&propertyId=${property.id}`
+      router.push(`/login?redirect=${encodeURIComponent(target)}`)
+      return
     }
+
+    useChatBoxStore.getState().openChat(String(sId), String(property.id))
   }
 
   const floorPlanMeta = useMemo(

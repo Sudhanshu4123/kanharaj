@@ -7,6 +7,7 @@ import { cn, formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { usePropertyStore, useAuthStore } from '@/lib/store'
+import { useChatBoxStore } from '@/lib/chat-box-store'
 
 interface HousingPropertyCardProps {
   property: Property
@@ -30,11 +31,12 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
     }
 
     if (!isAuthenticated) {
-      const target = `/chat?sellerId=${property.userId}&propertyId=${property.id}`
+      const currentPath = window.location.pathname
+      const target = `${currentPath}?sellerId=${property.userId}&propertyId=${property.id}`
       router.push(`/login?redirect=${encodeURIComponent(target)}`)
       return
     }
-    router.push(`/chat?sellerId=${property.userId}&propertyId=${property.id}`)
+    useChatBoxStore.getState().openChat(String(property.userId), String(property.id))
   }
 
   const images = property.images && property.images.length > 0
