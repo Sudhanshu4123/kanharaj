@@ -28,9 +28,17 @@ async function getPropertiesForSeo(): Promise<any[]> {
 async function buildDynamicSeoDescription(place: string, listingMode: string): Promise<string> {
   const properties = await getPropertiesForSeo()
   const targetCity = place && place !== 'All India' ? place : 'Delhi'
-  const cityProperties = properties.filter(
-    (p: any) => (p.city || '').toLowerCase() === targetCity.toLowerCase()
-  )
+  const searchLower = targetCity.toLowerCase().trim()
+  const cityProperties = properties.filter((p: any) => {
+    const propCity = (p.city || '').toLowerCase()
+    const propAddress = (p.address || '').toLowerCase()
+    return (
+      propCity === searchLower ||
+      propCity.includes(searchLower) ||
+      searchLower.includes(propCity) ||
+      propAddress.includes(searchLower)
+    )
+  })
 
   const flatsCount = cityProperties.filter(
     (p: any) => (p.propertyType || '').toUpperCase() === 'APARTMENT' || (p.propertyType || '').toUpperCase() === 'FLAT'
