@@ -43,6 +43,7 @@ export const useChatBoxStore = create<ChatBoxState>((set) => ({
       isOpen: true,
       sellerId: String(sellerId),
       propertyId: String(propertyId),
+      conversationId: null, // Reset previous conversation state immediately
       sellerName: metadata?.sellerName || null,
       sellerPhone: metadata?.sellerPhone || null,
       sellerProfileImage: metadata?.sellerProfileImage || null,

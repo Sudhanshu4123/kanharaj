@@ -129,7 +129,17 @@ export function ChatBox() {
           })
         })
 
-        if (!res.ok) throw new Error('Failed to create/get conversation')
+        if (!res.ok) {
+          let errMsg = `HTTP ${res.status}`
+          try {
+            const errJson = await res.json()
+            if (errJson.message) errMsg += ` - ${errJson.message}`
+          } catch (e) {
+            const errText = await res.text().catch(() => '')
+            if (errText) errMsg += ` - ${errText}`
+          }
+          throw new Error(errMsg)
+        }
         const conv = await res.json()
         setConversationId(conv.id)
 
@@ -177,8 +187,9 @@ export function ChatBox() {
             setInputText('')
           }
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error initializing chat box:', err)
+        alert(`Failed to connect chat: ${err.message || err}`)
       } finally {
         setLoading(false)
       }
@@ -300,7 +311,12 @@ export function ChatBox() {
   // Handle Send Message
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!inputText.trim() || !conversationId || !token) return
+    if (!inputText.trim() || !token) return
+
+    if (!conversationId) {
+      alert("Chat connection not established yet. Please wait for the conversation to load.")
+      return
+    }
 
     const content = inputText.trim()
     setInputText('')
