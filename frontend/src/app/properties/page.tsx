@@ -221,6 +221,16 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       description = await buildDynamicSeoDescription(place, listing)
       customKeywords.push('Real Estate in Jaipur', 'Buy/Sell Property in Jaipur')
     }
+  } else if (normalizedPlace === 'mumbai') {
+    if (listingLower === 'rent') {
+      title = 'Real Estate in Mumbai | Rent Property in Mumbai | kanharaj.com'
+      description = await buildDynamicSeoDescription(place, listing)
+      customKeywords.push('Real Estate in Mumbai', 'Rent Property in Mumbai')
+    } else {
+      title = 'Real Estate in Mumbai | Buy/Sell Property in Mumbai | kanharaj.com'
+      description = await buildDynamicSeoDescription(place, listing)
+      customKeywords.push('Real Estate in Mumbai', 'Buy/Sell Property in Mumbai', 'Flats for Sale in Mumbai')
+    }
   } else if (normalizedPlace === 'india' || normalizedPlace === 'all india' || normalizedPlace === '') {
     if (listingLower === 'rent') {
       title = 'Real Estate in India | Rent Property in India | kanharaj.com'
