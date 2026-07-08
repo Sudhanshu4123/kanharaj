@@ -490,8 +490,7 @@ export default function PropertiesContent() {
 
     // 2. Verified
     if (verified) {
-      const isVerified = property.featured || (property.images && property.images.length > 0 && property.latitude !== 0);
-      if (!isVerified) return false;
+      if (!property.verified) return false;
     }
 
     // 3. Built-up Area
