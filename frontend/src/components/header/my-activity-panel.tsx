@@ -14,6 +14,7 @@ import { cn, formatPrice } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import { usePropertyStore, useAuthStore } from '@/lib/store'
 import { useUserActivityStore } from '@/lib/user-activity-store'
+import { useChatBoxStore } from '@/lib/chat-box-store'
 import { Property } from '@/lib/data'
 import { ActivityMiniCardsSkeleton } from '@/components/skeletons/property-skeletons'
 
@@ -58,11 +59,12 @@ export function MyActivityPanel({
     }
 
     if (!isAuthenticated) {
-      const target = `/chat?sellerId=${property.userId}&propertyId=${property.id}`
+      const currentPath = window.location.pathname
+      const target = `${currentPath}?sellerId=${property.userId}&propertyId=${property.id}`
       router.push(`/login?redirect=${encodeURIComponent(target)}`)
       return
     }
-    router.push(`/chat?sellerId=${property.userId}&propertyId=${property.id}`)
+    useChatBoxStore.getState().openChat(String(property.userId), String(property.id))
   }
 
   const savedIds = wishlist
