@@ -1138,7 +1138,7 @@ export default function PropertiesContent() {
             </div>
 
             <p className="text-xs text-slate-500 mb-6 leading-relaxed">
-              Looking for Property in {targetCity}? kanharaj.com offers {flatsCount} Flat{flatsCount !== 1 ? 's' : ''} & {housesCount} House{housesCount !== 1 ? 's' : ''}/Villa{housesCount !== 1 ? 's' : ''}. Search from {bhk2or3Count} 2 & 3 BHK properties for {listingMode === 'RENT' ? 'rent' : 'sale'} in {targetCity}. Choose from {newProjectsCount} New Project{newProjectsCount !== 1 ? 's' : ''}, {resaleProjectsCount} Resale Project{resaleProjectsCount !== 1 ? 's' : ''} and {ownerPropertiesCount} Owner Propert{ownerPropertiesCount !== 1 ? 'ies' : 'y'} for {listingMode === 'RENT' ? 'rent' : 'sale'} in {targetCity}. 100% Verified Properties.
+              Looking for Property in {targetCity}? kanharaj.com offers {flatsCount > 0 ? `${flatsCount}+` : '0'} Flat{flatsCount !== 1 ? 's' : ''} & {housesCount > 0 ? `${housesCount}+` : '0'} House{housesCount !== 1 ? 's' : ''}/Villa{housesCount !== 1 ? 's' : ''}. Search from {bhk2or3Count > 0 ? `${bhk2or3Count}+` : '0'} 2 & 3 BHK properties for {listingMode === 'RENT' ? 'rent' : 'sale'} in {targetCity}. Choose from {newProjectsCount > 0 ? `${newProjectsCount}+` : '0'} New Project{newProjectsCount !== 1 ? 's' : ''}, {resaleProjectsCount > 0 ? `${resaleProjectsCount}+` : '0'} Resale Project{resaleProjectsCount !== 1 ? 's' : ''} and {ownerPropertiesCount > 0 ? `${ownerPropertiesCount}+` : '0'} Owner Propert{ownerPropertiesCount !== 1 ? 'ies' : 'y'} for {listingMode === 'RENT' ? 'rent' : 'sale'} in {targetCity}. 100% Verified Properties.
             </p>
 
             {loading && storeProperties.length === 0 ? (
