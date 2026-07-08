@@ -177,7 +177,17 @@ const DWARKA_FALLBACK: NearbyPlace[] = [
   { id: 'fb-shop', label: 'City Shopping Plaza', name: 'Vegas Mall / City Centre', distanceKm: 2.0, icon: 'shopping' },
 ]
 
-export async function fetchNearbyPlaces(lat: number, lng: number): Promise<NearbyPlace[]> {
+export function getDynamicFallback(property: Property): NearbyPlace[] {
+  const prefix = property.address?.split(',')[0]?.trim() || property.city || 'Local'
+  return [
+    { id: 'fb-metro', label: 'Metro / Sub Station', name: `${prefix} transit corridor`, distanceKm: 1.2, icon: 'metro' },
+    { id: 'fb-school', label: 'Public Schools', name: `${prefix} area school cluster`, distanceKm: 1.5, icon: 'school' },
+    { id: 'fb-hospital', label: 'Multi Specialty Hospital', name: `${prefix} local hospitals`, distanceKm: 2.1, icon: 'hospital' },
+    { id: 'fb-shop', label: 'City Shopping Plaza', name: `${prefix} market zone`, distanceKm: 2.5, icon: 'shopping' },
+  ]
+}
+
+export async function fetchNearbyPlaces(lat: number, lng: number, property?: Property): Promise<NearbyPlace[]> {
   const radius = 5000
   const query = `
 [out:json][timeout:20];
@@ -211,12 +221,12 @@ out center;
     /* fallback */
   }
 
-  return DWARKA_FALLBACK
+  return property ? getDynamicFallback(property) : DWARKA_FALLBACK
 }
 
 export async function fetchLocalityData(property: Property) {
   const coords = await geocodeProperty(property)
-  const nearby = await fetchNearbyPlaces(coords.lat, coords.lng)
+  const nearby = await fetchNearbyPlaces(coords.lat, coords.lng, property)
   const query = buildGeocodeQuery(property)
   return {
     ...coords,
