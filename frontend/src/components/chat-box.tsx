@@ -51,6 +51,7 @@ export function ChatBox() {
   const [ws, setWs] = useState<WebSocket | null>(null)
   const [sellerInfo, setSellerInfo] = useState<any | null>(null)
   const [propertyInfo, setPropertyInfo] = useState<any | null>(null)
+  const [conversations, setConversations] = useState<any[]>([])
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -265,6 +266,37 @@ export function ChatBox() {
     return () => clearInterval(intervalId)
   }, [isOpen, token, isAuthenticated, conversationId, API_URL])
 
+  // Poll conversations for unread messages when widget is closed
+  useEffect(() => {
+    if (isOpen || !token || !isAuthenticated) return
+
+    const checkUnread = async () => {
+      try {
+        const res = await fetch(`${API_URL}/chat/conversations`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setConversations(data)
+        }
+      } catch (err) {
+        console.warn('Unread checker error:', err)
+      }
+    }
+
+    checkUnread() // check immediately
+    const intervalId = setInterval(checkUnread, 6000)
+    return () => clearInterval(intervalId)
+  }, [isOpen, token, isAuthenticated, API_URL])
+
+  const totalUnread = useMemo(() => {
+    return conversations.reduce((acc, c) => acc + (c.unreadCount || 0), 0)
+  }, [conversations])
+
+  const latestUnreadConv = useMemo(() => {
+    return conversations.find(c => c.unreadCount > 0)
+  }, [conversations])
+
   // Handle Send Message
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -301,7 +333,49 @@ export function ChatBox() {
     }
   }
 
-  if (!isOpen || !isAuthenticated) return null
+  if (!isAuthenticated) return null
+
+  if (!isOpen && totalUnread > 0) {
+    return (
+      <button
+        onClick={() => {
+          if (latestUnreadConv) {
+            const otherUser = String(latestUnreadConv.buyer?.id) === String(user?.id) 
+              ? latestUnreadConv.seller 
+              : latestUnreadConv.buyer
+            openChat(String(otherUser.id), String(latestUnreadConv.property?.id || ''), {
+              sellerName: otherUser.name,
+              sellerPhone: otherUser.phone,
+              sellerProfileImage: otherUser.profileImage,
+              propertyTitle: latestUnreadConv.property?.title,
+              propertyPrice: latestUnreadConv.property?.price,
+              propertyImage: latestUnreadConv.property?.images ? getImageUrl(latestUnreadConv.property.images) : ''
+            })
+          } else if (conversations.length > 0) {
+            const first = conversations[0]
+            const otherUser = String(first.buyer?.id) === String(user?.id) ? first.seller : first.buyer
+            openChat(String(otherUser.id), String(first.property?.id || ''), {
+              sellerName: otherUser.name,
+              sellerPhone: otherUser.phone,
+              sellerProfileImage: otherUser.profileImage,
+              propertyTitle: first.property?.title,
+              propertyPrice: first.property?.price,
+              propertyImage: first.property?.images ? getImageUrl(first.property.images) : ''
+            })
+          }
+        }}
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 bg-[#0a2540] text-white p-4 rounded-full shadow-2xl hover:scale-105 transition-all flex items-center justify-center cursor-pointer border border-[#dfa127]/30 hover:bg-[#07192c] group"
+        aria-label="View unread messages"
+      >
+        <MessageSquare className="w-6 h-6 text-white group-hover:rotate-12 transition-transform" />
+        <span className="absolute -top-1.5 -right-1.5 bg-[#f22b68] text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center animate-bounce shadow-md border-2 border-white">
+          {totalUnread}
+        </span>
+      </button>
+    )
+  }
+
+  if (!isOpen) return null
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[360px] sm:w-[400px] h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden z-50 transition-all duration-300">
