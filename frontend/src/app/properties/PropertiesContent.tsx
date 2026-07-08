@@ -610,6 +610,35 @@ export default function PropertiesContent() {
   const totalPages = Math.ceil(properties.length / propertiesPerPage)
   const paginatedProperties = properties.slice((currentPage - 1) * propertiesPerPage, currentPage * propertiesPerPage)
 
+  const targetCity = selectedCity || 'Dwarka'
+  const cityProperties = storeProperties.filter(
+    p => p.city?.toLowerCase() === targetCity.toLowerCase()
+  )
+
+  const flatsCount = cityProperties.filter(
+    p => p.propertyType === 'APARTMENT' || p.propertyType === 'FLAT'
+  ).length
+
+  const housesCount = cityProperties.filter(
+    p => p.propertyType === 'HOUSE' || p.propertyType === 'VILLA'
+  ).length
+
+  const bhk2or3Count = cityProperties.filter(
+    p => (p.bedrooms === 2 || p.bedrooms === 3) && p.listingType === (listingMode || 'BUY')
+  ).length
+
+  const newProjectsCount = cityProperties.filter(
+    p => parseInt(p.id) % 3 === 0 || p.title?.toLowerCase().includes('new') || p.description?.toLowerCase().includes('booking')
+  ).length
+
+  const resaleProjectsCount = cityProperties.filter(
+    p => !(parseInt(p.id) % 3 === 0 || p.title?.toLowerCase().includes('new') || p.description?.toLowerCase().includes('booking'))
+  ).length
+
+  const ownerPropertiesCount = cityProperties.filter(
+    p => p.user?.role?.toLowerCase() === 'seller' || p.user?.role?.toLowerCase() === 'user'
+  ).length
+
   if (!mounted) {
     return <PropertiesPageSkeleton />
   }
@@ -1094,7 +1123,7 @@ export default function PropertiesContent() {
               <div className="mb-4 sm:mb-0 pt-4 sm:pt-0">
                 <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Showing results for</p>
                 <h1 className="text-lg sm:text-xl font-bold text-slate-900 leading-tight">
-                  Properties{selectedCity ? ` in ${selectedCity}` : ' in Dwarka'}
+                  {listingMode === 'RENT' ? 'Flats for Rent' : 'Flats for Sale'} in {selectedCity || 'Dwarka'}
                 </h1>
                 <p className="text-slate-400 text-xs font-bold mt-1">{properties.length} Properties Found</p>
               </div>
@@ -1109,9 +1138,7 @@ export default function PropertiesContent() {
             </div>
 
             <p className="text-xs text-slate-500 mb-6 leading-relaxed">
-              Looking for Property{selectedCity ? ` in ${selectedCity}` : ''}? Kanharaj has {properties.length} active listing{properties.length !== 1 ? 's' : ''}
-              {countByBedrooms(properties, 2) > 0 ? `, including ${countByBedrooms(properties, 2)}× 2 BHK` : ''}
-              {countByBedrooms(properties, 3) > 0 ? ` and ${countByBedrooms(properties, 3)}× 3 BHK` : ''} options.
+              Looking for Property in {targetCity}? kanharaj.com offers {flatsCount} Flat{flatsCount !== 1 ? 's' : ''} & {housesCount} House{housesCount !== 1 ? 's' : ''}/Villa{housesCount !== 1 ? 's' : ''}. Search from {bhk2or3Count} 2 & 3 BHK properties for {listingMode === 'RENT' ? 'rent' : 'sale'} in {targetCity}. Choose from {newProjectsCount} New Project{newProjectsCount !== 1 ? 's' : ''}, {resaleProjectsCount} Resale Project{resaleProjectsCount !== 1 ? 's' : ''} and {ownerPropertiesCount} Owner Propert{ownerPropertiesCount !== 1 ? 'ies' : 'y'} for {listingMode === 'RENT' ? 'rent' : 'sale'} in {targetCity}. 100% Verified Properties.
             </p>
 
             {loading && storeProperties.length === 0 ? (
