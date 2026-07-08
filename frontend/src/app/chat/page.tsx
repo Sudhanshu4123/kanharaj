@@ -353,16 +353,6 @@ function ChatContent() {
     }
   }
 
-  // Filter conversations based on search text
-  const filteredConversations = useMemo(() => {
-    return conversations.filter(c => {
-      const recipient = getRecipientInfo(c)
-      const nameMatch = recipient?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-      const propMatch = c.property?.title?.toLowerCase().includes(searchTerm.toLowerCase())
-      return nameMatch || propMatch
-    })
-  }, [conversations, searchTerm, user?.id])
-
   // Get recipient profile display info
   const getRecipientInfo = (conv: any) => {
     if (!user) return { name: '', email: '', phone: '', profileImage: '' }
@@ -382,6 +372,16 @@ function ChatContent() {
       profileImage: realProfileImage
     }
   }
+
+  // Filter conversations based on search text
+  const filteredConversations = useMemo(() => {
+    return conversations.filter(c => {
+      const recipient = getRecipientInfo(c)
+      const nameMatch = recipient?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      const propMatch = c.property?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+      return nameMatch || propMatch
+    })
+  }, [conversations, searchTerm, user?.id])
 
   if (!authReady || loading) {
     return (
