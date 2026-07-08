@@ -82,24 +82,80 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     place = city || state || search || 'All India'
   }
 
-  let typePrefix = 'Flats'
-  if (type) {
-    const t = type.toLowerCase()
-    if (t.includes('villa')) typePrefix = 'Villas'
-    else if (t.includes('house')) typePrefix = 'Houses'
-    else if (t.includes('plot') || t.includes('land')) typePrefix = 'Plots/Land'
-    else if (t.includes('floor')) typePrefix = 'Builder Floors'
-    else if (t.includes('commercial')) typePrefix = 'Commercial Properties'
-    else if (t.includes('pg')) typePrefix = 'PGs'
-    else typePrefix = type.charAt(0).toUpperCase() + type.slice(1) + 's'
+  const normalizedPlace = place.toLowerCase().trim()
+  let title = ''
+  let description = ''
+  const customKeywords: string[] = []
+  let isProjectMatch = false
+
+  if (normalizedPlace.includes('ats greens') || normalizedPlace.includes('sector- 50, gurgaon') || normalizedPlace.includes('sector 50 gurgaon')) {
+    title = '3 BHK Apartment in Ats greens a block sector- 50, gurgaon'
+    description = 'Explore premium 3 BHK apartments for sale & rent in ATS Greens A Block, Sector 50, Gurgaon. Browse verified listings, floor plans, zero brokerage options, and top amenities at kanharaj.com.'
+    customKeywords.push('3 BHK Apartment in Ats greens a block sector- 50, gurgaon', 'ATS Greens Sector 50 Gurgaon')
+    isProjectMatch = true
+  } else if (normalizedPlace.includes('ats grandstand') || normalizedPlace.includes('sector- 99a') || normalizedPlace.includes('sector 99a')) {
+    title = '3 BHK Apartment in Ats grandstand sector- 99a gurgaon dwarka expressway'
+    description = 'Discover premium 3 BHK apartments for sale & rent in ATS Grandstand, Sector 99A, Gurgaon near Dwarka Expressway. View verified listings, real photos, floor configurations, and pricing options at kanharaj.com.'
+    customKeywords.push('3 BHK Apartment in Ats grandstand sector- 99a gurgaon dwarka expressway', 'ATS Grandstand Sector 99A')
+    isProjectMatch = true
+  } else if (normalizedPlace.includes('sara crescent') || normalizedPlace.includes('sector- 92') || normalizedPlace.includes('sector 92')) {
+    title = '3 BHK Apartment in Sara crescent green Park sector- 92, gurgaon'
+    description = 'Browse beautiful 3 BHK apartments for sale & rent in Sara Crescent Green Park, Sector 92, Gurgaon. Explore verified listings, pricing, nearby locations, and zero brokerage options on kanharaj.com.'
+    customKeywords.push('3 BHK Apartment in Sara crescent green Park sector- 92, gurgaon', 'Sara Crescent Sector 92 Gurgaon')
+    isProjectMatch = true
+  } else if (normalizedPlace.includes('ats triumph') || normalizedPlace.includes('triumph dhanwanpur')) {
+    title = '3 BHK Apartment in Ats triumph dhanwanpur village sector- 104, gurgaon'
+    description = 'Looking for a 3 BHK in ATS Triumph? Explore premium apartments in ATS Triumph, Dhanwapur Village, Sector 104, Gurgaon. Browse verified direct-from-owner and zero-brokerage listings at kanharaj.com.'
+    customKeywords.push('3 BHK Apartment in Ats triumph dhanwanpur village sector- 104, gurgaon', 'ATS Triumph Sector 104')
+    isProjectMatch = true
+  } else if (normalizedPlace.includes('ats kocoon') || normalizedPlace.includes('sector- 109') || normalizedPlace.includes('sector 109')) {
+    title = '3 BHK Apartment in Ats kocoon sector- 109, gurgaon dwarka expressway'
+    description = 'Explore luxury 3 BHK apartments in ATS Kocoon, Sector 109, Gurgaon on Dwarka Expressway. Find verified residential properties for sale and rent with premium amenities on kanharaj.com.'
+    customKeywords.push('3 BHK Apartment in Ats kocoon sector- 109, gurgaon dwarka expressway', 'ATS Kocoon Sector 109')
+    isProjectMatch = true
+  } else if (normalizedPlace.includes('ats sanctuary') || normalizedPlace.includes('jayvihar') || normalizedPlace.includes('sector- 105') || normalizedPlace.includes('sector 105')) {
+    title = '3 BHK Apartment in Ats sanctuary jayvihar sector- 105, gurgaon dwarka expressway'
+    description = 'Browse premium 3 BHK apartments for sale & rent in ATS Sanctuary, Jay Vihar, Sector 105, Gurgaon near Dwarka Expressway. View verified listings and pricing at kanharaj.com.'
+    customKeywords.push('3 BHK Apartment in Ats sanctuary jayvihar sector- 105, gurgaon dwarka expressway', 'ATS Sanctuary Sector 105')
+    isProjectMatch = true
+  } else if (normalizedPlace.includes('centrum park') || normalizedPlace.includes('indiabulls') || normalizedPlace.includes('sector- 103') || normalizedPlace.includes('sector 103')) {
+    title = '2 BHK Apartment in Indiabulls Centrum park sector- 103, gurgaon dwarka expressway'
+    description = 'Find verified 2 BHK apartments in Indiabulls Centrum Park, Sector 103, Gurgaon along Dwarka Expressway. View direct seller listings, floor plans, and pricing on kanharaj.com.'
+    customKeywords.push('2 BHK Apartment in Indiabulls Centrum park sector- 103, gurgaon dwarka expressway', 'Centrum Park Sector 103')
+    isProjectMatch = true
+  } else if (normalizedPlace.includes('hero homes')) {
+    title = '3 BHK Apartment in Hero homes sector- 104 gurgaon'
+    description = 'Explore premium 3 BHK flats for sale & rent in Hero Homes, Sector 104, Gurgaon. Browse verified configurations, amenities, location benefits, and zero brokerage options on kanharaj.com.'
+    customKeywords.push('3 BHK Apartment in Hero homes sector- 104 gurgaon', 'Hero Homes Sector 104 Gurgaon')
+    isProjectMatch = true
   }
 
-  const actionVerb = listing.toLowerCase() === 'rent' ? 'Rent' : 'Sale'
-  const title = `${typePrefix} for ${actionVerb} in ${place} | kanharaj.com`
+  if (!isProjectMatch) {
+    let typePrefix = 'Flats'
+    if (type) {
+      const t = type.toLowerCase()
+      if (t.includes('villa')) typePrefix = 'Villas'
+      else if (t.includes('house')) typePrefix = 'Houses'
+      else if (t.includes('plot') || t.includes('land')) typePrefix = 'Plots/Land'
+      else if (t.includes('floor')) typePrefix = 'Builder Floors'
+      else if (t.includes('commercial')) typePrefix = 'Commercial Properties'
+      else if (t.includes('pg')) typePrefix = 'PGs'
+      else typePrefix = type.charAt(0).toUpperCase() + type.slice(1) + 's'
+    }
 
-  const description = await buildDynamicSeoDescription(place, listing || 'BUY')
+    const actionVerb = listing.toLowerCase() === 'rent' ? 'Rent' : 'Sale'
+    title = `${typePrefix} for ${actionVerb} in ${place} | kanharaj.com`
+    description = await buildDynamicSeoDescription(place, listing || 'BUY')
+
+    customKeywords.push(
+      `${typePrefix.toLowerCase()} for ${actionVerb.toLowerCase()} in ${place}`,
+      `properties in ${place}`,
+      `verified properties in ${place}`
+    )
+  }
 
   const keywords = [
+    ...customKeywords,
     `flats for sale in ${place}`,
     `properties in ${place}`,
     `rent flat in ${place}`,
