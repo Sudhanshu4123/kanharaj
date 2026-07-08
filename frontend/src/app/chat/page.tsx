@@ -266,6 +266,46 @@ function ChatContent() {
     }
   }, [token, isAuthenticated, activeConv?.id])
 
+  // Polling fallback when WebSocket is not active or drops
+  useEffect(() => {
+    if (!token || !isAuthenticated) return
+
+    const pollMessagesAndConversations = async () => {
+      try {
+        // 1. Fetch conversations list
+        const convRes = await fetch(`${API_URL}/chat/conversations`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        if (convRes.ok) {
+          const convData = await convRes.json()
+          setConversations(prev => {
+            if (JSON.stringify(convData) === JSON.stringify(prev)) return prev
+            return convData
+          })
+        }
+
+        // 2. Fetch active conversation messages
+        if (activeConv?.id) {
+          const msgRes = await fetch(`${API_URL}/chat/conversations/${activeConv.id}/messages`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+          if (msgRes.ok) {
+            const msgData = await msgRes.json()
+            setMessages(prev => {
+              if (msgData.length === prev.length) return prev
+              return msgData
+            })
+          }
+        }
+      } catch (err) {
+        console.warn('Chat Page polling error:', err)
+      }
+    }
+
+    const intervalId = setInterval(pollMessagesAndConversations, 3000)
+    return () => clearInterval(intervalId)
+  }, [token, isAuthenticated, activeConv?.id, API_URL])
+
   // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })

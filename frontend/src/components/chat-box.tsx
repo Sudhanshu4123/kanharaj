@@ -201,6 +201,32 @@ export function ChatBox() {
     }
   }, [isOpen, token, isAuthenticated, conversationId, API_URL])
 
+  // Polling fallback when WebSocket is not active or drops
+  useEffect(() => {
+    if (!isOpen || !token || !isAuthenticated || !conversationId) return
+
+    const pollMessages = async () => {
+      try {
+        const res = await fetch(`${API_URL}/chat/conversations/${conversationId}/messages`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setMessages(prev => {
+            // Only update state if message length has changed to avoid unnecessary re-renders
+            if (data.length === prev.length) return prev
+            return data
+          })
+        }
+      } catch (err) {
+        console.warn('ChatBox polling error:', err)
+      }
+    }
+
+    const intervalId = setInterval(pollMessages, 3000)
+    return () => clearInterval(intervalId)
+  }, [isOpen, token, isAuthenticated, conversationId, API_URL])
+
   // Handle Send Message
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
