@@ -33,11 +33,19 @@ export function computeProximityScore(places: NearbyPlace[]): number {
   return Math.round(Math.min(9.8, Math.max(6.5, 10 - avg * 1.15)) * 10) / 10
 }
 
-export function buildMapEmbedUrl(lat: number, lng: number): string {
+export function buildMapEmbedUrl(lat: number, lng: number, query?: string): string {
+  const isFallback = Math.abs(lat - DWARKA_CENTER.lat) < 0.0001 && Math.abs(lng - DWARKA_CENTER.lng) < 0.0001
+  if (isFallback && query) {
+    return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&hl=en&z=15&output=embed`
+  }
   return `https://maps.google.com/maps?q=${lat},${lng}&hl=en&z=15&output=embed`
 }
 
 export function buildGoogleMapsUrl(lat: number, lng: number, label: string): string {
+  const isFallback = Math.abs(lat - DWARKA_CENTER.lat) < 0.0001 && Math.abs(lng - DWARKA_CENTER.lng) < 0.0001
+  if (isFallback) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(label)}`
+  }
   return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${encodeURIComponent(label)}`
 }
 
@@ -48,6 +56,18 @@ function buildGeocodeQuery(property: Property): string {
 }
 
 export async function geocodeProperty(property: Property): Promise<{ lat: number; lng: number; displayName: string }> {
+  // 1. Check verified coordinates first
+  const vLat = Number(property.verificationLatitude)
+  const vLng = Number(property.verificationLongitude)
+  if (property.verified && Number.isFinite(vLat) && Number.isFinite(vLng) && vLat !== 0 && vLng !== 0) {
+    return {
+      lat: vLat,
+      lng: vLng,
+      displayName: [property.address, property.city].filter(Boolean).join(', '),
+    }
+  }
+
+  // 2. Check standard coordinates
   const lat = Number(property.latitude)
   const lng = Number(property.longitude)
   if (Number.isFinite(lat) && Number.isFinite(lng) && lat !== 0 && lng !== 0) {
@@ -60,7 +80,10 @@ export async function geocodeProperty(property: Property): Promise<{ lat: number
 
   const query = buildGeocodeQuery(property)
   if (!query) {
-    return { ...DWARKA_CENTER, displayName: property.city || 'Dwarka, New Delhi' }
+    return { 
+      ...DWARKA_CENTER, 
+      displayName: [property.address, property.city].filter(Boolean).join(', ') || 'Dwarka, New Delhi' 
+    }
   }
 
   try {
@@ -81,7 +104,10 @@ export async function geocodeProperty(property: Property): Promise<{ lat: number
     /* fall through */
   }
 
-  return { ...DWARKA_CENTER, displayName: property.city || 'Dwarka, New Delhi' }
+  return { 
+    ...DWARKA_CENTER, 
+    displayName: [property.address, property.city].filter(Boolean).join(', ') || 'Dwarka, New Delhi' 
+  }
 }
 
 type OsmElement = {
@@ -191,11 +217,12 @@ out center;
 export async function fetchLocalityData(property: Property) {
   const coords = await geocodeProperty(property)
   const nearby = await fetchNearbyPlaces(coords.lat, coords.lng)
+  const query = buildGeocodeQuery(property)
   return {
     ...coords,
     nearby,
     proximityScore: computeProximityScore(nearby),
-    mapEmbedUrl: buildMapEmbedUrl(coords.lat, coords.lng),
+    mapEmbedUrl: buildMapEmbedUrl(coords.lat, coords.lng, query || coords.displayName),
     googleMapsUrl: buildGoogleMapsUrl(coords.lat, coords.lng, coords.displayName),
   }
 }
