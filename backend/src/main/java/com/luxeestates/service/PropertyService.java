@@ -149,7 +149,11 @@ public class PropertyService {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
 
-        if (!property.getUser().getId().equals(userId)) {
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        boolean isAdmin = currentUser.getRole() == User.Role.ADMIN;
+
+        if (!property.getUser().getId().equals(userId) && !isAdmin) {
             throw new RuntimeException("Unauthorized to update this property");
         }
 
@@ -178,7 +182,11 @@ public class PropertyService {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
 
-        if (!property.getUser().getId().equals(userId)) {
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        boolean isAdmin = currentUser.getRole() == User.Role.ADMIN;
+
+        if (!property.getUser().getId().equals(userId) && !isAdmin) {
             throw new RuntimeException("Unauthorized to delete this property");
         }
 

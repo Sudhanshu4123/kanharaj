@@ -46,6 +46,13 @@ export default function ListingsPage() {
     loadProperties()
   }, [router])
 
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 30
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery])
+
   const getPropertyThumbnail = (images: string[]) => {
     if (!images || images.length === 0) return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800'
     const first = images[0]
@@ -131,6 +138,10 @@ export default function ListingsPage() {
     p.city?.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  const totalPages = Math.ceil(filtered.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedItems = filtered.slice(startIndex, startIndex + itemsPerPage)
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
@@ -197,16 +208,16 @@ export default function ListingsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filtered.length === 0 ? (
+              {paginatedItems.length === 0 ? (
                 <tr><td colSpan={6} className="px-8 py-20 text-center text-slate-400 font-bold uppercase text-xs opacity-40">No Matching Assets Available</td></tr>
               ) : (
-                filtered.map((p, idx) => (
+                paginatedItems.map((p, idx) => (
                   <tr key={p.id} className="hover:bg-slate-50/30 transition-colors group">
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-5">
                         <div className="w-14 h-14 rounded-xl bg-slate-100 overflow-hidden border border-slate-200 shrink-0 shadow-sm relative">
                           <img src={getPropertyThumbnail(p.images)} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                          <div className="absolute top-1 left-1 bg-white/90 px-1 py-0.5 rounded text-[7px] font-black text-slate-500 border border-slate-200">#{idx + 1}</div>
+                          <div className="absolute top-1 left-1 bg-white/90 px-1 py-0.5 rounded text-[7px] font-black text-slate-500 border border-slate-200">#{startIndex + idx + 1}</div>
                         </div>
                         <div className="min-w-0 max-w-[240px]">
                           <div className="font-black text-slate-700 text-sm truncate leading-tight mb-1 group-hover:text-[#dfa127] transition-colors">{p.title}</div>
@@ -253,6 +264,36 @@ export default function ListingsPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Bar */}
+        {totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between px-8 py-5 bg-slate-50/50 border-t border-slate-100 gap-4">
+            <span className="text-slate-500 font-bold text-[10px] uppercase tracking-wider">
+              Showing {startIndex + 1} - {Math.min(startIndex + itemsPerPage, filtered.length)} of {filtered.length} assets
+            </span>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className="h-9 px-4 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white active:scale-95 transition-all shadow-sm"
+              >
+                Prev
+              </button>
+              <span className="text-[10px] font-black text-slate-700 px-3 py-2 bg-white rounded-xl border border-slate-200 shadow-sm">
+                Page {currentPage} / {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="h-9 px-4 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white active:scale-95 transition-all shadow-sm"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* CREATE/EDIT FORM MODAL */}

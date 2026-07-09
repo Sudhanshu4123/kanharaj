@@ -64,6 +64,13 @@ export default function LeadsPage() {
     setTimeout(() => setMsg(''), 4000)
   }
 
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 30
+
+  const totalPages = Math.ceil(leads.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedLeads = leads.slice(startIndex, startIndex + itemsPerPage)
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
@@ -111,7 +118,7 @@ export default function LeadsPage() {
             <p className="text-slate-400 font-black uppercase text-[10px] tracking-widest">No pipeline inquiries recorded</p>
           </div>
         ) : (
-          leads.map(inq => {
+          paginatedLeads.map((inq, idx) => {
             const waMsg = encodeURIComponent(
               `Hello ${inq.name}! Thank you for reaching out to Kanharaj. Regarding your inquiry: "${(inq.message || '').slice(0, 100)}..." — we'd love to help. Please let us know a good time to connect. - Kanharaj Team`
             )
@@ -121,7 +128,7 @@ export default function LeadsPage() {
             return (
               <div key={inq.id} className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-[#dfa127]/60 transition-all relative overflow-hidden group">
                 <div className="absolute top-0 left-0 bg-[#0a2540] text-white px-3 py-1 text-[8px] font-black uppercase tracking-wider rounded-br-xl">
-                  Lead #{leads.indexOf(inq) + 1}
+                  Lead #{startIndex + idx + 1}
                 </div>
                 <div className="flex gap-5 items-start flex-1 mt-4 md:mt-0">
                   <div className="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center text-sm font-black group-hover:bg-[#dfa127] group-hover:text-[#0a2540] transition-all shrink-0 shadow">
@@ -186,6 +193,36 @@ export default function LeadsPage() {
           })
         )}
       </div>
+
+      {/* Pagination Bar */}
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-5 bg-white rounded-[2rem] border border-slate-200 shadow-sm gap-4">
+          <span className="text-slate-500 font-bold text-[10px] uppercase tracking-wider">
+            Showing {startIndex + 1} - {Math.min(startIndex + itemsPerPage, leads.length)} of {leads.length} leads
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              className="h-9 px-4 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white active:scale-95 transition-all shadow-sm"
+            >
+              Prev
+            </button>
+            <span className="text-[10px] font-black text-slate-700 px-3 py-2 bg-white rounded-xl border border-slate-200 shadow-sm">
+              Page {currentPage} / {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="h-9 px-4 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white active:scale-95 transition-all shadow-sm"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* CONFIRM DELETE DIALOG */}
       <AnimatePresence>
