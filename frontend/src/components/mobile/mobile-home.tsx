@@ -157,8 +157,14 @@ export function MobileHome() {
                   href={`/property/${property.id}`}
                   className="block bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm"
                 >
-                  <div className="relative aspect-[16/10] w-full">
-                    <Image src={img} alt={property.title} fill className="object-cover" />
+                  <div className="relative aspect-[16/10] w-full bg-slate-100 flex items-center justify-center text-slate-400">
+                    {property.images && property.images.length > 0 && property.images[0] && property.images[0] !== '[]' ? (
+                      <Image src={img} alt={property.title} fill className="object-cover" />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center gap-1 text-slate-300">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">No Image</span>
+                      </div>
+                    )}
                     <button
                       type="button"
                       onClick={(e) => {

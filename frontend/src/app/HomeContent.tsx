@@ -356,12 +356,18 @@ export default function HomeContent() {
                     className="group bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg hover:border-rose-500/30 transition-all duration-300 flex flex-col h-full max-w-[380px] w-full mx-auto"
                   >
                     {/* Image Area */}
-                    <div className="relative h-28 sm:h-52 overflow-hidden shrink-0 w-full">
-                      <img
-                        src={getPropertyImageUrl(property)}
-                        alt={property.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-[0.93]"
-                      />
+                    <div className="relative h-28 sm:h-52 overflow-hidden shrink-0 w-full bg-slate-100 flex items-center justify-center text-slate-400">
+                      {property.images && property.images.length > 0 && property.images[0] && property.images[0] !== '[]' ? (
+                        <img
+                          src={getPropertyImageUrl(property)}
+                          alt={property.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-[0.93]"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center gap-1 text-slate-300">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">No Image</span>
+                        </div>
+                      )}
                       {/* Gradient bottom shadow to ensure overlay readability */}
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
 

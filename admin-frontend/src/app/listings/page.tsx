@@ -337,7 +337,7 @@ export default function ListingsPage() {
                   <div className="space-y-1.5">
                     <label className="text-[9px] uppercase tracking-wider text-slate-400">Property Type</label>
                     <select value={propForm.propertyType || 'APARTMENT'} onChange={e => setPropForm({ ...propForm, propertyType: e.target.value as any })} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold outline-none focus:border-[#dfa127] cursor-pointer">
-                      {['APARTMENT','HOUSE','VILLA','FLAT','PLOT','PG','HOTEL','COMMERCIAL','RESIDENTIAL PROJECT'].map(t => <option key={t} value={t}>{t}</option>)}
+                      {['APARTMENT', 'HOUSE', 'VILLA', 'FLAT', 'PLOT', 'PG', 'HOTEL', 'COMMERCIAL', 'RESIDENTIAL PROJECT'].map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
                   <div className="space-y-1.5">

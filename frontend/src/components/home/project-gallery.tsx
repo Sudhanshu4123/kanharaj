@@ -52,13 +52,19 @@ export function ProjectGallery() {
                   className="group"
                 >
                   <Link href={`/property/${project.id}`} className="block">
-                    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-xl">
-                      <Image
-                        src={getPropertyImageUrl(project)}
-                        alt={project.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                      {project.images && project.images.length > 0 && project.images[0] && project.images[0] !== '[]' ? (
+                        <Image
+                          src={getPropertyImageUrl(project)}
+                          alt={project.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center gap-1 text-slate-300">
+                          <span className="text-xs font-black uppercase tracking-widest text-slate-400">No Image</span>
+                        </div>
+                      )}
                       <div className="absolute top-4 left-4">
                         <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[10px] font-bold text-slate-900 uppercase tracking-widest shadow-sm">
                           {status}

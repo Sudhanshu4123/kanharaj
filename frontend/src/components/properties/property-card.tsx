@@ -28,9 +28,9 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
 
   const getImageUrl = (imageInput: any) => {
     let url = '';
-    
+
     if (!imageInput) return '/placeholder.png';
-    
+
     // If it's an array, take the first one
     if (Array.isArray(imageInput) && imageInput.length > 0) {
       url = imageInput[0];
@@ -49,14 +49,14 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
     }
 
     if (!url || url === '[]') return '/placeholder.png';
-    
+
     // Handle Cloudinary/External vs Local
     if (url.startsWith('http')) {
       // Don't force HTTPS for localhost (development)
       if (url.includes('localhost')) return url;
       return url.replace('http://', 'https://');
     }
-    
+
     const apiUrl = getApiUrl()?.replace(/\/api$/, '') || '';
     return `${apiUrl}${url.startsWith('/') ? '' : '/'}${url}`;
   };
@@ -87,7 +87,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
               className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            
+
             {/* Badges */}
             <div className="absolute top-3 left-3 flex flex-wrap gap-2">
               <Badge variant={isForRent ? 'warning' : 'success'} className="shadow-md">
@@ -105,9 +105,9 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
 
             {/* Property Type Floating Badge */}
             <div className="absolute top-3 right-3 z-20">
-               <span className="bg-black/50 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">
-                 {property.propertyType}
-               </span>
+              <span className="bg-black/50 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">
+                {property.propertyType}
+              </span>
             </div>
 
             {/* Price */}
@@ -126,7 +126,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
                 {property.title}
               </h3>
             </div>
-            
+
             <div className="flex items-center text-slate-500 text-xs mb-3">
               <MapPin className="h-3 w-3 mr-1 flex-shrink-0 text-rose-500" />
               <span className="line-clamp-1">
@@ -177,7 +177,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
                 </div>
               </div>
             </div>
-            
+
             <Button variant="outline" className="w-full mt-2 group-hover:bg-rose-600 group-hover:text-white group-hover:border-rose-600 transition-all text-xs h-9">
               View Details
             </Button>
@@ -187,28 +187,28 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
 
       {/* Action Buttons (Moved outside Link to fix Hydration Error) */}
       <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
-        <button 
+        <button
           className={cn(
             "p-2 rounded-full transition-all shadow-md backdrop-blur-md",
             isWishlisted ? "bg-rose-600 text-white" : "bg-white/90 text-slate-700 hover:bg-white"
           )}
           aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-          onClick={(e) => { 
-            e.preventDefault(); 
+          onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             toggleWishlist(String(property.id))
           }}
         >
           <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
         </button>
-        <button 
+        <button
           className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md backdrop-blur-md text-slate-700"
           aria-label="Share property"
-          onClick={(e) => { 
-            e.preventDefault(); 
+          onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             if (navigator.share) {
-               navigator.share({ title: property.title, url: window.location.href + 'property/' + property.id })
+              navigator.share({ title: property.title, url: window.location.href + 'property/' + property.id })
             }
           }}
         >
