@@ -30,7 +30,7 @@ const socialLinks = [
   { icon: Twitter, href: '#', label: 'Twitter' },
   { icon: Instagram, href: '#', label: 'Instagram' },
   { icon: Linkedin, href: 'https://www.linkedin.com/company/kanharaj-com/?viewAsMember=true', label: 'LinkedIn' },
-  { icon: Youtube, href: '#', label: 'YouTube' },
+  { icon: Youtube, href: 'https://www.youtube.com/@KanhaRaj4', label: 'YouTube' },
 ]
 
 export function Footer() {

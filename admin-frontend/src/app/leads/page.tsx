@@ -37,7 +37,6 @@ export default function LeadsPage() {
     loadLeads()
   }, [router])
 
-  // Handle status update
   const handleStatusChange = async (inqId: string, newStatus: string) => {
     if (!token) return
     try {
@@ -50,7 +49,6 @@ export default function LeadsPage() {
     setTimeout(() => setMsg(''), 4000)
   }
 
-  // Handle delete confirmation
   const confirmInquiryDelete = async () => {
     if (!deleteInquiryId || !token) return
     const id = deleteInquiryId
@@ -76,8 +74,8 @@ export default function LeadsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      
+    <div className="space-y-6 max-w-5xl mx-auto pb-12">
+
       <AnimatePresence>
         {msg && (
           <motion.div
@@ -93,32 +91,32 @@ export default function LeadsPage() {
         )}
       </AnimatePresence>
 
-      <div className="flex items-center justify-between px-2 mb-8">
+      <div className="flex items-center justify-between px-1">
         <div>
-          <h2 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-3 uppercase tracking-wider">
-            <MessageSquare className="text-[#dfa127] fill-[#dfa127]/10" />
+          <h2 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-3">
+            <MessageSquare className="text-[#dfa127]" size={24} />
             Platform Leads Pipeline
           </h2>
-          <p className="text-slate-500 text-xs italic mt-1 font-semibold">Administrate all buyer inquiry logs across the real estate marketplace.</p>
+          <p className="text-slate-500 text-xs italic mt-1 font-semibold">All buyer inquiry logs across the real estate marketplace.</p>
         </div>
         <div className="px-3.5 py-1.5 bg-[#0a2540] text-white rounded-xl text-[10px] font-black uppercase tracking-wider border border-[#dfa127]/25 shadow-sm">
           Active: {leads.length} Leads
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-5">
         {leads.length === 0 ? (
           <div className="bg-white rounded-[2rem] p-20 text-center border border-slate-200 shadow-sm">
             <Mail size={40} className="mx-auto text-slate-200 mb-4" />
-            <p className="text-slate-405 font-black uppercase text-[10px] tracking-widest">No pipeline inquiries recorded</p>
+            <p className="text-slate-400 font-black uppercase text-[10px] tracking-widest">No pipeline inquiries recorded</p>
           </div>
         ) : (
           leads.map(inq => {
             const waMsg = encodeURIComponent(
-              `Hello ${inq.name}! Thank you for reaching out to Kanharaj. Regarding your inquiry: "${inq.message.slice(0, 100)}..." — I'd love to help you. Please let me know a good time to connect. - Kanharaj`
+              `Hello ${inq.name}! Thank you for reaching out to Kanharaj. Regarding your inquiry: "${(inq.message || '').slice(0, 100)}..." — we'd love to help. Please let us know a good time to connect. - Kanharaj Team`
             )
-            const waUrl = `https://wa.me/${inq.phone.replace(/\D/g, '') || '9599801767'}?text=${waMsg}`
-            const mailUrl = `mailto:${inq.email}?subject=Re: Your Inquiry at Kanharaj&body=Hello ${inq.name},%0D%0A%0D%0AThank you for contacting Kanharaj.%0D%0A%0D%0ARegarding your message: "${inq.message.slice(0, 200)}"%0D%0A%0D%0AWe'd be happy to assist you. Please let us know your preferred time to connect.%0D%0A%0D%0ABest regards,%0D%0AKanharaj%0D%0A+91 9599801767`
+            const waUrl = `https://wa.me/${(inq.phone || '').replace(/\D/g, '') || '9599801767'}?text=${waMsg}`
+            const mailUrl = `mailto:${inq.email}?subject=Re: Your Inquiry at Kanharaj&body=Hello ${inq.name},%0D%0A%0D%0AThank you for contacting Kanharaj.%0D%0A%0D%0ARegarding your message: "${(inq.message || '').slice(0, 200)}"%0D%0A%0D%0AWe'd be happy to assist you. Please let us know your preferred time to connect.%0D%0A%0D%0ABest regards,%0D%0AKanharaj%0D%0A+91 9599801767`
 
             return (
               <div key={inq.id} className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-[#dfa127]/60 transition-all relative overflow-hidden group">
@@ -132,11 +130,10 @@ export default function LeadsPage() {
                   <div className="space-y-1 flex-1 min-w-0">
                     <div className="flex items-center gap-3 flex-wrap">
                       <h4 className="text-sm font-black text-slate-800">{inq.name}</h4>
-                      
                       <select
                         value={inq.status}
                         onChange={(e) => handleStatusChange(inq.id, e.target.value)}
-                        className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border border-slate-200 outline-none cursor-pointer ${inq.status === 'RESOLVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}
+                        className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border outline-none cursor-pointer ${inq.status === 'RESOLVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : inq.status === 'CONTACTED' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}
                       >
                         <option value="PENDING">Pending</option>
                         <option value="CONTACTED">Contacted</option>
@@ -151,7 +148,7 @@ export default function LeadsPage() {
                         <Phone size={11} /> {inq.phone}
                       </a>
                     </div>
-                    <div className="mt-3 p-4 bg-slate-50 border border-slate-100 rounded-xl max-w-xl italic text-slate-650 text-xs font-semibold leading-relaxed">
+                    <div className="mt-3 p-4 bg-slate-50 border border-slate-100 rounded-xl max-w-xl italic text-slate-600 text-xs font-semibold leading-relaxed">
                       "{inq.message}"
                     </div>
                     {inq.createdAt && (
@@ -161,7 +158,7 @@ export default function LeadsPage() {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="w-full md:w-auto flex flex-row md:flex-col items-center md:items-end gap-2.5 shrink-0 pt-2 md:pt-0">
                   <a
                     href={waUrl}
@@ -175,7 +172,7 @@ export default function LeadsPage() {
                     href={mailUrl}
                     className="flex-1 md:flex-none px-4 py-2 bg-[#0a2540] hover:bg-[#07192c] text-white rounded-lg text-[9px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow border border-white/5"
                   >
-                    <Mail size={12} /> Email Reply
+                    <Mail size={12} /> Email
                   </a>
                   <button
                     onClick={() => setDeleteInquiryId(inq.id)}
@@ -190,7 +187,7 @@ export default function LeadsPage() {
         )}
       </div>
 
-      {/* CONFIRM DISCARD LEAD DIALOG */}
+      {/* CONFIRM DELETE DIALOG */}
       <AnimatePresence>
         {deleteInquiryId && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-slate-950/65 backdrop-blur-sm" onClick={() => setDeleteInquiryId(null)}>
@@ -202,24 +199,16 @@ export default function LeadsPage() {
               onClick={e => e.stopPropagation()}
             >
               <div className="w-14 h-14 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Mail size={24} />
+                <Trash2 size={24} />
               </div>
               <h3 className="text-lg font-black text-slate-800 mb-1.5">Remove Inquiry Lead?</h3>
-              <p className="text-slate-500 text-xs font-semibold leading-relaxed mb-6">
-                Are you sure you want to discard this user message lead?
-              </p>
+              <p className="text-slate-500 text-xs font-semibold leading-relaxed mb-6">Are you sure you want to discard this lead?</p>
               <div className="flex gap-3">
-                <button
-                  onClick={confirmInquiryDelete}
-                  className="flex-1 h-11 bg-rose-600 text-white rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-rose-700 transition-all shadow"
-                >
+                <button onClick={confirmInquiryDelete} className="flex-1 h-11 bg-rose-600 text-white rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-rose-700 transition-all shadow">
                   Confirm Delete
                 </button>
-                <button
-                  onClick={() => setDeleteInquiryId(null)}
-                  className="flex-1 h-11 bg-slate-100 text-slate-500 rounded-xl font-bold text-xs uppercase hover:bg-slate-200 transition-all border"
-                >
-                  Discard
+                <button onClick={() => setDeleteInquiryId(null)} className="flex-1 h-11 bg-slate-100 text-slate-500 rounded-xl font-bold text-xs uppercase hover:bg-slate-200 transition-all border">
+                  Cancel
                 </button>
               </div>
             </motion.div>

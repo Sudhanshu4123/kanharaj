@@ -310,13 +310,6 @@ export default function ProfilePage() {
                     </Button>
                   </Link>
                 )}
-                {(user.role === 'ADMIN' || user.role === 'admin') && (
-                  <Link href="/admin" className="mt-2 block">
-                    <Button variant="outline" className="w-full rounded-xl font-bold border-slate-200 text-sm">
-                      Admin Panel
-                    </Button>
-                  </Link>
-                )}
               </div>
             </div>
 

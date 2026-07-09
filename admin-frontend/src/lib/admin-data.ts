@@ -33,12 +33,7 @@ export interface AdminProperty {
   verified?: boolean
   verifiedAt?: string
   userId: string
-  user?: {
-    id: string
-    name: string
-    phone: string
-    profileImage?: string
-  }
+  user?: { id: string; name: string; phone: string; profileImage?: string }
 }
 
 export interface AdminLead {
@@ -63,7 +58,6 @@ export interface DashboardStats {
   pendingInquiries: number
 }
 
-// REST helper to fetch Dashboard stats
 export async function fetchAdminDashboardStats(token: string): Promise<DashboardStats> {
   const res = await fetch(`${getApiUrl()}/admin/dashboard`, {
     headers: { "Authorization": `Bearer ${token}` }
@@ -72,7 +66,6 @@ export async function fetchAdminDashboardStats(token: string): Promise<Dashboard
   return res.json()
 }
 
-// REST helper to fetch all users
 export async function fetchAdminUsers(token: string): Promise<AdminUser[]> {
   const res = await fetch(`${getApiUrl()}/admin/users`, {
     headers: { "Authorization": `Bearer ${token}` }
@@ -81,7 +74,6 @@ export async function fetchAdminUsers(token: string): Promise<AdminUser[]> {
   return res.json()
 }
 
-// REST helper to change user role
 export async function updateUserRoleAPI(userId: string, role: string, token: string): Promise<AdminUser> {
   const res = await fetch(`${getApiUrl()}/admin/users/${userId}/role?role=${role.toUpperCase()}`, {
     method: "PUT",
@@ -91,19 +83,13 @@ export async function updateUserRoleAPI(userId: string, role: string, token: str
   return res.json()
 }
 
-// REST helper to fetch all properties on the platform
 export async function fetchAdminProperties(): Promise<AdminProperty[]> {
   const res = await fetch(`${getApiUrl()}/properties?size=1000`)
   if (!res.ok) throw new Error("Failed to fetch property list")
   const data = await res.json()
-  // Ensure correct property layout mapping
-  return (data.content || data || []).map((p: any) => ({
-    ...p,
-    id: String(p.id)
-  }))
+  return (data.content || data || []).map((p: AdminProperty) => ({ ...p, id: String(p.id) }))
 }
 
-// REST helper to verify/unverify property
 export async function verifyPropertyAPI(propId: string, verified: boolean, token: string): Promise<AdminProperty> {
   const res = await fetch(`${getApiUrl()}/admin/properties/${propId}/verify?verified=${verified}`, {
     method: "PUT",
@@ -113,7 +99,6 @@ export async function verifyPropertyAPI(propId: string, verified: boolean, token
   return res.json()
 }
 
-// REST helper to toggle featured spotlight status on property
 export async function togglePropertyFeaturedAPI(propId: string, featured: boolean, token: string): Promise<AdminProperty> {
   const res = await fetch(`${getApiUrl()}/admin/properties/${propId}/featured?featured=${featured}`, {
     method: "PUT",
@@ -123,7 +108,6 @@ export async function togglePropertyFeaturedAPI(propId: string, featured: boolea
   return res.json()
 }
 
-// REST helper to delete a property listing
 export async function deletePropertyAPI(propId: string, token: string): Promise<void> {
   const res = await fetch(`${getApiUrl()}/properties/${propId}`, {
     method: "DELETE",
@@ -132,7 +116,6 @@ export async function deletePropertyAPI(propId: string, token: string): Promise<
   if (!res.ok) throw new Error("Failed to delete property listing")
 }
 
-// REST helper to fetch all pipeline inquiries
 export async function fetchAdminLeads(token: string): Promise<AdminLead[]> {
   const res = await fetch(`${getApiUrl()}/inquiries`, {
     headers: { "Authorization": `Bearer ${token}` }
@@ -141,7 +124,6 @@ export async function fetchAdminLeads(token: string): Promise<AdminLead[]> {
   return res.json()
 }
 
-// REST helper to patch inquiry status
 export async function updateLeadStatusAPI(inqId: string, status: string, token: string): Promise<AdminLead> {
   const res = await fetch(`${getApiUrl()}/inquiries/${inqId}/status?status=${status.toUpperCase()}`, {
     method: "PATCH",
@@ -151,7 +133,6 @@ export async function updateLeadStatusAPI(inqId: string, status: string, token: 
   return res.json()
 }
 
-// REST helper to delete an inquiry lead
 export async function deleteLeadAPI(inqId: string, token: string): Promise<void> {
   const res = await fetch(`${getApiUrl()}/inquiries/${inqId}`, {
     method: "DELETE",
