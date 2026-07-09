@@ -29,7 +29,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
   const getImageUrl = (imageInput: any) => {
     let url = '';
 
-    if (!imageInput) return '/placeholder.png';
+    if (!imageInput) return '';
 
     // If it's an array, take the first one
     if (Array.isArray(imageInput) && imageInput.length > 0) {
@@ -48,7 +48,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
       }
     }
 
-    if (!url || url === '[]') return '/placeholder.png';
+    if (!url || url === '[]') return '';
 
     // Handle Cloudinary/External vs Local
     if (url.startsWith('http')) {

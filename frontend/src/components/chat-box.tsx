@@ -82,7 +82,7 @@ export function ChatBox() {
   // Helper: Normalize images
   const getImageUrl = (imageInput: any) => {
     let url = '';
-    if (!imageInput) return '/placeholder.png';
+    if (!imageInput) return '';
     if (Array.isArray(imageInput) && imageInput.length > 0) {
       url = imageInput[0];
     } else if (typeof imageInput === 'string') {
@@ -97,7 +97,7 @@ export function ChatBox() {
         url = imageInput;
       }
     }
-    if (!url || url === '[]') return '/placeholder.png';
+    if (!url || url === '[]') return '';
     if (url.startsWith('http')) {
       if (url.includes('localhost')) return url;
       return url.replace('http://', 'https://');

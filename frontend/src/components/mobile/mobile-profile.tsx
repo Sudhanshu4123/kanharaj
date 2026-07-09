@@ -32,7 +32,7 @@ export function MobileProfile({ onEditProfile, onChangePassword }: MobileProfile
 
   const recentWithImages = recentSearches.slice(0, 4).map((s) => {
     const match = properties.find((p) => s.href.includes(String(p.id)))
-    return { ...s, image: match ? getPropertyImageUrl(match) : '/placeholder.png' }
+    return { ...s, image: match ? getPropertyImageUrl(match) : '' }
   })
 
   const menuItems = [
@@ -106,8 +106,12 @@ export function MobileProfile({ onEditProfile, onChangePassword }: MobileProfile
                   href={s.href}
                   className="shrink-0 w-36 bg-white rounded-xl overflow-hidden border border-slate-100 shadow-sm"
                 >
-                  <div className="relative h-20 w-full">
-                    <Image src={s.image} alt={s.label} fill className="object-cover" />
+                  <div className="relative h-20 w-full bg-slate-100 flex items-center justify-center text-slate-400">
+                    {s.image ? (
+                      <Image src={s.image} alt={s.label} fill className="object-cover" />
+                    ) : (
+                      <span className="text-[10px] font-black uppercase text-slate-300">No Image</span>
+                    )}
                   </div>
                   <div className="p-2">
                     <p className="text-xs font-bold text-slate-900 line-clamp-1">{s.label}</p>

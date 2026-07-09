@@ -4,7 +4,7 @@ import { formatPrice, formatNumber, getApiUrl } from './utils'
 
 export const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || '9599801767'
 
-const FALLBACK_IMAGE = '/placeholder.png'
+const FALLBACK_IMAGE = ''
 
 export type PlatformStats = {
   properties: number

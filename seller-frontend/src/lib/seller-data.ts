@@ -51,7 +51,7 @@ export type SellerLead = {
   createdAt?: string
 }
 
-const FALLBACK_IMAGE = '/placeholder.png'
+const FALLBACK_IMAGE = ''
 
 export function normalizeImageUrl(img: string): string {
   if (!img) return FALLBACK_IMAGE

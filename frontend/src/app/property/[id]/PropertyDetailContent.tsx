@@ -472,7 +472,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
   const getImageUrl = (imageInput: any) => {
     let url = '';
 
-    if (!imageInput) return '/placeholder.png';
+    if (!imageInput) return '';
 
     if (Array.isArray(imageInput) && imageInput.length > 0) {
       url = imageInput[0];
@@ -489,7 +489,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
       }
     }
 
-    if (!url || url === '[]') return '/placeholder.png';
+    if (!url || url === '[]') return '';
 
     if (url.startsWith('http')) {
       if (url.includes('localhost')) return url;

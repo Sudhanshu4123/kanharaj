@@ -48,7 +48,7 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
   }
 
   const getImageUrl = (imageInput: any) => {
-    if (!imageInput || imageInput === '[]') return '/placeholder.png';
+    if (!imageInput || imageInput === '[]') return '';
 
     let url = '';
     if (Array.isArray(imageInput) && imageInput.length > 0) {
@@ -66,7 +66,7 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
       }
     }
 
-    if (!url) return '/placeholder.png';
+    if (!url) return '';
     if (url.startsWith('http')) return url;
 
     const apiUrl = getApiUrl()?.replace(/\/api$/, '') || '';
