@@ -76,6 +76,80 @@ async function buildDynamicSeoDescription(place: string, listingMode: string): P
   return `Looking for Property in ${targetCity}? kanharaj.com offers ${flatsStr} Flats & ${housesStr} Houses/Villas. Search from ${bhkStr} 2 & 3 BHK properties for ${actionLabel} in ${targetCity}. Choose from ${newStr} New Projects, ${resaleStr} Resale Projects and ${ownerStr} Owner Properties for ${actionLabel} in ${targetCity}. 100% Verified Properties.`
 }
 
+function capitalizeWords(str: string): string {
+  if (!str) return '';
+  return str
+    .split(' ')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ')
+}
+
+async function buildDynamicCategoryDescription(
+  place: string,
+  listingMode: string,
+  typeFilter: string
+): Promise<{ title: string; description: string; keywords: string[] }> {
+  const properties = await getPropertiesForSeo()
+  const searchLower = (place || 'Mumbai').toLowerCase().trim()
+  const listingLower = (listingMode || 'BUY').toLowerCase()
+  
+  const cityProperties = properties.filter((p: any) => {
+    const propCity = (p.city || '').toLowerCase()
+    const propAddress = (p.address || '').toLowerCase()
+    return (
+      propCity === searchLower ||
+      propCity.includes(searchLower) ||
+      searchLower.includes(propCity) ||
+      propAddress.includes(searchLower)
+    )
+  })
+
+  const actionLower = listingLower === 'rent' ? 'rent' : 'sale'
+  const actionInLabel = listingLower === 'rent' ? 'for Rent' : 'for Sale'
+
+  // Get counts matching the criteria
+  const flatsCount = cityProperties.filter((p: any) => 
+    ['APARTMENT', 'FLAT', 'BUILDER_FLOOR', 'INDEPENDENT_FLOOR'].includes((p.propertyType || '').toUpperCase()) && 
+    (p.listingType || '').toUpperCase() === (listingLower === 'rent' ? 'RENT' : 'BUY')
+  ).length
+
+  const housesCount = cityProperties.filter((p: any) => 
+    ['HOUSE', 'VILLA', 'INDEPENDENT_HOUSE'].includes((p.propertyType || '').toUpperCase()) && 
+    (p.listingType || '').toUpperCase() === (listingLower === 'rent' ? 'RENT' : 'BUY')
+  ).length
+
+  const apartmentsCount = cityProperties.filter((p: any) => 
+    ['APARTMENT', 'FLAT'].includes((p.propertyType || '').toUpperCase()) && 
+    (p.listingType || '').toUpperCase() === (listingLower === 'rent' ? 'RENT' : 'BUY')
+  ).length
+
+  const placeName = capitalizeWords(place)
+
+  if (typeFilter.toLowerCase() === 'apartment' || typeFilter.toLowerCase() === 'flat') {
+    const saleRentLabel = listingLower === 'rent' ? 'Rent' : 'Sale'
+    const saleRentLower = listingLower === 'rent' ? 'rent' : 'sale'
+    return {
+      title: `Flats for ${saleRentLower} in ${placeName}`,
+      description: `Explore ${flatsCount}+ Flats for ${saleRentLabel} in ${placeName} on kanharaj.com. Find ${housesCount}+ Houses/Villas for ${saleRentLabel}, ${apartmentsCount}+ Apartments for ${saleRentLabel}. 100% Verified Properties. Enquire Now!`,
+      keywords: [`Flats for ${saleRentLower} in ${placeName}`, `Apartments in ${placeName} for ${saleRentLower}`, `Buy Flat in ${placeName}`]
+    }
+  }
+
+  if (listingLower === 'rent') {
+    return {
+      title: `Real Estate in ${placeName} | Rent Property in ${placeName}`,
+      description: `Real Estate ${placeName} - Browse best properties for rent in ${placeName} - View ✓Top Localities. ✓Bachelor Friendly Properties. ✓Owners Listings. Visit Now!`,
+      keywords: [`Real Estate in ${placeName}`, `Rent Property in ${placeName}`]
+    }
+  } else {
+    return {
+      title: `Real Estate in ${placeName} | Buy/Sell Property in ${placeName}`,
+      description: `Real Estate ${placeName} - Browse residential properties for sale in ${placeName} - New Projects, Resale Flats, Ready To Move in Apartments. 100% Verified Listings.`,
+      keywords: [`Real Estate in ${placeName}`, `Buy/Sell Property in ${placeName}`]
+    }
+  }
+}
+
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const city = typeof searchParams.city === 'string' ? searchParams.city : ''
   const state = typeof searchParams.state === 'string' ? searchParams.state : ''
@@ -139,30 +213,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     title = 'Commercial Real Estate in India | kanharaj.com'
     description = await buildDynamicSeoDescription(place, listing)
     customKeywords.push('Commercial Real Estate in India')
-  } else if (normalizedPlace === 'new delhi' || normalizedPlace === 'delhi') {
-    if (listingLower === 'rent') {
-      title = 'Real Estate in New Delhi | Rent Property in New Delhi - KANHARAJ'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Real Estate in New Delhi', 'Rent Property in New Delhi')
-    } else {
-      title = 'Real Estate in New Delhi | Buy/Sell Property in New Delhi'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Real Estate in New Delhi', 'Buy/Sell Property in New Delhi')
-    }
-  } else if (normalizedPlace === 'noida') {
-    if (type.toLowerCase().includes('project')) {
-      title = 'New Residential Projects in Noida'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('New Residential Projects in Noida', 'Residential Projects in Noida')
-    } else if (listingLower === 'rent') {
-      title = 'Real Estate in Noida | Rent Property in Noida | kanharaj.com'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Real Estate in Noida', 'Rent Property in Noida')
-    } else {
-      title = 'Real Estate in Noida | Buy/Sell Property in Noida | kanharaj.com'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Real Estate in Noida', 'Buy/Sell Property in Noida')
-    }
+  } else if (normalizedPlace === 'noida' && type.toLowerCase().includes('project')) {
+    title = 'New Residential Projects in Noida'
+    description = await buildDynamicSeoDescription(place, listing)
+    customKeywords.push('New Residential Projects in Noida', 'Residential Projects in Noida')
   } else if (normalizedPlace.includes('ats greens') || normalizedPlace.includes('sector- 50, gurgaon') || normalizedPlace.includes('sector 50 gurgaon')) {
     title = '3 BHK Apartment in Ats greens a block sector- 50, gurgaon'
     description = 'Explore premium 3 BHK apartments for sale & rent in ATS Greens A Block, Sector 50, Gurgaon. Browse verified listings, floor plans, zero brokerage options, and top amenities at kanharaj.com.'
@@ -195,64 +249,14 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     title = '3 BHK Apartment in Hero homes sector- 104 gurgaon'
     description = 'Explore premium 3 BHK flats for sale & rent in Hero Homes, Sector 104, Gurgaon. Browse verified configurations, amenities, location benefits, and zero brokerage options on kanharaj.com.'
     customKeywords.push('3 BHK Apartment in Hero homes sector- 104 gurgaon', 'Hero Homes Sector 104 Gurgaon')
-  } else if (normalizedPlace === 'gurgaon' || normalizedPlace === 'gurugram') {
-    title = 'Properties in Gurgaon'
-    description = await buildDynamicSeoDescription(place, listing)
-    customKeywords.push('Properties in Gurgaon', 'Properties in Gurugram')
-  } else if (normalizedPlace === 'faridabad') {
-    if (listingLower !== 'rent') {
-      title = 'Real Estate in Faridabad | Buy/Sell Property in Faridabad'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Real Estate in Faridabad', 'Buy/Sell Property in Faridabad')
-    }
-  } else if (normalizedPlace === 'ghaziabad') {
-    if (listingLower !== 'rent') {
-      title = 'Real Estate in Ghaziabad | Buy/Sell Property in Ghaziabad'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Real Estate in Ghaziabad', 'Buy/Sell Property in Ghaziabad')
-    }
-  } else if (normalizedPlace === 'bengaluru' || normalizedPlace === 'bangalore') {
-    if (listingLower === 'rent') {
-      title = 'Real Estate in Bengaluru | Rent Property in Bengaluru - kanharaj'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Real Estate in Bengaluru', 'Rent Property in Bengaluru')
-    }
-  } else if (normalizedPlace === 'pune') {
-    if (listingLower === 'rent') {
-      title = 'Real Estate in Pune | Rent Property in Pune | kanharaj.com'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Real Estate in Pune', 'Rent Property in Pune')
-    }
-  } else if (normalizedPlace === 'jaipur') {
-    if (listingLower !== 'rent') {
-      title = 'Real Estate in Jaipur | Buy/Sell Property in Jaipur - kanharaj'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Real Estate in Jaipur', 'Buy/Sell Property in Jaipur')
-    }
-  } else if (normalizedPlace === 'mumbai') {
-    if (listingLower === 'rent') {
-      title = 'Real Estate in Mumbai | Rent Property in Mumbai | kanharaj.com'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Real Estate in Mumbai', 'Rent Property in Mumbai')
-    } else {
-      title = 'Real Estate in Mumbai | Buy/Sell Property in Mumbai | kanharaj.com'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Real Estate in Mumbai', 'Buy/Sell Property in Mumbai', 'Flats for Sale in Mumbai')
-    }
-  } else if (normalizedPlace === 'india' || normalizedPlace === 'all india' || normalizedPlace === '') {
-    if (listingLower === 'rent') {
-      title = 'Real Estate in India | Rent Property in India | kanharaj.com'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Real Estate in India', 'Rent Property in India')
-    } else if (listingLower === 'buy' || listingLower === 'sell') {
-      title = 'Search India Real Estate and Properties'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Search India Real Estate and Properties')
-    } else {
-      title = 'Real Estate in India | Rent Property in India | kanharaj.com'
-      description = await buildDynamicSeoDescription(place, listing)
-      customKeywords.push('Real Estate in India', 'Rent Property in India')
-    }
+  } else if ([
+    'mumbai', 'delhi', 'new delhi', 'noida', 'gurgaon', 'gurugram', 'faridabad', 'ghaziabad',
+    'bengaluru', 'bangalore', 'pune', 'jaipur', 'india', 'all india', ''
+  ].includes(normalizedPlace)) {
+    const seoData = await buildDynamicCategoryDescription(place || 'Delhi', listing, type)
+    title = seoData.title
+    description = seoData.description
+    customKeywords.push(...seoData.keywords)
   }
 
   const keywords = [
