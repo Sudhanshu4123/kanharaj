@@ -83,6 +83,22 @@ services:
     depends_on:
       - backend
 
+  admin-frontend:
+    build:
+      context: ./admin-frontend
+      args:
+        - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
+        - NEXT_PUBLIC_MAIN_URL=${MAIN_URL:-https://kanharaj.com}
+    container_name: kanharaj-admin
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_URL=${API_URL:-https://kanharaj.com/api}
+      - NEXT_PUBLIC_MAIN_URL=${MAIN_URL:-https://kanharaj.com}
+    ports:
+      - "3002:3002"
+    depends_on:
+      - backend
+
 volumes:
   mysql_data:
   uploads_data:
