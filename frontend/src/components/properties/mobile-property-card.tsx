@@ -48,7 +48,7 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
   }
 
   const getImageUrl = (imageInput: any) => {
-    if (!imageInput || imageInput === '[]') return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
+    if (!imageInput || imageInput === '[]') return '/placeholder.png';
 
     let url = '';
     if (Array.isArray(imageInput) && imageInput.length > 0) {
@@ -66,7 +66,7 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
       }
     }
 
-    if (!url) return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
+    if (!url) return '/placeholder.png';
     if (url.startsWith('http')) return url;
 
     const apiUrl = getApiUrl()?.replace(/\/api$/, '') || '';

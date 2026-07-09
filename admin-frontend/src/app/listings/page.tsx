@@ -54,7 +54,7 @@ export default function ListingsPage() {
   }, [searchQuery])
 
   const getPropertyThumbnail = (images: string[]) => {
-    if (!images || images.length === 0) return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800'
+    if (!images || images.length === 0) return '/placeholder.png'
     const first = images[0]
     if (first.startsWith('http')) return first
     if (first.startsWith('/uploads/') || first.startsWith('/api/uploads/')) return first

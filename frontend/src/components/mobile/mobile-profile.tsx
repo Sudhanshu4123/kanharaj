@@ -32,7 +32,7 @@ export function MobileProfile({ onEditProfile, onChangePassword }: MobileProfile
 
   const recentWithImages = recentSearches.slice(0, 4).map((s) => {
     const match = properties.find((p) => s.href.includes(String(p.id)))
-    return { ...s, image: match ? getPropertyImageUrl(match) : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400' }
+    return { ...s, image: match ? getPropertyImageUrl(match) : '/placeholder.png' }
   })
 
   const menuItems = [

@@ -50,7 +50,7 @@ function ChatContent() {
   // Helper: Normalize images
   const getImageUrl = (imageInput: any) => {
     let url = '';
-    if (!imageInput) return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
+    if (!imageInput) return '/placeholder.png';
     if (Array.isArray(imageInput) && imageInput.length > 0) {
       url = imageInput[0];
     } else if (typeof imageInput === 'string') {
@@ -65,7 +65,7 @@ function ChatContent() {
         url = imageInput;
       }
     }
-    if (!url || url === '[]') return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
+    if (!url || url === '[]') return '/placeholder.png';
     if (url.startsWith('http')) {
       if (url.includes('localhost')) return url;
       return url.replace('http://', 'https://');

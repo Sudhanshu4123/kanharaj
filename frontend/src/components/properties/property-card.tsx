@@ -29,7 +29,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
   const getImageUrl = (imageInput: any) => {
     let url = '';
     
-    if (!imageInput) return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
+    if (!imageInput) return '/placeholder.png';
     
     // If it's an array, take the first one
     if (Array.isArray(imageInput) && imageInput.length > 0) {
@@ -48,7 +48,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
       }
     }
 
-    if (!url || url === '[]') return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
+    if (!url || url === '[]') return '/placeholder.png';
     
     // Handle Cloudinary/External vs Local
     if (url.startsWith('http')) {

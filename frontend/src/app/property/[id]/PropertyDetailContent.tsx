@@ -472,7 +472,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
   const getImageUrl = (imageInput: any) => {
     let url = '';
 
-    if (!imageInput) return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
+    if (!imageInput) return '/placeholder.png';
 
     if (Array.isArray(imageInput) && imageInput.length > 0) {
       url = imageInput[0];
@@ -489,7 +489,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
       }
     }
 
-    if (!url || url === '[]') return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800';
+    if (!url || url === '[]') return '/placeholder.png';
 
     if (url.startsWith('http')) {
       if (url.includes('localhost')) return url;
@@ -505,7 +505,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     if (Array.isArray(property.images) && property.images.length > 0) {
       return property.images.map(img => getImageUrl(img));
     }
-    return ['https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800'];
+    return ['/placeholder.png'];
   }, [property.images]);
 
   // Lightbox handlers
