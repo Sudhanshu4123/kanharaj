@@ -92,7 +92,7 @@ async function buildDynamicCategoryDescription(
   const properties = await getPropertiesForSeo()
   const searchLower = (place || 'Mumbai').toLowerCase().trim()
   const listingLower = (listingMode || 'BUY').toLowerCase()
-  
+
   const cityProperties = properties.filter((p: any) => {
     const propCity = (p.city || '').toLowerCase()
     const propAddress = (p.address || '').toLowerCase()
@@ -108,22 +108,71 @@ async function buildDynamicCategoryDescription(
   const actionInLabel = listingLower === 'rent' ? 'for Rent' : 'for Sale'
 
   // Get counts matching the criteria
-  const flatsCount = cityProperties.filter((p: any) => 
-    ['APARTMENT', 'FLAT', 'BUILDER_FLOOR', 'INDEPENDENT_FLOOR'].includes((p.propertyType || '').toUpperCase()) && 
+  const flatsCount = cityProperties.filter((p: any) =>
+    ['APARTMENT', 'FLAT', 'BUILDER_FLOOR', 'INDEPENDENT_FLOOR'].includes((p.propertyType || '').toUpperCase()) &&
     (p.listingType || '').toUpperCase() === (listingLower === 'rent' ? 'RENT' : 'BUY')
   ).length
 
-  const housesCount = cityProperties.filter((p: any) => 
-    ['HOUSE', 'VILLA', 'INDEPENDENT_HOUSE'].includes((p.propertyType || '').toUpperCase()) && 
+  const housesCount = cityProperties.filter((p: any) =>
+    ['HOUSE', 'VILLA', 'INDEPENDENT_HOUSE'].includes((p.propertyType || '').toUpperCase()) &&
     (p.listingType || '').toUpperCase() === (listingLower === 'rent' ? 'RENT' : 'BUY')
   ).length
 
-  const apartmentsCount = cityProperties.filter((p: any) => 
-    ['APARTMENT', 'FLAT'].includes((p.propertyType || '').toUpperCase()) && 
+  const apartmentsCount = cityProperties.filter((p: any) =>
+    ['APARTMENT', 'FLAT'].includes((p.propertyType || '').toUpperCase()) &&
     (p.listingType || '').toUpperCase() === (listingLower === 'rent' ? 'RENT' : 'BUY')
   ).length
 
   const placeName = capitalizeWords(place)
+
+  if (searchLower === 'dwarka') {
+    const dwarkaKeywords = [
+      'property dealer in dwarka',
+      'property dealer near me',
+      'dwarka property dealer',
+      'property dealers in dwarka',
+      'real estate in dwarka',
+      'broker in dwarka',
+      'real estate agents near me',
+      'construction contractors in dwarka delhi',
+      'cunstruction service in dwarka delhi',
+      'best property dealer in dwarka',
+      'properties in dwarka',
+      'real.estate brokers near me',
+      'property dealers in dwarka for rent',
+      'best property dealer in dwarka expressway',
+      'real estate in delhi ncr dwarka',
+      'dwarka property dealer contact number',
+      'palam property dealer',
+      'commercial property in dwarka delhi',
+      'property dealer near me for rent',
+      'dwarka properties'
+    ]
+
+    if (typeFilter.toLowerCase() === 'apartment' || typeFilter.toLowerCase() === 'flat') {
+      const saleRentLabel = listingLower === 'rent' ? 'Rent' : 'Sale'
+      const saleRentLower = listingLower === 'rent' ? 'rent' : 'sale'
+      return {
+        title: `Flats for ${saleRentLower} in Dwarka | Best Property Dealer in Dwarka`,
+        description: `Explore ${flatsCount}+ Flats for ${saleRentLabel} in Dwarka Delhi on kanharaj.com. Find ${housesCount}+ Houses/Villas & ${apartmentsCount}+ Apartments for ${saleRentLabel} via the best property dealers in Dwarka. 100% Verified. Enquire Now!`,
+        keywords: dwarkaKeywords
+      }
+    }
+
+    if (listingLower === 'rent') {
+      return {
+        title: `Property Dealers in Dwarka for Rent | Rent Property in Dwarka`,
+        description: `Browse best residential and commercial properties for rent in Dwarka. Connect with top property dealers in Dwarka near me for rent. ✓Top Localities ✓Zero Brokerage options. Visit Now!`,
+        keywords: dwarkaKeywords
+      }
+    } else {
+      return {
+        title: `Best Property Dealer in Dwarka | Real Estate Agents in Dwarka Delhi`,
+        description: `Looking for a trusted property dealer in Dwarka? Kanharaj is the best property dealer in Dwarka for buying, selling, and renting properties. Browse verified listings of flats, floors, and commercial spaces.`,
+        keywords: dwarkaKeywords
+      }
+    }
+  }
 
   if (typeFilter.toLowerCase() === 'apartment' || typeFilter.toLowerCase() === 'flat') {
     const saleRentLabel = listingLower === 'rent' ? 'Rent' : 'Sale'
@@ -163,7 +212,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   } else {
     place = city || state || search || 'All India'
   }
-  
+
   let listingLabel = 'Properties'
   if (listing.toLowerCase() === 'rent') {
     listingLabel = 'Properties for Rent'
@@ -178,7 +227,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
   let title = ''
   let description = ''
-  
+
   const isDelhiPlace = DELHI_FAMOUS_PLACES.some(p => p.toLowerCase() === place.toLowerCase())
   const isNcrCity = NCR_CITIES.some(c => c.toLowerCase() === place.toLowerCase())
   const isIndianState = INDIAN_STATES.some(s => s.toLowerCase() === place.toLowerCase())
@@ -213,10 +262,30 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     title = 'Commercial Real Estate in India | kanharaj.com'
     description = await buildDynamicSeoDescription(place, listing)
     customKeywords.push('Commercial Real Estate in India')
-  } else if (normalizedPlace === 'noida' && type.toLowerCase().includes('project')) {
-    title = 'New Residential Projects in Noida'
-    description = await buildDynamicSeoDescription(place, listing)
-    customKeywords.push('New Residential Projects in Noida', 'Residential Projects in Noida')
+  } else if (normalizedPlace === 'new delhi' || normalizedPlace === 'delhi') {
+    if (listingLower === 'rent') {
+      title = 'Real Estate in New Delhi | Rent Property in New Delhi - KANHARAJ'
+      description = await buildDynamicSeoDescription(place, listing)
+      customKeywords.push('Real Estate in New Delhi', 'Rent Property in New Delhi')
+    } else {
+      title = 'Real Estate in New Delhi | Buy/Sell Property in New Delhi'
+      description = await buildDynamicSeoDescription(place, listing)
+      customKeywords.push('Real Estate in New Delhi', 'Buy/Sell Property in New Delhi')
+    }
+  } else if (normalizedPlace === 'noida') {
+    if (type.toLowerCase().includes('project')) {
+      title = 'New Residential Projects in Noida'
+      description = await buildDynamicSeoDescription(place, listing)
+      customKeywords.push('New Residential Projects in Noida', 'Residential Projects in Noida')
+    } else if (listingLower === 'rent') {
+      title = 'Real Estate in Noida | Rent Property in Noida | kanharaj.com'
+      description = await buildDynamicSeoDescription(place, listing)
+      customKeywords.push('Real Estate in Noida', 'Rent Property in Noida')
+    } else {
+      title = 'Real Estate in Noida | Buy/Sell Property in Noida | kanharaj.com'
+      description = await buildDynamicSeoDescription(place, listing)
+      customKeywords.push('Real Estate in Noida', 'Buy/Sell Property in Noida')
+    }
   } else if (normalizedPlace.includes('ats greens') || normalizedPlace.includes('sector- 50, gurgaon') || normalizedPlace.includes('sector 50 gurgaon')) {
     title = '3 BHK Apartment in Ats greens a block sector- 50, gurgaon'
     description = 'Explore premium 3 BHK apartments for sale & rent in ATS Greens A Block, Sector 50, Gurgaon. Browse verified listings, floor plans, zero brokerage options, and top amenities at kanharaj.com.'
@@ -297,7 +366,7 @@ export default function PropertiesPage({ searchParams }: Props) {
   if (listing && (listing.toLowerCase() === 'buy' || listing.toLowerCase() === 'rent')) {
     const listingPart = listing.toLowerCase()
     let path = `/${listingPart}`
-    
+
     if (type) {
       const t = type.toLowerCase()
       let typePart = t
@@ -334,7 +403,7 @@ export default function PropertiesPage({ searchParams }: Props) {
 
     const qs = remainingParams.toString()
     const finalUrl = qs ? `${path}?${qs}` : path
-    
+
     redirect(finalUrl)
   }
 
