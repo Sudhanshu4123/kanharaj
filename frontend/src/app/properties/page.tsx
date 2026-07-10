@@ -146,7 +146,30 @@ async function buildDynamicCategoryDescription(
       'palam property dealer',
       'commercial property in dwarka delhi',
       'property dealer near me for rent',
-      'dwarka properties'
+      'dwarka properties',
+      'building consultants & contractors dwarka',
+      'house for sale in uttam nagar',
+      'dwarka property dealers contact number',
+      'rent property near me',
+      'brokers in delhi for rent',
+      'commercial property in dwarka',
+      'property dealer in dwarka sector 8',
+      'real estate agents in dwarka delhi',
+      'property in sector 7 dwarka',
+      'commercial property',
+      'real estate agent near me',
+      'rent in palam delhi',
+      'dwarka real estate agents',
+      'property in paschim vihar',
+      'looking for rent house near me',
+      'no brokerage property',
+      'property dealer in dwarka mor',
+      'broker rent house',
+      'property with pool near me',
+      'commercial property delhi',
+      'broker near me for room rent',
+      'estate broker near me',
+      'rent home near me'
     ]
 
     if (typeFilter.toLowerCase() === 'apartment' || typeFilter.toLowerCase() === 'flat') {
