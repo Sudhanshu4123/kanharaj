@@ -341,8 +341,80 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     title = '3 BHK Apartment in Hero homes sector- 104 gurgaon'
     description = 'Explore premium 3 BHK flats for sale & rent in Hero Homes, Sector 104, Gurgaon. Browse verified configurations, amenities, location benefits, and zero brokerage options on kanharaj.com.'
     customKeywords.push('3 BHK Apartment in Hero homes sector- 104 gurgaon', 'Hero Homes Sector 104 Gurgaon')
+  } else if (normalizedPlace === 'gurgaon' || normalizedPlace === 'gurugram') {
+    const properties = await getPropertiesForSeo()
+    const cityProperties = properties.filter((p: any) => {
+      const propCity = (p.city || '').toLowerCase()
+      const propAddress = (p.address || '').toLowerCase()
+      return (
+        propCity.includes('gurgaon') || propCity.includes('gurugram') ||
+        propAddress.includes('gurgaon') || propAddress.includes('gurugram')
+      )
+    })
+
+    const residentialCount = cityProperties.filter((p: any) => {
+      const t = (p.propertyType || '').toUpperCase()
+      return ['APARTMENT', 'FLAT', 'BUILDER_FLOOR', 'INDEPENDENT_FLOOR', 'HOUSE', 'VILLA', 'INDEPENDENT_HOUSE', 'RESIDENTIAL'].includes(t)
+    }).length
+    const resCountStr = `${residentialCount > 0 ? residentialCount : 499}+`
+
+    const housesSaleCount = cityProperties.filter((p: any) => 
+      ['HOUSE', 'VILLA', 'INDEPENDENT_HOUSE'].includes((p.propertyType || '').toUpperCase()) && 
+      (p.listingType || '').toUpperCase() === 'BUY'
+    ).length
+    const housesSaleStr = `${housesSaleCount > 0 ? housesSaleCount : 587}+`
+
+    const apartmentsSaleCount = cityProperties.filter((p: any) => 
+      ['APARTMENT', 'FLAT', 'BUILDER_FLOOR', 'INDEPENDENT_FLOOR'].includes((p.propertyType || '').toUpperCase()) && 
+      (p.listingType || '').toUpperCase() === 'BUY'
+    ).length
+    const apartmentsSaleStr = `${apartmentsSaleCount > 0 ? apartmentsSaleCount : 39958}+`
+
+    const salePrices = cityProperties
+      .filter((p: any) => (p.listingType || '').toUpperCase() === 'BUY' && p.price && p.price > 0)
+      .map((p: any) => p.price)
+    const minPrice = salePrices.length > 0 ? Math.min(...salePrices) : 4389480
+    const minPriceFormatted = `₹${minPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
+    if (type.toLowerCase().includes('luxury') || type.toLowerCase().includes('residential') || search.toLowerCase().includes('luxury')) {
+      title = 'Luxury Residential Property in Gurugram (Gurgaon)'
+      description = `Explore ${resCountStr} residential properties in Gurugram with modern amenities. call +91 9599801767. Return are required to buy property in Gurugram.`
+    } else if (listingLower === 'buy') {
+      if (normalizedPlace === 'gurugram' || search.toLowerCase().includes('gurugram')) {
+        title = 'Property for Sale in Gurugram, Haryana'
+        description = `Find Property for sale in Gurugram, Haryana. Search for real estate and find the latest listings of Gurugram Property for sale. Starting from ${minPriceFormatted}`
+      } else {
+        if (type || search) {
+          title = 'Property for Sale in Gurgaon | property in gurgaon'
+          description = `Find ${housesSaleStr} Houses/Villas for Sale, ${apartmentsSaleStr} Apartments for Sale in Gurgaon. Buy Now. Search New Launch, Ready to move & UC Properties in Gurgaon at kanharaj.com. Easy Home Loans. Real Photographs. In-Depth Locality Info. Types: Upcoming Projects, Luxury Homes, Pre Launch Projects.`
+        } else {
+          title = 'Real Estate in Gurgaon | Buy/Sell Property in Gurgaon'
+          description = `Real Estate Gurgaon - Browse residential properties for sale in Gurgaon - New Projects, Resale Flats, Ready To Move in Apartments. 100% Verified Listings.`
+        }
+      }
+    } else if (listingLower === 'rent') {
+      title = 'Properties in Gurgaon | Verified Listings'
+      description = `Explore verified properties in Gurgaon with kanharaj.com. Find apartments, villas, builder floors, plots, and commercial properties for sale or rent.`
+    } else {
+      title = 'Buy, Sell & Rent Properties in Gurgaon'
+      description = `Buy, sell, or rent verified owner listed properties in Gurgaon with kanharaj.com. Get market prices and enjoy a 100% transparent property process.`
+    }
+
+    customKeywords.push(
+      'Real Estate in Gurgaon',
+      'Buy/Sell Property in Gurgaon',
+      'Buy, Sell & Rent Properties in Gurgaon',
+      'Luxury Residential Property in Gurugram',
+      'Luxury Residential Property in Gurugram (Gurgaon)',
+      'Properties in Gurgaon',
+      'Verified Listings in Gurgaon',
+      'Property for Sale in Gurgaon',
+      'property in gurgaon',
+      'Property for Sale in Gurugram, Haryana',
+      'Property for Sale in Gurugram'
+    )
   } else if ([
-    'mumbai', 'delhi', 'new delhi', 'noida', 'gurgaon', 'gurugram', 'faridabad', 'ghaziabad',
+    'mumbai', 'delhi', 'new delhi', 'noida', 'faridabad', 'ghaziabad',
     'bengaluru', 'bangalore', 'pune', 'jaipur', 'india', 'all india', ''
   ].includes(normalizedPlace)) {
     const seoData = await buildDynamicCategoryDescription(place || 'Delhi', listing, type)
