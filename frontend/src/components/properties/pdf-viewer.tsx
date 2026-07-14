@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Download, Maximize2, Loader2, RefreshCw } from "lucide-react"
+import { ChevronLeft, ChevronRight, Download, Maximize2, Loader2, RefreshCw } from "lucide-react"
 
 interface PdfViewerProps {
   pdfUrl: string
@@ -10,14 +10,15 @@ interface PdfViewerProps {
 
 export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
   const [pdf, setPdf] = useState<any>(null)
+  const [pageNum, setPageNum] = useState(1)
   const [numPages, setNumPages] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isScriptsLoaded, setIsScriptsLoaded] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
-  const canvasRefs = useRef<Record<number, HTMLCanvasElement | null>>({})
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const activeRenderTasks = useRef<any[]>([])
+  const renderTaskRef = useRef<any>(null)
 
   // 1. Load PDF.js from CDN dynamically
   useEffect(() => {
@@ -55,7 +56,6 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
     setIsLoading(true)
     setError(null)
     setPdf(null)
-    setNumPages(0)
 
     const pdfjsLib = (window as any).pdfjsLib
     const loadingTask = pdfjsLib.getDocument(pdfUrl)
@@ -64,6 +64,8 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
       (loadedPdf: any) => {
         setPdf(loadedPdf)
         setNumPages(loadedPdf.numPages)
+        setPageNum(1)
+        setIsLoading(false)
       },
       (err: any) => {
         console.error("PDF load error:", err)
@@ -77,33 +79,31 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
     }
   }, [isScriptsLoaded, pdfUrl])
 
-  // 3. Render all PDF Pages sequentially to avoid blocking UI thread
-  const renderAllPages = async () => {
-    if (!pdf || !containerRef.current) return
+  // 3. Render PDF Page to Canvas
+  const renderPage = (pageNumber: number) => {
+    const container = containerRef.current
+    if (!pdf || !canvasRef.current || !container) return
 
     setIsLoading(true)
 
-    // Cancel any active render tasks
-    activeRenderTasks.current.forEach(task => task.cancel())
-    activeRenderTasks.current = []
+    // Cancel existing render task if any
+    if (renderTaskRef.current) {
+      renderTaskRef.current.cancel()
+    }
 
-    const container = containerRef.current
-    const containerWidth = container.clientWidth || 800
-
-    // Render pages sequentially
-    for (let i = 1; i <= numPages; i++) {
-      try {
-        const page = await pdf.getPage(i)
-        const canvas = canvasRefs.current[i]
-        if (!canvas) continue
-
+    pdf.getPage(pageNumber).then(
+      (page: any) => {
+        const canvas = canvasRef.current
+        if (!canvas) return
+        
         const context = canvas.getContext("2d")
-        if (!context) continue
+        if (!context) return
 
         // Compute viewport scale based on container width
+        const containerWidth = container.clientWidth || 800
         const unscaledViewport = page.getViewport({ scale: 1.0 })
-        const scale = (containerWidth - 64) / unscaledViewport.width // 64px padding offset
-        const viewport = page.getViewport({ scale: Math.max(scale, 1.0) * 1.5 }) // Render high-res
+        const scale = (containerWidth - 32) / unscaledViewport.width
+        const viewport = page.getViewport({ scale: scale * 1.5 }) // Render at slightly higher scale for crisp quality
 
         canvas.width = viewport.width
         canvas.height = viewport.height
@@ -114,29 +114,35 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
         }
 
         const renderTask = page.render(renderContext)
-        activeRenderTasks.current.push(renderTask)
+        renderTaskRef.current = renderTask
 
-        await renderTask.promise
-      } catch (err: any) {
-        if (err.name !== "RenderingCancelledException") {
-          console.error(`Error rendering page ${i}:`, err)
-        }
+        renderTask.promise.then(
+          () => {
+            setIsLoading(false)
+            renderTaskRef.current = null
+          },
+          (err: any) => {
+            // Ignore rendering cancellations
+            if (err.name !== "RenderingCancelledException") {
+              console.error("Page render error:", err)
+              setIsLoading(false)
+            }
+          }
+        )
+      },
+      (err: any) => {
+        console.error("Page fetch error:", err)
+        setIsLoading(false)
       }
-    }
-
-    setIsLoading(false)
+    )
   }
 
-  // Trigger render when PDF document is loaded or numPages changes
+  // Render trigger on page change or PDF document loaded
   useEffect(() => {
-    if (pdf && numPages > 0) {
-      // Small timeout to let canvas refs mount first
-      const t = setTimeout(() => {
-        renderAllPages()
-      }, 100)
-      return () => clearTimeout(t)
+    if (pdf) {
+      renderPage(pageNum)
     }
-  }, [pdf, numPages])
+  }, [pdf, pageNum])
 
   // Handle window resizing to adjust canvas width
   useEffect(() => {
@@ -144,8 +150,8 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
     const handleResize = () => {
       clearTimeout(timeoutId)
       timeoutId = setTimeout(() => {
-        if (pdf && numPages > 0) {
-          renderAllPages()
+        if (pdf) {
+          renderPage(pageNum)
         }
       }, 300)
     }
@@ -154,7 +160,20 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
       window.removeEventListener("resize", handleResize)
       clearTimeout(timeoutId)
     }
-  }, [pdf, numPages])
+  }, [pdf, pageNum])
+
+  // Pagination controls
+  const handlePrev = () => {
+    if (pageNum > 1) {
+      setPageNum(prev => prev - 1)
+    }
+  }
+
+  const handleNext = () => {
+    if (pageNum < numPages) {
+      setPageNum(prev => prev + 1)
+    }
+  }
 
   const handleFullscreen = () => {
     if (containerRef.current) {
@@ -173,10 +192,10 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
       ref={containerRef}
       className="relative bg-[#0d1527] rounded-2xl overflow-hidden border border-slate-800 flex flex-col items-center justify-between group shadow-inner min-h-[350px] md:h-[500px]"
     >
-      {/* PDF Continuous Canvas Viewport */}
-      <div className="flex-1 w-full overflow-y-auto flex flex-col items-center p-6 space-y-8 scrollbar-thin">
+      {/* PDF Canvas Viewport */}
+      <div className="flex-1 w-full flex items-center justify-center overflow-auto p-4 md:p-6 scrollbar-thin">
         {error ? (
-          <div className="text-center text-slate-400 p-6 max-w-md my-auto">
+          <div className="text-center text-slate-400 p-6 max-w-md">
             <RefreshCw className="w-10 h-10 mx-auto text-slate-500 mb-3 animate-spin-slow" />
             <p className="text-xs font-bold">{error}</p>
             <a 
@@ -189,36 +208,28 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
             </a>
           </div>
         ) : (
-          Array.from({ length: numPages }, (_, i) => i + 1).map((pageNum) => (
-            <div key={pageNum} className="w-full flex flex-col items-center max-w-3xl">
-              <canvas 
-                ref={(el) => { canvasRefs.current[pageNum] = el }}
-                className="max-w-full rounded-lg shadow-2xl bg-white transition-transform hover:scale-[1.01] duration-300"
-              />
-              <span className="text-[10px] font-black text-slate-500 tracking-wider mt-3 uppercase select-none">
-                Page {pageNum} of {numPages}
-              </span>
-            </div>
-          ))
+          <canvas 
+            ref={canvasRef} 
+            className="max-h-full max-w-full object-contain rounded-lg shadow-2xl transition-all duration-300"
+          />
         )}
       </div>
 
       {/* Loading Overlay */}
       {isLoading && !error && (
-        <div className="absolute top-6 right-20 bg-slate-900/80 border border-slate-850 px-3 py-1.5 rounded-lg flex items-center gap-2 z-30 shadow-lg text-[9px] font-black uppercase tracking-wider text-slate-300">
-          <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />
-          Rendering Pages...
+        <div className="absolute inset-0 bg-[#0d1527]/50 backdrop-blur-[1px] flex items-center justify-center z-10">
+          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
         </div>
       )}
 
-      {/* Absolute Overlays (Download on bottom-left, Maximize on top-right) */}
+      {/* Absolute Overlays (Download on bottom-left, Maximize on top-right) - ALWAYS VISIBLE */}
       {!error && (
         <>
           <a
             href={pdfUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="absolute bottom-6 left-6 p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 z-20 flex items-center justify-center cursor-pointer"
+            className="absolute bottom-16 left-6 p-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 z-20 flex items-center justify-center cursor-pointer"
             title="Download PDF"
           >
             <Download className="w-5 h-5" />
@@ -226,12 +237,37 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
 
           <button
             onClick={handleFullscreen}
-            className="absolute top-6 right-6 p-2.5 bg-black/60 hover:bg-black/80 text-white rounded-lg transition-all duration-300 hover:scale-105 z-20 flex items-center justify-center cursor-pointer"
+            className="absolute top-6 right-6 p-2.5 bg-black/75 hover:bg-black/90 text-white rounded-lg transition-all duration-300 hover:scale-105 z-20 flex items-center justify-center cursor-pointer"
             title="Toggle Fullscreen"
           >
             <Maximize2 className="w-4 h-4" />
           </button>
         </>
+      )}
+
+      {/* Bottom Slider & Navigation Controller - ALWAYS VISIBLE */}
+      {numPages > 0 && !error && (
+        <div className="w-full bg-[#0a0f1d] border-t border-slate-800/80 px-6 py-3 flex items-center justify-center gap-6 shrink-0 z-20">
+          <button
+            onClick={handlePrev}
+            disabled={pageNum <= 1}
+            className="p-1.5 text-slate-450 hover:text-white disabled:text-slate-700 disabled:opacity-50 transition cursor-pointer"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          
+          <span className="text-[11px] font-black tracking-widest text-slate-400 select-none uppercase">
+            {pageNum} of {numPages}
+          </span>
+
+          <button
+            onClick={handleNext}
+            disabled={pageNum >= numPages}
+            className="p-1.5 text-slate-450 hover:text-white disabled:text-slate-700 disabled:opacity-50 transition cursor-pointer"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
       )}
     </div>
   )
