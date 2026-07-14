@@ -86,7 +86,7 @@ function LoginContent() {
     const initGoogle = () => {
       if (window.google) {
         window.google.accounts.id.initialize({
-          client_id: '1097895066925-g67a4a9844l479m9tuhvqdld8q025dfa.apps.googleusercontent.com',
+          client_id: '505828251998-2o9gtsvkmbgfprhar2848hftbgug4n4c.apps.googleusercontent.com',
           callback: handleGoogleCredentialResponse,
         })
       }
