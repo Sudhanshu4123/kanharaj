@@ -136,6 +136,14 @@ export default function AddProjectPage() {
     { bhk: "2 BHK", priceText: "", sqft: "" }
   ])
 
+  const formatNumberToIndianWords = (val: number): string => {
+    if (isNaN(val) || val <= 0) return "";
+    if (val < 1000) return `${val}`;
+    if (val < 100000) return `${Number((val / 1000).toFixed(2))} K`;
+    if (val < 10000000) return `${Number((val / 100000).toFixed(2))} Lac`;
+    return `${Number((val / 10000000).toFixed(2))} Cr`;
+  };
+
   // Helper to parse price string like "1.2 Cr" or "85 Lac" into absolute numeric value for Starting Price
   const parsePriceToNumeric = (priceStr: string): number => {
     const cleanStr = priceStr.toLowerCase().replace(/[^0-9.]/g, '').trim();
@@ -163,8 +171,14 @@ export default function AddProjectPage() {
       .join(", ");
     setConfigurations(configsStr);
 
-    // Generate sizes string: e.g. "1.2 Cr, 1.8 Cr"
-    const sizesStr = projectFlats.map(f => f.priceText.trim()).filter(Boolean).join(", ");
+    // Generate sizes string: e.g. "85 Lac, 1.2 Cr"
+    const sizesStr = projectFlats
+      .map(f => {
+        const val = parseFloat(f.priceText);
+        return isNaN(val) ? f.priceText.trim() : formatNumberToIndianWords(val);
+      })
+      .filter(Boolean)
+      .join(", ");
     setSizes(sizesStr);
 
     // Calculate Starting Price (min price of all layout configurations)
@@ -660,30 +674,32 @@ export default function AddProjectPage() {
                               <div className="space-y-1">
                                 <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Size (Sq.Ft.)</label>
                                 <input
-                                  type="text"
+                                  type="number"
                                   value={flat.sqft}
                                   onChange={e => {
                                     const val = e.target.value;
                                     setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, sqft: val } : f));
                                   }}
                                   className="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-[11px] font-bold focus:border-indigo-500 outline-none"
-                                  placeholder="e.g. 1200, 1650"
+                                  placeholder="e.g. 1200"
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Price Description</label>
+                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Price (in ₹)</label>
                                 <div className="relative">
                                   <input
-                                    type="text"
+                                    type="number"
+                                    max={10000000000}
                                     value={flat.priceText}
                                     onChange={e => {
                                       const val = e.target.value;
+                                      if (val && Number(val) > 10000000000) return;
                                       setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, priceText: val } : f));
                                     }}
                                     className="w-full h-9 bg-white border border-slate-200 rounded-lg pl-3 pr-20 text-[11px] font-bold focus:border-indigo-500 outline-none"
-                                    placeholder="e.g. 1.2 Cr, 85 Lac"
+                                    placeholder="e.g. 8500000"
                                   />
-                                  {flat.priceText && /^\d+$/.test(flat.priceText.trim()) ? (
+                                  {flat.priceText ? (
                                     <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.5 rounded pointer-events-none">
                                       {formatHelperAmount(flat.priceText)}
                                     </span>
