@@ -782,10 +782,6 @@ export default function AddProjectPage() {
 
                      <div className="grid md:grid-cols-2 gap-6">
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Project Area Details</label>
-                        <input type="text" value={projectArea} onChange={e => setProjectArea(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all" placeholder="e.g. 7.99 Acres (77% open)" />
-                      </div>
-                      <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Total Buildings / Towers</label>
                         <input type="text" value={projectSize} onChange={e => setProjectSize(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all" placeholder="e.g. 6 Buildings" />
                       </div>
@@ -1018,7 +1014,6 @@ export default function AddProjectPage() {
                         <div className="flex justify-between"><span>Developer/Builder:</span><span className="text-slate-900">{developer}</span></div>
                         <div className="flex justify-between"><span>RERA ID:</span><span className="text-slate-900 font-extrabold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">{reraId}</span></div>
                         <div className="flex justify-between"><span>Starting Price:</span><span className="text-slate-900 font-black">{formatHelperAmount(price)}</span></div>
-                        <div className="flex justify-between"><span>Project Area:</span><span className="text-slate-900">{area ? `${area} Sq.Ft.` : 'N/A'}</span></div>
                       </div>
 
                       <div className="space-y-2 pl-2">
