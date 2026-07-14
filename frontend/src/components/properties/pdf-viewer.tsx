@@ -251,7 +251,7 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
           <button
             onClick={handlePrev}
             disabled={pageNum <= 1}
-            className="p-1.5 text-slate-450 hover:text-white disabled:text-slate-700 disabled:opacity-50 transition cursor-pointer"
+            className="p-1.5 text-white hover:text-blue-500 disabled:opacity-20 transition cursor-pointer"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -263,7 +263,7 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
           <button
             onClick={handleNext}
             disabled={pageNum >= numPages}
-            className="p-1.5 text-slate-450 hover:text-white disabled:text-slate-700 disabled:opacity-50 transition cursor-pointer"
+            className="p-1.5 text-white hover:text-blue-500 disabled:opacity-20 transition cursor-pointer"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
