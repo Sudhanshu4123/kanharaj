@@ -149,6 +149,10 @@ export function Footer() {
               { name: 'Properties in Paschim Vihar', href: '/properties?city=Paschim%20Vihar' },
               { name: 'Properties in Karol Bagh', href: '/properties?city=Karol%20Bagh' },
               { name: 'Properties in Lajpat Nagar', href: '/properties?city=Lajpat%20Nagar' },
+              { name: '2 BHK flats in Andheri West', href: '/properties?search=2%20BHK%20flats%20in%20Andheri%20West' },
+              { name: 'Luxury Apartments in Worli', href: '/properties?search=luxury%20apartments%20in%20Worli' },
+              { name: 'Commercial Property in BKC', href: '/properties?search=commercial%20property%20in%20BKC' },
+              { name: 'Real Estate Consultant in Mumbai', href: '/properties?search=real%20estate%20consultant%20in%20Mumbai' },
             ].map((loc) => (
               <Link
                 key={loc.name}
