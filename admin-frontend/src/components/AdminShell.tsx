@@ -178,17 +178,36 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </header>
       )}
 
-      {/* Mobile menu */}
+      {/* Mobile menu (Overlay) */}
       {mobileMenuOpen && !isLoginPage && (
-        <div className="md:hidden bg-white border-b border-slate-200 shadow-lg px-4 py-4 z-40 sticky top-14 space-y-1">
+        <div className="md:hidden fixed top-14 left-0 right-0 bottom-0 z-45 bg-[#0a2540] flex flex-col px-6 py-8 overflow-y-auto space-y-2">
           {NAV.map(item => (
-            <Link key={item.id} href={item.href} className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${item.match ? 'bg-[#0a2540] text-white' : 'text-slate-700 hover:bg-slate-100'}`}>
-              {item.icon} {item.label}
+            <Link
+              key={item.id}
+              href={item.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all ${
+                item.match
+                  ? 'bg-white/10 text-white border-l-4 border-[#dfa127]'
+                  : 'text-white/70 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              <div className={item.match ? "text-[#dfa127]" : "text-white/50"}>
+                {item.icon}
+              </div>
+              <span>{item.label}</span>
             </Link>
           ))}
-          <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-black text-rose-600 hover:bg-rose-50 rounded-xl transition-colors border-t border-slate-100 mt-2 pt-3">
-            <LogOut size={16} /> Logout
-          </button>
+          
+          <div className="pt-6 mt-4 border-t border-white/10">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-4 px-4 py-3.5 text-sm font-black text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors text-left"
+            >
+              <LogOut size={16} />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       )}
 
