@@ -413,23 +413,26 @@ export default function PropertiesContent() {
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, [activeDropdown, isCityDropdownOpen]);
 
+  // Fetch properties once on mount
   useEffect(() => {
     setMounted(true)
     fetchProperties()
+  }, [fetchProperties])
 
-    // Apply initial filters from URL
+  // Sync initial URL search parameters to local state on initial mount
+  useEffect(() => {
     const urlSearch = searchParams.get('search') || ''
     const type = initialType || searchParams.get('type')
     const listing = initialListing || searchParams.get('listing')?.toUpperCase()
     const urlBhk = searchParams.get('bhk')
 
-    setSearch(urlSearch)
+    if (urlSearch) setSearch(urlSearch)
 
     const urlCity = initialCity || searchParams.get('city') || ''
-    setSelectedCity(urlCity)
+    if (urlCity) setSelectedCity(urlCity)
 
     const urlState = searchParams.get('state') || ''
-    setSelectedState(urlState)
+    if (urlState) setSelectedState(urlState)
 
     if (listing && (listing === 'BUY' || listing === 'RENT')) {
       setListingMode(listing)
@@ -440,26 +443,25 @@ export default function PropertiesContent() {
     const initialFilters: any = { search: urlSearch }
     if (urlCity) initialFilters.city = urlCity
     if (urlState) initialFilters.state = urlState
+    
     if (type) {
       initialFilters.propertyType = [type.toUpperCase()]
-      setPropertyTypes([type.charAt(0).toUpperCase() + type.slice(1)])
+      const types = type.split(',').map(t => t.trim().charAt(0).toUpperCase() + t.trim().slice(1))
+      setPropertyTypes(types)
     } else {
       setPropertyTypes([])
     }
+    
     if (listing && (listing === 'BUY' || listing === 'RENT')) {
       initialFilters.listingType = listing
     } else {
       initialFilters.listingType = 'all'
     }
+    
     if (urlBhk) {
-      let mappedBhk = '';
-      if (urlBhk.toLowerCase() === '1rk') {
-        mappedBhk = '1 RK';
-      } else {
-        mappedBhk = `${urlBhk} BHK`;
-      }
-      setBhkTypes([mappedBhk])
-      initialFilters.bedrooms = [urlBhk.toLowerCase() === '1rk' ? 1 : parseInt(urlBhk)]
+      const bhks = urlBhk.split(',').map(b => b.toLowerCase() === '1rk' ? '1 RK' : `${b} BHK`)
+      setBhkTypes(bhks)
+      initialFilters.bedrooms = urlBhk.split(',').map(b => b.toLowerCase() === '1rk' ? 1 : parseInt(b)).filter(n => !isNaN(n))
     } else {
       setBhkTypes([])
       initialFilters.bedrooms = []
@@ -474,7 +476,7 @@ export default function PropertiesContent() {
         .join(' · ')
       useUserActivityStore.getState().recordSearch(label || 'Property search', `/properties?${qs}`)
     }
-  }, [searchParams, fetchProperties, setFilters, initialListing, initialType, initialCity])
+  }, [initialListing, initialType, initialCity, setFilters])
 
   const baseProperties = showProjectsOnly ? storeProperties : filteredProperties()
 
@@ -622,7 +624,7 @@ export default function PropertiesContent() {
     return true;
   });
 
-  // Real-time filtering effect based on selected top filters
+  // Real-time filtering effect based on selected top filters and sync to URL
   useEffect(() => {
     if (mounted) {
       // Parse search query for keywords like "3 BHK" dynamically
@@ -652,8 +654,28 @@ export default function PropertiesContent() {
         ...(selectedCity ? { city: selectedCity } : { city: '' }),
         ...(selectedState ? { state: selectedState } : { state: '' }),
       })
+
+      // Sync active filters to browser URL search parameters
+      const params = new URLSearchParams()
+      if (displaySearch) params.set('search', displaySearch)
+      if (selectedCity) params.set('city', selectedCity)
+      if (selectedState) params.set('state', selectedState)
+      if (listingMode) params.set('listing', listingMode.toUpperCase())
+      if (propertyTypes.length > 0) {
+        params.set('type', propertyTypes.map(t => t.toLowerCase()).join(','))
+      }
+      if (bhkTypes.length > 0) {
+        params.set('bhk', bhkTypes.map(b => b.split(' ')[0].toLowerCase()).join(','))
+      }
+
+      const newQueryString = params.toString()
+      const currentQueryString = window.location.search.substring(1)
+      if (newQueryString !== currentQueryString) {
+        const path = newQueryString ? `${window.location.pathname}?${newQueryString}` : window.location.pathname
+        router.replace(path, { scroll: false })
+      }
     }
-  }, [search, propertyTypes, listingMode, bhkTypes, budgetRange, selectedCity, selectedState, showProjectsOnly, mounted, setFilters])
+  }, [search, propertyTypes, listingMode, bhkTypes, budgetRange, selectedCity, selectedState, showProjectsOnly, mounted, setFilters, router])
 
   const totalPages = Math.ceil(properties.length / propertiesPerPage)
   const paginatedProperties = properties.slice((currentPage - 1) * propertiesPerPage, currentPage * propertiesPerPage)
@@ -966,10 +988,20 @@ export default function PropertiesContent() {
 
         {/* Filter bar — same website UI, scrollable on small screens */}
         <div className="bg-white border-b border-slate-200 shadow-sm">
-          <div className={cn(
-            "max-w-[1400px] mx-auto px-4 md:px-8 py-2 flex items-center gap-3 flex-nowrap lg:flex-wrap",
-            activeDropdown ? "overflow-visible" : "overflow-x-auto no-scrollbar"
-          )}>
+          <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-2 flex items-center gap-3 flex-nowrap lg:flex-wrap overflow-x-auto no-scrollbar relative">
+            
+            {/* Backdrop overlay for mobile bottom sheets */}
+            <AnimatePresence>
+              {activeDropdown && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setActiveDropdown(null)}
+                  className="fixed inset-0 bg-black/50 z-[90] md:hidden"
+                />
+              )}
+            </AnimatePresence>
 
             {/* Property Type Dropdown */}
             <div className="relative filter-dropdown-container">
@@ -980,7 +1012,12 @@ export default function PropertiesContent() {
                 {propertyTypes.length > 0 ? `Property Type (${propertyTypes.length})` : 'Property Type'} <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
               {activeDropdown === 'property' && (
-                <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(480px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
+                <div className="fixed bottom-0 left-0 right-0 md:absolute md:top-full md:left-0 md:right-auto md:bottom-auto md:mt-2 bg-white border-t border-slate-200 md:border md:border-slate-200 shadow-2xl md:shadow-xl rounded-t-2xl md:rounded-xl p-4 w-full md:w-[min(480px,calc(100vw-2rem))] max-h-[80vh] md:max-h-[70vh] overflow-y-auto z-[100] md:z-50">
+                  <div className="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4 md:hidden" />
+                  <div className="flex items-center justify-between mb-4 md:hidden">
+                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Property Type</h3>
+                    <button onClick={() => setActiveDropdown(null)} className="text-xs font-black text-rose-600 px-2 py-1">CLOSE</button>
+                  </div>
                   <div className="flex flex-wrap gap-3">
                     {['Apartment', 'Independent House', 'Independent Floor', 'Plot', 'Studio', 'Duplex', 'Penthouse', 'Villa', 'Agricultural Land'].map(type => (
                       <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
@@ -1007,7 +1044,12 @@ export default function PropertiesContent() {
                 {bhkTypes.length > 0 ? `BHK Type (${bhkTypes.length})` : 'BHK Type'} <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
               {activeDropdown === 'bhk' && (
-                <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(380px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
+                <div className="fixed bottom-0 left-0 right-0 md:absolute md:top-full md:left-0 md:right-auto md:bottom-auto md:mt-2 bg-white border-t border-slate-200 md:border md:border-slate-200 shadow-2xl md:shadow-xl rounded-t-2xl md:rounded-xl p-4 w-full md:w-[min(380px,calc(100vw-2rem))] max-h-[80vh] md:max-h-[70vh] overflow-y-auto z-[100] md:z-50">
+                  <div className="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4 md:hidden" />
+                  <div className="flex items-center justify-between mb-4 md:hidden">
+                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">BHK Type</h3>
+                    <button onClick={() => setActiveDropdown(null)} className="text-xs font-black text-rose-600 px-2 py-1">CLOSE</button>
+                  </div>
                   <div className="flex flex-wrap gap-3">
                     {['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK', '5 BHK', '5+ BHK'].map(type => (
                       <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
@@ -1034,7 +1076,12 @@ export default function PropertiesContent() {
                 ₹{formatBudgetLabel(budgetRange[0])} - ₹{formatBudgetLabel(budgetRange[1])} <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
               {activeDropdown === 'budget' && (
-                <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 sm:p-6 w-full sm:w-[min(420px,calc(100vw-2rem))] max-h-[85vh] overflow-y-auto z-50">
+                <div className="fixed bottom-0 left-0 right-0 md:absolute md:top-full md:left-0 md:right-auto md:bottom-auto md:mt-2 bg-white border-t border-slate-200 md:border md:border-slate-200 shadow-2xl md:shadow-xl rounded-t-2xl md:rounded-xl p-4 sm:p-6 w-full md:w-[min(420px,calc(100vw-2rem))] max-h-[80vh] md:max-h-[85vh] overflow-y-auto z-[100] md:z-50">
+                  <div className="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4 md:hidden" />
+                  <div className="flex items-center justify-between mb-4 md:hidden">
+                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Budget Range</h3>
+                    <button onClick={() => setActiveDropdown(null)} className="text-xs font-black text-rose-600 px-2 py-1">CLOSE</button>
+                  </div>
                   <div className="flex justify-between text-sm font-bold text-slate-700 mb-6">
                     <span>₹{formatBudgetLabel(budgetRange[0])}</span>
                     <span>₹{formatBudgetLabel(budgetRange[1])}</span>
@@ -1077,7 +1124,12 @@ export default function PropertiesContent() {
                 {saleTypes.length > 0 ? `Sale Type (${saleTypes.length})` : 'Sale Type'} <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
               {activeDropdown === 'sale' && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-[240px] z-50">
+                <div className="fixed bottom-0 left-0 right-0 md:absolute md:top-full md:left-0 md:right-auto md:bottom-auto md:mt-2 bg-white border-t border-slate-200 md:border md:border-slate-200 shadow-2xl md:shadow-xl rounded-t-2xl md:rounded-xl p-4 w-full md:w-[240px] z-[100] md:z-50">
+                  <div className="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4 md:hidden" />
+                  <div className="flex items-center justify-between mb-4 md:hidden">
+                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Sale Type</h3>
+                    <button onClick={() => setActiveDropdown(null)} className="text-xs font-black text-rose-600 px-2 py-1">CLOSE</button>
+                  </div>
                   <div className="flex flex-col gap-3">
                     {['New Bookings', 'Resale'].map(type => (
                       <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full">
@@ -1104,7 +1156,7 @@ export default function PropertiesContent() {
                 {constructionStatus.length > 0 ? `Construction St... (${constructionStatus.length})` : 'Construction St...'} <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
               {activeDropdown === 'construction' && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-[240px] z-50">
+                <div className="fixed bottom-0 left-0 right-0 md:absolute md:top-full md:left-0 md:right-auto md:bottom-auto md:mt-2 bg-white border-t border-slate-200 md:border md:border-slate-200 shadow-2xl md:shadow-xl rounded-t-2xl md:rounded-xl p-4 w-full md:w-[240px] z-[100] md:z-50">
                   <div className="flex flex-col gap-3">
                     {['Ready to move', 'Under Construction'].map(type => (
                       <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full">
