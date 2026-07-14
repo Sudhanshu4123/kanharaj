@@ -209,16 +209,17 @@ export default function BuyingGuidePage() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (cityDropdownRef.current && !cityDropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as HTMLElement
+      if (isCityDropdownOpen && !target.closest('.city-dropdown-container')) {
         setIsCityDropdownOpen(false)
       }
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+      if (profileDropdownOpen && !target.closest('.profile-menu-container')) {
         setProfileDropdownOpen(false)
       }
     }
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+  }, [isCityDropdownOpen, profileDropdownOpen])
 
   const { isAuthenticated, user, token, logout } = useAuthStore()
   const showSellerDashboard = isAuthenticated && hasSellerDashboardAccess(user)
@@ -256,140 +257,78 @@ export default function BuyingGuidePage() {
     <div className="min-h-screen bg-slate-50/50 -mt-16 sm:-mt-20 pt-[120px] sm:pt-[140px] md:pt-[100px] pb-20">
 
       {/* Header Container - Fixed to Top */}
-      <div className="fixed top-0 left-0 right-0 z-45">
-        {/* Properties search bar — same on phone & desktop (responsive website) */}
-        <div className="flex bg-[#0a2540] text-white py-2.5 px-3 sm:px-4 md:px-6 flex-wrap md:flex-nowrap items-center gap-3 md:gap-5">
+      <div className="fixed top-0 left-0 right-0 z-45 bg-[#0a2540] text-white py-2 px-3 sm:px-4 md:px-6 shadow-md">
+        <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row md:items-center gap-2.5 md:gap-5 relative">
+          
+          {/* Row 1 on Mobile: Logo & Mobile Triggers */}
+          <div className="flex items-center justify-between w-full md:w-auto gap-3 shrink-0">
+            
+            {/* Logo and Location Selector (Desktop) */}
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Link href="/" className="flex items-center gap-2 shrink-0">
+                <div className="relative h-7 w-7 rounded overflow-hidden flex items-center justify-center bg-white shadow-sm shrink-0">
+                  <img src={BRAND_LOGO_SRC} alt="Kanharaj Logo" className="h-full w-full object-cover" />
+                </div>
+                <span className="font-heading text-lg font-black tracking-tighter text-white flex items-baseline whitespace-nowrap">
+                  KANHARAJ<span className="text-[9px] font-extrabold ml-0.5 opacity-85">.COM</span>
+                </span>
+              </Link>
 
-          {/* Logo and Location Selector */}
-          <div className="flex items-center gap-2 sm:gap-4 md:border-r border-white/20 md:pr-4 shrink-0 pb-0 border-b-0">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="relative h-7 w-7 rounded overflow-hidden flex items-center justify-center bg-white shadow-sm">
-                <img src={BRAND_LOGO_SRC} alt="Kanharaj Logo" className="h-full w-full object-cover" />
+              <div className="hidden md:block w-px h-6 bg-white/20 mx-1" />
+
+              {/* Location Selector (Desktop Trigger) */}
+              <div className="hidden md:block relative city-dropdown-container">
+                <button
+                  type="button"
+                  onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                  className="flex items-center gap-1 text-xs sm:text-sm font-semibold cursor-pointer hover:text-white/80 transition whitespace-nowrap"
+                >
+                  <MapPin className="w-4 h-4 opacity-80" />
+                  {listingMode === 'RENT' ? 'Rent In' : 'Buy In'} {selectedCity || 'All Cities'}
+                  <ChevronDown className={cn("w-4 h-4 opacity-70 transition-transform", isCityDropdownOpen && "rotate-180")} />
+                </button>
               </div>
-              <span className="font-heading text-lg font-black tracking-tighter text-white flex items-baseline">
-                KANHARAJ<span className="text-[9px] font-extrabold ml-0.5 opacity-85">.COM</span>
-              </span>
-            </Link>
-            <div className="w-px h-6 bg-white/20 mx-1" />
-            <div ref={cityDropdownRef} className="relative">
-              <button
-                type="button"
-                onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
-                className="flex items-center gap-1 text-xs sm:text-sm font-semibold cursor-pointer hover:text-white/80 transition whitespace-nowrap max-w-[140px] sm:max-w-none truncate"
-              >
-                <MapPin className="w-4 h-4 opacity-80" />
-                {listingMode === 'RENT' ? 'Rent In' : 'Buy In'} {selectedCity || 'All Cities'}
-                <ChevronDown className={cn("w-4 h-4 opacity-70 transition-transform", isCityDropdownOpen && "rotate-180")} />
-              </button>
-
-              <AnimatePresence>
-                {isCityDropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute left-0 top-full mt-2 w-[min(18rem,calc(100vw-1.5rem))] sm:w-72 max-h-[70vh] sm:max-h-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-[60] flex flex-col overflow-hidden text-slate-800"
-                  >
-                    <div className="p-2 border-b border-slate-100 flex items-center bg-slate-50 gap-1.5 shrink-0">
-                      <Search className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                      <input
-                        type="text"
-                        value={citySearchQuery}
-                        onChange={(e) => setCitySearchQuery(e.target.value)}
-                        placeholder="Search city..."
-                        className="w-full bg-transparent focus:outline-none text-xs text-slate-800 font-bold placeholder:text-slate-400 h-6 border-0 p-0"
-                        autoFocus
-                      />
-                      {citySearchQuery && (
-                        <button
-                          type="button"
-                          onClick={() => setCitySearchQuery('')}
-                          className="text-[9px] text-[#0a2540] hover:text-[#07192c] font-black px-1"
-                        >
-                          CLEAR
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto max-h-60 py-1.5 text-left">
-                      <button
-                        type="button"
-                        onClick={() => handleCitySelect('')}
-                        className={cn(
-                          "w-full text-left px-3 py-2 text-xs font-bold transition-colors flex items-center justify-between border-b border-slate-100 mb-1",
-                          !selectedCity
-                            ? "bg-[#0a2540]/5 text-[#0a2540]"
-                            : "text-slate-700 hover:bg-slate-50"
-                        )}
-                      >
-                        <span>All Cities</span>
-                        {!selectedCity && <span className="text-[10px] font-black">✓</span>}
-                      </button>
-                      {filteredTopCities.length === 0 && filteredOtherCities.length === 0 ? (
-                        <div className="px-4 py-3 text-xs font-semibold text-slate-400 text-center">
-                          No cities found
-                        </div>
-                      ) : (
-                        <>
-                          {filteredTopCities.length > 0 && (
-                            <div>
-                              <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
-                                Top Cities
-                              </div>
-                              {filteredTopCities.map((city) => (
-                                <button
-                                  key={city}
-                                  type="button"
-                                  onClick={() => handleCitySelect(city)}
-                                  className={cn(
-                                    "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
-                                    selectedCity === city
-                                      ? "bg-[#0a2540]/5 text-[#0a2540]"
-                                      : "text-slate-700 hover:bg-slate-50"
-                                  )}
-                                >
-                                  <span>{city}</span>
-                                  {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-
-                          {filteredOtherCities.length > 0 && (
-                            <div className="mt-1">
-                              <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
-                                Other Cities
-                              </div>
-                              {filteredOtherCities.map((city) => (
-                                <button
-                                  key={city}
-                                  type="button"
-                                  onClick={() => handleCitySelect(city)}
-                                  className={cn(
-                                    "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
-                                    selectedCity === city
-                                      ? "bg-[#0a2540]/5 text-[#0a2540]"
-                                      : "text-slate-700 hover:bg-slate-50"
-                                  )}
-                                >
-                                  <span>{city}</span>
-                                  {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
+
+            {/* Mobile Controls: Location Badge & Profile Trigger */}
+            <div className="flex md:hidden items-center gap-2">
+              {/* Location Badge (Mobile Trigger) */}
+              <div className="relative city-dropdown-container">
+                <button
+                  type="button"
+                  onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                  className="flex items-center gap-1 text-[11px] font-bold bg-white/10 hover:bg-white/20 border border-white/15 px-2.5 py-1.5 rounded-lg transition text-white"
+                >
+                  <MapPin className="w-3 h-3 text-[#dfa127]" />
+                  <span>{selectedCity || 'All Cities'}</span>
+                  <ChevronDown className="w-3 h-3 opacity-60" />
+                </button>
+              </div>
+
+              {/* Profile Pill (Mobile Trigger) */}
+              <div className="relative profile-menu-container">
+                <button
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="flex items-center gap-1.5 bg-white/10 border border-white/15 rounded-full p-0.5 pr-2 hover:bg-white/15 transition cursor-pointer focus:outline-none"
+                >
+                  <div className="w-6 h-6 rounded-full bg-[#dfa127] text-[#0a2540] flex items-center justify-center text-[10px] font-black overflow-hidden shrink-0">
+                    {isAuthenticated && user?.profileImage ? (
+                      <img src={user.profileImage} alt={user.name || "User"} className="w-full h-full object-cover" />
+                    ) : isAuthenticated ? (
+                      user?.name?.charAt(0).toUpperCase()
+                    ) : (
+                      <User className="w-3.5 h-3.5 text-white/70" />
+                    )}
+                  </div>
+                  <Menu className="w-3.5 h-3.5 text-white/80" />
+                </button>
+              </div>
+            </div>
+
           </div>
 
-          {/* Search Bar */}
-          <div className="flex-1 w-full md:w-auto min-w-0 max-w-[800px] relative order-3 md:order-none mt-1 md:mt-0">
+          {/* Row 2 on Mobile / Middle on Desktop: Search Bar */}
+          <div className="flex-1 w-full md:max-w-[800px] relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#0a2540]" />
             <input
               type="text"
@@ -397,16 +336,12 @@ export default function BuyingGuidePage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearchKeyDown}
-              className="bg-white border-0 text-slate-900 placeholder:text-slate-400 rounded-md h-[42px] pl-10 focus-visible:ring-0 shadow-inner w-full text-xs"
+              className="bg-white border-0 text-slate-900 placeholder:text-slate-400 rounded-md h-[40px] pl-10 focus-visible:ring-0 shadow-inner w-full text-xs sm:text-sm focus:outline-none"
             />
           </div>
 
-          {/* Right Actions */}
-          <div className="flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-nowrap order-2 md:order-none">
-            <a href="tel:+919599801767" className="text-xs sm:text-sm font-bold flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded transition whitespace-nowrap">
-              <Phone className="w-4 h-4" /> Contact
-            </a>
-
+          {/* Desktop Right Actions: Dashboard & Profile Menu (Hidden on Mobile) */}
+          <div className="hidden md:flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-nowrap">
             {showSellerDashboard && (
               <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
                 <button className="bg-[#00D289] hover:bg-[#00c07d] text-white font-bold rounded shadow-none h-9 px-5 whitespace-nowrap cursor-pointer text-xs">
@@ -415,8 +350,8 @@ export default function BuyingGuidePage() {
               </a>
             )}
 
-            {/* Profile Menu Dropdown */}
-            <div className="relative profile-menu-container" ref={profileDropdownRef}>
+            {/* Desktop Profile Pill Trigger */}
+            <div className="relative profile-menu-container">
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 className="flex items-center gap-2 bg-white rounded-full p-1 pl-3 shadow-sm hover:bg-slate-50 transition border border-slate-200 ml-1 cursor-pointer focus:outline-none"
@@ -432,11 +367,122 @@ export default function BuyingGuidePage() {
                   )}
                 </div>
               </button>
+            </div>
+          </div>
 
+          {/* Absolute Shared City Dropdown Panel */}
+          <div className="city-dropdown-container">
+            <AnimatePresence>
+              {isCityDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute left-3 md:left-[17rem] top-full mt-2 w-[min(18rem,calc(100vw-1.5rem))] sm:w-72 max-h-[70vh] sm:max-h-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-[60] flex flex-col overflow-hidden text-slate-800"
+                >
+                  <div className="p-2 border-b border-slate-100 flex items-center bg-slate-50 gap-1.5 shrink-0">
+                    <Search className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                    <input
+                      type="text"
+                      value={citySearchQuery}
+                      onChange={(e) => setCitySearchQuery(e.target.value)}
+                      placeholder="Search city..."
+                      className="w-full bg-transparent focus:outline-none text-xs text-slate-800 font-bold placeholder:text-slate-400 h-6 border-0 p-0"
+                      autoFocus
+                    />
+                    {citySearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setCitySearchQuery('')}
+                        className="text-[9px] text-[#0a2540] hover:text-[#07192c] font-black px-1"
+                      >
+                        CLEAR
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto max-h-60 py-1.5 text-left">
+                    <button
+                      type="button"
+                      onClick={() => handleCitySelect('')}
+                      className={cn(
+                        "w-full text-left px-3 py-2 text-xs font-bold transition-colors flex items-center justify-between border-b border-slate-100 mb-1",
+                        !selectedCity
+                          ? "bg-[#0a2540]/5 text-[#0a2540]"
+                          : "text-slate-700 hover:bg-slate-50"
+                      )}
+                    >
+                      <span>All Cities</span>
+                      {!selectedCity && <span className="text-[10px] font-black">✓</span>}
+                    </button>
+                    {filteredTopCities.length === 0 && filteredOtherCities.length === 0 ? (
+                      <div className="px-4 py-3 text-xs font-semibold text-slate-400 text-center">
+                        No cities found
+                      </div>
+                    ) : (
+                      <>
+                        {filteredTopCities.length > 0 && (
+                          <div>
+                            <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                              Top Cities
+                            </div>
+                            {filteredTopCities.map((city) => (
+                              <button
+                                key={city}
+                                type="button"
+                                onClick={() => handleCitySelect(city)}
+                                className={cn(
+                                  "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
+                                  selectedCity === city
+                                    ? "bg-[#0a2540]/5 text-[#0a2540]"
+                                    : "text-slate-700 hover:bg-slate-50"
+                                )}
+                              >
+                                <span>{city}</span>
+                                {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {filteredOtherCities.length > 0 && (
+                          <div className="mt-1">
+                            <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                              Other Cities
+                            </div>
+                            {filteredOtherCities.map((city) => (
+                              <button
+                                key={city}
+                                type="button"
+                                onClick={() => handleCitySelect(city)}
+                                className={cn(
+                                  "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
+                                  selectedCity === city
+                                    ? "bg-[#0a2540]/5 text-[#0a2540]"
+                                    : "text-slate-700 hover:bg-slate-50"
+                                )}
+                              >
+                                <span>{city}</span>
+                                {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Absolute Shared Profile Dropdown Panel */}
+          <div className="profile-menu-container">
+            <AnimatePresence>
               {profileDropdownOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setProfileDropdownOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 shadow-xl rounded-xl py-1.5 z-50 overflow-hidden text-slate-800">
+                  <div className="absolute right-3 md:right-0 mt-2 w-64 bg-white border border-slate-200 shadow-xl rounded-xl py-1.5 z-50 overflow-hidden text-slate-800">
                     {isAuthenticated ? (
                       <>
                         <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
@@ -471,8 +517,9 @@ export default function BuyingGuidePage() {
                   </div>
                 </>
               )}
-            </div>
+            </AnimatePresence>
           </div>
+
         </div>
       </div>
 

@@ -766,30 +766,119 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     <div className="min-h-screen bg-slate-50">
 
       {/* Properties search bar — same on phone & desktop (responsive website) */}
-      <div className="flex bg-[#0a2540] text-white py-2.5 px-3 sm:px-4 md:px-6 flex-wrap md:flex-nowrap items-center gap-3 md:gap-5 fixed top-0 left-0 right-0 z-50 shadow-md">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#0a2540] text-white py-2 px-3 sm:px-4 md:px-6 shadow-md">
+        <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row md:items-center gap-2.5 md:gap-5 relative">
+          
+          {/* Row 1 on Mobile: Logo & Mobile Triggers */}
+          <div className="flex items-center justify-between w-full md:w-auto gap-3 shrink-0">
+            
+            {/* Logo and Location Selector (Desktop) */}
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Link href="/" className="flex items-center gap-2 shrink-0">
+                <div className="relative h-7 w-7 rounded overflow-hidden flex items-center justify-center bg-white shadow-sm shrink-0">
+                  <img src={BRAND_LOGO_SRC} alt="Kanharaj Logo" className="h-full w-full object-cover" />
+                </div>
+                <span className="font-heading text-lg font-black tracking-tighter text-white flex items-baseline whitespace-nowrap">
+                  KANHARAJ<span className="text-[9px] font-extrabold ml-0.5 opacity-85">.COM</span>
+                </span>
+              </Link>
 
-        {/* Logo and Location Selector */}
-        <div className="flex items-center gap-2 sm:gap-4 md:border-r border-white/20 md:pr-4 shrink-0 pb-0 border-b-0">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="relative h-7 w-7 rounded overflow-hidden flex items-center justify-center bg-white shadow-sm">
-              <img src={BRAND_LOGO_SRC} alt="Kanharaj Logo" className="h-full w-full object-cover" />
+              <div className="hidden md:block w-px h-6 bg-white/20 mx-1" />
+
+              {/* Location Selector (Desktop Trigger) */}
+              <div className="hidden md:block relative city-dropdown-container">
+                <button
+                  type="button"
+                  onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                  className="flex items-center gap-1 text-xs sm:text-sm font-semibold cursor-pointer hover:text-white/80 transition whitespace-nowrap"
+                >
+                  <MapPin className="w-4 h-4 opacity-80" />
+                  {property.listingType === 'RENT' ? 'Rent In' : 'Buy In'} {selectedCity || 'All Cities'}
+                  <ChevronDown className={cn("w-4 h-4 opacity-70 transition-transform", isCityDropdownOpen && "rotate-180")} />
+                </button>
+              </div>
             </div>
-            <span className="font-heading text-lg font-black tracking-tighter text-white flex items-baseline">
-              KANHARAJ<span className="text-[9px] font-extrabold ml-0.5 opacity-85">.COM</span>
-            </span>
-          </Link>
-          <div className="w-px h-6 bg-white/20 mx-1" />
-          <div className="relative city-dropdown-container">
-            <button
-              type="button"
-              onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
-              className="flex items-center gap-1 text-xs sm:text-sm font-semibold cursor-pointer hover:text-white/80 transition whitespace-nowrap max-w-[140px] sm:max-w-none truncate"
-            >
-              <MapPin className="w-4 h-4 opacity-80" />
-              {property.listingType === 'RENT' ? 'Rent In' : 'Buy In'} {selectedCity || 'All Cities'}
-              <ChevronDown className={cn("w-4 h-4 opacity-70 transition-transform", isCityDropdownOpen && "rotate-180")} />
-            </button>
 
+            {/* Mobile Controls: Location Badge & Profile Trigger */}
+            <div className="flex md:hidden items-center gap-2">
+              {/* Location Badge (Mobile Trigger) */}
+              <div className="relative city-dropdown-container">
+                <button
+                  type="button"
+                  onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                  className="flex items-center gap-1 text-[11px] font-bold bg-white/10 hover:bg-white/20 border border-white/15 px-2.5 py-1.5 rounded-lg transition text-white"
+                >
+                  <MapPin className="w-3 h-3 text-[#dfa127]" />
+                  <span>{selectedCity || 'All Cities'}</span>
+                  <ChevronDown className="w-3 h-3 opacity-60" />
+                </button>
+              </div>
+
+              {/* Profile Pill (Mobile Trigger) */}
+              <div className="relative profile-menu-container">
+                <button
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="flex items-center gap-1.5 bg-white/10 border border-white/15 rounded-full p-0.5 pr-2 hover:bg-white/15 transition cursor-pointer focus:outline-none"
+                >
+                  <div className="w-6 h-6 rounded-full bg-[#dfa127] text-[#0a2540] flex items-center justify-center text-[10px] font-black overflow-hidden shrink-0">
+                    {isAuthenticated && user?.profileImage ? (
+                      <img src={user.profileImage} alt={user.name || "User"} className="w-full h-full object-cover" />
+                    ) : isAuthenticated ? (
+                      user?.name?.charAt(0).toUpperCase()
+                    ) : (
+                      <User className="w-3.5 h-3.5 text-white/70" />
+                    )}
+                  </div>
+                  <Menu className="w-3.5 h-3.5 text-white/80" />
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Row 2 on Mobile / Middle on Desktop: Search Bar */}
+          <form onSubmit={handleSearchSubmit} className="flex-1 w-full md:max-w-[800px] relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#0a2540]" />
+            <Input
+              placeholder="Enter Locality, Landmark, Project or builder"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-white border-0 text-slate-900 placeholder:text-slate-400 rounded-md h-[40px] pl-10 focus-visible:ring-0 shadow-inner w-full text-xs sm:text-sm focus:outline-none"
+            />
+          </form>
+
+          {/* Desktop Right Actions: Dashboard & Profile Menu (Hidden on Mobile) */}
+          <div className="hidden md:flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-nowrap">
+            {showSellerDashboard && (
+              <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
+                <Button className="bg-[#00D289] hover:bg-[#00c07d] text-white font-bold rounded shadow-none h-9 px-5 whitespace-nowrap cursor-pointer text-xs">
+                  Dashboard
+                </Button>
+              </a>
+            )}
+
+            {/* Desktop Profile Pill Trigger */}
+            <div className="relative profile-menu-container">
+              <button
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className="flex items-center gap-2 bg-white rounded-full p-1 pl-3 shadow-sm hover:bg-slate-50 transition border border-slate-200 ml-1 cursor-pointer focus:outline-none"
+              >
+                <Menu className="w-4 h-4 text-slate-700" />
+                <div className="w-7 h-7 rounded-full bg-[#0a2540] flex items-center justify-center text-white text-[11px] font-black overflow-hidden shrink-0">
+                  {isAuthenticated && user?.profileImage ? (
+                    <img src={user.profileImage} alt={user.name || "User"} className="w-full h-full object-cover" />
+                  ) : isAuthenticated ? (
+                    user?.name?.charAt(0).toUpperCase()
+                  ) : (
+                    <User className="w-4 h-4 text-slate-400" />
+                  )}
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Absolute Shared City Dropdown Panel */}
+          <div className="city-dropdown-container">
             <AnimatePresence>
               {isCityDropdownOpen && (
                 <motion.div
@@ -797,7 +886,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute left-0 top-full mt-2 w-[min(18rem,calc(100vw-1.5rem))] sm:w-72 max-h-[70vh] sm:max-h-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-[60] flex flex-col overflow-hidden text-slate-800"
+                  className="absolute left-3 md:left-[17rem] top-full mt-2 w-[min(18rem,calc(100vw-1.5rem))] sm:w-72 max-h-[70vh] sm:max-h-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-[60] flex flex-col overflow-hidden text-slate-800"
                 >
                   <div className="p-2 border-b border-slate-100 flex items-center bg-slate-50 gap-1.5 shrink-0">
                     <Search className="h-3.5 w-3.5 text-slate-400 shrink-0" />
@@ -894,97 +983,59 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
               )}
             </AnimatePresence>
           </div>
-        </div>
 
-        {/* Search Bar */}
-        <form onSubmit={handleSearchSubmit} className="flex-1 w-full md:w-auto min-w-0 max-w-[800px] relative order-3 md:order-none mt-1 md:mt-0">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#0a2540]" />
-          <Input
-            placeholder="Enter Locality, Landmark, Project or builder"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-white border-0 text-slate-900 placeholder:text-slate-400 rounded-md h-[42px] pl-10 focus-visible:ring-0 shadow-inner w-full focus:outline-none"
-          />
-        </form>
-
-        {/* Right Actions */}
-        <div className="flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-nowrap order-2 md:order-none">
-
-          {showSellerDashboard && (
-            <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
-              <Button className="bg-[#00D289] hover:bg-[#00c07d] text-white font-bold rounded shadow-none h-9 px-5 whitespace-nowrap cursor-pointer">
-                Dashboard
-              </Button>
-            </a>
-          )}
-
-          {/* Profile Menu Dropdown */}
-          <div className="relative profile-menu-container">
-            <button
-              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="flex items-center gap-2 bg-white rounded-full p-1 pl-3 shadow-sm hover:bg-slate-50 transition border border-slate-200 ml-1 cursor-pointer focus:outline-none"
-            >
-              <Menu className="w-4 h-4 text-slate-700" />
-              <div className="w-7 h-7 rounded-full bg-[#0a2540] flex items-center justify-center text-white text-[11px] font-black overflow-hidden shrink-0">
-                {isAuthenticated && user?.profileImage ? (
-                  <img src={user.profileImage} alt={user.name || "User"} className="w-full h-full object-cover" />
-                ) : isAuthenticated ? (
-                  user?.name?.charAt(0).toUpperCase()
-                ) : (
-                  <User className="w-4 h-4" />
-                )}
-              </div>
-            </button>
-
-            {profileDropdownOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setProfileDropdownOpen(false)} />
-                <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 shadow-xl rounded-xl py-1.5 z-50 overflow-hidden text-slate-800">
-                  {isAuthenticated ? (
-                    <>
-                      <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
-                        <p className="text-xs font-black text-slate-800 truncate">{user?.name || "User Account"}</p>
-                        <p className="text-[10px] text-slate-400 truncate mt-0.5">{user?.email}</p>
-                      </div>
-                      <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
-                        <User className="w-3.5 h-3.5 text-slate-400" /> My Profile
-                      </Link>
-                      <Link href="/chat" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
-                        <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg> My Chats
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          handleLogout()
-                        }}
-                        className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-rose-600 hover:bg-slate-50 border-t border-slate-100 transition-colors text-left cursor-pointer"
-                      >
-                        <LogOut className="w-3.5 h-3.5" /> Log Out
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
-                        <p className="text-xs font-black text-slate-800">Welcome to Kanharaj</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">Login to access dashboard & profile</p>
-                      </div>
-                      <Link href="/login" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
-                        <User className="w-3.5 h-3.5 text-slate-400" /> Log In / Register
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </>
-            )}
+          {/* Absolute Shared Profile Dropdown Panel */}
+          <div className="profile-menu-container">
+            <AnimatePresence>
+              {profileDropdownOpen && (
+                <>
+                  <div className="absolute right-3 md:right-0 mt-2 w-64 bg-white border border-slate-200 shadow-xl rounded-xl py-1.5 z-50 overflow-hidden text-slate-800">
+                    {isAuthenticated ? (
+                      <>
+                        <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
+                          <p className="text-xs font-black text-slate-800 truncate">{user?.name || "User Account"}</p>
+                          <p className="text-[10px] text-slate-400 truncate mt-0.5">{user?.email}</p>
+                        </div>
+                        <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                          <User className="w-3.5 h-3.5 text-slate-400" /> My Profile
+                        </Link>
+                        <Link href="/chat" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                          <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg> My Chats
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            handleLogout()
+                          }}
+                          className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-rose-600 hover:bg-slate-50 border-t border-slate-100 transition-colors text-left cursor-pointer"
+                        >
+                          <LogOut className="w-3.5 h-3.5" /> Log Out
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
+                          <p className="text-xs font-black text-slate-800">Welcome to Kanharaj</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">Login to access dashboard & profile</p>
+                        </div>
+                        <Link href="/login" className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                          <User className="w-3.5 h-3.5 text-slate-400" /> Log In / Register
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                </>
+              )}
+            </AnimatePresence>
           </div>
-        </div>
 
+        </div>
       </div>
 
       {/* Top Breadcrumb & Actions Bar */}
-      <div className="bg-white border-b border-slate-200 py-3 relative z-30 shadow-sm mt-12 md:mt-0">
+      <div className="bg-white border-b border-slate-200 py-3 relative z-30 shadow-sm mt-24 md:mt-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
 
           {/* Breadcrumb Links */}
