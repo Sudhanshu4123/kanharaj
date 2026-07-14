@@ -673,16 +673,23 @@ export default function AddProjectPage() {
                               </div>
                               <div className="space-y-1">
                                 <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Size (Sq.Ft.)</label>
-                                <input
-                                  type="number"
-                                  value={flat.sqft}
-                                  onChange={e => {
-                                    const val = e.target.value;
-                                    setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, sqft: val } : f));
-                                  }}
-                                  className="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-[11px] font-bold focus:border-indigo-500 outline-none"
-                                  placeholder="e.g. 1200"
-                                />
+                                <div className="relative">
+                                  <input
+                                    type="number"
+                                    value={flat.sqft}
+                                    onChange={e => {
+                                      const val = e.target.value;
+                                      setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, sqft: val } : f));
+                                    }}
+                                    className="w-full h-9 bg-white border border-slate-200 rounded-lg pl-3 pr-16 text-[11px] font-bold focus:border-indigo-500 outline-none"
+                                    placeholder="e.g. 1200"
+                                  />
+                                  {flat.sqft ? (
+                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.5 rounded pointer-events-none">
+                                      {flat.sqft} sq.ft.
+                                    </span>
+                                  ) : null}
+                                </div>
                               </div>
                               <div className="space-y-1">
                                 <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Price (in ₹)</label>
