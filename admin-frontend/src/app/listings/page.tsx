@@ -333,12 +333,14 @@ export default function ListingsPage() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-1.5">
                     <label className="text-[9px] uppercase tracking-wider text-slate-400">Valuation Price (INR) *</label>
-                    <input required type="number" value={propForm.price || 0} onChange={e => setPropForm({ ...propForm, price: Number(e.target.value) })} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-[#dfa127] outline-none transition-all" placeholder="8500000" />
-                    {propForm.price ? (
-                      <span className="text-[10px] text-indigo-600 font-extrabold block mt-1">
-                        Formatted: {formatPrice(propForm.price)}
-                      </span>
-                    ) : null}
+                    <div className="relative">
+                      <input required type="number" value={propForm.price || 0} onChange={e => setPropForm({ ...propForm, price: Number(e.target.value) })} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-24 text-xs font-semibold focus:bg-white focus:border-[#dfa127] outline-none transition-all" placeholder="8500000" />
+                      {propForm.price ? (
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-indigo-650 bg-indigo-50 px-2 py-0.5 rounded">
+                          {formatPrice(propForm.price)}
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[9px] uppercase tracking-wider text-slate-400">Address *</label>
