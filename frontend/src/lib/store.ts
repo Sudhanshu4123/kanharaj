@@ -42,6 +42,7 @@ interface AuthStore {
   isAuthenticated: boolean
   users: User[]
   login: (email: string, password: string) => Promise<{ message?: string } | void>
+  socialLogin: (name: string, email: string, provider: string, providerId?: string) => Promise<void>
   logout: () => void
   register: (name: string, email: string, phone: string, password: string) => Promise<any>
   verifyLoginOtp: (email: string, otp: string) => Promise<void>
@@ -398,6 +399,26 @@ export const useAuthStore = create<AuthStore>()(
           if (err?.name === 'AbortError') {
             throw new Error('Server is offline. Please try again later.')
           }
+          throw err
+        }
+      },
+      socialLogin: async (name, email, provider, providerId = '') => {
+        try {
+          const res = await fetchWithTimeout(`${API_URL}/auth/social-login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, provider, providerId })
+          })
+          
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({ message: 'Social login failed' }))
+            throw new Error(errData.message || 'Social login failed')
+          }
+          
+          const data = await res.json()
+          set({ user: data.user, token: data.token, isAuthenticated: true })
+        } catch (err: any) {
+          if (err?.name === 'AbortError') throw new Error('Server is offline.')
           throw err
         }
       },
