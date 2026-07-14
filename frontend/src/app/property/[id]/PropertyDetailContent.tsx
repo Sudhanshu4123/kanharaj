@@ -27,6 +27,7 @@ import { useChatBoxStore } from '@/lib/chat-box-store'
 import { Property } from '@/lib/data'
 import { FloorPlanSchematic } from '@/components/properties/floor-plan-schematic'
 import { PropertyLocalityMap } from '@/components/properties/property-locality-map'
+import PdfViewer from '@/components/properties/pdf-viewer'
 import { buildFloorPlanRooms, isResidentialFloorPlan } from '@/lib/floor-plan'
 import { SUPPORT_PHONE } from '@/lib/platform-data'
 import { topCities, otherCities } from '@/components/home/search-bar'
@@ -2036,39 +2037,39 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   </div>
                 </div>
                 {/* Brochure Viewer Box */}
-                <div className="relative bg-[#0d1527] rounded-2xl overflow-hidden md:h-[450px] aspect-[16/10] border border-slate-800 flex items-center justify-center group shadow-inner">
-                  {isPdfFile(property.brochureUrl) ? (
-                    <iframe
-                      src={getBrochureViewerUrl(property.brochureUrl)}
-                      className="w-full h-full border-none rounded-xl"
-                      title={`${property.title} Brochure PDF`}
-                    />
-                  ) : (
+                {isPdfFile(property.brochureUrl) ? (
+                  <PdfViewer
+                    pdfUrl={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
+                    title={property.title}
+                  />
+                ) : (
+                  <div className="relative bg-[#0d1527] rounded-2xl overflow-hidden md:h-[450px] aspect-[16/10] border border-slate-800 flex items-center justify-center group shadow-inner">
                     <img
-                      src={getBrochureViewerUrl(property.brochureUrl)}
+                      src={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
                       alt={`${property.title} Brochure`}
                       className="max-h-full max-w-full object-contain"
                     />
-                  )}
-                  {/* Overlays */}
-                  <a
-                    href={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute bottom-6 left-6 p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition opacity-95 hover:opacity-100 hover:scale-105 z-20 flex items-center justify-center"
-                  >
-                    <Download className="w-5 h-5" />
-                  </a>
+                    
+                    {/* Overlays */}
+                    <a
+                      href={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute bottom-6 left-6 p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition opacity-95 hover:opacity-100 hover:scale-105 z-20 flex items-center justify-center"
+                    >
+                      <Download className="w-5 h-5" />
+                    </a>
 
-                  <a
-                    href={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute top-6 right-6 p-2.5 bg-black/60 hover:bg-black/80 text-white rounded-lg transition opacity-0 group-hover:opacity-100 z-20 flex items-center justify-center"
-                  >
-                    <Maximize className="w-4 h-4" />
-                  </a>
-                </div>
+                    <a
+                      href={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute top-6 right-6 p-2.5 bg-black/60 hover:bg-black/80 text-white rounded-lg transition opacity-0 group-hover:opacity-100 z-20 flex items-center justify-center"
+                    >
+                      <Maximize className="w-4 h-4" />
+                    </a>
+                  </div>
+                )}
 
                 {/* Bottom Download Card */}
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-slate-50 border border-slate-150 rounded-xl mt-4">
