@@ -32,9 +32,9 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
 
   const getProjectSubtitle = () => {
     if (!property.configurations) return `Flats in ${property.city || property.address}`;
-    const bhks = property.configurations.match(/\d/g);
+    const bhks = property.configurations.match(/\d+(?=\s*BHK)/gi);
     if (bhks && bhks.length > 0) {
-      const uniqueBhks = Array.from(new Set(bhks)).sort().join(', ');
+      const uniqueBhks = Array.from(new Set(bhks)).sort((a, b) => parseInt(a) - parseInt(b)).join(', ');
       return `${uniqueBhks} BHK Flats in ${property.city || property.address}`;
     }
     return `${property.configurations} in ${property.city || property.address}`;
@@ -201,8 +201,8 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
                     </span>
                     <span className="text-[9px] font-bold text-indigo-750 bg-indigo-50 border border-indigo-100/50 px-1.5 py-0.5 rounded">
                       {(() => {
-                        const bhks = property.configurations ? property.configurations.match(/\d/g) : null;
-                        return bhks && bhks.length > 0 ? `${Array.from(new Set(bhks)).sort().join(', ')} BHK` : property.configurations || 'Flats';
+                        const bhks = property.configurations ? property.configurations.match(/\d+(?=\s*BHK)/gi) : null;
+                        return bhks && bhks.length > 0 ? `${Array.from(new Set(bhks)).sort((a, b) => parseInt(a) - parseInt(b)).join(', ')} BHK` : property.configurations || 'Flats';
                       })()}
                     </span>
                   </div>

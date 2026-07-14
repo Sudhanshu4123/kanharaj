@@ -40,9 +40,9 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
 
   const getProjectSubtitle = () => {
     if (!property.configurations) return `Flats in ${property.city || property.address}`;
-    const bhks = property.configurations.match(/\d/g);
+    const bhks = property.configurations.match(/\d+(?=\s*BHK)/gi);
     if (bhks && bhks.length > 0) {
-      const uniqueBhks = Array.from(new Set(bhks)).sort().join(', ');
+      const uniqueBhks = Array.from(new Set(bhks)).sort((a, b) => parseInt(a) - parseInt(b)).join(', ');
       return `${uniqueBhks} BHK Flats`;
     }
     return property.configurations;

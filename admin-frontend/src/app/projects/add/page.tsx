@@ -132,8 +132,8 @@ export default function AddProjectPage() {
   const [launchDate, setLaunchDate] = useState("")
   const [avgPrice, setAvgPrice] = useState("")
 
-  const [projectFlats, setProjectFlats] = useState<{ bhk: string; priceText: string }[]>([
-    { bhk: "2 BHK", priceText: "" }
+  const [projectFlats, setProjectFlats] = useState<{ bhk: string; priceText: string; sqft: string }[]>([
+    { bhk: "2 BHK", priceText: "", sqft: "" }
   ])
 
   // Helper to parse price string like "1.2 Cr" or "85 Lac" into absolute numeric value for Starting Price
@@ -152,8 +152,15 @@ export default function AddProjectPage() {
   };
 
   useEffect(() => {
-    // Generate configurations string: e.g. "2 BHK, 3 BHK"
-    const configsStr = projectFlats.map(f => f.bhk.trim()).filter(Boolean).join(", ");
+    // Generate configurations string: e.g. "2 BHK (1200 sq.ft.), 3 BHK (1650 sq.ft.)"
+    const configsStr = projectFlats
+      .map(f => {
+        const bhk = f.bhk.trim();
+        const sqft = f.sqft.trim();
+        return sqft ? `${bhk} (${sqft} sq.ft.)` : bhk;
+      })
+      .filter(Boolean)
+      .join(", ");
     setConfigurations(configsStr);
 
     // Generate sizes string: e.g. "1.2 Cr, 1.8 Cr"
@@ -626,7 +633,7 @@ export default function AddProjectPage() {
                         <label className="text-[10px] font-black uppercase text-[#0a2540] tracking-wider">Flats / Layout Configurations & Prices *</label>
                         <button
                           type="button"
-                          onClick={() => setProjectFlats(prev => [...prev, { bhk: "2 BHK", priceText: "" }])}
+                          onClick={() => setProjectFlats(prev => [...prev, { bhk: "2 BHK", priceText: "", sqft: "" }])}
                           className="px-2.5 py-1 bg-[#0a2540]/5 hover:bg-[#0a2540]/10 text-[#0a2540] text-[10px] font-black rounded-lg border border-[#0a2540]/10 transition-colors cursor-pointer"
                         >
                           + Add BHK / Flat
@@ -636,7 +643,7 @@ export default function AddProjectPage() {
                       <div className="space-y-3">
                         {projectFlats.map((flat, idx) => (
                           <div key={idx} className="flex gap-3 items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
-                            <div className="flex-1 grid grid-cols-2 gap-3">
+                            <div className="flex-1 grid grid-cols-3 gap-3">
                               <div className="space-y-1">
                                 <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Configuration / BHK</label>
                                 <input
@@ -647,7 +654,20 @@ export default function AddProjectPage() {
                                     setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, bhk: val } : f));
                                   }}
                                   className="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-[11px] font-bold focus:border-indigo-500 outline-none"
-                                  placeholder="e.g. 2 BHK, 3 BHK, Shop"
+                                  placeholder="e.g. 2 BHK, 3 BHK"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Size (Sq.Ft.)</label>
+                                <input
+                                  type="text"
+                                  value={flat.sqft}
+                                  onChange={e => {
+                                    const val = e.target.value;
+                                    setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, sqft: val } : f));
+                                  }}
+                                  className="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-[11px] font-bold focus:border-indigo-500 outline-none"
+                                  placeholder="e.g. 1200, 1650"
                                 />
                               </div>
                               <div className="space-y-1">
@@ -676,17 +696,6 @@ export default function AddProjectPage() {
                             )}
                           </div>
                         ))}
-                      </div>
-                    </div>
-
-                    {/* Project Area */}
-                    <div className="pt-4 border-t border-slate-100">
-                      <div className="space-y-1.5 max-w-sm">
-                        <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Project Area (optional)</label>
-                        <div className="relative">
-                          <Maximize2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                          <input type="number" value={area} onChange={e => setArea(e.target.value)} className="w-full h-11 pl-9 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all" placeholder="e.g. 1500" />
-                        </div>
                       </div>
                     </div>
 
