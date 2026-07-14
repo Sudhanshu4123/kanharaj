@@ -132,8 +132,8 @@ export default function AddProjectPage() {
   const [launchDate, setLaunchDate] = useState("")
   const [avgPrice, setAvgPrice] = useState("")
 
-  const [projectFlats, setProjectFlats] = useState<{ bhk: string; priceText: string; sqft: string }[]>([
-    { bhk: "2 BHK", priceText: "", sqft: "" }
+  const [projectFlats, setProjectFlats] = useState<{ bhk: string; priceText: string; sqft: string; carpet?: string }[]>([
+    { bhk: "2 BHK", priceText: "", sqft: "", carpet: "" }
   ])
 
   const formatNumberToIndianWords = (val: number): string => {
@@ -160,12 +160,21 @@ export default function AddProjectPage() {
   };
 
   useEffect(() => {
-    // Generate configurations string: e.g. "2 BHK (1200 sq.ft.), 3 BHK (1650 sq.ft.)"
+    // Generate configurations string: e.g. "2 BHK (1200 sq.ft. / Carpet: 1000 sq.ft.)"
     const configsStr = projectFlats
       .map(f => {
         const bhk = f.bhk.trim();
         const sqft = f.sqft.trim();
-        return sqft ? `${bhk} (${sqft} sq.ft.)` : bhk;
+        const carpet = f.carpet ? f.carpet.trim() : "";
+        
+        if (sqft && carpet) {
+          return `${bhk} (${sqft} sq.ft. / Carpet: ${carpet} sq.ft.)`;
+        } else if (sqft) {
+          return `${bhk} (${sqft} sq.ft.)`;
+        } else if (carpet) {
+          return `${bhk} (Carpet: ${carpet} sq.ft.)`;
+        }
+        return bhk;
       })
       .filter(Boolean)
       .join(", ");
@@ -655,7 +664,7 @@ export default function AddProjectPage() {
                         <label className="text-[10px] font-black uppercase text-[#0a2540] tracking-wider">Flats / Layout Configurations & Prices *</label>
                         <button
                           type="button"
-                          onClick={() => setProjectFlats(prev => [...prev, { bhk: "2 BHK", priceText: "", sqft: "" }])}
+                          onClick={() => setProjectFlats(prev => [...prev, { bhk: "2 BHK", priceText: "", sqft: "", carpet: "" }])}
                           className="px-2.5 py-1 bg-[#0a2540]/5 hover:bg-[#0a2540]/10 text-[#0a2540] text-[10px] font-black rounded-lg border border-[#0a2540]/10 transition-colors cursor-pointer"
                         >
                           + Add BHK / Flat
@@ -665,7 +674,7 @@ export default function AddProjectPage() {
                       <div className="space-y-3">
                         {projectFlats.map((flat, idx) => (
                           <div key={idx} className="flex gap-3 items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
-                            <div className="flex-1 grid grid-cols-3 gap-3">
+                            <div className="flex-1 grid grid-cols-4 gap-3">
                               <div className="space-y-1">
                                 <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Configuration / BHK</label>
                                 <input
@@ -695,6 +704,26 @@ export default function AddProjectPage() {
                                   {flat.sqft ? (
                                     <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.5 rounded pointer-events-none">
                                       {formatSizeHelper(flat.sqft)}
+                                    </span>
+                                  ) : null}
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Carpet Area (Sq.Ft.)</label>
+                                <div className="relative">
+                                  <input
+                                    type="number"
+                                    value={flat.carpet || ""}
+                                    onChange={e => {
+                                      const val = e.target.value;
+                                      setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, carpet: val } : f));
+                                    }}
+                                    className="w-full h-9 bg-white border border-slate-200 rounded-lg pl-3 pr-20 text-[11px] font-bold focus:border-indigo-500 outline-none"
+                                    placeholder="e.g. 1000"
+                                  />
+                                  {flat.carpet ? (
+                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.5 rounded pointer-events-none">
+                                      {formatSizeHelper(flat.carpet)}
                                     </span>
                                   ) : null}
                                 </div>
