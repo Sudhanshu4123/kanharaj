@@ -672,16 +672,23 @@ export default function AddProjectPage() {
                               </div>
                               <div className="space-y-1">
                                 <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Price Description</label>
-                                <input
-                                  type="text"
-                                  value={flat.priceText}
-                                  onChange={e => {
-                                    const val = e.target.value;
-                                    setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, priceText: val } : f));
-                                  }}
-                                  className="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-[11px] font-bold focus:border-indigo-500 outline-none"
-                                  placeholder="e.g. 1.2 Cr, 85 Lac"
-                                />
+                                <div className="relative">
+                                  <input
+                                    type="text"
+                                    value={flat.priceText}
+                                    onChange={e => {
+                                      const val = e.target.value;
+                                      setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, priceText: val } : f));
+                                    }}
+                                    className="w-full h-9 bg-white border border-slate-200 rounded-lg pl-3 pr-20 text-[11px] font-bold focus:border-indigo-500 outline-none"
+                                    placeholder="e.g. 1.2 Cr, 85 Lac"
+                                  />
+                                  {flat.priceText && /^\d+$/.test(flat.priceText.trim()) ? (
+                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.5 rounded pointer-events-none">
+                                      {formatHelperAmount(flat.priceText)}
+                                    </span>
+                                  ) : null}
+                                </div>
                               </div>
                             </div>
                             
@@ -760,7 +767,14 @@ export default function AddProjectPage() {
                       </div>
                       <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Avg. Price / Formatted per unit price</label>
-                        <input type="text" value={avgPrice} onChange={e => setAvgPrice(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all" placeholder="e.g. 29.55k/sq.ft. or 29.55 K/sq.ft" />
+                        <div className="relative">
+                          <input type="text" value={avgPrice} onChange={e => setAvgPrice(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-24 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all" placeholder="e.g. 29.55k/sq.ft. or 29.55 K/sq.ft" />
+                          {avgPrice && /^\d+$/.test(avgPrice.trim()) ? (
+                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-indigo-650 bg-indigo-50 px-2 py-0.5 rounded pointer-events-none">
+                              {formatHelperAmount(avgPrice)}/sq.ft.
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
                   </div>
