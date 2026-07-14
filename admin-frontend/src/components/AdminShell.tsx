@@ -171,22 +171,25 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 </>
               )}
             </div>
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-white/60 hover:text-white">
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
           </div>
         </header>
       )}
 
-      {/* Mobile menu (Overlay) */}
+      {/* Mobile menu (Overlay Drawer for additional links) */}
       {mobileMenuOpen && !isLoginPage && (
-        <div className="md:hidden fixed top-14 left-0 right-0 bottom-0 z-45 bg-[#0a2540] flex flex-col px-6 py-8 overflow-y-auto space-y-2">
-          {NAV.map(item => (
+        <div className="md:hidden fixed inset-x-0 top-14 bottom-14 z-40 bg-[#0a2540]/95 backdrop-blur-md flex flex-col px-6 py-6 overflow-y-auto space-y-2 animate-in slide-in-from-bottom duration-200">
+          <span className="text-[10px] font-black uppercase text-white/45 tracking-widest mb-2">Management Terminal</span>
+          {[
+            { id: 'users', href: '/users', label: 'Members', icon: <Users size={18} />, match: pathname.startsWith('/users') },
+            { id: 'reviews', href: '/reviews', label: 'Reviews', icon: <Star size={18} />, match: pathname.startsWith('/reviews') },
+            { id: 'payments', href: '/payments', label: 'Payments', icon: <CreditCard size={18} />, match: pathname.startsWith('/payments') },
+            { id: 'news', href: '/news', label: 'News Articles', icon: <Newspaper size={18} />, match: pathname.startsWith('/news') },
+          ].map(item => (
             <Link
               key={item.id}
               href={item.href}
               onClick={() => setMobileMenuOpen(false)}
-              className={`flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all ${
+              className={`flex items-center gap-4 px-4 py-3 rounded-xl text-xs font-bold tracking-wide transition-all ${
                 item.match
                   ? 'bg-white/10 text-white border-l-4 border-[#dfa127]'
                   : 'text-white/70 hover:bg-white/5 hover:text-white'
@@ -199,10 +202,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             </Link>
           ))}
           
-          <div className="pt-6 mt-4 border-t border-white/10">
+          <div className="pt-4 mt-2 border-t border-white/10">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-4 px-4 py-3.5 text-sm font-black text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors text-left"
+              className="w-full flex items-center gap-4 px-4 py-3 text-xs font-black text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors text-left"
             >
               <LogOut size={16} />
               <span>Logout</span>
@@ -212,11 +215,62 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       )}
 
       {/* Content */}
-      <main className="flex-1">
+      <main className={`flex-1 ${!isLoginPage ? 'pb-16 md:pb-0' : ''}`}>
         <div className={!isLoginPage ? 'w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6' : ''}>
           {children}
         </div>
       </main>
+
+      {/* Bottom Nav Bar (Mobile only) */}
+      {!isLoginPage && (
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-slate-200/80 px-2 py-1.5 flex items-center justify-around z-50 pb-safe shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+          {[
+            { id: 'home', href: '/', label: 'Home', icon: <LayoutDashboard size={20} />, match: pathname === '/' },
+            { id: 'listings', href: '/listings', label: 'Listings', icon: <Box size={20} />, match: pathname.startsWith('/listings') },
+            { id: 'projects', href: '/projects', label: 'Projects', icon: <Building2 size={20} />, match: pathname.startsWith('/projects') },
+            { id: 'leads', href: '/leads', label: 'Leads', icon: <MessageSquare size={20} />, match: pathname.startsWith('/leads') },
+          ].map(item => {
+            const isActive = item.match;
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
+                className={`flex flex-col items-center gap-0.5 py-1 transition-all flex-1 ${
+                  isActive ? "text-[#0a2540]" : "text-slate-400"
+                }`}
+              >
+                <div className={`transition-transform ${isActive ? "scale-110" : ""}`}>
+                  {item.icon}
+                </div>
+                <span className={`text-[9px] font-black uppercase tracking-wider ${isActive ? "opacity-100" : "opacity-60"}`}>
+                  {item.label}
+                </span>
+                {isActive && (
+                  <div className="w-1 h-1 bg-[#dfa127] rounded-full mt-0.5" />
+                )}
+              </Link>
+            )
+          })}
+          
+          {/* More Toggle Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className={`flex flex-col items-center gap-0.5 py-1 transition-all flex-1 ${
+              mobileMenuOpen ? "text-[#0a2540]" : "text-slate-400"
+            }`}
+          >
+            <div className={`transition-transform ${mobileMenuOpen ? "scale-110" : ""}`}>
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </div>
+            <span className={`text-[9px] font-black uppercase tracking-wider ${mobileMenuOpen ? "opacity-100" : "opacity-60"}`}>
+              {mobileMenuOpen ? "Close" : "More"}
+            </span>
+            {mobileMenuOpen && (
+              <div className="w-1 h-1 bg-[#dfa127] rounded-full mt-0.5" />
+            )}
+          </button>
+        </nav>
+      )}
     </div>
   )
 }
