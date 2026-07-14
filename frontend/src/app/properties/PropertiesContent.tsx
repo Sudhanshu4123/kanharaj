@@ -117,6 +117,28 @@ export default function PropertiesContent() {
 
   // Dropdown UI state
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [dropdownCoords, setDropdownCoords] = useState<{ top: number; left: number; width: number } | null>(null)
+
+  const toggleDropdown = (e: React.MouseEvent<HTMLButtonElement>, name: string, widthVal: number) => {
+    if (activeDropdown === name) {
+      setActiveDropdown(null)
+      setDropdownCoords(null)
+      return
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect()
+    const screenWidth = window.innerWidth
+    const actualWidth = Math.min(widthVal, screenWidth - 32)
+    const maxLeft = screenWidth - actualWidth - 16
+    const left = Math.max(16, Math.min(rect.left, maxLeft))
+
+    setDropdownCoords({
+      top: rect.bottom + 8,
+      left: left,
+      width: actualWidth
+    })
+    setActiveDropdown(name)
+  }
 
   // Real filter states
   const [propertyTypes, setPropertyTypes] = useState<string[]>([])
@@ -398,19 +420,33 @@ export default function PropertiesContent() {
     }
   }
 
-  // Close dropdown on outside click
+  // Close dropdown on outside click or scroll
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (activeDropdown && !target.closest('.filter-dropdown-container')) {
+      if (activeDropdown && !target.closest('.filter-dropdown-container') && !target.closest('.filter-dropdown-panel')) {
         setActiveDropdown(null);
+        setDropdownCoords(null);
       }
       if (isCityDropdownOpen && !target.closest('.city-dropdown-container')) {
         setIsCityDropdownOpen(false)
       }
     };
+
+    const handleScroll = () => {
+      if (activeDropdown) {
+        setActiveDropdown(null);
+        setDropdownCoords(null);
+      }
+    };
+
     document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
+    window.addEventListener('scroll', handleScroll, true); // true captures all scroll events on page
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
   }, [activeDropdown, isCityDropdownOpen]);
 
   // Fetch properties once on mount
@@ -990,34 +1026,24 @@ export default function PropertiesContent() {
         <div className="bg-white border-b border-slate-200 shadow-sm">
           <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-2 flex items-center gap-3 flex-nowrap lg:flex-wrap overflow-x-auto no-scrollbar relative">
             
-            {/* Backdrop overlay for mobile bottom sheets */}
-            <AnimatePresence>
-              {activeDropdown && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setActiveDropdown(null)}
-                  className="fixed inset-0 bg-black/50 z-[90] md:hidden"
-                />
-              )}
-            </AnimatePresence>
-
             {/* Property Type Dropdown */}
             <div className="relative filter-dropdown-container">
               <button
-                onClick={() => setActiveDropdown(activeDropdown === 'property' ? null : 'property')}
+                onClick={(e) => toggleDropdown(e, 'property', 480)}
                 className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'property' || propertyTypes.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
               >
                 {propertyTypes.length > 0 ? `Property Type (${propertyTypes.length})` : 'Property Type'} <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
               {activeDropdown === 'property' && (
-                <div className="fixed bottom-0 left-0 right-0 md:absolute md:top-full md:left-0 md:right-auto md:bottom-auto md:mt-2 bg-white border-t border-slate-200 md:border md:border-slate-200 shadow-2xl md:shadow-xl rounded-t-2xl md:rounded-xl p-4 w-full md:w-[min(480px,calc(100vw-2rem))] max-h-[80vh] md:max-h-[70vh] overflow-y-auto z-[100] md:z-50">
-                  <div className="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4 md:hidden" />
-                  <div className="flex items-center justify-between mb-4 md:hidden">
-                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Property Type</h3>
-                    <button onClick={() => setActiveDropdown(null)} className="text-xs font-black text-rose-600 px-2 py-1">CLOSE</button>
-                  </div>
+                <div
+                  style={{
+                    position: 'fixed',
+                    top: dropdownCoords?.top,
+                    left: dropdownCoords?.left,
+                    width: dropdownCoords?.width,
+                  }}
+                  className="bg-white border border-slate-200 shadow-2xl rounded-xl p-4 max-h-[70vh] overflow-y-auto z-[100] filter-dropdown-panel"
+                >
                   <div className="flex flex-wrap gap-3">
                     {['Apartment', 'Independent House', 'Independent Floor', 'Plot', 'Studio', 'Duplex', 'Penthouse', 'Villa', 'Agricultural Land'].map(type => (
                       <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
@@ -1038,18 +1064,21 @@ export default function PropertiesContent() {
             {/* BHK Type Dropdown */}
             <div className="relative filter-dropdown-container">
               <button
-                onClick={() => setActiveDropdown(activeDropdown === 'bhk' ? null : 'bhk')}
+                onClick={(e) => toggleDropdown(e, 'bhk', 380)}
                 className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'bhk' || bhkTypes.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
               >
                 {bhkTypes.length > 0 ? `BHK Type (${bhkTypes.length})` : 'BHK Type'} <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
               {activeDropdown === 'bhk' && (
-                <div className="fixed bottom-0 left-0 right-0 md:absolute md:top-full md:left-0 md:right-auto md:bottom-auto md:mt-2 bg-white border-t border-slate-200 md:border md:border-slate-200 shadow-2xl md:shadow-xl rounded-t-2xl md:rounded-xl p-4 w-full md:w-[min(380px,calc(100vw-2rem))] max-h-[80vh] md:max-h-[70vh] overflow-y-auto z-[100] md:z-50">
-                  <div className="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4 md:hidden" />
-                  <div className="flex items-center justify-between mb-4 md:hidden">
-                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">BHK Type</h3>
-                    <button onClick={() => setActiveDropdown(null)} className="text-xs font-black text-rose-600 px-2 py-1">CLOSE</button>
-                  </div>
+                <div
+                  style={{
+                    position: 'fixed',
+                    top: dropdownCoords?.top,
+                    left: dropdownCoords?.left,
+                    width: dropdownCoords?.width,
+                  }}
+                  className="bg-white border border-slate-200 shadow-2xl rounded-xl p-4 max-h-[70vh] overflow-y-auto z-[100] filter-dropdown-panel"
+                >
                   <div className="flex flex-wrap gap-3">
                     {['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK', '5 BHK', '5+ BHK'].map(type => (
                       <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors">
@@ -1070,18 +1099,21 @@ export default function PropertiesContent() {
             {/* Budget Dropdown */}
             <div className="relative filter-dropdown-container">
               <button
-                onClick={() => setActiveDropdown(activeDropdown === 'budget' ? null : 'budget')}
+                onClick={(e) => toggleDropdown(e, 'budget', 420)}
                 className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'budget' || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
               >
                 ₹{formatBudgetLabel(budgetRange[0])} - ₹{formatBudgetLabel(budgetRange[1])} <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
               {activeDropdown === 'budget' && (
-                <div className="fixed bottom-0 left-0 right-0 md:absolute md:top-full md:left-0 md:right-auto md:bottom-auto md:mt-2 bg-white border-t border-slate-200 md:border md:border-slate-200 shadow-2xl md:shadow-xl rounded-t-2xl md:rounded-xl p-4 sm:p-6 w-full md:w-[min(420px,calc(100vw-2rem))] max-h-[80vh] md:max-h-[85vh] overflow-y-auto z-[100] md:z-50">
-                  <div className="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4 md:hidden" />
-                  <div className="flex items-center justify-between mb-4 md:hidden">
-                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Budget Range</h3>
-                    <button onClick={() => setActiveDropdown(null)} className="text-xs font-black text-rose-600 px-2 py-1">CLOSE</button>
-                  </div>
+                <div
+                  style={{
+                    position: 'fixed',
+                    top: dropdownCoords?.top,
+                    left: dropdownCoords?.left,
+                    width: dropdownCoords?.width,
+                  }}
+                  className="bg-white border border-slate-200 shadow-2xl rounded-xl p-4 sm:p-6 max-h-[70vh] overflow-y-auto z-[100] filter-dropdown-panel"
+                >
                   <div className="flex justify-between text-sm font-bold text-slate-700 mb-6">
                     <span>₹{formatBudgetLabel(budgetRange[0])}</span>
                     <span>₹{formatBudgetLabel(budgetRange[1])}</span>
@@ -1118,18 +1150,21 @@ export default function PropertiesContent() {
             {/* Sale Type Dropdown */}
             <div className="relative filter-dropdown-container">
               <button
-                onClick={() => setActiveDropdown(activeDropdown === 'sale' ? null : 'sale')}
+                onClick={(e) => toggleDropdown(e, 'sale', 240)}
                 className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'sale' || saleTypes.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
               >
                 {saleTypes.length > 0 ? `Sale Type (${saleTypes.length})` : 'Sale Type'} <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
               {activeDropdown === 'sale' && (
-                <div className="fixed bottom-0 left-0 right-0 md:absolute md:top-full md:left-0 md:right-auto md:bottom-auto md:mt-2 bg-white border-t border-slate-200 md:border md:border-slate-200 shadow-2xl md:shadow-xl rounded-t-2xl md:rounded-xl p-4 w-full md:w-[240px] z-[100] md:z-50">
-                  <div className="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4 md:hidden" />
-                  <div className="flex items-center justify-between mb-4 md:hidden">
-                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Sale Type</h3>
-                    <button onClick={() => setActiveDropdown(null)} className="text-xs font-black text-rose-600 px-2 py-1">CLOSE</button>
-                  </div>
+                <div
+                  style={{
+                    position: 'fixed',
+                    top: dropdownCoords?.top,
+                    left: dropdownCoords?.left,
+                    width: dropdownCoords?.width,
+                  }}
+                  className="bg-white border border-slate-200 shadow-2xl rounded-xl p-4 max-h-[70vh] overflow-y-auto z-[100] filter-dropdown-panel"
+                >
                   <div className="flex flex-col gap-3">
                     {['New Bookings', 'Resale'].map(type => (
                       <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full">
@@ -1150,13 +1185,21 @@ export default function PropertiesContent() {
             {/* Construction Status Dropdown */}
             <div className="relative filter-dropdown-container">
               <button
-                onClick={() => setActiveDropdown(activeDropdown === 'construction' ? null : 'construction')}
+                onClick={(e) => toggleDropdown(e, 'construction', 240)}
                 className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'construction' || constructionStatus.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
               >
                 {constructionStatus.length > 0 ? `Construction St... (${constructionStatus.length})` : 'Construction St...'} <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
               {activeDropdown === 'construction' && (
-                <div className="fixed bottom-0 left-0 right-0 md:absolute md:top-full md:left-0 md:right-auto md:bottom-auto md:mt-2 bg-white border-t border-slate-200 md:border md:border-slate-200 shadow-2xl md:shadow-xl rounded-t-2xl md:rounded-xl p-4 w-full md:w-[240px] z-[100] md:z-50">
+                <div
+                  style={{
+                    position: 'fixed',
+                    top: dropdownCoords?.top,
+                    left: dropdownCoords?.left,
+                    width: dropdownCoords?.width,
+                  }}
+                  className="bg-white border border-slate-200 shadow-2xl rounded-xl p-4 max-h-[70vh] overflow-y-auto z-[100] filter-dropdown-panel"
+                >
                   <div className="flex flex-col gap-3">
                     {['Ready to move', 'Under Construction'].map(type => (
                       <label key={type} className="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full">
