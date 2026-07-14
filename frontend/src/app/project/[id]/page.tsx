@@ -1,5 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next"
-import PropertyDetailContent from "./PropertyDetailContent"
+import PropertyDetailContent from "../../property/[id]/PropertyDetailContent"
 import { notFound, redirect } from "next/navigation"
 import { JsonLd } from "@/components/seo/json-ld"
 import { absoluteUrl, buildPropertyJsonLd, SITE, SITE_OG_IMAGE } from "@/lib/seo"
@@ -9,12 +9,6 @@ type Props = {
   searchParams: { [key: string]: string | string[] | undefined }
 }
 
-/** Normalize image URLs so any format works:
- *  uploads/file.jpg     → /api/uploads/file.jpg
- *  /uploads/file.jpg    → /api/uploads/file.jpg  (WebConfig handles both)
- *  /api/uploads/file.jpg → /api/uploads/file.jpg (already correct)
- *  https://...          → kept as-is (Cloudinary / Unsplash)
- */
 function normalizeImage(img: string): string {
   if (!img) return ''
   if (img.startsWith('http')) return img
@@ -25,9 +19,7 @@ function normalizeImage(img: string): string {
 }
 
 async function getProperty(id: string) {
-  // For SSR, use internal Docker network if available
   const INTERNAL_BACKEND_URL = process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
-  // Ensure the internal URL also has the /api prefix if it's pointing to the service root
   const fetchUrl = INTERNAL_BACKEND_URL?.includes('/api') 
     ? `${INTERNAL_BACKEND_URL}/properties/${id}`
     : `${INTERNAL_BACKEND_URL}/api/properties/${id}`;
@@ -37,16 +29,15 @@ async function getProperty(id: string) {
       next: { revalidate: 120 },
     });
     if (!res.ok) {
-      console.error(`[PropertyPage] API returned ${res.status} for id=${id}, url=${fetchUrl}`)
+      console.error(`[ProjectPage] API returned ${res.status} for id=${id}, url=${fetchUrl}`)
       return null
     }
     return res.json()
   } catch (error) {
-    console.error("[PropertyPage] Error fetching property:", error, "URL:", fetchUrl)
+    console.error("[ProjectPage] Error fetching property:", error, "URL:", fetchUrl)
     return null
   }
 }
-
 
 export async function generateMetadata(
   { params }: Props,
@@ -57,11 +48,10 @@ export async function generateMetadata(
 
   if (!property) {
     return {
-      title: "Property Not Found | Kanharaj",
+      title: "Project Not Found | Kanharaj",
     }
   }
 
-  // Safely get description and first image (must be absolute for OG)
   const description = property.description
     ? `${String(property.description).slice(0, 160)}...`
     : `${property.title} - Located in ${property.address || ''}, ${property.city || ''}`
@@ -70,7 +60,7 @@ export async function generateMetadata(
     ? property.images
     : (typeof property.images === 'string' ? JSON.parse(property.images || '[]') : [])
 
-  const pageUrl = absoluteUrl(`/property/${id}`)
+  const pageUrl = absoluteUrl(`/project/${id}`)
   const ogImages = rawImages
     .map(normalizeImage)
     .map((img) => (img.startsWith('http') ? img : absoluteUrl(img)))
@@ -109,7 +99,7 @@ export async function generateMetadata(
   }
 }
 
-export default async function PropertyDetailPage({ params }: Props) {
+export default async function ProjectDetailPage({ params }: Props) {
   const property = await getProperty(params.id)
 
   if (!property) {
@@ -121,11 +111,10 @@ export default async function PropertyDetailPage({ params }: Props) {
                  property.propertyType?.toUpperCase() === 'RESIDENTIAL PROJECT' ||
                  property.propertyType?.toUpperCase() === 'COMMERCIAL PROJECT';
 
-  if (isProj) {
-    redirect(`/project/${params.id}`)
+  if (!isProj) {
+    redirect(`/property/${params.id}`)
   }
 
-  // Parse and normalize images and amenities
   const rawImages: string[] = Array.isArray(property.images)
     ? property.images
     : (typeof property.images === 'string' ? JSON.parse(property.images || '[]') : [])

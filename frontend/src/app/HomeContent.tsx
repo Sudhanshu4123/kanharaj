@@ -12,7 +12,7 @@ import { FeaturedCollections } from '@/components/home/featured-collections'
 import { ProjectGallery } from '@/components/home/project-gallery'
 import { PropertyGridSkeleton } from '@/components/skeletons/property-skeletons'
 import { usePropertyStore } from '@/lib/store'
-import { cn } from '@/lib/utils'
+import { cn, getPropertyUrl } from '@/lib/utils'
 import { HOME_FAQS } from '@/lib/seo'
 import {
   fetchPlatformStats,
@@ -65,7 +65,7 @@ const calculateEMI = (p: number, annualRate: number, years: number) => {
 
 export default function HomeContent() {
   const [mounted, setMounted] = useState(false)
-  const [activeTab, setActiveTab] = useState<'buy' | 'rent' | 'commercial' | 'pg' | 'plots'>('buy')
+  const [activeTab, setActiveTab] = useState<'buy' | 'rent' | 'projects' | 'commercial' | 'pg' | 'plots'>('buy')
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
   const [platformStats, setPlatformStats] = useState({
     properties: '0',
@@ -117,6 +117,13 @@ export default function HomeContent() {
           subtitle: 'Ready-to-move-in flats and houses at direct prices.',
           bgImage: heroBackgrounds.rent,
           gradientClass: 'from-indigo-950/70 via-indigo-900/50 to-indigo-900/10',
+        }
+      case 'projects':
+        return {
+          title: 'Premium New Projects',
+          subtitle: 'Explore ready-to-move and under construction developer projects directly from partners & builders.',
+          bgImage: heroBackgrounds.projects,
+          gradientClass: 'from-slate-950/70 via-slate-900/50 to-slate-900/10',
         }
       case 'commercial':
         return {
@@ -432,7 +439,7 @@ export default function HomeContent() {
                       </div>
 
                       {/* View Details Action */}
-                      <Link href={`/property/${property.id}`} className="block">
+                      <Link href={getPropertyUrl(property)} className="block">
                         <Button className="w-full h-7 sm:h-10 bg-slate-900 hover:bg-rose-600 text-white font-bold rounded-lg sm:rounded-xl transition-all duration-300 flex items-center justify-center gap-1 text-[10px] sm:text-sm">
                           View <ArrowRight className="w-2.5 h-2.5 sm:w-4 sm:h-4" />
                         </Button>

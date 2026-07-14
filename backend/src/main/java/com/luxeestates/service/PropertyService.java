@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -104,6 +105,20 @@ public class PropertyService {
                 .status(Property.Status.ACTIVE)
                 .featured(dto.getFeatured() != null ? dto.getFeatured() : false)
                 .views(0)
+                .developer(dto.getDeveloper())
+                .reraId(dto.getReraId())
+                .constructionStatus(dto.getConstructionStatus())
+                .possessionDate(dto.getPossessionDate())
+                .projectUnits(dto.getProjectUnits())
+                .areaUnit(dto.getAreaUnit())
+                .projectArea(dto.getProjectArea())
+                .sizes(dto.getSizes())
+                .configurations(dto.getConfigurations())
+                .projectSize(dto.getProjectSize())
+                .launchDate(dto.getLaunchDate())
+                .avgPrice(dto.getAvgPrice())
+                .brochureUrl(dto.getBrochureUrl())
+                .projectId(dto.getProjectId())
                 .user(user)
                 .build();
 
@@ -172,6 +187,20 @@ public class PropertyService {
         property.setYearBuilt(dto.getYearBuilt());
         property.setAmenities(toJson(dto.getAmenities()));
         property.setImages(toJson(dto.getImages()));
+        property.setDeveloper(dto.getDeveloper());
+        property.setReraId(dto.getReraId());
+        property.setConstructionStatus(dto.getConstructionStatus());
+        property.setPossessionDate(dto.getPossessionDate());
+        property.setProjectUnits(dto.getProjectUnits());
+        property.setAreaUnit(dto.getAreaUnit());
+        property.setProjectArea(dto.getProjectArea());
+        property.setSizes(dto.getSizes());
+        property.setConfigurations(dto.getConfigurations());
+        property.setProjectSize(dto.getProjectSize());
+        property.setLaunchDate(dto.getLaunchDate());
+        property.setAvgPrice(dto.getAvgPrice());
+        property.setBrochureUrl(dto.getBrochureUrl());
+        property.setProjectId(dto.getProjectId());
 
         return PropertyDto.fromEntity(propertyRepository.save(property));
     }
@@ -228,7 +257,10 @@ public class PropertyService {
     }
 
     public Long getActiveProperties() {
-        return propertyRepository.countByStatus(Property.Status.ACTIVE);
+        return propertyRepository.countByStatusAndPropertyTypeNotIn(
+            Property.Status.ACTIVE,
+            List.of(Property.PropertyType.RESIDENTIAL_PROJECT, Property.PropertyType.COMMERCIAL_PROJECT)
+        );
     }
 
     public Long getFeaturedPropertiesCount() {
@@ -238,7 +270,10 @@ public class PropertyService {
     @Cacheable(value = "platformStats", unless = "#result == null")
     public java.util.Map<String, Object> getPlatformStats() {
         java.util.Map<String, Object> stats = new java.util.HashMap<>();
-        Long totalProperties = propertyRepository.countByStatus(Property.Status.ACTIVE);
+        Long totalProperties = propertyRepository.countByStatusAndPropertyTypeNotIn(
+            Property.Status.ACTIVE,
+            List.of(Property.PropertyType.RESIDENTIAL_PROJECT, Property.PropertyType.COMMERCIAL_PROJECT)
+        );
         Long totalBuyers = userRepository.countByRole(User.Role.USER);
         Long totalSellers = userRepository.countByRole(User.Role.SELLER);
         Long totalCities = propertyRepository.countDistinctCityByStatus(Property.Status.ACTIVE);
@@ -502,5 +537,20 @@ public class PropertyService {
             System.out.println("GEOCODING ERROR: " + e.getMessage());
         }
         return null;
+    }
+
+    public List<PropertyDto> getPropertiesByProjectId(Long projectId) {
+        return propertyRepository.findByProjectIdAndStatus(projectId, Property.Status.ACTIVE).stream()
+                .map(PropertyDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public List<PropertyDto> getActiveProjects() {
+        return propertyRepository.findByPropertyTypeInAndStatus(
+                List.of(Property.PropertyType.RESIDENTIAL_PROJECT, Property.PropertyType.COMMERCIAL_PROJECT),
+                Property.Status.ACTIVE
+        ).stream()
+                .map(PropertyDto::fromEntity)
+                .collect(Collectors.toList());
     }
 }

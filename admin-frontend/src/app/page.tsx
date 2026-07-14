@@ -156,7 +156,7 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-2 mt-8 relative z-10 border-t border-white/5 pt-4">
               {[
-                ['Inventory', '/listings', 'Manage Listings'],
+                ['Listing', '/listings', 'Manage Listings'],
                 ['Leads', '/leads', 'Buyer Pipeline'],
                 ['Members', '/users', 'Manage Roles'],
               ].map(([_, path, label]) => (

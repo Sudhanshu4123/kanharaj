@@ -13,11 +13,12 @@ import { formatStatCount } from '@/lib/platform-data'
 import { topCities, otherCities } from '@/lib/location-data'
 import { parseSearchInput, getRoutingUrl } from '@/lib/routing-utils'
 
-type TabType = 'buy' | 'rent' | 'commercial' | 'pg' | 'plots'
+type TabType = 'buy' | 'rent' | 'projects' | 'commercial' | 'pg' | 'plots'
 
 const tabs: { value: TabType; label: string }[] = [
   { value: 'buy', label: 'BUY' },
   { value: 'rent', label: 'RENT' },
+  { value: 'projects', label: 'PROJECTS' },
   { value: 'commercial', label: 'COMMERCIAL' },
   { value: 'pg', label: 'PG / CO-LIVING' },
   { value: 'plots', label: 'PLOTS' },
@@ -90,6 +91,9 @@ export function SearchBar({
     } else if (activeTab === 'pg') {
       type = 'PG'
       listing = 'rent'
+    } else if (activeTab === 'projects') {
+      type = 'PROJECT'
+      listing = 'buy'
     } else if (activeTab === 'commercial') {
       type = 'COMMERCIAL'
       listing = commercialType === 'buy' ? 'buy' : 'rent'
@@ -153,8 +157,26 @@ export function SearchBar({
       )}
 
       {/* Premium Translucent Tabs Container */}
-      <div className="flex justify-center mb-0 px-2 sm:px-0 overflow-x-auto no-scrollbar scroll-smooth snap-x">
-        <div className="flex gap-1.5 p-1 bg-black/45 backdrop-blur-md rounded-t-xl border border-white/10 border-b-0 w-fit select-none">
+      <style>{`
+        .custom-tab-scrollbar::-webkit-scrollbar {
+          height: 5px;
+        }
+        .custom-tab-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-tab-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.3);
+          border-radius: 10px;
+        }
+      `}</style>
+      <div 
+        className="w-full overflow-x-auto scroll-smooth pb-2 custom-tab-scrollbar"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(255, 255, 255, 0.3) transparent',
+        }}
+      >
+        <div className="flex gap-1.5 p-1 bg-black/45 backdrop-blur-md rounded-t-xl border border-white/10 border-b-0 w-fit mx-auto select-none shrink-0 px-2.5">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.value
             return (

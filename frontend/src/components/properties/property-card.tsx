@@ -1,5 +1,4 @@
 "use client"
-
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -10,7 +9,7 @@ import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Property } from '@/lib/data'
 import { usePropertyStore } from '@/lib/store'
-import { formatPrice, formatNumber, cn, getApiUrl } from '@/lib/utils'
+import { formatPrice, formatNumber, cn, getApiUrl, getPropertyUrl } from '@/lib/utils'
 import { PropertyCardSkeleton } from '@/components/skeletons/property-skeletons'
 
 interface PropertyCardProps {
@@ -26,16 +25,36 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
     setMounted(true)
   }, [])
 
+  const isProject = property.propertyType?.toUpperCase() === 'RESIDENTIAL_PROJECT' ||
+                    property.propertyType?.toUpperCase() === 'COMMERCIAL_PROJECT' ||
+                    property.propertyType?.toUpperCase() === 'RESIDENTIAL PROJECT' ||
+                    property.propertyType?.toUpperCase() === 'COMMERCIAL PROJECT';
+
+  const getProjectPriceLabel = () => {
+    if (isProject && property.sizes) {
+      const prices = property.sizes.split(',');
+      if (prices.length > 0) return `${prices[0].trim()} onwards`;
+    }
+    return formatPrice(property.price);
+  }
+
+  const getProjectSubtitle = () => {
+    if (!property.configurations) return `Flats in ${property.city || property.address}`;
+    const bhks = property.configurations.match(/\d/g);
+    if (bhks && bhks.length > 0) {
+      const uniqueBhks = Array.from(new Set(bhks)).sort().join(', ');
+      return `${uniqueBhks} BHK Flats`;
+    }
+    return property.configurations;
+  }
+
   const getImageUrl = (imageInput: any) => {
     let url = '';
-
     if (!imageInput) return '';
 
-    // If it's an array, take the first one
     if (Array.isArray(imageInput) && imageInput.length > 0) {
       url = imageInput[0];
     } else if (typeof imageInput === 'string') {
-      // If it's a JSON string like '["url1"]', parse it
       if (imageInput.startsWith('[') && imageInput.endsWith(']')) {
         try {
           const parsed = JSON.parse(imageInput);
@@ -49,10 +68,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
     }
 
     if (!url || url === '[]') return '';
-
-    // Handle Cloudinary/External vs Local
     if (url.startsWith('http')) {
-      // Don't force HTTPS for localhost (development)
       if (url.includes('localhost')) return url;
       return url.replace('http://', 'https://');
     }
@@ -75,7 +91,7 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
       transition={{ delay: index * 0.1, duration: 0.4 }}
       className="relative"
     >
-      <Link href={`/property/${property.id}`}>
+      <Link href={getPropertyUrl(property)}>
         <Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
           {/* Image */}
           <div className="relative aspect-[16/10] overflow-hidden">
@@ -106,15 +122,15 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
             {/* Property Type Floating Badge */}
             <div className="absolute top-3 right-3 z-20">
               <span className="bg-black/50 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">
-                {property.propertyType}
+                {isProject ? 'PROJECT' : property.propertyType}
               </span>
             </div>
 
             {/* Price */}
             <div className="absolute bottom-3 left-3 right-3">
               <p className="text-2xl font-bold text-white drop-shadow-md">
-                {formatPrice(property.price)}
-                {isForRent && <span className="text-sm font-normal">/month</span>}
+                {getProjectPriceLabel()}
+                {!isProject && isForRent && <span className="text-sm font-normal">/month</span>}
               </p>
             </div>
           </div>
@@ -137,10 +153,10 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
             {/* Price & Area Info */}
             <div className="flex items-baseline gap-2 mb-4">
               <span className="text-xl font-bold text-slate-900">
-                {formatPrice(property.price)}
-                {isForRent && <span className="text-xs font-normal text-slate-500 ml-0.5">/month</span>}
+                {getProjectPriceLabel()}
+                {!isProject && isForRent && <span className="text-xs font-normal text-slate-500 ml-0.5">/month</span>}
               </span>
-              {property.area > 0 && (
+              {!isProject && property.area > 0 && (
                 <span className="text-xs text-slate-500 font-medium">
                   @{formatPrice(Math.round(property.price / property.area))}/sqft{isForRent && '/mo'}
                 </span>
@@ -148,44 +164,60 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
             </div>
 
             {/* Features Grid */}
-            <div className="grid grid-cols-3 gap-2 py-3 border-t border-slate-100">
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-tight">
-                  {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND') ? 'Type' : 'Config'}
-                </span>
-                <div className="flex items-center text-slate-700 text-sm font-semibold">
-                  <Bed className="h-3.5 w-3.5 mr-1 text-rose-500" />
-                  <span className="truncate">
-                    {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND')
-                      ? property.propertyType
-                      : `${property.bedrooms} BHK`
-                    }
+            {isProject && property.configurations ? (
+              <div className="flex gap-4 py-3 border-t border-slate-100 overflow-x-auto min-h-[53px] items-center">
+                {property.configurations.split(',').slice(0, 2).map((config, idx) => {
+                  const sizesArray = property.sizes ? property.sizes.split(',') : [];
+                  const configName = config.trim();
+                  const configPrice = sizesArray[idx]?.trim() || 'N/A';
+                  return (
+                    <div key={idx} className="border-r border-slate-100 last:border-none pr-4 shrink-0">
+                      <span className="text-[8px] text-slate-400 font-bold uppercase block tracking-wider">{configName}</span>
+                      <span className="text-xs font-black text-slate-800 leading-tight mt-0.5 block">{configPrice}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-2 py-3 border-t border-slate-100">
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 tracking-tight">
+                    {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND') ? 'Type' : 'Config'}
                   </span>
+                  <div className="flex items-center text-slate-700 text-sm font-semibold">
+                    <Bed className="h-3.5 w-3.5 mr-1 text-rose-500" />
+                    <span className="truncate">
+                      {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND')
+                        ? property.propertyType
+                        : `${property.bedrooms} BHK`
+                      }
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 tracking-tight">Area</span>
+                  <div className="flex items-center text-slate-700 text-sm font-semibold">
+                    <Maximize className="h-3.5 w-3.5 mr-1 text-rose-500" />
+                    <span>{formatNumber(property.area)} <span className="text-[10px] font-normal ml-0.5">sqft</span></span>
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 tracking-tight">Status</span>
+                  <div className="flex items-center text-slate-700 text-sm font-semibold">
+                    <span className="truncate">Ready to Move</span>
+                  </div>
                 </div>
               </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-tight">Area</span>
-                <div className="flex items-center text-slate-700 text-sm font-semibold">
-                  <Maximize className="h-3.5 w-3.5 mr-1 text-rose-500" />
-                  <span>{formatNumber(property.area)} <span className="text-[10px] font-normal ml-0.5">sqft</span></span>
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-tight">Status</span>
-                <div className="flex items-center text-slate-700 text-sm font-semibold">
-                  <span className="truncate">Ready to Move</span>
-                </div>
-              </div>
-            </div>
+            )}
 
             <Button variant="outline" className="w-full mt-2 group-hover:bg-rose-600 group-hover:text-white group-hover:border-rose-600 transition-all text-xs h-9">
-              View Details
+              {isProject ? 'View Project' : 'View Details'}
             </Button>
           </div>
         </Card>
       </Link>
 
-      {/* Action Buttons (Moved outside Link to fix Hydration Error) */}
+      {/* Action Buttons */}
       <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
         <button
           className={cn(

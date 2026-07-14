@@ -68,4 +68,34 @@ public class CloudinaryService {
     public void deleteImage(String publicId) throws IOException {
         cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
     }
+
+    public String uploadDocument(MultipartFile file) throws IOException {
+        boolean isCloudinaryConfigured = cloudName != null && 
+                                       !cloudName.trim().isEmpty() && 
+                                       !"your_cloud_name".equals(cloudName) &&
+                                       !"Root".equals(cloudName);
+
+        if (isCloudinaryConfigured) {
+            try {
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                        file.getBytes(),
+                        ObjectUtils.asMap(
+                                "folder", "shrishyam",
+                                "resource_type", "auto"
+                        )
+                );
+                return (String) uploadResult.get("secure_url");
+            } catch (Exception e) {
+                throw new IOException("Cloudinary upload failed: " + e.getMessage());
+            }
+        }
+
+        // Fallback to local storage
+        String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.-]", "_");
+        java.nio.file.Path path = java.nio.file.Paths.get(uploadPath, filename).toAbsolutePath().normalize();
+        java.nio.file.Files.createDirectories(path.getParent());
+        java.nio.file.Files.copy(file.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        
+        return "/api/uploads/" + filename;
+    }
 }

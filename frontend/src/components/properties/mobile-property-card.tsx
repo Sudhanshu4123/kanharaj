@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -10,7 +9,7 @@ import { Property } from '@/lib/data'
 import { useRouter } from 'next/navigation'
 import { usePropertyStore, useAuthStore } from '@/lib/store'
 import { useChatBoxStore } from '@/lib/chat-box-store'
-import { formatPrice, cn, getApiUrl } from '@/lib/utils'
+import { formatPrice, cn, getApiUrl, getPropertyUrl } from '@/lib/utils'
 
 interface MobilePropertyCardProps {
   property: Property
@@ -21,6 +20,29 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
   const { isAuthenticated } = useAuthStore()
   const router = useRouter()
   const isWishlisted = isInWishlist(String(property.id))
+
+  const isProject = property.propertyType?.toUpperCase() === 'RESIDENTIAL_PROJECT' ||
+                    property.propertyType?.toUpperCase() === 'COMMERCIAL_PROJECT' ||
+                    property.propertyType?.toUpperCase() === 'RESIDENTIAL PROJECT' ||
+                    property.propertyType?.toUpperCase() === 'COMMERCIAL PROJECT';
+
+  const getProjectPriceLabel = () => {
+    if (isProject && property.sizes) {
+      const prices = property.sizes.split(',');
+      if (prices.length > 0) return `${prices[0].trim()} onwards`;
+    }
+    return formatPrice(property.price);
+  }
+
+  const getProjectSubtitle = () => {
+    if (!property.configurations) return `Flats in ${property.city || property.address}`;
+    const bhks = property.configurations.match(/\d/g);
+    if (bhks && bhks.length > 0) {
+      const uniqueBhks = Array.from(new Set(bhks)).sort().join(', ');
+      return `${uniqueBhks} BHK Flats`;
+    }
+    return property.configurations;
+  }
 
   const handleChatClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -77,7 +99,7 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
 
   return (
     <div className="bg-white border-b border-slate-100 mb-4 overflow-hidden shadow-sm">
-      <Link href={`/property/${property.id}`} className="block">
+      <Link href={getPropertyUrl(property)} className="block">
         <div className="relative aspect-[16/9] w-full">
           <Image
             src={mainImage}
@@ -115,8 +137,8 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
           {/* Price Label */}
           <div className="absolute bottom-4 left-0">
             <div className="bg-black/70 backdrop-blur-md text-white px-3 py-1.5 text-sm font-black rounded-r-lg">
-              {formatPrice(property.price)}
-              {property.listingType === 'RENT' && <span className="text-xs font-normal text-slate-300 ml-0.5">/month</span>}
+              {getProjectPriceLabel()}
+              {!isProject && property.listingType === 'RENT' && <span className="text-xs font-normal text-slate-300 ml-0.5">/month</span>}
             </div>
           </div>
         </div>
@@ -130,29 +152,45 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
             <span className="line-clamp-1">{property.address}, {property.city}</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">
-                {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND') ? 'Type' : 'Config'}
-              </p>
-              <p className="text-sm font-bold text-slate-800">
-                {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND')
-                  ? property.propertyType
-                  : `${property.bedrooms} BHK`
-                }
-              </p>
+          {isProject && property.configurations ? (
+            <div className="flex gap-4 mb-4 flex-wrap mt-2">
+              {property.configurations.split(',').map((config, idx) => {
+                const sizesArray = property.sizes ? property.sizes.split(',') : [];
+                const configName = config.trim();
+                const configPrice = sizesArray[idx]?.trim() || 'N/A';
+                return (
+                  <div key={idx} className="border-r border-slate-100 last:border-none pr-4">
+                    <span className="text-[8px] text-slate-400 font-bold uppercase block tracking-wider">{configName}</span>
+                    <span className="text-xs font-black text-slate-800 leading-tight mt-0.5 block">{configPrice}</span>
+                  </div>
+                )
+              })}
             </div>
-            <div>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Area</p>
-              <p className="text-sm font-bold text-slate-800">{property.area} sqft</p>
+          ) : (
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">
+                  {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND') ? 'Type' : 'Config'}
+                </p>
+                <p className="text-sm font-bold text-slate-800">
+                  {(property.propertyType === 'COMMERCIAL' || property.propertyType === 'PLOT' || property.propertyType === 'PLOTS/LAND')
+                    ? property.propertyType
+                    : `${property.bedrooms} BHK`
+                  }
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Area</p>
+                <p className="text-sm font-bold text-slate-800">{property.area} sqft</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Status</p>
+                <p className="text-sm font-bold text-slate-800 truncate">
+                  {parseInt(property.id) % 2 === 0 ? 'Ready to Move' : 'Under Construction'}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Status</p>
-              <p className="text-sm font-bold text-slate-800 truncate">
-                {parseInt(property.id) % 2 === 0 ? 'Ready' : 'Dec 2025'}
-              </p>
-            </div>
-          </div>
+          )}
         </div>
       </Link>
 
@@ -168,8 +206,14 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
           className="flex-1 bg-[#6B46C1] hover:bg-[#5A38A7] text-white font-bold h-11 rounded-lg shadow-md flex items-center justify-center gap-1.5"
           onClick={handleChatClick}
         >
-          <MessageSquare className="w-4.5 h-4.5" />
-          Chat
+          {isProject ? (
+            <span>Contact</span>
+          ) : (
+            <>
+              <MessageSquare className="w-4.5 h-4.5" />
+              Chat
+            </>
+          )}
         </Button>
       </div>
     </div>

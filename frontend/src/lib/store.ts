@@ -187,6 +187,15 @@ export const usePropertyStore = create<PropertyStore>()(
       filteredProperties: () => {
         const { properties, filters } = get()
         return properties.filter((property) => {
+          const isProject = property.propertyType === 'RESIDENTIAL_PROJECT' || property.propertyType === 'COMMERCIAL_PROJECT' ||
+                            property.propertyType === 'RESIDENTIAL PROJECT' || property.propertyType === 'COMMERCIAL PROJECT';
+          if (isProject) {
+            const hasProjectFilter = filters.propertyType.some(t => {
+              const upper = t.toUpperCase();
+              return upper.includes('PROJECT');
+            });
+            if (!hasProjectFilter) return false;
+          }
           if (filters.listingType !== 'all' && property.listingType !== filters.listingType) return false
           if (filters.propertyType.length > 0 && !filters.propertyType.some(t => isPropertyTypeMatch(t, property.propertyType || ''))) return false
           if (property.price < filters.priceMin || property.price > filters.priceMax) return false

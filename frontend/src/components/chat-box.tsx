@@ -97,11 +97,11 @@ export function ChatBox() {
         url = imageInput;
       }
     }
-    if (!url || url === '[]') return '';
-    if (url.startsWith('http')) {
-      if (url.includes('localhost')) return url;
-      return url.replace('http://', 'https://');
-    }
+    if (!url || url === '[]')
+      if (url.startsWith('http')) {
+        if (url.includes('localhost')) return url;
+        return url.replace('http://', 'https://');
+      }
     const apiBase = API_URL?.replace(/\/api$/, '') || '';
     return `${apiBase}${url.startsWith('/') ? '' : '/'}${url}`;
   };
@@ -159,12 +159,12 @@ export function ChatBox() {
           images: propertyImage ? [propertyImage] : []
         } : null)
         setPropertyInfo(resolvedProp)
-        
+
         const otherUser = String(conv.buyer?.id) === String(user?.id) ? conv.seller : conv.buyer
         if (otherUser) {
           const nameLower = (otherUser.name || '').trim().toLowerCase()
           const isGenericName = !otherUser.name || nameLower === 'seller' || nameLower === 'user' || nameLower === 'owner' || nameLower === 'customer'
-          
+
           const resolvedName = !isGenericName
             ? otherUser.name
             : (conv.property?.userName || sellerName || 'Owner')
@@ -380,8 +380,8 @@ export function ChatBox() {
       <button
         onClick={() => {
           if (latestUnreadConv) {
-            const otherUser = String(latestUnreadConv.buyer?.id) === String(user?.id) 
-              ? latestUnreadConv.seller 
+            const otherUser = String(latestUnreadConv.buyer?.id) === String(user?.id)
+              ? latestUnreadConv.seller
               : latestUnreadConv.buyer
             openChat(String(otherUser.id), String(latestUnreadConv.property?.id || ''), {
               sellerName: otherUser.name,
@@ -419,7 +419,7 @@ export function ChatBox() {
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[360px] sm:w-[400px] h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden z-50 transition-all duration-300">
-      
+
       {/* Header (Same color branding as KANHARAJ.COM) */}
       <div className="bg-[#0a2540] text-white px-4 py-3.5 flex items-center justify-between shadow-sm shrink-0">
         <div className="flex items-center gap-2.5">
@@ -442,8 +442,8 @@ export function ChatBox() {
           </div>
         </div>
 
-        <button 
-          onClick={closeChat} 
+        <button
+          onClick={closeChat}
           className="p-1 rounded-lg hover:bg-white/10 text-white/85 hover:text-white transition-colors"
           aria-label="Close chat window"
         >
@@ -504,8 +504,8 @@ export function ChatBox() {
                 )}
                 <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[85%] p-2.5 px-3.5 rounded-xl text-xs font-medium leading-relaxed shadow-sm ${isOwnMessage
-                      ? 'bg-[#0a2540] text-white rounded-tr-none'
-                      : 'bg-white text-slate-800 border border-slate-200/80 rounded-tl-none'
+                    ? 'bg-[#0a2540] text-white rounded-tr-none'
+                    : 'bg-white text-slate-800 border border-slate-200/80 rounded-tl-none'
                     }`}>
                     <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                   </div>

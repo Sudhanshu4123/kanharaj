@@ -120,7 +120,7 @@ const servicesMegaData = {
 const newsMegaData = {
   title: 'Property market guide',
   items: [
-    { label: 'Real Estate News', description: 'Latest market updates', href: '/#news' },
+    { label: 'Real Estate News', description: 'Latest market updates', href: '/news', target: '_blank' },
     { label: 'Buying Guide', description: 'Expert homebuying tips', href: '/buying-guide' },
     { label: 'Property Research', description: 'Data-driven insights', href: '/#research-insights' },
     { label: 'New Delhi Overview', description: 'Real estate & area highlights', href: `/coming-soon?title=${encodeURIComponent('New Delhi Overview')}` },
@@ -167,10 +167,17 @@ const navLinks = [
     icon: Newspaper,
     subLinks: [
       { href: '/#research-insights', label: 'Research & Insights' },
-      { href: '/#news', label: 'Real Estate News' }
+      { href: '/news', label: 'Real Estate News', target: '_blank' }
     ]
   }
 ]
+
+interface NavLinkItem {
+  label: string
+  icon: any
+  href?: string
+  subLinks?: { href: string; label: string }[]
+}
 
 export function Header() {
   const pathname = usePathname()
@@ -184,6 +191,16 @@ export function Header() {
     pathname === '/rent' ||
     pathname?.startsWith('/rent/') ||
     pathname === '/buying-guide'
+
+  const isNewsPage = pathname === '/news' || pathname?.startsWith('/news/')
+
+  const activeNavLinks: NavLinkItem[] = isNewsPage
+    ? [
+        { label: 'Home', href: '/news', icon: Home },
+        { label: 'Properties Trend', href: '/properties', icon: Building2 },
+        { label: 'Rent', href: '/properties?listing=rent', icon: Key }
+      ]
+    : navLinks
 
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
@@ -285,23 +302,33 @@ export function Header() {
       </div>
 
       <nav className="hidden lg:flex items-center gap-2 xl:gap-4 ml-auto mr-4">
-        {navLinks.map((link) => (
+        {activeNavLinks.map((link) => (
           <div
             key={link.label}
             className="relative group py-2"
-            onMouseEnter={() => setOpenDropdown(link.label)}
-            onMouseLeave={() => setOpenDropdown(null)}
+            onMouseEnter={() => link.subLinks ? setOpenDropdown(link.label) : null}
+            onMouseLeave={() => link.subLinks ? setOpenDropdown(null) : null}
           >
-            <button
-              className="px-2.5 py-1.5 text-xs sm:text-sm font-bold text-white hover:text-[#dfa127] group-hover:text-[#dfa127] transition-colors flex items-center gap-1.5 rounded-lg"
-            >
-              {link.icon && <link.icon className="h-4 w-4 text-white/70 group-hover:text-[#dfa127] transition-colors" />}
-              <span>{link.label}</span>
-              <ChevronDown className={cn(
-                "h-3.5 w-3.5 transition-transform duration-200 opacity-70",
-                openDropdown === link.label ? "rotate-180" : ""
-              )} />
-            </button>
+            {link.href ? (
+              <Link
+                href={link.href}
+                className="px-2.5 py-1.5 text-xs sm:text-sm font-bold text-white hover:text-[#dfa127] group-hover:text-[#dfa127] transition-colors flex items-center gap-1.5 rounded-lg"
+              >
+                {link.icon && <link.icon className="h-4 w-4 text-white/70 group-hover:text-[#dfa127] transition-colors" />}
+                <span>{link.label}</span>
+              </Link>
+            ) : (
+              <button
+                className="px-2.5 py-1.5 text-xs sm:text-sm font-bold text-white hover:text-[#dfa127] group-hover:text-[#dfa127] transition-colors flex items-center gap-1.5 rounded-lg"
+              >
+                {link.icon && <link.icon className="h-4 w-4 text-white/70 group-hover:text-[#dfa127] transition-colors" />}
+                <span>{link.label}</span>
+                <ChevronDown className={cn(
+                  "h-3.5 w-3.5 transition-transform duration-200 opacity-70",
+                  openDropdown === link.label ? "rotate-180" : ""
+                )} />
+              </button>
+            )}
 
             {link.subLinks && (
               <AnimatePresence>
@@ -524,10 +551,12 @@ export function Header() {
                     >
                       <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-3 px-2 block">{newsMegaData.title}</span>
                       <div className="space-y-1">
-                        {newsMegaData.items.map((item) => (
+                        {newsMegaData.items.map((item: any) => (
                           <Link
                             key={item.label}
                             href={item.href}
+                            target={item.target}
+                            rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                             onClick={() => setOpenDropdown(null)}
                             className="block p-2 rounded-xl hover:bg-slate-50 group transition-colors"
                           >
@@ -545,10 +574,12 @@ export function Header() {
                       transition={{ duration: 0.15 }}
                       className="absolute top-full left-0 mt-1 w-52 bg-white border border-slate-100 shadow-xl rounded-xl py-2 overflow-hidden z-50 text-slate-800"
                     >
-                      {link.subLinks.map(sub => (
+                      {link.subLinks?.map((sub: any) => (
                         <Link
                           key={sub.href}
                           href={sub.href}
+                          target={sub.target}
+                          rel={sub.target === '_blank' ? 'noopener noreferrer' : undefined}
                           onClick={() => setOpenDropdown(null)}
                           className="block px-4 py-2 text-sm font-semibold text-slate-700 hover:text-rose-600 hover:bg-slate-50 transition-colors"
                         >
@@ -718,17 +749,32 @@ export function Header() {
           className="lg:hidden absolute top-[84px] left-0 right-0 bg-white border border-slate-200 shadow-2xl rounded-2xl p-4 max-h-[75vh] overflow-y-auto z-50 text-slate-800 flex flex-col gap-4"
         >
           <div className="px-4 py-4 space-y-1">
-            {navLinks.map((link) => (
+            {activeNavLinks.map((link) => (
               <div key={link.label}>
                 <div className="space-y-1">
-                  <button
-                    onClick={() => setOpenDropdown(openDropdown === link.label ? null : link.label)}
-                    className="w-full flex items-center justify-between py-2.5 px-3 text-sm font-bold text-slate-700 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                  >
-                    {link.label}
-                    <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", openDropdown === link.label ? "rotate-180" : "")} />
-                  </button>
-                  <AnimatePresence>
+                  {link.href ? (
+                    <Link
+                      href={link.href}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="w-full flex items-center gap-2 py-2.5 px-3 text-sm font-bold text-slate-700 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                    >
+                      {link.icon && <link.icon className="h-4 w-4 text-slate-400" />}
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => setOpenDropdown(openDropdown === link.label ? null : link.label)}
+                      className="w-full flex items-center justify-between py-2.5 px-3 text-sm font-bold text-slate-700 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        {link.icon && <link.icon className="h-4 w-4 text-slate-400" />}
+                        {link.label}
+                      </span>
+                      <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", openDropdown === link.label ? "rotate-180" : "")} />
+                    </button>
+                  )}
+                  {link.subLinks && (
+                    <AnimatePresence>
                     {openDropdown === link.label && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
@@ -973,10 +1019,12 @@ export function Header() {
                           <>
                             <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">{newsMegaData.title}</span>
                             <div className="space-y-1">
-                              {newsMegaData.items.map((item) => (
+                              {newsMegaData.items.map((item: any) => (
                                 <Link
                                   key={item.label}
                                   href={item.href}
+                                  target={item.target}
+                                  rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                                   onClick={() => {
                                     setIsMenuOpen(false)
                                     setOpenDropdown(null)
@@ -990,10 +1038,12 @@ export function Header() {
                             </div>
                           </>
                         ) : (
-                          link.subLinks && link.subLinks.map(sub => (
+                          link.subLinks && link.subLinks.map((sub: any) => (
                             <Link
                               key={sub.href}
                               href={sub.href}
+                              target={sub.target}
+                              rel={sub.target === '_blank' ? 'noopener noreferrer' : undefined}
                               onClick={() => {
                                 setIsMenuOpen(false)
                                 setOpenDropdown(null)
@@ -1007,6 +1057,7 @@ export function Header() {
                       </motion.div>
                     )}
                   </AnimatePresence>
+                  )}
                 </div>
               </div>
             ))}

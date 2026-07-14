@@ -91,13 +91,35 @@ export async function geocodeProperty(property: Property): Promise<{ lat: number
       `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`,
       { headers: { 'Accept-Language': 'en', 'User-Agent': 'Kanharaj-Property-App/1.0' } }
     )
-    if (!res.ok) throw new Error('Geocode failed')
-    const data = await res.json()
-    if (data?.[0]?.lat && data?.[0]?.lon) {
-      return {
-        lat: parseFloat(data[0].lat),
-        lng: parseFloat(data[0].lon),
-        displayName: data[0].display_name?.split(',').slice(0, 3).join(', ') || query,
+    if (res.ok) {
+      const data = await res.json()
+      if (data?.[0]?.lat && data?.[0]?.lon) {
+        return {
+          lat: parseFloat(data[0].lat),
+          lng: parseFloat(data[0].lon),
+          displayName: data[0].display_name?.split(',').slice(0, 3).join(', ') || query,
+        }
+      }
+    }
+  } catch {
+    /* fall through */
+  }
+
+  // Try broader geocoding fallback
+  try {
+    const broadQuery = `${property.city}, ${property.state}, India`;
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(broadQuery)}`,
+      { headers: { 'Accept-Language': 'en', 'User-Agent': 'Kanharaj-Property-App/1.0' } }
+    )
+    if (res.ok) {
+      const data = await res.json()
+      if (data?.[0]?.lat && data?.[0]?.lon) {
+        return {
+          lat: parseFloat(data[0].lat),
+          lng: parseFloat(data[0].lon),
+          displayName: [property.address, property.city].filter(Boolean).join(', ') || broadQuery,
+        }
       }
     }
   } catch {

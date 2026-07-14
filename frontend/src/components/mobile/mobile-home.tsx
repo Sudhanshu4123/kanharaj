@@ -13,7 +13,7 @@ import {
   getFeaturedOrLatest,
   getPropertyImageUrl,
 } from '@/lib/platform-data'
-import { cn } from '@/lib/utils'
+import { cn, getPropertyUrl } from '@/lib/utils'
 import { parseSearchInput, getRoutingUrl } from '@/lib/routing-utils'
 
 const quickCategories = [
@@ -154,7 +154,7 @@ export function MobileHome() {
               return (
                 <Link
                   key={property.id}
-                  href={`/property/${property.id}`}
+                  href={getPropertyUrl(property)}
                   className="block bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm"
                 >
                   <div className="relative aspect-[16/10] w-full bg-slate-100 flex items-center justify-center text-slate-400">

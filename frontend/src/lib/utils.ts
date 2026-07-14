@@ -95,3 +95,12 @@ export function getApiUrl(): string {
   }
   return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 }
+
+export function getPropertyUrl(property: any): string {
+  if (!property) return '#'
+  const isProject = property.propertyType?.toUpperCase() === 'RESIDENTIAL_PROJECT' ||
+                    property.propertyType?.toUpperCase() === 'COMMERCIAL_PROJECT' ||
+                    property.propertyType?.toUpperCase() === 'RESIDENTIAL PROJECT' ||
+                    property.propertyType?.toUpperCase() === 'COMMERCIAL PROJECT';
+  return isProject ? `/project/${property.id}` : `/property/${property.id}`;
+}

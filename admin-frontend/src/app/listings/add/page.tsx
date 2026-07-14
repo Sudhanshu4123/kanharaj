@@ -60,7 +60,7 @@ import { useRouter } from "next/navigation"
 import { topCities, otherCities } from "@/lib/cities"
 import { getApiUrl } from "@/lib/auth"
 import {
-  getSellerAuthHeaders,
+  getAdminAuthHeaders,
   getApiErrorMessage,
   mapSellerPropertyType,
   mapSellerListingType,
@@ -116,8 +116,8 @@ export default function AddPropertyPage() {
 
   useEffect(() => {
     async function checkSubscription() {
-      const userData = localStorage.getItem("seller_user")
-      const token = localStorage.getItem("seller_token")
+      const userData = localStorage.getItem("admin_user")
+      const token = localStorage.getItem("admin_token")
       if (!userData || !token) {
         router.push("/login")
         return
@@ -145,7 +145,7 @@ export default function AddPropertyPage() {
 
           // Keep local storage synchronized
           const updatedUser = { ...user, subscriptionPlan: plan }
-          localStorage.setItem("seller_user", JSON.stringify(updatedUser))
+          localStorage.setItem("admin_user", JSON.stringify(updatedUser))
         }
 
         if (plan === "NONE" && postsUsed >= postsLimit) {
@@ -680,7 +680,7 @@ export default function AddPropertyPage() {
       data.append("files", files[i])
     }
 
-    const token = localStorage.getItem("seller_token")
+    const token = localStorage.getItem("admin_token")
 
     try {
       const res = await fetch(`${getApiUrl()}/upload/images`, {
@@ -691,8 +691,8 @@ export default function AddPropertyPage() {
       
       if (res.status === 401 || res.status === 403) {
         alert("Aapka login session expire ho gaya hai. Kripya fir se login karein.")
-        localStorage.removeItem("seller_token")
-        localStorage.removeItem("seller_user")
+        localStorage.removeItem("admin_token")
+        localStorage.removeItem("admin_user")
         router.push("/login")
         return
       }
@@ -744,8 +744,8 @@ export default function AddPropertyPage() {
   }
 
   const handleSubmit = async () => {
-    const userData = localStorage.getItem("seller_user")
-    const authHeaders = getSellerAuthHeaders()
+    const userData = localStorage.getItem("admin_user")
+    const authHeaders = getAdminAuthHeaders()
     if (!userData || !authHeaders) {
       router.push("/login")
       return
@@ -2177,21 +2177,23 @@ ${formData.description}`
 
                     {/* Building Name */}
                     {sector !== "Commercial" && (
-                      <div>
-                        <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1 transition-colors group-focus-within:text-[#0a2540]">
-                          Building / Apartment / Society Name <span className="text-rose-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={buildingName}
-                          onChange={e => { setBuildingName(e.target.value); setBuildingNameError("") }}
-                          className={`w-full text-base font-bold text-slate-800 pb-2 border-b outline-none transition-colors ${buildingNameError ? "border-rose-500" : "border-slate-200 focus:border-[#0a2540]"
-                            }`}
-                          placeholder="e.g. DLF Phase 1"
-                        />
-                        {buildingNameError && (
-                          <p className="text-xs font-bold text-rose-500 mt-1">{buildingNameError}</p>
-                        )}
+                      <div className="space-y-6">
+                        <div>
+                          <label className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1 transition-colors group-focus-within:text-[#0a2540]">
+                            Building / Apartment / Society Name <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={buildingName}
+                            onChange={e => { setBuildingName(e.target.value); setBuildingNameError("") }}
+                            className={`w-full text-base font-bold text-slate-800 pb-2 border-b outline-none transition-colors ${buildingNameError ? "border-rose-500" : "border-slate-200 focus:border-[#0a2540]"
+                              }`}
+                            placeholder="e.g. DLF Phase 1"
+                          />
+                          {buildingNameError && (
+                            <p className="text-xs font-bold text-rose-500 mt-1">{buildingNameError}</p>
+                          )}
+                        </div>
                       </div>
                     )}
 

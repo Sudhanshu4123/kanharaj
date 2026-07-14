@@ -13,13 +13,15 @@ import { fetchAdminProperties, verifyPropertyAPI, togglePropertyFeaturedAPI, del
 const EMPTY_PROP: Partial<AdminProperty> = {
   title: '', price: 0, address: '', city: '', state: '', pincode: '',
   bedrooms: 0, bathrooms: 0, area: 0, listingType: 'BUY',
-  propertyType: 'APARTMENT', description: '', images: [], status: 'ACTIVE', featured: false
+  propertyType: 'APARTMENT', description: '', images: [], status: 'ACTIVE', featured: false,
+  developer: '', reraId: '', constructionStatus: 'New Launch', possessionDate: ''
 }
 
 export default function ListingsPage() {
   const router = useRouter()
   const [token, setToken] = useState<string | null>(null)
   const [properties, setProperties] = useState<AdminProperty[]>([])
+  const [projects, setProjects] = useState<AdminProperty[]>([])
   const [loading, setLoading] = useState(true)
   const [propForm, setPropForm] = useState<Partial<AdminProperty>>(EMPTY_PROP)
   const [editId, setEditId] = useState<string | null>(null)
@@ -36,7 +38,13 @@ export default function ListingsPage() {
       setToken(adminToken)
       try {
         const data = await fetchAdminProperties()
-        setProperties(data)
+        setProperties(data.filter(p => p.propertyType !== 'RESIDENTIAL_PROJECT' && p.propertyType !== 'COMMERCIAL_PROJECT'))
+        
+        const projRes = await fetch(`${getApiUrl()}/properties/projects`)
+        if (projRes.ok) {
+          const projData = await projRes.json()
+          setProjects(projData.content || projData || [])
+        }
       } catch (err) {
         console.error("Failed to load listings", err)
       } finally {
@@ -54,7 +62,7 @@ export default function ListingsPage() {
   }, [searchQuery])
 
   const getPropertyThumbnail = (images: string[]) => {
-    if (!images || images.length === 0) return ''
+    if (!images || images.length === 0 || !images[0]) return '/placeholder.png'
     const first = images[0]
     if (first.startsWith('http')) return first
     if (first.startsWith('/uploads/') || first.startsWith('/api/uploads/')) return first
@@ -146,7 +154,7 @@ export default function ListingsPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
         <Loader2 className="animate-spin text-[#0a2540]" size={36} />
-        <p className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Loading Inventory...</p>
+        <p className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Loading Listings...</p>
       </div>
     )
   }
@@ -186,10 +194,10 @@ export default function ListingsPage() {
             />
           </div>
           <button
-            onClick={() => { setPropForm(EMPTY_PROP); setEditId(null); setShowForm(true) }}
+            onClick={() => router.push('/listings/add')}
             className="h-11 px-5 bg-[#0a2540] text-white rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:bg-[#07192c] transition-all shadow-md active:scale-95 border border-[#dfa127]/20"
           >
-            <Plus size={16} strokeWidth={2.5} /> Publish Asset
+            <Plus size={16} strokeWidth={2.5} /> Add Properties
           </button>
         </div>
       </div>
@@ -337,7 +345,16 @@ export default function ListingsPage() {
                   <div className="space-y-1.5">
                     <label className="text-[9px] uppercase tracking-wider text-slate-400">Property Type</label>
                     <select value={propForm.propertyType || 'APARTMENT'} onChange={e => setPropForm({ ...propForm, propertyType: e.target.value as any })} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold outline-none focus:border-[#dfa127] cursor-pointer">
-                      {['APARTMENT', 'HOUSE', 'VILLA', 'FLAT', 'PLOT', 'PG', 'HOTEL', 'COMMERCIAL', 'RESIDENTIAL PROJECT'].map(t => <option key={t} value={t}>{t}</option>)}
+                      {[
+                        { val: 'APARTMENT', label: 'Apartment' },
+                        { val: 'HOUSE', label: 'House' },
+                        { val: 'VILLA', label: 'Villa' },
+                        { val: 'FLAT', label: 'Flat' },
+                        { val: 'PLOT', label: 'Plot' },
+                        { val: 'PG', label: 'PG' },
+                        { val: 'HOTEL', label: 'Hotel' },
+                        { val: 'COMMERCIAL', label: 'Commercial' }
+                      ].map(t => <option key={t.val} value={t.val}>{t.label}</option>)}
                     </select>
                   </div>
                   <div className="space-y-1.5">
@@ -348,6 +365,27 @@ export default function ListingsPage() {
                     </select>
                   </div>
                 </div>
+
+                {/* Link to Project (Optional) — Only for non-project listings */}
+                {propForm.propertyType !== 'RESIDENTIAL_PROJECT' && propForm.propertyType !== 'COMMERCIAL_PROJECT' && (
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] uppercase tracking-wider text-slate-400">Link to Builder Project (Optional)</label>
+                    <select
+                      value={propForm.projectId || ''}
+                      onChange={e => setPropForm({ ...propForm, projectId: e.target.value ? Number(e.target.value) : undefined })}
+                      className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold outline-none focus:border-[#dfa127] cursor-pointer"
+                    >
+                      <option value="">-- None (Independent Property) --</option>
+                      {projects.map(proj => (
+                        <option key={proj.id} value={proj.id}>
+                          {proj.title} ({proj.city})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+
 
                 <div className="grid grid-cols-3 gap-4">
                   {[

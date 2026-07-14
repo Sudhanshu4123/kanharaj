@@ -100,6 +100,35 @@ public class Property {
     @Column(length = 500)
     private String verificationPhotoUrl;
 
+    private String developer;
+
+    @Column(length = 100)
+    private String reraId;
+
+    @Column(length = 50)
+    private String constructionStatus;
+
+    @Column(length = 50)
+    private String possessionDate;
+
+    private Integer projectUnits;
+    private String areaUnit;
+    private String projectArea;
+    private String sizes;
+    private String configurations;
+    private String projectSize;
+    private String launchDate;
+    private String avgPrice;
+
+    private String brochureUrl;
+
+    @Column(name = "project_id")
+    private Long projectId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", insertable = false, updatable = false)
+    private Property project;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -112,7 +141,7 @@ public class Property {
     private LocalDateTime updatedAt;
 
     public enum PropertyType {
-        HOUSE, APARTMENT, VILLA, FLAT, PLOT, RESIDENTIAL_PROJECT, COMMERCIAL, PG, HOTEL, OFFICE_SPACE, SHOP,
+        HOUSE, APARTMENT, VILLA, FLAT, PLOT, RESIDENTIAL_PROJECT, COMMERCIAL_PROJECT, COMMERCIAL, PG, HOTEL, OFFICE_SPACE, SHOP,
         BUILDER_FLOOR, GUEST_HOUSE
     }
 

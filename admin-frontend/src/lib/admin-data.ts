@@ -16,7 +16,7 @@ export interface AdminProperty {
   title: string
   description: string
   price: number
-  propertyType: 'HOUSE' | 'APARTMENT' | 'VILLA' | 'FLAT' | 'PLOT' | 'PG' | 'HOTEL' | 'COMMERCIAL' | 'RESIDENTIAL PROJECT' | 'PLOTS/LAND'
+  propertyType: 'HOUSE' | 'APARTMENT' | 'VILLA' | 'FLAT' | 'PLOT' | 'PG' | 'HOTEL' | 'COMMERCIAL' | 'RESIDENTIAL PROJECT' | 'COMMERCIAL PROJECT' | 'RESIDENTIAL_PROJECT' | 'COMMERCIAL_PROJECT' | 'PLOTS/LAND'
   listingType: 'BUY' | 'RENT'
   address: string
   city: string
@@ -32,6 +32,20 @@ export interface AdminProperty {
   featured: boolean
   verified?: boolean
   verifiedAt?: string
+  developer?: string
+  reraId?: string
+  constructionStatus?: string
+  possessionDate?: string
+  projectUnits?: number
+  areaUnit?: string
+  projectArea?: string
+  sizes?: string
+  configurations?: string
+  projectSize?: string
+  launchDate?: string
+  avgPrice?: string
+  projectId?: number
+  projectName?: string
   userId: string
   user?: { id: string; name: string; phone: string; profileImage?: string }
 }

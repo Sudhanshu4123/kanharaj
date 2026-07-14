@@ -38,7 +38,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final CustomUserDetailsService userDetailsService;
 
-    @Value("${app.cors.allowed-origins:https://kanharaj.com,https://www.kanharaj.com,https://seller.kanharaj.com,http://localhost:3000,http://localhost:3001}")
+    @Value("${app.cors.allowed-origins:https://kanharaj.com,https://www.kanharaj.com,https://seller.kanharaj.com,http://localhost:3000,http://localhost:3001,http://localhost:3002}")
     private String corsAllowedOrigins;
 
     @Bean
@@ -81,6 +81,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/feedbacks", "/api/feedbacks/").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/feedbacks/public").permitAll()
                         .requestMatchers("/api/feedbacks/**", "/api/feedbacks").authenticated()
+
+                        // News — public read, authenticated write
+                        .requestMatchers(HttpMethod.GET, "/api/news/**", "/api/news").permitAll()
+                        .requestMatchers("/api/news/**", "/api/news").authenticated()
 
                         .requestMatchers("/api/otp/**").permitAll()
                         .requestMatchers("/ws-notifications/**", "/ws-notifications").permitAll()

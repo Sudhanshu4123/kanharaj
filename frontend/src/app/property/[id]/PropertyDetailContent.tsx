@@ -8,7 +8,10 @@ import {
   ChevronLeft, ChevronRight, Check, MessageCircle, ArrowLeft, Building2,
   ShieldAlert, ShieldCheck, Info, Sparkles, AlertCircle, Compass, Star,
   X, Printer, DollarSign, Download, School, Activity, Shield, ArrowUpDown,
-  ChevronDown, Search, Menu, User, LogOut
+  ChevronDown, Search, Menu, User, LogOut, IndianRupee, FileText,
+  Video, Lock, Flame, Dumbbell, Waves, Trophy, Footprints, Target, Gamepad2,
+  Zap, Car, Droplets, Settings, Trash2, Users, Trees, Play, Wifi, Coffee,
+  BookOpen, CloudRain, Sun, ShoppingBag, Briefcase, Smile, Landmark, Fingerprint, Tv
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -313,11 +316,101 @@ function parsePropertyHighlights(description: string): { highlights: ParsedHighl
   return { highlights, cleanDescription };
 }
 
+const amenityIconMap: Record<string, any> = {
+  // Security & Safety
+  "cctv surveillance": Video,
+  "gated community": Lock,
+  "24x7 security guard": Shield,
+  "security": Shield,
+  "fire fighting system": Flame,
+  "intercom facility": Phone,
+  "video door phone": Tv,
+  "biometric access control": Fingerprint,
+  
+  // Sports & Fitness
+  "gymnasium": Dumbbell,
+  "gym": Dumbbell,
+  "swimming pool": Waves,
+  "pool": Waves,
+  "kids play area": Trophy,
+  "play area": Trophy,
+  "jogging & cycling track": Footprints,
+  "badminton / tennis court": Target,
+  "tennis court": Target,
+  "badminton court": Target,
+  "cricket ground": Target,
+  "indoor games room": Gamepad2,
+  "skating rink": Sparkles,
+  "sauna": Flame,
+  "steam room": Flame,
+
+  // Infrastructure & Utilities
+  "high-speed lifts": Building2,
+  "lift": Building2,
+  "100% power backup": Zap,
+  "power backup": Zap,
+  "reserved car parking": Car,
+  "visitor parking": Car,
+  "parking": Car,
+  "24x7 water supply": Droplets,
+  "water storage tank": Droplets,
+  "piped gas system": Flame,
+  "sewage treatment plant": Settings,
+  "waste disposal system": Trash2,
+
+  // Leisure & Community
+  "clubhouse / community hall": Users,
+  "club house": Users,
+  "landscape garden / park": Trees,
+  "garden": Trees,
+  "senior citizen area": Heart,
+  "amphitheatre": Sparkles,
+  "mini theatre": Play,
+  "wi-fi connectivity": Wifi,
+  "cafeteria / food court": Coffee,
+  "library / study lounge": BookOpen,
+
+  // Eco & Green Energy
+  "rain water harvesting": CloudRain,
+  "solar lighting system": Sun,
+  "vastu compliant": Compass,
+  "eco friendly green zone": Trees,
+
+  // Convenience & Business
+  "in-house shopping center": ShoppingBag,
+  "conference room / lounge": Briefcase,
+  "daycare / crèche": Smile,
+  "atm facility": Landmark
+}
+
+function getAmenityIcon(name: string) {
+  const normalized = name.trim().toLowerCase();
+  return amenityIconMap[normalized] || Check;
+}
+
 interface PropertyDetailContentProps {
   property: Property
 }
 
 export default function PropertyDetailContent({ property }: PropertyDetailContentProps) {
+  const isPlotOrLand = property.propertyType?.toUpperCase() === 'PLOT' || property.propertyType?.toUpperCase() === 'PLOTS/LAND'
+  const isCommercial = property.propertyType?.toUpperCase() === 'OFFICE_SPACE' ||
+    property.propertyType?.toUpperCase() === 'SHOP' ||
+    property.propertyType?.toUpperCase() === 'COMMERCIAL'
+  const isProject = property.propertyType?.toUpperCase() === 'RESIDENTIAL_PROJECT' ||
+    property.propertyType?.toUpperCase() === 'COMMERCIAL_PROJECT' ||
+    property.propertyType?.toUpperCase() === 'RESIDENTIAL PROJECT' ||
+    property.propertyType?.toUpperCase() === 'COMMERCIAL PROJECT'
+
+  const formatDateLabel = (dateStr: string | undefined | null) => {
+    if (!dateStr) return ''
+    const date = new Date(dateStr)
+    if (!isNaN(date.getTime()) && dateStr.includes('-')) {
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    }
+    return dateStr
+  }
+
   // Image gallery states
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
@@ -327,6 +420,27 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
   const [isFavorite, setIsFavorite] = useState(false)
   const [shareTooltip, setShareTooltip] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [showAllAmenities, setShowAllAmenities] = useState(false)
+  
+  // Project units list
+  const [projectUnits, setProjectUnits] = useState<Property[]>([])
+  useEffect(() => {
+    if (isProject && property.id) {
+      const fetchUnits = async () => {
+        try {
+          const apiUrl = getApiUrl() || ''
+          const res = await fetch(`${apiUrl}/properties/project/${property.id}`)
+          if (res.ok) {
+            const data = await res.json()
+            setProjectUnits(data.content || data || [])
+          }
+        } catch (e) {
+          console.error("Failed to load project units:", e)
+        }
+      }
+      fetchUnits()
+    }
+  }, [isProject, property.id])
   const [selectedQuickMsg, setSelectedQuickMsg] = useState(
     "I'm interested in this property. Please contact me with details."
   )
@@ -411,15 +525,10 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
       return []
     }
   }, [highlights.roomDetails])
-
-  const isPlotOrLand = property.propertyType?.toUpperCase() === 'PLOT' || property.propertyType?.toUpperCase() === 'PLOTS/LAND'
-  const isCommercial = property.propertyType?.toUpperCase() === 'OFFICE_SPACE' ||
-    property.propertyType?.toUpperCase() === 'SHOP' ||
-    property.propertyType?.toUpperCase() === 'COMMERCIAL'
-
+  
   // Derived metadata display values
-  const bedroomsVal = (isPlotOrLand || isCommercial) ? null : (highlights.bhk || (property.bedrooms ? `${property.bedrooms} BHK` : '3 BHK'))
-  const bathroomsVal = (isPlotOrLand || isCommercial) ? null : (highlights.bathrooms ? `${highlights.bathrooms} Baths` : (property.bathrooms ? `${property.bathrooms} Baths` : '3 Baths'))
+  const bedroomsVal = (isPlotOrLand || isCommercial || isProject) ? null : (highlights.bhk || (property.bedrooms ? `${property.bedrooms} BHK` : '3 BHK'))
+  const bathroomsVal = (isPlotOrLand || isCommercial || isProject) ? null : (highlights.bathrooms ? `${highlights.bathrooms} Baths` : (property.bathrooms ? `${property.bathrooms} Baths` : '3 Baths'))
   const areaVal = highlights.carpetArea || (property.area ? `${formatNumber(property.area)} Sq.Ft.` : 'N/A')
   const areaLabel = isPlotOrLand ? 'Plot Area' : isCommercial ? 'Built Up Area' : (highlights.carpetArea ? 'Carpet Area' : 'Super Area')
   const facingVal = highlights.facing ? `${highlights.facing} Facing` : 'East Facing'
@@ -502,11 +611,22 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
 
   // Safe images list
   const propertyImages = useMemo(() => {
-    if (Array.isArray(property.images) && property.images.length > 0) {
-      return property.images.map(img => getImageUrl(img));
+    let list = Array.isArray(property.images) ? property.images : [];
+    if (property.brochureUrl) {
+      const bUrl = property.brochureUrl.trim().toLowerCase();
+      list = list.filter(img => {
+        if (!img) return false;
+        const iUrl = img.trim().toLowerCase();
+        return iUrl !== bUrl && 
+               !iUrl.endsWith(bUrl) && 
+               !bUrl.endsWith(iUrl);
+      });
+    }
+    if (list.length > 0) {
+      return list.map(img => getImageUrl(img));
     }
     return ['/placeholder.png'];
-  }, [property.images]);
+  }, [property.images, property.brochureUrl]);
 
   // Lightbox handlers
   const openLightbox = (index: number) => {
@@ -646,10 +766,10 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     <div className="min-h-screen bg-slate-50">
 
       {/* Properties search bar — same on phone & desktop (responsive website) */}
-      <div className="flex bg-[#0a2540] text-white py-2 px-3 sm:px-4 md:px-6 flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-5 fixed top-0 left-0 right-0 z-50 shadow-md">
+      <div className="flex bg-[#0a2540] text-white py-2.5 px-3 sm:px-4 md:px-6 flex-wrap md:flex-nowrap items-center gap-3 md:gap-5 fixed top-0 left-0 right-0 z-50 shadow-md">
 
         {/* Logo and Location Selector */}
-        <div className="flex items-center gap-2 sm:gap-4 md:border-r border-white/20 md:pr-4 shrink-0 pb-2 md:pb-0 border-b border-white/15 md:border-b-0">
+        <div className="flex items-center gap-2 sm:gap-4 md:border-r border-white/20 md:pr-4 shrink-0 pb-0 border-b-0">
           <Link href="/" className="flex items-center gap-2">
             <div className="relative h-7 w-7 rounded overflow-hidden flex items-center justify-center bg-white shadow-sm">
               <img src={BRAND_LOGO_SRC} alt="Kanharaj Logo" className="h-full w-full object-cover" />
@@ -777,7 +897,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
         </div>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearchSubmit} className="flex-1 w-full min-w-0 max-w-[800px] relative order-3 md:order-none">
+        <form onSubmit={handleSearchSubmit} className="flex-1 w-full md:w-auto min-w-0 max-w-[800px] relative order-3 md:order-none mt-1 md:mt-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#0a2540]" />
           <Input
             placeholder="Enter Locality, Landmark, Project or builder"
@@ -788,7 +908,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
         </form>
 
         {/* Right Actions */}
-        <div className="flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-wrap">
+        <div className="flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-nowrap order-2 md:order-none">
           <a href="tel:+919599801767" className="text-xs sm:text-sm font-bold flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded transition whitespace-nowrap">
             <Phone className="w-4 h-4" /> Contact
           </a>
@@ -874,10 +994,21 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
           <div className="flex items-center space-x-2 text-xs font-semibold text-slate-500">
             <Link href="/" className="hover:text-[#6B46C1] transition-colors">Home</Link>
             <ChevronRight className="h-3.5 w-3.5" />
-            <Link href="/properties" className="hover:text-[#6B46C1] transition-colors">Properties</Link>
-            <ChevronRight className="h-3.5 w-3.5" />
-            <span className="hover:text-[#6B46C1] transition-colors uppercase">{property.propertyType}</span>
-            <ChevronRight className="h-3.5 w-3.5" />
+            {isProject ? (
+              <>
+                <Link href="/properties?type=PROJECT" className="hover:text-[#6B46C1] transition-colors">Projects</Link>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </>
+            ) : (
+              <>
+                <Link href="/properties" className="hover:text-[#6B46C1] transition-colors">Properties</Link>
+                <ChevronRight className="h-3.5 w-3.5" />
+                <span className="hover:text-[#6B46C1] transition-colors capitalize">
+                  {property.propertyType?.replace('_', ' ')?.toLowerCase()}
+                </span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </>
+            )}
             <span className="text-slate-800 truncate max-w-[200px]">{property.title}</span>
           </div>
 
@@ -924,6 +1055,17 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
               <Printer className="h-4 w-4 mr-2" />
               Print
             </Button>
+            {property.brochureUrl && (
+              <a
+                href={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-9 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 transition text-xs shadow-sm"
+              >
+                <Download className="h-4 w-4" />
+                Download Brochure
+              </a>
+            )}
           </div>
 
         </div>
@@ -938,26 +1080,45 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
 
               {/* Badges Row */}
               <div className="flex flex-wrap gap-2 mb-3">
-                <Badge className="bg-emerald-100 hover:bg-emerald-100 text-emerald-700 font-bold border-none px-3 py-1 flex items-center gap-1 rounded-lg">
-                  <ShieldCheck className="h-3.5 w-3.5" /> Verified Agent Listing
-                </Badge>
-                {property.featured && (
-                  <Badge className="bg-[#6B46C1]/10 hover:bg-[#6B46C1]/10 text-[#6B46C1] font-bold border-none px-3 py-1 flex items-center gap-1 rounded-lg">
-                    <Sparkles className="h-3.5 w-3.5" /> Featured Listing
-                  </Badge>
+                {isProject ? (
+                  <>
+                    {property.featured && (
+                      <Badge className="bg-[#6B46C1]/10 hover:bg-[#6B46C1]/10 text-[#6B46C1] font-bold border-none px-3 py-1 flex items-center gap-1 rounded-lg">
+                        <Sparkles className="h-3.5 w-3.5" /> Featured Spotlight
+                      </Badge>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Badge className="bg-emerald-100 hover:bg-emerald-100 text-emerald-700 font-bold border-none px-3 py-1 flex items-center gap-1 rounded-lg">
+                      <ShieldCheck className="h-3.5 w-3.5" /> Verified Agent Listing
+                    </Badge>
+                    {property.featured && (
+                      <Badge className="bg-[#6B46C1]/10 hover:bg-[#6B46C1]/10 text-[#6B46C1] font-bold border-none px-3 py-1 flex items-center gap-1 rounded-lg">
+                        <Sparkles className="h-3.5 w-3.5" /> Featured Listing
+                      </Badge>
+                    )}
+                    <Badge className="bg-indigo-100 hover:bg-indigo-100 text-indigo-700 font-bold border-none px-3 py-1 rounded-lg">
+                      Vastu Compliant
+                    </Badge>
+                    <Badge className="bg-rose-100 hover:bg-rose-100 text-rose-700 font-bold border-none px-3 py-1 rounded-lg">
+                      For {property.listingType === 'RENT' ? 'Rent' : 'Sale'}
+                    </Badge>
+                  </>
                 )}
-                <Badge className="bg-indigo-100 hover:bg-indigo-100 text-indigo-700 font-bold border-none px-3 py-1 rounded-lg">
-                  Vastu Compliant
-                </Badge>
-                <Badge className="bg-rose-100 hover:bg-rose-100 text-rose-700 font-bold border-none px-3 py-1 rounded-lg">
-                  For {property.listingType === 'RENT' ? 'Rent' : 'Sale'}
-                </Badge>
               </div>
 
-              {/* Title & Location */}
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
                 {property.title}
               </h1>
+              {property.projectId && property.projectName && (
+                <div className="mt-2.5">
+                  <Link href={`/property/${property.projectId}`} className="inline-flex items-center gap-1.5 bg-indigo-50 border border-indigo-150 hover:bg-indigo-100/70 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded-xl transition">
+                    <Building2 className="w-3.5 h-3.5 font-bold" />
+                    Located in Project: <span className="underline decoration-indigo-300 decoration-2">{property.projectName}</span>
+                  </Link>
+                </div>
+              )}
               <div className="flex items-center text-slate-500 mt-2">
                 <MapPin className="h-4 w-4 mr-1.5 text-rose-500 shrink-0" />
                 <span className="text-sm font-semibold text-slate-600">{property.address}, {property.city}, {property.state} - {property.pincode}</span>
@@ -1072,72 +1233,225 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
             <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl">
               <h2 className="text-lg font-black text-slate-900 mb-4">Specifications Table</h2>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
-
-                {!isPlotOrLand && (
-                  <div className="flex items-start gap-3">
-                    <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
-                      <Bed className="h-5 w-5" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+                {isProject ? (
+                  <>
+                    <div className="flex items-start gap-3">
+                      <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                        <Building2 className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Developer / Builder</span>
+                        <span className="text-sm font-bold text-slate-800">{property.developer || 'Verified Builder'}</span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Bedrooms</span>
-                      <span className="text-sm font-bold text-slate-800">{bedroomsVal}</span>
-                    </div>
-                  </div>
-                )}
 
-                {!isPlotOrLand && (
-                  <div className="flex items-start gap-3">
-                    <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
-                      <Bath className="h-5 w-5" />
+                    <div className="flex items-start gap-3">
+                      <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                        <ShieldCheck className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">RERA ID</span>
+                        <span className="text-sm font-bold text-slate-800">{property.reraId || 'Not Registered'}</span>
+                        {property.reraId && (
+                          <a href="https://up-rera.in/" target="_blank" rel="noopener noreferrer" className="text-[9px] font-bold text-indigo-600 hover:underline block mt-0.5">
+                            Check RERA Status →
+                          </a>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Bathrooms</span>
-                      <span className="text-sm font-bold text-slate-800">{bathroomsVal}</span>
+
+                    <div className="flex items-start gap-3">
+                      <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                        <Compass className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Construction Status</span>
+                        <span className="text-sm font-bold text-slate-800">{property.constructionStatus || 'New Launch'}</span>
+                      </div>
                     </div>
-                  </div>
-                )}
 
-                <div className="flex items-start gap-3">
-                  <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
-                    <Maximize className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">{areaLabel}</span>
-                    <span className="text-sm font-bold text-slate-800">{areaVal}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
-                    <Compass className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Facing Direction</span>
-                    <span className="text-sm font-bold text-slate-800">{facingVal}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
-                    <Calendar className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Possession Status</span>
-                    <span className="text-sm font-bold text-slate-800">{possessionVal}</span>
-                  </div>
-                </div>
-
-                {!isPlotOrLand && (
-                  <div className="flex items-start gap-3">
-                    <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
-                      <Building2 className="h-5 w-5" />
+                    <div className="flex items-start gap-3">
+                      <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                        <Calendar className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Possession Starts</span>
+                        <span className="text-sm font-bold text-slate-800">{formatDateLabel(property.possessionDate) || 'Immediate'}</span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Property Age</span>
-                      <span className="text-sm font-bold text-slate-800">{ageVal}</span>
+
+                    {property.brochureUrl && (
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 bg-rose-50 rounded-xl text-rose-600 shrink-0">
+                          <FileText className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Project Brochure</span>
+                          <a
+                            href={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-black text-rose-600 hover:underline flex items-center gap-1 mt-1 cursor-pointer"
+                          >
+                            <Download className="w-3.5 h-3.5" /> Download PDF
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    {property.projectUnits && (
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                          <Building2 className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Project Units</span>
+                          <span className="text-sm font-bold text-slate-800">{property.projectUnits} Units</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {property.projectArea && (
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                          <Maximize className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Project Area</span>
+                          <span className="text-sm font-bold text-slate-800">{property.projectArea}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {property.sizes && (
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                          <Maximize className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Sizes</span>
+                          <span className="text-sm font-bold text-slate-800">{property.sizes}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {property.configurations && (
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                          <Compass className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Configurations</span>
+                          <span className="text-sm font-bold text-slate-800">{property.configurations}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {property.projectSize && (
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                          <Building2 className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Project Size</span>
+                          <span className="text-sm font-bold text-slate-800">{property.projectSize}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {property.launchDate && (
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                          <Calendar className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Launch Date</span>
+                          <span className="text-sm font-bold text-slate-800">{formatDateLabel(property.launchDate)}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {property.avgPrice && (
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                          <IndianRupee className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Avg. Price</span>
+                          <span className="text-sm font-bold text-slate-800">{property.avgPrice}</span>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {!isPlotOrLand && (
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                          <Bed className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Bedrooms</span>
+                          <span className="text-sm font-bold text-slate-800">{bedroomsVal}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {!isPlotOrLand && (
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                          <Bath className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Bathrooms</span>
+                          <span className="text-sm font-bold text-slate-800">{bathroomsVal}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-start gap-3">
+                      <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                        <Maximize className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">{areaLabel}</span>
+                        <span className="text-sm font-bold text-slate-800">{areaVal}</span>
+                      </div>
                     </div>
-                  </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                        <Compass className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Facing Direction</span>
+                        <span className="text-sm font-bold text-slate-800">{facingVal}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                        <Calendar className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Possession Status</span>
+                        <span className="text-sm font-bold text-slate-800">{possessionVal}</span>
+                      </div>
+                    </div>
+
+                    {!isPlotOrLand && (
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                          <Building2 className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase block tracking-wider">Property Age</span>
+                          <span className="text-sm font-bold text-slate-800">{ageVal}</span>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
 
               </div>
@@ -1145,19 +1459,19 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
               {/* Extended specs table rows */}
               <div className="mt-8 border-t border-slate-100 pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3.5 text-sm font-semibold">
-                  {!isPlotOrLand && (
+                  {!isPlotOrLand && !isProject && (
                     <div className="flex justify-between py-2 border-b border-slate-100">
                       <span className="text-slate-500">Floor Number</span>
                       <span className="text-slate-800">{highlights.floorDetails || '2nd of 4 floors'}</span>
                     </div>
                   )}
-                  {!isPlotOrLand && (
+                  {!isPlotOrLand && !isProject && (
                     <div className="flex justify-between py-2 border-b border-slate-100">
                       <span className="text-slate-500">Furnishing Status</span>
                       <span className="text-slate-800">{highlights.furnishType || 'Semi-Furnished'}</span>
                     </div>
                   )}
-                  {!isPlotOrLand && (
+                  {!isPlotOrLand && !isProject && (
                     <div className="flex justify-between py-2 border-b border-slate-100">
                       <span className="text-slate-500">Car Parking Space</span>
                       <span className="text-slate-800">
@@ -1499,6 +1813,42 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
               </div>
             </Card>
 
+            {/* Project BHK Configurations Card */}
+            {isProject && property.configurations && (
+              <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl mb-6">
+                <h2 className="text-lg font-black text-slate-900 mb-2 flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-indigo-600" />
+                  Project BHK Rates & Configurations
+                </h2>
+                <p className="text-xs text-slate-500 font-semibold mb-6">
+                  Available layouts and starting prices for flats in {property.title}.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {property.configurations.split(',').map((config, idx) => {
+                    const sizesArray = property.sizes ? property.sizes.split(',') : [];
+                    const configName = config.trim();
+                    const configPrice = sizesArray[idx]?.trim() || 'N/A';
+                    return (
+                      <div
+                        key={idx}
+                        className="border border-slate-150 rounded-2xl p-5 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                      >
+                        <div>
+                          <Badge className="bg-indigo-50 hover:bg-indigo-100 text-indigo-750 font-extrabold border border-indigo-100 px-3 py-1 rounded-lg">
+                            {configName}
+                          </Badge>
+                        </div>
+                        <div className="mt-4 pt-3 border-t border-slate-100">
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Rate / Price</span>
+                          <span className="text-lg font-black text-slate-800">{configPrice}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Card>
+            )}
+
             {/* Room Configurations Card */}
             {roomsList.length > 0 && (
               <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl">
@@ -1570,21 +1920,116 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                 Amenities list
               </h2>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {property.amenities && property.amenities.length > 0 ? (
-                  property.amenities.map((amenity) => (
-                    <div key={amenity} className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                      <div className="w-5 h-5 rounded bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
-                        <Check className="h-3.5 w-3.5" />
+                  (showAllAmenities ? property.amenities : property.amenities.slice(0, 8)).map((amenity) => {
+                    const IconComponent = getAmenityIcon(amenity);
+                    return (
+                      <div key={amenity} className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div className="w-8 h-8 rounded bg-indigo-50 flex items-center justify-center text-indigo-650 shrink-0 border border-indigo-100">
+                          <IconComponent className="h-4 w-4" />
+                        </div>
+                        <span className="text-sm font-bold text-slate-700">{amenity}</span>
                       </div>
-                      <span className="text-sm font-bold text-slate-700">{amenity}</span>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
-                  <p className="col-span-2 text-sm text-slate-500 font-medium py-4">No amenities listed for this property.</p>
+                  <p className="col-span-full text-sm text-slate-500 font-medium py-4 text-center">No amenities listed for this property.</p>
+                )}
+                {property.amenities && property.amenities.length > 8 && (
+                  <div className="col-span-full flex justify-center mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowAllAmenities(!showAllAmenities)}
+                      className="h-9 px-4 border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl font-bold flex items-center gap-1.5 transition text-xs shadow-sm"
+                    >
+                      {showAllAmenities ? "Read Less" : `Read More (${property.amenities.length - 8} more)`}
+                      <ChevronDown className={cn("w-4 h-4 transition-transform text-slate-500", showAllAmenities && "rotate-180")} />
+                    </Button>
+                  </div>
                 )}
               </div>
             </Card>
+
+            {/* View Official Brochure Section */}
+            {property.brochureUrl && (
+              <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl space-y-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-lg font-black text-slate-900 leading-tight">View official brochure</h2>
+                    <p className="text-xs text-slate-500 font-semibold mt-1">
+                      {property.title} Brochure & Payment Plan
+                    </p>
+                  </div>
+                  <div className="p-1.5 bg-slate-100 rounded-full text-slate-400">
+                    <Info className="w-4 h-4" />
+                  </div>
+                </div>
+
+                {/* Brochure Viewer Box */}
+                <div className="relative bg-[#0d1527] rounded-2xl overflow-hidden md:h-[450px] aspect-[16/10] border border-slate-800 flex items-center justify-center group shadow-inner">
+                  {property.brochureUrl.toLowerCase().endsWith('.pdf') ? (
+                    <iframe
+                      src={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}#toolbar=0&navpanes=0`}
+                      className="w-full h-full border-none rounded-xl"
+                      title={`${property.title} Brochure PDF`}
+                    />
+                  ) : (
+                    <img
+                      src={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
+                      alt={`${property.title} Brochure`}
+                      className="max-h-full object-contain"
+                    />
+                  )}
+
+                  {/* Overlays */}
+                  <a
+                    href={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute bottom-6 left-6 p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition opacity-95 hover:opacity-100 hover:scale-105 z-20 flex items-center justify-center"
+                  >
+                    <Download className="w-5 h-5" />
+                  </a>
+
+                  <a
+                    href={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute top-6 right-6 p-2.5 bg-black/60 hover:bg-black/80 text-white rounded-lg transition opacity-0 group-hover:opacity-100 z-20 flex items-center justify-center"
+                  >
+                    <Maximize className="w-4 h-4" />
+                  </a>
+                </div>
+
+                {/* Bottom Download Card */}
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-slate-50 border border-slate-150 rounded-xl mt-4">
+                  <div className="flex items-center gap-3.5 w-full sm:w-auto">
+                    <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-650 shrink-0">
+                      <FileText className="w-7 h-7" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-sm font-black text-slate-800 leading-tight">
+                        Download Brochure & Payment Plan of {property.title}
+                      </p>
+                      <p className="text-[11px] font-bold text-slate-450 mt-0.5">
+                        Get the complete official drawing, details and pricing breakdown.
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 h-11 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition shadow-sm uppercase tracking-wider shrink-0 cursor-pointer"
+                  >
+                    <Download className="w-4 h-4" /> Download
+                  </a>
+                </div>
+              </Card>
+            )}
 
             {/* Locality — real map + nearby places from OpenStreetMap */}
             <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl">
@@ -1817,6 +2262,96 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
           </div>
 
         </div>
+
+        {/* Project Inventory / Sub-units list */}
+        {isProject && (
+          <div className="mt-12 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
+              <div>
+                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Flats & Configurations in this Project</h3>
+                <p className="text-xs text-slate-500 font-semibold mt-1">Explore all the developer listings and direct-owner flats currently listed within {property.title}.</p>
+              </div>
+              <Badge className="bg-indigo-50 text-indigo-700 font-black border border-indigo-150 px-3.5 py-1.5 rounded-xl shrink-0">
+                {projectUnits.length} Units Available
+              </Badge>
+            </div>
+
+            {projectUnits.length === 0 ? (
+              <div className="py-12 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-3 animate-pulse" />
+                <h4 className="text-sm font-bold text-slate-700">No flats listed yet</h4>
+                <p className="text-xs text-slate-400 font-semibold mt-1">Be the first to list a flat in this project via the seller panel!</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projectUnits.map(unit => (
+                  <div key={unit.id} className="group bg-slate-50 hover:bg-white border border-slate-150 hover:border-indigo-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-md flex flex-col">
+                    {/* Thumbnail Image */}
+                    <div className="relative h-48 w-full bg-slate-100 shrink-0 overflow-hidden">
+                      <img
+                        src={getImageUrl(unit.images)}
+                        alt={unit.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; }}
+                      />
+                      <Badge className="absolute top-3 left-3 bg-[#0a2540] text-white font-extrabold px-2.5 py-1 rounded-lg border-none">
+                        {unit.listingType === 'RENT' ? 'For Rent' : 'For Sale'}
+                      </Badge>
+                    </div>
+
+                    {/* Details */}
+                    <div className="p-5 flex-1 flex flex-col justify-between">
+                      <div className="space-y-2">
+                        <div className="text-lg font-black text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                          {unit.title}
+                        </div>
+                        <div className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                          <span className="truncate">{unit.address || property.address}</span>
+                        </div>
+                        
+                        {/* Area, Bedrooms, Bathrooms Specs */}
+                        <div className="flex gap-4 pt-2 text-xs font-bold text-slate-700 border-t border-slate-100">
+                          {unit.bedrooms > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Bed className="w-4 h-4 text-slate-450 shrink-0" /> {unit.bedrooms} BHK
+                            </div>
+                          )}
+                          {unit.bathrooms > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Bath className="w-4 h-4 text-slate-455 shrink-0" /> {unit.bathrooms} Baths
+                            </div>
+                          )}
+                          {unit.area > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Maximize className="w-4 h-4 text-slate-456 shrink-0" /> {unit.area} Sq.Ft.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Pricing & CTA */}
+                      <div className="flex items-center justify-between mt-5 pt-3 border-t border-slate-150 shrink-0">
+                        <div>
+                          <span className="text-[9px] uppercase font-extrabold text-slate-400 block tracking-wider">Pricing</span>
+                          <span className="text-base font-black text-slate-900">
+                            {formatPrice(unit.price)}
+                            {unit.listingType === 'RENT' && <span className="text-xs font-bold text-slate-500">/mo</span>}
+                          </span>
+                        </div>
+                        <Link href={`/property/${unit.id}`}>
+                          <Button size="sm" className="bg-[#0a2540] hover:bg-[#07192c] text-white font-extrabold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
+                            View Flat
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
       </div>
 

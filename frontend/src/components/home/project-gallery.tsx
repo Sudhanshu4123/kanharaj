@@ -11,6 +11,7 @@ import {
   formatPropertyPriceDisplay,
 } from '@/lib/platform-data'
 import { PropertyGridSkeleton } from '@/components/skeletons/property-skeletons'
+import { getPropertyUrl } from '@/lib/utils'
 
 export function ProjectGallery() {
   const { properties, loading } = usePropertyStore()
@@ -51,7 +52,7 @@ export function ProjectGallery() {
                   transition={{ delay: index * 0.1 }}
                   className="group"
                 >
-                  <Link href={`/property/${project.id}`} className="block">
+                  <Link href={getPropertyUrl(project)} className="block">
                     <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-xl bg-slate-100 flex items-center justify-center text-slate-400">
                       {project.images && project.images.length > 0 && project.images[0] && project.images[0] !== '[]' ? (
                         <Image

@@ -79,6 +79,16 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.getPropertyById(id));
     }
 
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<List<PropertyDto>> getPropertiesByProjectId(@PathVariable Long projectId) {
+        return ResponseEntity.ok(propertyService.getPropertiesByProjectId(projectId));
+    }
+
+    @GetMapping("/projects")
+    public ResponseEntity<List<PropertyDto>> getActiveProjects() {
+        return ResponseEntity.ok(propertyService.getActiveProjects());
+    }
+
     @PostMapping("/{id}/view")
     public ResponseEntity<Void> incrementViews(@PathVariable Long id) {
         propertyService.incrementViews(id);

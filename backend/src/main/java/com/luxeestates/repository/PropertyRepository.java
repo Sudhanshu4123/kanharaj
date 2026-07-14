@@ -15,6 +15,12 @@ import java.util.List;
 public interface PropertyRepository extends JpaRepository<Property, Long>, JpaSpecificationExecutor<Property> {
     
     Page<Property> findByStatus(Property.Status status, Pageable pageable);
+
+    List<Property> findByProjectIdAndStatus(Long projectId, Property.Status status);
+
+    Page<Property> findByStatusAndPropertyTypeNotIn(Property.Status status, List<Property.PropertyType> types, Pageable pageable);
+
+    List<Property> findByPropertyTypeInAndStatus(List<Property.PropertyType> types, Property.Status status);
     
     Page<Property> findByFeaturedTrueAndStatus(Property.Status status, Pageable pageable);
     
@@ -22,7 +28,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long>, JpaSp
     
     @Query("SELECT p FROM Property p WHERE p.status = :status AND " +
            "(:city IS NULL OR p.city = :city) AND " +
-           "(:propertyType IS NULL OR p.propertyType = :propertyType) AND " +
+           "((:propertyType IS NULL AND p.propertyType NOT IN ('RESIDENTIAL_PROJECT', 'COMMERCIAL_PROJECT')) OR (:propertyType IS NOT NULL AND p.propertyType = :propertyType)) AND " +
            "(:listingType IS NULL OR p.listingType = :listingType) AND " +
            "(:minPrice IS NULL OR p.price >= :minPrice) AND " +
            "(:maxPrice IS NULL OR p.price <= :maxPrice)")
@@ -37,6 +43,8 @@ public interface PropertyRepository extends JpaRepository<Property, Long>, JpaSp
     );
     
     Long countByStatus(Property.Status status);
+    
+    Long countByStatusAndPropertyTypeNotIn(Property.Status status, List<Property.PropertyType> types);
     
     Long countByFeaturedTrueAndStatus(Property.Status status);
     

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter, usePathname, useParams } from 'next/navigation'
-import { ChevronDown, ChevronLeft, ChevronRight, Search, Info, Menu, User, Phone, X, Shield, ArrowUpDown, Waves, Dumbbell, Car, Flame, Check, LogOut, MapPin, Bell, SlidersHorizontal } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, Search, Info, Menu, User, Phone, X, Shield, ArrowUpDown, Waves, Dumbbell, Car, Flame, Check, LogOut, MapPin, Bell, SlidersHorizontal, Building2 } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import * as Slider from '@radix-ui/react-slider'
@@ -135,6 +135,7 @@ export default function PropertiesContent() {
   const [propertyDetails, setPropertyDetails] = useState<string[]>([])
   const [rera, setRera] = useState<boolean>(false)
   const [projects, setProjects] = useState<string[]>([])
+  const [showProjectsOnly, setShowProjectsOnly] = useState<boolean>(false)
 
   // Modal open & active tab state
   const [isMoreFiltersOpen, setIsMoreFiltersOpen] = useState(false)
@@ -285,6 +286,7 @@ export default function PropertiesContent() {
     propertyDetails,
     rera,
     projects,
+    showProjectsOnly,
     listingMode
   ])
 
@@ -310,9 +312,10 @@ export default function PropertiesContent() {
     return pages
   }
 
-  const hasActiveFilters = propertyTypes.length > 0 || bhkTypes.length > 0 || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH || saleTypes.length > 0 || constructionStatus.length > 0 || isAnyMoreFilterActive;
+  const hasActiveFilters = showProjectsOnly || propertyTypes.length > 0 || bhkTypes.length > 0 || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH || saleTypes.length > 0 || constructionStatus.length > 0 || isAnyMoreFilterActive;
 
   const handleResetFilters = () => {
+    setShowProjectsOnly(false)
     setPropertyTypes([])
     setBhkTypes([])
     setBudgetRange([0, BUDGET_MAX_LAKH])
@@ -473,12 +476,52 @@ export default function PropertiesContent() {
     }
   }, [searchParams, fetchProperties, setFilters, initialListing, initialType, initialCity])
 
-  const baseProperties = filteredProperties()
+  const baseProperties = showProjectsOnly ? storeProperties : filteredProperties()
+
+  const postedProjects = storeProperties.filter(
+    p => p.propertyType === 'RESIDENTIAL_PROJECT' || p.propertyType === 'COMMERCIAL_PROJECT' ||
+         p.propertyType === 'RESIDENTIAL PROJECT' || p.propertyType === 'COMMERCIAL PROJECT'
+  )
 
   // Apply More Filters client-side!
   const properties = baseProperties.filter(property => {
+    const isProject = property.propertyType === 'RESIDENTIAL_PROJECT' || property.propertyType === 'COMMERCIAL_PROJECT' ||
+                      property.propertyType === 'RESIDENTIAL PROJECT' || property.propertyType === 'COMMERCIAL PROJECT';
+    
+    const wantsProjects = showProjectsOnly || propertyTypes.some(t => t.toUpperCase().includes('PROJECT'));
+    
+    if (wantsProjects) {
+      if (!isProject) return false;
+      
+      // Filter by city
+      if (selectedCity) {
+        const filterCity = selectedCity.toLowerCase().trim()
+        const propCity = (property.city || '').toLowerCase()
+        const propAddress = (property.address || '').toLowerCase()
+        const matchesCity =
+          propCity === filterCity ||
+          propCity.includes(filterCity) ||
+          filterCity.includes(propCity) ||
+          propAddress.includes(filterCity)
+        if (!matchesCity) return false
+      }
+      
+      // Filter by search query
+      if (search) {
+        const s = search.toLowerCase()
+        const matchesSearch =
+          property.title?.toLowerCase().includes(s) ||
+          property.city?.toLowerCase().includes(s) ||
+          property.address?.toLowerCase().includes(s) ||
+          property.description?.toLowerCase().includes(s);
+        if (!matchesSearch) return false
+      }
+    } else {
+      if (isProject) return false;
+    }
+
     // 1. Listed By
-    if (listedBy.length > 0) {
+    if (!wantsProjects && listedBy.length > 0) {
       const role = property.user?.role?.toLowerCase() || '';
       let matchesListedBy = false;
       if (listedBy.includes('Owner') && (role === 'seller' || role === 'user')) matchesListedBy = true;
@@ -545,11 +588,16 @@ export default function PropertiesContent() {
 
     // 9. New Projects/Societies
     if (projects.length > 0) {
-      const titleLower = property.title?.toLowerCase() || '';
-      const descLower = property.description?.toLowerCase() || '';
-      const matchesProject = projects.some((project: string) =>
-        titleLower.includes(project.toLowerCase()) || descLower.includes(project.toLowerCase())
-      );
+      const matchesProject = projects.some((pTitle: string) => {
+        if (property.projectName && property.projectName.toLowerCase() === pTitle.toLowerCase()) return true;
+        
+        const matchedProj = postedProjects.find(pj => String(pj.id) === String(property.projectId));
+        if (matchedProj && matchedProj.title.toLowerCase() === pTitle.toLowerCase()) return true;
+
+        const titleLower = property.title?.toLowerCase() || '';
+        const descLower = property.description?.toLowerCase() || '';
+        return titleLower.includes(pTitle.toLowerCase()) || descLower.includes(pTitle.toLowerCase());
+      });
       if (!matchesProject) return false;
     }
 
@@ -605,7 +653,7 @@ export default function PropertiesContent() {
         ...(selectedState ? { state: selectedState } : { state: '' }),
       })
     }
-  }, [search, propertyTypes, listingMode, bhkTypes, budgetRange, selectedCity, selectedState, mounted, setFilters])
+  }, [search, propertyTypes, listingMode, bhkTypes, budgetRange, selectedCity, selectedState, showProjectsOnly, mounted, setFilters])
 
   const totalPages = Math.ceil(properties.length / propertiesPerPage)
   const paginatedProperties = properties.slice((currentPage - 1) * propertiesPerPage, currentPage * propertiesPerPage)
@@ -649,10 +697,10 @@ export default function PropertiesContent() {
       {/* Header Container - Fixed to Top */}
       <div className="fixed top-0 left-0 right-0 z-40">
         {/* Properties search bar — same on phone & desktop (responsive website) */}
-        <div className="flex bg-[#0a2540] text-white py-2 px-3 sm:px-4 md:px-6 flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-5">
+        <div className="flex bg-[#0a2540] text-white py-2.5 px-3 sm:px-4 md:px-6 flex-wrap md:flex-nowrap items-center gap-3 md:gap-5">
 
           {/* Logo and Location Selector */}
-          <div className="flex items-center gap-2 sm:gap-4 md:border-r border-white/20 md:pr-4 shrink-0 pb-2 md:pb-0 border-b border-white/15 md:border-b-0">
+          <div className="flex items-center gap-2 sm:gap-4 md:border-r border-white/20 md:pr-4 shrink-0 pb-0 border-b-0">
             <Link href="/" className="flex items-center gap-2">
               <div className="relative h-7 w-7 rounded overflow-hidden flex items-center justify-center bg-white shadow-sm">
                 <img src={BRAND_LOGO_SRC} alt="Kanharaj Logo" className="h-full w-full object-cover" />
@@ -780,7 +828,7 @@ export default function PropertiesContent() {
           </div>
 
           {/* Search Bar */}
-          <div className="flex-1 w-full min-w-0 max-w-[800px] relative order-3 md:order-none">
+          <div className="flex-1 w-full md:w-auto min-w-0 max-w-[800px] relative order-3 md:order-none mt-1 md:mt-0">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#0a2540]" />
             <Input
               placeholder="Enter Locality, Landmark, Project or builder"
@@ -791,7 +839,7 @@ export default function PropertiesContent() {
           </div>
 
           {/* Right Actions */}
-          <div className="flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-wrap">
+          <div className="flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-nowrap order-2 md:order-none">
             <a href="tel:+919599801767" className="text-xs sm:text-sm font-bold flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded transition whitespace-nowrap">
               <Phone className="w-4 h-4" /> Contact
             </a>
@@ -1036,39 +1084,16 @@ export default function PropertiesContent() {
               Verified <Info className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
-            {/* Project Dropdown */}
-            <div className="relative filter-dropdown-container">
-              <button
-                onClick={() => setActiveDropdown(activeDropdown === 'project' ? null : 'project')}
-                className={cn(
-                  "flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
-                  activeDropdown === 'project' || projects.length > 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
-                )}
-              >
-                {projects.length > 0 ? `Projects (${projects.length})` : 'Project'} <ChevronDown className="w-4 h-4 opacity-70" />
-              </button>
-              {activeDropdown === 'project' && (
-                <div className="absolute top-full left-0 right-0 sm:right-auto mt-2 bg-white border border-slate-200 shadow-xl rounded-xl p-4 w-full sm:w-[min(380px,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto z-50">
-                  <div className="flex flex-col gap-2">
-                    {[
-                      'Vaibhav Builders Floors', 'Goyal Smart Housing', 'Are Infra Rana Ji Enclave',
-                      'ARE Riviera Luxury Floors', 'G3 Builder Floors I', 'Manish Luxurious Floors',
-                      'Tulip Afford', 'Suraj Uttan', 'Goyal Prem'
-                    ].map(proj => (
-                      <label key={proj} className={cn("flex items-center gap-2 border border-slate-200 rounded-md px-3 py-2 cursor-pointer hover:bg-slate-50 transition-colors w-full", projects.includes(proj) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
-                        <div className={cn("w-4 h-4 rounded border flex items-center justify-center shrink-0", projects.includes(proj) ? "bg-[#0a2540] border-[#0a2540] text-white" : "border-slate-300 bg-white")}>
-                          {projects.includes(proj) && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-                        </div>
-                        <input type="checkbox" className="hidden" checked={projects.includes(proj)} onChange={() => {
-                          setProjects(prev => prev.includes(proj) ? prev.filter(p => p !== proj) : [...prev, proj])
-                        }} />
-                        <span className="text-sm font-medium text-slate-700 select-none">{proj}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+            {/* Projects Toggle */}
+            <button
+              onClick={() => setShowProjectsOnly(!showProjectsOnly)}
+              className={cn(
+                "flex items-center gap-1.5 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors",
+                showProjectsOnly ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700"
               )}
-            </div>
+            >
+              Project <Building2 className="w-3.5 h-3.5 opacity-70" />
+            </button>
 
             <button
               onClick={() => {
@@ -1570,19 +1595,20 @@ export default function PropertiesContent() {
                       </div>
                       <p className="text-xs text-slate-400">Select projects/societies</p>
                       <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
-                        {[
-                          'Vaibhav Builders Floors', 'Goyal Smart Housing', 'Are Infra Rana Ji Enclave',
-                          'ARE Riviera Luxury Floors', 'G3 Builder Floors I', 'Manish Luxurious Floors',
-                          'Tulip Afford', 'Suraj Uttan', 'Goyal Prem'
-                        ].filter(project => project.toLowerCase().includes(tempProjectsSearch.toLowerCase()))
-                          .map(option => (
-                            <label key={option} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempProjects.includes(option) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
-                              <input type="checkbox" checked={tempProjects.includes(option)} onChange={() => {
-                                setTempProjects(prev => prev.includes(option) ? prev.filter((x: string) => x !== option) : [...prev, option])
-                              }} className="w-4 h-4 rounded text-[#0a2540] border-slate-300 focus:ring-[#0a2540] shrink-0" />
-                              <span className="text-sm font-medium text-slate-700">{option}</span>
-                            </label>
-                          ))}
+                        {postedProjects.length === 0 ? (
+                          <div className="text-xs text-slate-400 font-semibold p-4 text-center">No projects posted yet</div>
+                        ) : (
+                          Array.from(new Set(postedProjects.map(p => p.title)))
+                            .filter(project => project.toLowerCase().includes(tempProjectsSearch.toLowerCase()))
+                            .map(option => (
+                              <label key={option} className={cn("flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors w-full", tempProjects.includes(option) ? "border-[#0a2540] bg-[#0a2540]/5" : "border-slate-200")}>
+                                <input type="checkbox" checked={tempProjects.includes(option)} onChange={() => {
+                                  setTempProjects(prev => prev.includes(option) ? prev.filter((x: string) => x !== option) : [...prev, option])
+                                }} className="w-4 h-4 rounded text-[#0a2540] border-slate-300 focus:ring-[#0a2540] shrink-0" />
+                                <span className="text-sm font-medium text-slate-700">{option}</span>
+                              </label>
+                            ))
+                        )}
                       </div>
                     </div>
                   )}

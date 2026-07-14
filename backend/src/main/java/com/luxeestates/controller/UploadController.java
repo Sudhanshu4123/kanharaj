@@ -54,4 +54,31 @@ public class UploadController {
         }
         return ResponseEntity.ok(Map.of("urls", urls));
     }
+
+    @PostMapping("/document")
+    public ResponseEntity<Map<String, String>> uploadDocument(
+            @RequestParam("file") MultipartFile file
+    ) {
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || (!contentType.equals("application/pdf") &&
+            !contentType.equals("image/jpeg") &&
+            !contentType.equals("image/png") &&
+            !contentType.equals("image/jpg") &&
+            !contentType.equals("image/webp"))) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Only PDF and image files are allowed."));
+        }
+
+        try {
+            String url = cloudinaryService.uploadDocument(file);
+            return ResponseEntity.ok(Map.of("url", url));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "Failed to upload document: " + e.getMessage()));
+        }
+    }
 }

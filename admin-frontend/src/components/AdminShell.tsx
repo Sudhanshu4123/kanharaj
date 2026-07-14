@@ -4,8 +4,8 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import {
-  Menu, X, LogOut, LayoutDashboard, Box,
-  MessageSquare, Users, ShieldAlert, ChevronDown, Star, CreditCard
+  Menu, X, LogOut, LayoutDashboard, Box, Building2,
+  MessageSquare, Users, ShieldAlert, ChevronDown, Star, CreditCard, Newspaper
 } from "lucide-react"
 import { logoutFromAdminDashboard, getApiUrl, getMainSiteUrl } from "@/lib/auth"
 
@@ -75,14 +75,15 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     setMobileMenuOpen(false)
     logoutFromAdminDashboard()
   }
-
   const NAV = [
     { id: 'home', href: '/', label: 'Dashboard', icon: <LayoutDashboard size={16} />, match: pathname === '/' },
-    { id: 'listings', href: '/listings', label: 'Inventory', icon: <Box size={16} />, match: pathname.startsWith('/listings') },
+    { id: 'listings', href: '/listings', label: 'Listing', icon: <Box size={16} />, match: pathname.startsWith('/listings') },
+    { id: 'projects', href: '/projects', label: 'Projects', icon: <Building2 size={16} />, match: pathname.startsWith('/projects') },
     { id: 'leads', href: '/leads', label: 'Leads', icon: <MessageSquare size={16} />, match: pathname.startsWith('/leads') },
     { id: 'users', href: '/users', label: 'Members', icon: <Users size={16} />, match: pathname.startsWith('/users') },
     { id: 'reviews', href: '/reviews', label: 'Reviews', icon: <Star size={16} />, match: pathname.startsWith('/reviews') },
     { id: 'payments', href: '/payments', label: 'Payments', icon: <CreditCard size={16} />, match: pathname.startsWith('/payments') },
+    { id: 'news', href: '/news', label: 'News', icon: <Newspaper size={16} />, match: pathname.startsWith('/news') },
   ]
 
   if (errorMsg) {

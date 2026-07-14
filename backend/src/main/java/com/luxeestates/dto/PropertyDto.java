@@ -47,6 +47,23 @@ public class PropertyDto {
     private String userProfileImage;
     private String userDescription;
     private String userExperienceYears;
+    private String developer;
+    private String reraId;
+    private String constructionStatus;
+    private String possessionDate;
+
+    private Integer projectUnits;
+    private String areaUnit;
+    private String projectArea;
+    private String sizes;
+    private String configurations;
+    private String projectSize;
+    private String launchDate;
+    private String avgPrice;
+    private String brochureUrl;
+
+    private Long projectId;
+    private String projectName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
@@ -84,6 +101,21 @@ public class PropertyDto {
                 .userProfileImage(property.getUser().getProfileImage())
                 .userDescription(property.getUser().getDescription())
                 .userExperienceYears(property.getUser().getExperienceYears())
+                .developer(property.getDeveloper())
+                .reraId(property.getReraId())
+                .constructionStatus(property.getConstructionStatus())
+                .possessionDate(property.getPossessionDate())
+                .projectUnits(property.getProjectUnits())
+                .areaUnit(property.getAreaUnit())
+                .projectArea(property.getProjectArea())
+                .sizes(property.getSizes())
+                .configurations(property.getConfigurations())
+                .projectSize(property.getProjectSize())
+                .launchDate(property.getLaunchDate())
+                .avgPrice(property.getAvgPrice())
+                .brochureUrl(property.getBrochureUrl())
+                .projectId(property.getProjectId())
+                .projectName(property.getProject() != null ? property.getProject().getTitle() : null)
                 .createdAt(property.getCreatedAt())
                 .updatedAt(property.getUpdatedAt())
                 .build();

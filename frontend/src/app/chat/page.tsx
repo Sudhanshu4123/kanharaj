@@ -65,11 +65,11 @@ function ChatContent() {
         url = imageInput;
       }
     }
-    if (!url || url === '[]') return '';
-    if (url.startsWith('http')) {
-      if (url.includes('localhost')) return url;
-      return url.replace('http://', 'https://');
-    }
+    if (!url || url === '[]')
+      if (url.startsWith('http')) {
+        if (url.includes('localhost')) return url;
+        return url.replace('http://', 'https://');
+      }
     const apiBase = API_URL?.replace(/\/api$/, '') || '';
     return `${apiBase}${url.startsWith('/') ? '' : '/'}${url}`;
   };
@@ -475,8 +475,8 @@ function ChatContent() {
                       router.replace(`/chat?id=${conv.id}`)
                     }}
                     className={`w-full text-left p-3.5 rounded-xl transition-all flex items-start gap-3 select-none ${isSelected
-                        ? 'bg-[#0a2540]/5 border border-[#0a2540]/15'
-                        : 'hover:bg-slate-50 border border-transparent'
+                      ? 'bg-[#0a2540]/5 border border-[#0a2540]/15'
+                      : 'hover:bg-slate-50 border border-transparent'
                       }`}
                   >
                     {/* User profile icon */}
@@ -496,7 +496,7 @@ function ChatContent() {
                         </h4>
                         <span className="text-[9px] font-bold text-slate-400 shrink-0">
                           {conv.lastMessageAt
-                              ? new Date(conv.lastMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+                            ? new Date(conv.lastMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
                             : ''
                           }
                         </span>
@@ -630,8 +630,8 @@ function ChatContent() {
                         )}
                         <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
                           <div className={`max-w-[80%] sm:max-w-[70%] p-3 px-4 rounded-2xl text-xs font-medium leading-relaxed shadow-sm ${isOwnMessage
-                              ? 'bg-[#0a2540] text-white rounded-tr-none'
-                              : 'bg-white text-slate-800 border border-slate-200/80 rounded-tl-none'
+                            ? 'bg-[#0a2540] text-white rounded-tr-none'
+                            : 'bg-white text-slate-800 border border-slate-200/80 rounded-tl-none'
                             }`}>
                             <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                           </div>
