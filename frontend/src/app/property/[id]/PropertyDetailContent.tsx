@@ -609,6 +609,27 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     return `${apiUrl}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
+  const isPdfFile = (url: string): boolean => {
+    const cleanUrl = url.trim().toLowerCase();
+    return cleanUrl.endsWith('.pdf') || 
+           cleanUrl.includes('/raw/upload/') || 
+           cleanUrl.includes('.pdf?');
+  };
+
+  const getBrochureViewerUrl = (url: string): string => {
+    const absoluteUrl = url.startsWith('http')
+      ? url
+      : `${getApiUrl().replace(/\/api$/, '')}${url.startsWith('/') ? '' : '/'}${url}`;
+
+    if (isPdfFile(absoluteUrl)) {
+      if (absoluteUrl.includes('localhost') || absoluteUrl.includes('127.0.0.1') || absoluteUrl.includes('192.168.')) {
+        return `${absoluteUrl}#toolbar=0&navpanes=0`;
+      }
+      return `https://docs.google.com/viewer?url=${encodeURIComponent(absoluteUrl)}&embedded=true`;
+    }
+    return absoluteUrl;
+  };
+
   // Safe images list
   const propertyImages = useMemo(() => {
     let list = Array.isArray(property.images) ? property.images : [];
@@ -2014,23 +2035,21 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                     <Info className="w-4 h-4" />
                   </div>
                 </div>
-
                 {/* Brochure Viewer Box */}
                 <div className="relative bg-[#0d1527] rounded-2xl overflow-hidden md:h-[450px] aspect-[16/10] border border-slate-800 flex items-center justify-center group shadow-inner">
-                  {property.brochureUrl.toLowerCase().endsWith('.pdf') ? (
+                  {isPdfFile(property.brochureUrl) ? (
                     <iframe
-                      src={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}#toolbar=0&navpanes=0`}
+                      src={getBrochureViewerUrl(property.brochureUrl)}
                       className="w-full h-full border-none rounded-xl"
                       title={`${property.title} Brochure PDF`}
                     />
                   ) : (
                     <img
-                      src={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
+                      src={getBrochureViewerUrl(property.brochureUrl)}
                       alt={`${property.title} Brochure`}
-                      className="max-h-full object-contain"
+                      className="max-h-full max-w-full object-contain"
                     />
                   )}
-
                   {/* Overlays */}
                   <a
                     href={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
