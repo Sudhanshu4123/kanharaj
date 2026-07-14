@@ -1273,32 +1273,6 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
           {/* LEFT SECTION (Col Span 2) - Key details */}
           <div className="lg:col-span-2 space-y-6">
 
-            {/* Highlights bullet card */}
-            <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl">
-              <h2 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-indigo-600" />
-                Key Highlights
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                {[
-                  { title: "Vastu Shastra Compliant", desc: "Designed according to layout alignments for positive energy flow." },
-                  { title: "Zero Brokerage", desc: "No agent fees, buy or lease directly without middleman commission." },
-                  { title: "Immediate Possession", desc: "The property is fully completed and ready for immediate moving." },
-                  { title: "Excellent Locality Connect", desc: "Conveniently situated close to schools, hospitals, and subway metro." }
-                ].map((item, idx) => (
-                  <div key={idx} className="flex gap-3 items-start bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                    <div className="w-6 h-6 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0 mt-0.5">
-                      <Check className="h-4.5 w-4.5" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-800">{item.title}</h4>
-                      <p className="text-xs text-slate-500 mt-0.5 leading-snug">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
             {/* Structured Specifications Grid */}
             <Card className="p-6 border-slate-200 shadow-sm bg-white rounded-2xl">
               <h2 className="text-lg font-black text-slate-900 mb-4">Specifications Table</h2>
