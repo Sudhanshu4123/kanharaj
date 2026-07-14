@@ -679,16 +679,9 @@ export default function AddProjectPage() {
                       </div>
                     </div>
 
-                    {/* Starting Price & Area */}
-                    <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Starting Price (Auto-Calculated) *</label>
-                        <div className="relative">
-                          <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                          <input readOnly disabled type="text" value={price ? formatHelperAmount(price) : ""} className="w-full h-11 pl-9 pr-4 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none cursor-not-allowed" placeholder="Calculated from flats prices" />
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
+                    {/* Project Area */}
+                    <div className="pt-4 border-t border-slate-100">
+                      <div className="space-y-1.5 max-w-sm">
                         <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Project Area (optional)</label>
                         <div className="relative">
                           <Maximize2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
