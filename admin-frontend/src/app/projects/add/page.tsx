@@ -220,6 +220,14 @@ export default function AddProjectPage() {
     return `₹ ${Number((val / 10000000).toFixed(2))} Cr`
   }
 
+  const formatSizeHelper = (numStr: string) => {
+    const val = parseFloat(numStr)
+    if (isNaN(val) || val <= 0) return ""
+    if (val < 1000) return `${val} sq.ft.`
+    const k = val / 1000
+    return `${Number(k.toFixed(1))} K`
+  }
+
   const handleNext = async () => {
     if (currentStep === 0) {
       if (!title) { alert("Please enter project name."); return }
@@ -681,12 +689,12 @@ export default function AddProjectPage() {
                                       const val = e.target.value;
                                       setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, sqft: val } : f));
                                     }}
-                                    className="w-full h-9 bg-white border border-slate-200 rounded-lg pl-3 pr-16 text-[11px] font-bold focus:border-indigo-500 outline-none"
+                                    className="w-full h-9 bg-white border border-slate-200 rounded-lg pl-3 pr-20 text-[11px] font-bold focus:border-indigo-500 outline-none"
                                     placeholder="e.g. 1200"
                                   />
                                   {flat.sqft ? (
                                     <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.5 rounded pointer-events-none">
-                                      {flat.sqft} sq.ft.
+                                      {formatSizeHelper(flat.sqft)}
                                     </span>
                                   ) : null}
                                 </div>
