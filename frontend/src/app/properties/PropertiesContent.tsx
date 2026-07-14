@@ -840,9 +840,6 @@ export default function PropertiesContent() {
 
           {/* Right Actions */}
           <div className="flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-nowrap order-2 md:order-none">
-            <a href="tel:+919599801767" className="text-xs sm:text-sm font-bold flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded transition whitespace-nowrap">
-              <Phone className="w-4 h-4" /> Contact
-            </a>
 
             {showSellerDashboard && (
               <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
