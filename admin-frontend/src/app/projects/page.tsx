@@ -389,6 +389,11 @@ export default function ProjectsPage() {
                   <div className="space-y-1.5">
                     <label className="text-[9px] uppercase tracking-wider text-slate-400">Starting Price (INR) *</label>
                     <input required type="number" value={propForm.price || 0} onChange={e => setPropForm({ ...propForm, price: Number(e.target.value) })} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-[#dfa127] outline-none transition-all" />
+                    {propForm.price ? (
+                      <span className="text-[10px] text-indigo-600 font-extrabold block mt-1">
+                        Formatted: {formatPrice(propForm.price)}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
 
