@@ -126,13 +126,13 @@ export function HousingPropertyCard({ property }: HousingPropertyCardProps) {
               <>
                 <button
                   onClick={prevImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/95 rounded-full hidden sm:flex items-center justify-center sm:opacity-0 sm:group-hover/image:opacity-100 transition-opacity hover:bg-white shadow-md text-slate-700"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/95 rounded-full hidden sm:flex items-center justify-center transition-opacity hover:bg-white shadow-md text-slate-700"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={nextImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/95 rounded-full hidden sm:flex items-center justify-center sm:opacity-0 sm:group-hover/image:opacity-100 transition-opacity hover:bg-white shadow-md text-slate-700"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/95 rounded-full hidden sm:flex items-center justify-center transition-opacity hover:bg-white shadow-md text-slate-700"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
