@@ -504,7 +504,13 @@ export default function PropertiesContent() {
     
     if (type) {
       initialFilters.propertyType = type.split(',').map(t => t.toUpperCase())
-      const types = type.split(',').map(t => t.trim().charAt(0).toUpperCase() + t.trim().slice(1))
+      const knownOptions = ['Apartment', 'Independent House', 'Independent Floor', 'Plot', 'Studio', 'Duplex', 'Penthouse', 'Villa', 'Agricultural Land'];
+      const types = type.split(',').map(t => {
+        const trimmed = t.trim().toLowerCase();
+        const matched = knownOptions.find(opt => opt.toLowerCase() === trimmed);
+        if (matched) return matched;
+        return t.trim().charAt(0).toUpperCase() + t.trim().slice(1);
+      });
       setPropertyTypes(types)
     } else {
       setPropertyTypes([])
