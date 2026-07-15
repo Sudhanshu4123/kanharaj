@@ -452,8 +452,14 @@ export default function PropertiesContent() {
   // Fetch properties once on mount
   useEffect(() => {
     setMounted(true)
-    fetchProperties()
-  }, [fetchProperties])
+  }, [])
+
+  // Trigger API call when store filters change
+  useEffect(() => {
+    if (mounted) {
+      fetchProperties()
+    }
+  }, [storeFilters, fetchProperties, mounted])
 
   // Sync initial URL search parameters to local state on initial mount
   useEffect(() => {
@@ -461,6 +467,22 @@ export default function PropertiesContent() {
     const type = initialType || searchParams.get('type')
     const listing = initialListing || searchParams.get('listing')?.toUpperCase()
     const urlBhk = searchParams.get('bhk')
+    const urlMinPrice = searchParams.get('minPrice')
+    const urlMaxPrice = searchParams.get('maxPrice')
+    const urlVerified = searchParams.get('verified') === 'true'
+    const urlConstruction = searchParams.get('constructionStatus')
+    const urlProject = searchParams.get('project') === 'true'
+    
+    // Extra filters
+    const urlListedBy = searchParams.get('listedBy')
+    const urlMinArea = searchParams.get('minArea')
+    const urlMaxArea = searchParams.get('maxArea')
+    const urlAmenities = searchParams.get('amenities')
+    const urlAge = searchParams.get('age')
+    const urlFacing = searchParams.get('facing')
+    const urlDetails = searchParams.get('details')
+    const urlRera = searchParams.get('rera') === 'true'
+    const urlProjects = searchParams.get('projects')
 
     if (urlSearch) setSearch(urlSearch)
 
@@ -481,11 +503,12 @@ export default function PropertiesContent() {
     if (urlState) initialFilters.state = urlState
     
     if (type) {
-      initialFilters.propertyType = [type.toUpperCase()]
+      initialFilters.propertyType = type.split(',').map(t => t.toUpperCase())
       const types = type.split(',').map(t => t.trim().charAt(0).toUpperCase() + t.trim().slice(1))
       setPropertyTypes(types)
     } else {
       setPropertyTypes([])
+      initialFilters.propertyType = []
     }
     
     if (listing && (listing === 'BUY' || listing === 'RENT')) {
@@ -501,6 +524,75 @@ export default function PropertiesContent() {
     } else {
       setBhkTypes([])
       initialFilters.bedrooms = []
+    }
+
+    if (urlMinPrice || urlMaxPrice) {
+      const min = urlMinPrice ? Math.floor(parseInt(urlMinPrice) / 100000) : 0
+      const max = urlMaxPrice ? Math.ceil(parseInt(urlMaxPrice) / 100000) : BUDGET_MAX_LAKH
+      setBudgetRange([min, max])
+      initialFilters.priceMin = min * 100000
+      initialFilters.priceMax = max * 100000
+    } else {
+      setBudgetRange([0, BUDGET_MAX_LAKH])
+      initialFilters.priceMin = 0
+      initialFilters.priceMax = BUDGET_MAX_LAKH * 100000
+    }
+
+    if (urlVerified) {
+      setVerified(true)
+      initialFilters.verified = true
+    } else {
+      setVerified(false)
+      initialFilters.verified = false
+    }
+
+    if (urlConstruction) {
+      const list = urlConstruction.split(',')
+      const displayList = list.map(status => {
+        if (status === 'READY_TO_MOVE') return 'Ready to move'
+        if (status === 'UNDER_CONSTRUCTION') return 'Under Construction'
+        return status
+      })
+      setConstructionStatus(displayList)
+      initialFilters.constructionStatus = displayList
+    } else {
+      setConstructionStatus([])
+      initialFilters.constructionStatus = []
+    }
+
+    if (urlProject) {
+      setShowProjectsOnly(true)
+      initialFilters.showProjectsOnly = true
+    } else {
+      setShowProjectsOnly(false)
+      initialFilters.showProjectsOnly = false
+    }
+
+    if (urlListedBy) {
+      setListedBy(urlListedBy.split(','))
+    }
+    if (urlMinArea || urlMaxArea) {
+      const min = urlMinArea ? parseInt(urlMinArea) : 0
+      const max = urlMaxArea ? parseInt(urlMaxArea) : 5000
+      setAreaRange([min, max])
+    }
+    if (urlAmenities) {
+      setAmenities(urlAmenities.split(','))
+    }
+    if (urlAge) {
+      setAge(urlAge)
+    }
+    if (urlFacing) {
+      setFacing(urlFacing.split(','))
+    }
+    if (urlDetails) {
+      setPropertyDetails(urlDetails.split(','))
+    }
+    if (urlRera) {
+      setRera(true)
+    }
+    if (urlProjects) {
+      setProjects(urlProjects.split(','))
     }
 
     setFilters(initialFilters)
@@ -687,8 +779,11 @@ export default function PropertiesContent() {
         bedrooms: parsedBhk.length > 0 ? parsedBhk.map(b => b.includes('+') ? 5 : parseInt(b.split(' ')[0])).filter(n => !isNaN(n)) : [],
         priceMin: budgetRange[0] * 100000,
         priceMax: budgetRange[1] >= BUDGET_MAX_LAKH ? 10000000000 : budgetRange[1] * 100000,
-        ...(selectedCity ? { city: selectedCity } : { city: '' }),
-        ...(selectedState ? { state: selectedState } : { state: '' }),
+        city: selectedCity || '',
+        state: selectedState || '',
+        verified: verified,
+        constructionStatus: constructionStatus,
+        showProjectsOnly: showProjectsOnly
       })
 
       // Sync active filters to browser URL search parameters
@@ -703,6 +798,26 @@ export default function PropertiesContent() {
       if (bhkTypes.length > 0) {
         params.set('bhk', bhkTypes.map(b => b.split(' ')[0].toLowerCase()).join(','))
       }
+      if (budgetRange[0] > 0) {
+        params.set('minPrice', String(budgetRange[0] * 100000))
+      }
+      if (budgetRange[1] < BUDGET_MAX_LAKH) {
+        params.set('maxPrice', String(budgetRange[1] * 100000))
+      }
+      if (verified) {
+        params.set('verified', 'true')
+      }
+      if (constructionStatus.length > 0) {
+        const urlStatuses = constructionStatus.map(status => {
+          if (status === 'Ready to move') return 'READY_TO_MOVE'
+          if (status === 'Under Construction') return 'UNDER_CONSTRUCTION'
+          return status.toUpperCase()
+        })
+        params.set('constructionStatus', urlStatuses.join(','))
+      }
+      if (showProjectsOnly) {
+        params.set('project', 'true')
+      }
 
       const newQueryString = params.toString()
       const currentQueryString = window.location.search.substring(1)
@@ -711,7 +826,7 @@ export default function PropertiesContent() {
         router.replace(path, { scroll: false })
       }
     }
-  }, [search, propertyTypes, listingMode, bhkTypes, budgetRange, selectedCity, selectedState, showProjectsOnly, mounted, setFilters, router])
+  }, [search, propertyTypes, listingMode, bhkTypes, budgetRange, selectedCity, selectedState, showProjectsOnly, verified, constructionStatus, mounted, setFilters, router])
 
   const totalPages = Math.ceil(properties.length / propertiesPerPage)
   const paginatedProperties = properties.slice((currentPage - 1) * propertiesPerPage, currentPage * propertiesPerPage)

@@ -36,6 +36,17 @@ public class PropertyController {
 
     @GetMapping
     public ResponseEntity<Page<PropertyDto>> getAllProperties(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String state,
+            @RequestParam(required = false) List<Property.PropertyType> propertyTypes,
+            @RequestParam(required = false) Property.ListingType listingType,
+            @RequestParam(required = false) List<Integer> bedrooms,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) Boolean verified,
+            @RequestParam(required = false) List<String> constructionStatus,
+            @RequestParam(required = false) Boolean showProjectsOnly,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -49,7 +60,10 @@ public class PropertyController {
                 ? Sort.by(safeSort).ascending()
                 : Sort.by(safeSort).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok(propertyService.getAllProperties(pageable));
+        return ResponseEntity.ok(propertyService.getAllProperties(
+                search, city, state, propertyTypes, listingType, bedrooms,
+                minPrice, maxPrice, verified, constructionStatus, showProjectsOnly, pageable
+        ));
     }
 
     @GetMapping("/featured")

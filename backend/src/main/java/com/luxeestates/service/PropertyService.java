@@ -15,8 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Predicate;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +32,96 @@ public class PropertyService {
     private final CloudinaryService cloudinaryService;
     private final NotificationService notificationService;
 
-    public Page<PropertyDto> getAllProperties(Pageable pageable) {
+    public Page<PropertyDto> getAllProperties(
+            String search,
+            String city,
+            String state,
+            List<Property.PropertyType> propertyTypes,
+            Property.ListingType listingType,
+            List<Integer> bedrooms,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Boolean verified,
+            List<String> constructionStatus,
+            Boolean showProjectsOnly,
+            Pageable pageable
+    ) {
+        Specification<Property> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Always filter by status = ACTIVE
+            predicates.add(cb.equal(root.get("status"), Property.Status.ACTIVE));
+
+            // 1. Search Query (title, address, description, city, state, developer)
+            if (search != null && !search.trim().isEmpty()) {
+                String searchPattern = "%" + search.trim().toLowerCase() + "%";
+                predicates.add(cb.or(
+                    cb.like(cb.lower(root.get("title")), searchPattern),
+                    cb.like(cb.lower(root.get("description")), searchPattern),
+                    cb.like(cb.lower(root.get("address")), searchPattern),
+                    cb.like(cb.lower(root.get("city")), searchPattern),
+                    cb.like(cb.lower(root.get("state")), searchPattern),
+                    cb.like(cb.lower(root.get("developer")), searchPattern)
+                ));
+            }
+
+            // 2. City
+            if (city != null && !city.trim().isEmpty()) {
+                predicates.add(cb.equal(cb.lower(root.get("city")), city.trim().toLowerCase()));
+            }
+
+            // 3. State
+            if (state != null && !state.trim().isEmpty()) {
+                predicates.add(cb.equal(cb.lower(root.get("state")), state.trim().toLowerCase()));
+            }
+
+            // 4. Property Types & Project Filter
+            if (showProjectsOnly != null && showProjectsOnly) {
+                predicates.add(root.get("propertyType").in(
+                    Property.PropertyType.RESIDENTIAL_PROJECT,
+                    Property.PropertyType.COMMERCIAL_PROJECT
+                ));
+            } else if (propertyTypes != null && !propertyTypes.isEmpty()) {
+                predicates.add(root.get("propertyType").in(propertyTypes));
+            } else {
+                // By default, exclude project types unless explicitly requested
+                predicates.add(cb.not(root.get("propertyType").in(
+                    Property.PropertyType.RESIDENTIAL_PROJECT,
+                    Property.PropertyType.COMMERCIAL_PROJECT
+                )));
+            }
+
+            // 5. Listing Type (BUY / RENT)
+            if (listingType != null) {
+                predicates.add(cb.equal(root.get("listingType"), listingType));
+            }
+
+            // 6. Bedrooms (BHK types)
+            if (bedrooms != null && !bedrooms.isEmpty()) {
+                predicates.add(root.get("bedrooms").in(bedrooms));
+            }
+
+            // 7. Price Min & Max
+            if (minPrice != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("price"), minPrice));
+            }
+            if (maxPrice != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
+            }
+
+            // 8. Verified
+            if (verified != null && verified) {
+                predicates.add(cb.equal(root.get("verified"), true));
+            }
+
+            // 9. Construction Status
+            if (constructionStatus != null && !constructionStatus.isEmpty()) {
+                predicates.add(root.get("constructionStatus").in(constructionStatus));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
         org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort
                 .by(org.springframework.data.domain.Sort.Order.desc("verified"))
                 .and(org.springframework.data.domain.Sort
@@ -42,8 +134,7 @@ public class PropertyService {
         }
         Pageable customPageable = org.springframework.data.domain.PageRequest.of(pageable.getPageNumber(),
                 pageable.getPageSize(), sort);
-        return propertyRepository.findByStatus(Property.Status.ACTIVE, customPageable)
-                .map(PropertyDto::fromEntity);
+        return propertyRepository.findAll(spec, customPageable).map(PropertyDto::fromEntity);
     }
 
     @Cacheable(value = "featuredProperties", unless = "#result == null || #result.isEmpty()")

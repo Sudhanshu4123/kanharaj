@@ -15,6 +15,9 @@ interface PropertyFilters {
   city: string
   state: string
   search: string
+  verified?: boolean
+  constructionStatus?: string[]
+  showProjectsOnly?: boolean
 }
 
 interface PropertyStore {
@@ -62,6 +65,9 @@ const defaultFilters: PropertyFilters = {
   city: '',
   state: '',
   search: '',
+  verified: false,
+  constructionStatus: [],
+  showProjectsOnly: false,
 }
 
 // API Config: dynamically resolved per-call so browser always uses relative /api path
@@ -190,18 +196,32 @@ export const usePropertyStore = create<PropertyStore>()(
         return properties.filter((property) => {
           const isProject = property.propertyType === 'RESIDENTIAL_PROJECT' || property.propertyType === 'COMMERCIAL_PROJECT' ||
                             property.propertyType === 'RESIDENTIAL PROJECT' || property.propertyType === 'COMMERCIAL PROJECT';
-          if (isProject) {
-            const hasProjectFilter = filters.propertyType.some(t => {
-              const upper = t.toUpperCase();
-              return upper.includes('PROJECT');
-            });
-            if (!hasProjectFilter) return false;
+          
+          if (filters.showProjectsOnly) {
+            if (!isProject) return false;
+          } else {
+            if (isProject) {
+              const hasProjectFilter = filters.propertyType.some(t => {
+                const upper = t.toUpperCase();
+                return upper.includes('PROJECT');
+              });
+              if (!hasProjectFilter) return false;
+            }
           }
           if (filters.listingType !== 'all' && property.listingType !== filters.listingType) return false
           if (filters.propertyType.length > 0 && !filters.propertyType.some(t => isPropertyTypeMatch(t, property.propertyType || ''))) return false
           if (property.price < filters.priceMin || property.price > filters.priceMax) return false
           if (filters.bedrooms.length > 0 && !filters.bedrooms.includes(property.bedrooms)) return false
           if (filters.bathrooms.length > 0 && !filters.bathrooms.includes(property.bathrooms)) return false
+          if (filters.verified && !property.verified) return false
+          if (filters.constructionStatus && filters.constructionStatus.length > 0) {
+            const status = (property.constructionStatus || '').toLowerCase().replace(/_/g, ' ');
+            const matches = filters.constructionStatus.some(cs => {
+              const filterStatus = cs.toLowerCase().replace(/_/g, ' ');
+              return status.includes(filterStatus) || filterStatus.includes(status);
+            });
+            if (!matches) return false;
+          }
           if (filters.city) {
             const filterCity = filters.city.toLowerCase().trim()
             const propCity = (property.city || '').toLowerCase()
@@ -239,14 +259,51 @@ export const usePropertyStore = create<PropertyStore>()(
       setLoading: (loading) => set({ loading }),
 
       fetchProperties: async (pageSize = 1000) => {
-        // Always show loading spinner on first load; for refreshes keep showing stale data
-        if (get().properties.length === 0) {
-          set({ loading: true })
-        }
+        const { filters } = get()
+        
+        // Always show loading spinner on first load or when filters change
+        set({ loading: true })
         
         try {
           const apiUrl = resolveApiUrl()
-          const res = await fetchWithTimeout(`${apiUrl}/properties?size=${pageSize}&t=${Date.now()}`, {
+          const params = new URLSearchParams()
+          params.set('size', String(pageSize))
+          params.set('t', String(Date.now()))
+          
+          if (filters.search) params.set('search', filters.search)
+          if (filters.city) params.set('city', filters.city)
+          if (filters.state) params.set('state', filters.state)
+          if (filters.listingType && filters.listingType !== 'all') {
+            params.set('listingType', filters.listingType.toUpperCase())
+          }
+          if (filters.propertyType && filters.propertyType.length > 0) {
+            params.set('propertyTypes', filters.propertyType.map(t => t.toUpperCase()).join(','))
+          }
+          if (filters.bedrooms && filters.bedrooms.length > 0) {
+            params.set('bedrooms', filters.bedrooms.join(','))
+          }
+          if (filters.priceMin && filters.priceMin > 0) {
+            params.set('minPrice', String(filters.priceMin))
+          }
+          if (filters.priceMax && filters.priceMax < 1000000000) {
+            params.set('maxPrice', String(filters.priceMax))
+          }
+          if (filters.verified) {
+            params.set('verified', 'true')
+          }
+          if (filters.constructionStatus && filters.constructionStatus.length > 0) {
+            const statuses = filters.constructionStatus.map(status => {
+              if (status === 'Ready to move') return 'READY_TO_MOVE'
+              if (status === 'Under Construction') return 'UNDER_CONSTRUCTION'
+              return status.toUpperCase()
+            })
+            params.set('constructionStatus', statuses.join(','))
+          }
+          if (filters.showProjectsOnly) {
+            params.set('showProjectsOnly', 'true')
+          }
+
+          const res = await fetchWithTimeout(`${apiUrl}/properties?${params.toString()}`, {
             cache: 'no-store'
           })
           const data = await res.json()
@@ -256,7 +313,7 @@ export const usePropertyStore = create<PropertyStore>()(
           }
           set({ loading: false })
         } catch (err) {
-          console.warn('Backend offline, using cached properties.')
+          console.warn('Backend offline, using cached properties.', err)
           set({ loading: false })
         }
       },
