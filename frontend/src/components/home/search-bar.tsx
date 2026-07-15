@@ -169,7 +169,7 @@ export function SearchBar({
           border-radius: 10px;
         }
       `}</style>
-      <div 
+      <div
         className="w-full overflow-x-auto scroll-smooth pb-2 custom-tab-scrollbar"
         style={{
           scrollbarWidth: 'thin',
@@ -215,23 +215,23 @@ export function SearchBar({
         )}
 
         {/* Input cluster area */}
-        <div className="bg-black border border-[#5e23dc]/45 rounded-xl p-1 md:p-1.5 shadow-inner">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-1 md:p-1.5 shadow-inner">
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-1.5 md:gap-0">
 
             {/* City Selection Dropdown (Only for RENT, COMMERCIAL, PG, PLOTS) */}
             {activeTab !== 'buy' && (
-              <div ref={dropdownRef} className="flex items-center px-3 py-1 border-b md:border-b-0 md:border-r border-[#5e23dc]/30 shrink-0 select-none relative">
-                <MapPin className="h-4 w-4 text-[#36c991] mr-2 shrink-0" />
+              <div ref={dropdownRef} className="flex items-center px-3 py-1 border-b md:border-b-0 md:border-r border-slate-200 shrink-0 select-none relative">
+                <MapPin className="h-4 w-4 text-slate-400 mr-2 shrink-0" />
                 <div className="flex flex-col">
                   <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider leading-none mb-0.5">City</span>
                   <div className="relative flex items-center">
                     <button
                       type="button"
                       onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
-                      className="w-[70px] text-left focus:outline-none text-white font-black text-xs cursor-pointer pr-4 relative -ml-0.5 select-none truncate flex items-center justify-between h-5"
+                      className="w-[70px] text-left focus:outline-none text-slate-950 font-black text-xs cursor-pointer pr-4 relative -ml-0.5 select-none truncate flex items-center justify-between h-5"
                     >
                       <span>{selectedCity}</span>
-                      <span className="text-[7px] text-[#36c991] font-extrabold absolute right-0 pointer-events-none">▼</span>
+                      <span className="text-[7px] text-slate-400 font-extrabold absolute right-0 pointer-events-none">▼</span>
                     </button>
 
                     <AnimatePresence>
@@ -241,24 +241,24 @@ export function SearchBar({
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 8 }}
                           transition={{ duration: 0.15 }}
-                          className="absolute left-0 top-full mt-2 w-72 max-h-80 bg-black border border-[#5e23dc] rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden"
+                          className="absolute left-0 top-full mt-2 w-72 max-h-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden"
                         >
                           {/* Search Input Area */}
-                          <div className="p-2 border-b border-[#5e23dc]/25 flex items-center bg-slate-950 gap-1.5 shrink-0">
+                          <div className="p-2 border-b border-slate-100 flex items-center bg-slate-50 gap-1.5 shrink-0">
                             <Search className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                             <input
                               type="text"
                               value={citySearchQuery}
                               onChange={(e) => setCitySearchQuery(e.target.value)}
                               placeholder="Search city..."
-                              className="w-full bg-transparent focus:outline-none text-xs text-white font-bold placeholder:text-slate-500 h-6 border-0 p-0 focus:ring-0 focus-visible:outline-none focus:outline-none"
+                              className="w-full bg-transparent focus:outline-none text-xs text-slate-800 font-bold placeholder:text-slate-400 h-6 border-0 p-0 focus:ring-0 focus-visible:outline-none focus:outline-none"
                               autoFocus
                             />
                             {citySearchQuery && (
                               <button
                                 type="button"
                                 onClick={() => setCitySearchQuery('')}
-                                className="text-[9px] text-[#36c991] hover:text-[#2eb07e] font-black px-1"
+                                className="text-[9px] text-[#5f27cd] hover:text-[#4e20b1] font-black px-1"
                               >
                                 CLEAR
                               </button>
@@ -266,7 +266,7 @@ export function SearchBar({
                           </div>
 
                           {/* Cities Scrollable List */}
-                          <div className="flex-1 overflow-y-auto max-h-60 py-1.5 text-left scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+                          <div className="flex-1 overflow-y-auto max-h-60 py-1.5 text-left scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
                             {filteredTopCities.length === 0 && filteredOtherCities.length === 0 ? (
                               <div className="px-4 py-3 text-xs font-semibold text-slate-400 text-center">
                                 No cities found
@@ -275,7 +275,7 @@ export function SearchBar({
                               <>
                                 {filteredTopCities.length > 0 && (
                                   <div>
-                                    <div className="px-3 py-1 text-[9px] font-black text-slate-450 uppercase tracking-wider bg-slate-900/60">
+                                    <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
                                       Top Cities
                                     </div>
                                     {filteredTopCities.map((city) => (
@@ -290,8 +290,8 @@ export function SearchBar({
                                         className={cn(
                                           "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
                                           selectedCity === city
-                                            ? "bg-[#5e23dc]/15 text-[#36c991]"
-                                            : "text-slate-350 hover:bg-[#5e23dc]/10 hover:text-white"
+                                            ? "bg-[#5f27cd]/5 text-[#5f27cd]"
+                                            : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
                                         )}
                                       >
                                         <span>{city}</span>
@@ -303,7 +303,7 @@ export function SearchBar({
 
                                 {filteredOtherCities.length > 0 && (
                                   <div className="mt-1">
-                                    <div className="px-3 py-1 text-[9px] font-black text-slate-450 uppercase tracking-wider bg-slate-900/60">
+                                    <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
                                       Other Cities
                                     </div>
                                     {filteredOtherCities.map((city) => (
@@ -318,8 +318,8 @@ export function SearchBar({
                                         className={cn(
                                           "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
                                           selectedCity === city
-                                            ? "bg-[#5e23dc]/15 text-[#36c991]"
-                                            : "text-slate-355 hover:bg-[#5e23dc]/10 hover:text-white"
+                                            ? "bg-[#5f27cd]/5 text-[#5f27cd]"
+                                            : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
                                         )}
                                       >
                                         <span>{city}</span>
@@ -353,13 +353,13 @@ export function SearchBar({
                       ? "Search for locality, landmark"
                       : `Try "${locations[placeholderIndex]}"`
                 }
-                className="w-full bg-transparent focus:outline-none text-xs sm:text-sm text-white font-bold placeholder:text-slate-500 h-8 border-0 p-0 focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:outline-none"
+                className="w-full bg-transparent focus:outline-none text-xs sm:text-sm text-slate-900 font-bold placeholder:text-slate-400/80 h-8 border-0 p-0 focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:outline-none"
               />
             </div>
 
             {/* Commercial Radio Buttons Option */}
             {activeTab === 'commercial' && (
-              <div className="flex items-center gap-3 px-3 py-1 border-t md:border-t-0 md:border-l border-[#5e23dc]/30 shrink-0 select-none">
+              <div className="flex items-center gap-3 px-3 py-1 border-t md:border-t-0 md:border-l border-slate-200 shrink-0 select-none">
                 <label className="flex items-center gap-1.5 cursor-pointer group">
                   <input
                     type="radio"
@@ -370,11 +370,11 @@ export function SearchBar({
                   />
                   <div className={cn(
                     "w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-all",
-                    commercialType === 'buy' ? "border-[#36c991] bg-black" : "border-slate-500"
+                    commercialType === 'buy' ? "border-[#5f27cd] bg-white" : "border-slate-300"
                   )}>
-                    {commercialType === 'buy' && <div className="w-2 h-2 rounded-full bg-[#36c991]" />}
+                    {commercialType === 'buy' && <div className="w-2 h-2 rounded-full bg-[#5f27cd]" />}
                   </div>
-                  <span className="text-[10px] font-black text-slate-300 group-hover:text-white uppercase tracking-wider">Buy</span>
+                  <span className="text-[10px] font-black text-slate-700 group-hover:text-slate-950 uppercase tracking-wider">Buy</span>
                 </label>
 
                 <label className="flex items-center gap-1.5 cursor-pointer group">
@@ -387,11 +387,11 @@ export function SearchBar({
                   />
                   <div className={cn(
                     "w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-all",
-                    commercialType === 'lease' ? "border-[#36c991] bg-black" : "border-slate-500"
+                    commercialType === 'lease' ? "border-[#5f27cd] bg-white" : "border-slate-300"
                   )}>
-                    {commercialType === 'lease' && <div className="w-2 h-2 rounded-full bg-[#36c991]" />}
+                    {commercialType === 'lease' && <div className="w-2 h-2 rounded-full bg-[#5f27cd]" />}
                   </div>
-                  <span className="text-[10px] font-black text-slate-300 group-hover:text-white uppercase tracking-wider">Lease</span>
+                  <span className="text-[10px] font-black text-slate-700 group-hover:text-slate-950 uppercase tracking-wider">Lease</span>
                 </label>
               </div>
             )}
@@ -400,10 +400,10 @@ export function SearchBar({
             <button
               onClick={() => handleSearch()}
               className={cn(
-                "h-9 md:h-10 px-6 rounded-lg font-black text-xs uppercase tracking-wider shadow-md transition-all duration-300 flex items-center justify-center gap-1.5 shrink-0 md:m-0.5 active:scale-[0.98] border-0",
+                "h-9 md:h-10 px-6 rounded-lg font-black text-white text-xs uppercase tracking-wider shadow-md transition-all duration-300 flex items-center justify-center gap-1.5 shrink-0 md:m-0.5 active:scale-[0.98]",
                 (activeTab === 'buy' || activeTab === 'rent')
-                  ? "bg-[#5e23dc] hover:bg-[#36c991] hover:text-black text-white shadow-[#5e23dc]/20"
-                  : "bg-[#36c991] hover:bg-[#2eb07e] text-black shadow-[#36c991]/20"
+                  ? "bg-[#5f27cd] hover:bg-[#4e20b1] shadow-[#5f27cd]/20"
+                  : "bg-[#00c58d] hover:bg-[#10b981] shadow-[#00c58d]/20"
               )}
             >
               <Search className="h-3.5 w-3.5 shrink-0" />
