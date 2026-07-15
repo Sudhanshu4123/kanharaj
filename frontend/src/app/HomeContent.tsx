@@ -557,8 +557,7 @@ export default function HomeContent() {
       </section>
 
 
-      {/* Featured Collections */}
-      <FeaturedCollections />
+
 
       {/* FAQ Section for SEO */}
       <section className="py-12 bg-slate-50 relative">
