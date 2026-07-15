@@ -171,7 +171,7 @@ export default function HomeContent() {
   return (
     <div className="min-h-screen bg-slate-50/30 overflow-x-hidden font-sans">
       {/* Hero Section */}
-      <section className="relative min-h-[550px] sm:min-h-[620px] flex items-center pt-24 sm:pt-28 pb-12 sm:pb-20 overflow-hidden">
+      <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden">
         {/* Background Slide Carousel */}
         <div className="absolute inset-0 overflow-hidden">
           <AnimatePresence initial={false} mode="wait">
