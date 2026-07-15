@@ -170,30 +170,30 @@ export default function HomeContent() {
 
   return (
     <div className="min-h-screen bg-slate-50/30 overflow-x-hidden font-sans">
-      {/* Hero Section */}
-      <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden">
+      {/* Hero Section — Housing.com style */}
+      <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden bg-gradient-to-br from-[#3a28b0] via-[#5235d8] to-[#6c48e8]">
 
-        {/* === Full-width background image === */}
-        <div className="absolute inset-0">
+        {/* ── Family photo pinned to the right half ── */}
+        {/* object-[82%_top] crops the image to show ONLY the right-side family, not the golden buildings */}
+        <div className="absolute right-0 top-0 bottom-0 w-[44%] md:w-[40%] z-0 pointer-events-none">
           <Image
-            src={currentTheme.bgImage}
-            alt={currentTheme.title}
+            src="/hero-housing.png"
+            alt="Happy family finding perfect property"
             fill
-            className="object-cover object-right-top"
+            className="object-cover object-[82%_top]"
             priority
             quality={90}
-            sizes="100vw"
+            sizes="44vw"
           />
-          {/* Purple gradient overlay: solid purple on left, fades to transparent on right */}
-          {/* This makes left look like Housing.com purple, right shows family photo naturally */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#3a28b0] via-[#3a28b0]/85 to-transparent" />
-          {/* Extra dark tint at very bottom for stats readability */}
-          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/30 to-transparent" />
+          {/* Smooth gradient fade on left edge to blend into purple */}
+          <div className="absolute inset-y-0 left-0 w-28 z-10 bg-gradient-to-r from-[#5235d8] to-transparent" />
+          {/* Fade bottom edge */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 z-10 bg-gradient-to-t from-[#3a28b0]/60 to-transparent" />
         </div>
 
-        {/* City building SVG lines on left (over purple) */}
-        <div className="absolute inset-0 z-[1] pointer-events-none">
-          <svg className="absolute bottom-0 left-0 h-full w-[50%] opacity-15" viewBox="0 0 600 400" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
+        {/* ── White building line SVG overlay (left side) ── */}
+        <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
+          <svg className="absolute bottom-0 left-0 h-full w-[56%] opacity-[0.12]" viewBox="0 0 600 400" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
             <g fill="none" stroke="white" strokeWidth="1.2">
               <rect x="20" y="120" width="30" height="280" />
               <rect x="25" y="140" width="6" height="8" /><rect x="35" y="140" width="6" height="8" />
@@ -211,17 +211,17 @@ export default function HomeContent() {
               <rect x="278" y="240" width="18" height="160" />
             </g>
           </svg>
-          {/* Birds */}
-          <svg className="absolute top-8 left-[12%] opacity-30 w-20" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 15 Q14 10 18 15" fill="none" stroke="white" strokeWidth="1.5"/>
-            <path d="M30 10 Q34 5 38 10" fill="none" stroke="white" strokeWidth="1.5"/>
-            <path d="M55 18 Q59 13 63 18" fill="none" stroke="white" strokeWidth="1.5"/>
+          {/* Small birds */}
+          <svg className="absolute top-10 left-[14%] opacity-25 w-16" viewBox="0 0 80 25" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 12 Q9 7 13 12" fill="none" stroke="white" strokeWidth="1.4"/>
+            <path d="M22 8 Q26 3 30 8" fill="none" stroke="white" strokeWidth="1.4"/>
+            <path d="M42 14 Q46 9 50 14" fill="none" stroke="white" strokeWidth="1.4"/>
           </svg>
         </div>
 
-        {/* Main Content — left side over purple area */}
+        {/* ── Main content — left aligned on purple area ── */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-start text-left w-full max-w-[55%] gap-5">
+          <div className="flex flex-col items-start text-left w-full max-w-[56%] gap-5">
 
             {/* Title */}
             <motion.div
@@ -229,10 +229,10 @@ export default function HomeContent() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+              <h1 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-[2.1rem] font-bold text-white leading-tight tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
                 {currentTheme.title}
               </h1>
-              <p className="mt-2 text-[11px] sm:text-xs md:text-sm text-white/85 font-semibold max-w-md leading-relaxed">
+              <p className="mt-2 text-[11px] sm:text-xs md:text-sm text-white/80 font-semibold max-w-sm leading-relaxed">
                 {currentTheme.subtitle}
               </p>
             </motion.div>
@@ -250,12 +250,12 @@ export default function HomeContent() {
               />
             </motion.div>
 
-            {/* Stats */}
+            {/* Stats row */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.4 }}
-              className="flex flex-wrap gap-3 w-full"
+              className="flex flex-wrap gap-2 sm:gap-3 w-full"
             >
               {[
                 { value: platformStats.properties, label: 'Properties Listed' },
@@ -265,10 +265,10 @@ export default function HomeContent() {
               ].map((s) => (
                 <div
                   key={s.label}
-                  className="text-center py-2 px-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex-1 min-w-[90px] transition-all duration-300 hover:-translate-y-1 hover:bg-white/20"
+                  className="text-center py-2 px-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex-1 min-w-[85px] transition-all duration-300 hover:-translate-y-1 hover:bg-white/20 shadow"
                 >
-                  <p className="text-base sm:text-lg font-black text-white tracking-tight">{s.value}</p>
-                  <p className="text-[8px] sm:text-[9px] text-white/70 font-bold uppercase tracking-wider mt-0.5">{s.label}</p>
+                  <p className="text-sm sm:text-base font-black text-white tracking-tight">{s.value}</p>
+                  <p className="text-[8px] sm:text-[9px] text-white/65 font-bold uppercase tracking-wider mt-0.5">{s.label}</p>
                 </div>
               ))}
             </motion.div>
@@ -276,6 +276,7 @@ export default function HomeContent() {
           </div>
         </div>
       </section>
+
 
 
 
