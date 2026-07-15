@@ -1398,7 +1398,7 @@ export default function PropertiesContent() {
         {/* Breadcrumb and Timestamp */}
         <div className="flex flex-col md:flex-row md:items-center justify-between text-xs text-slate-500 mb-6">
           <div className="mb-2 md:mb-0">
-            Home / {listingMode === 'RENT' ? 'Flats for Rent' : 'Flats for Sale'}{selectedCity ? ` in ${selectedCity}` : ''}
+            Home / {showProjectsOnly ? 'New Residential Projects' : (listingMode === 'RENT' ? 'Flats for Rent' : 'Flats for Sale')}{selectedCity ? ` in ${selectedCity}` : ''}
           </div>
           <div>Last Updated: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
         </div>
@@ -1412,7 +1412,7 @@ export default function PropertiesContent() {
               <div className="mb-4 sm:mb-0 pt-4 sm:pt-0">
                 <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Showing results for</p>
                 <h1 className="text-lg sm:text-xl font-bold text-slate-900 leading-tight">
-                  {listingMode === 'RENT' ? 'Flats for Rent' : 'Flats for Sale'} in {selectedCity || 'Dwarka'}
+                  {showProjectsOnly ? 'New Residential Projects' : (listingMode === 'RENT' ? 'Flats for Rent' : 'Flats for Sale')} in {selectedCity || 'New Delhi'}
                 </h1>
                 <p className="text-slate-400 text-xs font-bold mt-1">{properties.length} Properties Found</p>
               </div>
