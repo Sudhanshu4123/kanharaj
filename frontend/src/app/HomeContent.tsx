@@ -29,12 +29,12 @@ import {
 const faqs = HOME_FAQS
 
 const heroBackgrounds: Record<string, string> = {
-  buy: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920',
-  rent: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1920',
-  projects: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920',
-  commercial: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920',
-  plots: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920',
-  pg: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=1920',
+  buy: '/hero-housing.png',
+  rent: '/hero-housing.png',
+  projects: '/hero-housing.png',
+  commercial: '/hero-housing.png',
+  plots: '/hero-housing.png',
+  pg: '/hero-housing.png',
 }
 
 const convertArea = (value: number, from: string) => {
