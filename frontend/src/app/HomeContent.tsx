@@ -171,72 +171,57 @@ export default function HomeContent() {
   return (
     <div className="min-h-screen bg-slate-50/30 overflow-x-hidden font-sans">
       {/* Hero Section */}
-      <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden bg-gradient-to-br from-[#3a28b0] via-[#5235d8] to-[#6c48e8]">
+      <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden">
 
-        {/* City skyline illustration overlay (left side) */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          {/* Building lines SVG overlay */}
-          <svg className="absolute bottom-0 left-0 h-full w-[55%] opacity-20" viewBox="0 0 600 400" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
+        {/* === Full-width background image === */}
+        <div className="absolute inset-0">
+          <Image
+            src={currentTheme.bgImage}
+            alt={currentTheme.title}
+            fill
+            className="object-cover object-right-top"
+            priority
+            quality={90}
+            sizes="100vw"
+          />
+          {/* Purple gradient overlay: solid purple on left, fades to transparent on right */}
+          {/* This makes left look like Housing.com purple, right shows family photo naturally */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#3a28b0] via-[#3a28b0]/85 to-transparent" />
+          {/* Extra dark tint at very bottom for stats readability */}
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/30 to-transparent" />
+        </div>
+
+        {/* City building SVG lines on left (over purple) */}
+        <div className="absolute inset-0 z-[1] pointer-events-none">
+          <svg className="absolute bottom-0 left-0 h-full w-[50%] opacity-15" viewBox="0 0 600 400" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
             <g fill="none" stroke="white" strokeWidth="1.2">
               <rect x="20" y="120" width="30" height="280" />
-              <rect x="25" y="140" width="6" height="8" /><rect x="35" y="140" width="6" height="8" /><rect x="25" y="155" width="6" height="8" /><rect x="35" y="155" width="6" height="8" />
-              <rect x="25" y="170" width="6" height="8" /><rect x="35" y="170" width="6" height="8" /><rect x="25" y="185" width="6" height="8" /><rect x="35" y="185" width="6" height="8" />
+              <rect x="25" y="140" width="6" height="8" /><rect x="35" y="140" width="6" height="8" />
+              <rect x="25" y="170" width="6" height="8" /><rect x="35" y="170" width="6" height="8" />
               <rect x="60" y="60" width="50" height="340" />
               <rect x="68" y="80" width="8" height="10" /><rect x="82" y="80" width="8" height="10" /><rect x="96" y="80" width="8" height="10" />
-              <rect x="68" y="98" width="8" height="10" /><rect x="82" y="98" width="8" height="10" /><rect x="96" y="98" width="8" height="10" />
               <rect x="68" y="116" width="8" height="10" /><rect x="82" y="116" width="8" height="10" /><rect x="96" y="116" width="8" height="10" />
-              <rect x="68" y="134" width="8" height="10" /><rect x="82" y="134" width="8" height="10" /><rect x="96" y="134" width="8" height="10" />
-              <rect x="68" y="152" width="8" height="10" /><rect x="82" y="152" width="8" height="10" /><rect x="96" y="152" width="8" height="10" />
               <rect x="120" y="90" width="40" height="310" />
               <rect x="128" y="108" width="7" height="9" /><rect x="140" y="108" width="7" height="9" /><rect x="152" y="108" width="7" height="9" />
-              <rect x="128" y="124" width="7" height="9" /><rect x="140" y="124" width="7" height="9" /><rect x="152" y="124" width="7" height="9" />
-              <rect x="128" y="140" width="7" height="9" /><rect x="140" y="140" width="7" height="9" /><rect x="152" y="140" width="7" height="9" />
               <rect x="170" y="150" width="28" height="250" />
               <rect x="176" y="165" width="6" height="8" /><rect x="186" y="165" width="6" height="8" />
-              <rect x="176" y="180" width="6" height="8" /><rect x="186" y="180" width="6" height="8" />
               <rect x="205" y="180" width="35" height="220" />
-              <rect x="210" y="195" width="7" height="9" /><rect x="222" y="195" width="7" height="9" /><rect x="234" y="195" width="7" height="9" />
-              <rect x="210" y="211" width="7" height="9" /><rect x="222" y="211" width="7" height="9" /><rect x="234" y="211" width="7" height="9" />
+              <rect x="210" y="195" width="7" height="9" /><rect x="222" y="195" width="7" height="9" />
               <rect x="248" y="210" width="22" height="190" />
-              <rect x="252" y="220" width="5" height="7" /><rect x="262" y="220" width="5" height="7" />
               <rect x="278" y="240" width="18" height="160" />
-              <rect x="302" y="250" width="14" height="150" />
-              <rect x="322" y="260" width="10" height="140" />
             </g>
           </svg>
-
           {/* Birds */}
-          <svg className="absolute top-6 left-[15%] opacity-40 w-24" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
+          <svg className="absolute top-8 left-[12%] opacity-30 w-20" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
             <path d="M10 15 Q14 10 18 15" fill="none" stroke="white" strokeWidth="1.5"/>
             <path d="M30 10 Q34 5 38 10" fill="none" stroke="white" strokeWidth="1.5"/>
-            <path d="M50 18 Q54 13 58 18" fill="none" stroke="white" strokeWidth="1.5"/>
+            <path d="M55 18 Q59 13 63 18" fill="none" stroke="white" strokeWidth="1.5"/>
           </svg>
-
-          {/* Clouds */}
-          <div className="absolute top-4 left-[20%] w-16 h-6 bg-white/15 rounded-full blur-sm"/>
-          <div className="absolute top-2 left-[25%] w-10 h-4 bg-white/10 rounded-full blur-sm"/>
         </div>
 
-        {/* Family Photo Card — pinned to right */}
-        <div className="absolute right-0 top-0 bottom-0 w-[45%] sm:w-[40%] z-10 flex items-stretch pointer-events-none">
-          <div className="relative w-full h-full overflow-hidden">
-            {/* Curved wave mask on left edge */}
-            <div className="absolute inset-y-0 -left-8 w-16 z-20" style={{ background: 'linear-gradient(to right, #5235d8, transparent)' }} />
-            <Image
-              src="/hero-housing.png"
-              alt="Happy family finding perfect property"
-              fill
-              className="object-cover object-[65%_center]"
-              priority
-              quality={90}
-              sizes="45vw"
-            />
-          </div>
-        </div>
-
-        {/* Main Content — left/center */}
-        <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center sm:items-start text-center sm:text-left w-full max-w-[58%] gap-5">
+        {/* Main Content — left side over purple area */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-start text-left w-full max-w-[55%] gap-5">
 
             {/* Title */}
             <motion.div
@@ -244,10 +229,10 @@ export default function HomeContent() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
+              <h1 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
                 {currentTheme.title}
               </h1>
-              <p className="mt-2 text-[11px] sm:text-xs md:text-sm text-white/85 font-semibold max-w-xl leading-relaxed">
+              <p className="mt-2 text-[11px] sm:text-xs md:text-sm text-white/85 font-semibold max-w-md leading-relaxed">
                 {currentTheme.subtitle}
               </p>
             </motion.div>
