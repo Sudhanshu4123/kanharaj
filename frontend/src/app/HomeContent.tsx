@@ -34,7 +34,7 @@ const heroBackgrounds: Record<string, string> = {
   projects: '/hero-projects.png',
   commercial: '/hero-commercial.png',
   plots: '/hero-plots.jpg',
-  pg: '/hero-housing.png',
+  pg: '/hero-pg.png',
 }
 
 const convertArea = (value: number, from: string) => {
@@ -177,8 +177,8 @@ export default function HomeContent() {
           - BUY/other → purple gradient + right family panel
       ═══════════════════════════════════════════════════ */}
 
-      {activeTab === 'rent' || activeTab === 'commercial' || activeTab === 'plots' || activeTab === 'projects' ? (
-        /* ── RENT / COMMERCIAL / PLOTS / PROJECTS: Full background image layout ── */
+      {activeTab === 'rent' || activeTab === 'commercial' || activeTab === 'plots' || activeTab === 'projects' || activeTab === 'pg' ? (
+        /* ── RENT / COMMERCIAL / PLOTS / PROJECTS / PG: Full background image layout ── */
         <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden">
           {/* Full banner background image */}
           <div className="absolute inset-0 z-0">
@@ -190,6 +190,8 @@ export default function HomeContent() {
                   ? '/hero-plots.jpg'
                   : activeTab === 'projects'
                   ? '/hero-projects.png'
+                  : activeTab === 'pg'
+                  ? '/hero-pg.png'
                   : '/hero-rent.png'
               }
               alt={
@@ -199,6 +201,8 @@ export default function HomeContent() {
                   ? 'Plots & Land'
                   : activeTab === 'projects'
                   ? 'Premium New Projects'
+                  : activeTab === 'pg'
+                  ? 'PG & Co-Living Spaces'
                   : 'Properties for Rent'
               }
               fill
@@ -314,7 +318,7 @@ export default function HomeContent() {
                   </motion.div>
                 </>
               ) : (
-                /* Stats row for Commercial / Plots / Projects */
+                /* Stats row for Commercial / Plots / Projects / PG */
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -328,18 +332,31 @@ export default function HomeContent() {
                         ? 'Plots Listed'
                         : activeTab === 'projects'
                         ? 'Projects Listed'
+                        : activeTab === 'pg'
+                        ? 'PG Homes Listed'
                         : 'Spaces Listed'
                     },
-                    { value: platformStats.buyers, label: 'Happy Clients' },
+                    { value: platformStats.buyers, label: activeTab === 'pg' ? 'Happy Guests' : 'Happy Clients' },
                     { value: `${platformStats.verifiedPercent}%`, label: 'Partner Verified' },
                     { value: platformStats.cities, label: 'Prime Regions' },
                   ].map((s) => (
                     <div
                       key={s.label}
-                      className="text-center py-2 px-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex-1 min-w-[85px] transition-all duration-300 hover:-translate-y-1 hover:bg-white/20 shadow"
+                      className={cn(
+                        "text-center py-2 px-3 rounded-xl flex-1 min-w-[85px] transition-all duration-300 hover:-translate-y-1 shadow",
+                        activeTab === 'pg'
+                          ? "bg-white/55 backdrop-blur-md border border-white/60 hover:bg-white/70"
+                          : "bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 shadow"
+                      )}
                     >
-                      <p className="text-sm sm:text-base font-black text-white tracking-tight">{s.value}</p>
-                      <p className="text-[8px] sm:text-[9px] text-white/65 font-bold uppercase tracking-wider mt-0.5">{s.label}</p>
+                      <p className={cn(
+                        "text-sm sm:text-base font-black tracking-tight",
+                        activeTab === 'pg' ? "text-slate-800" : "text-white"
+                      )}>{s.value}</p>
+                      <p className={cn(
+                        "text-[8px] sm:text-[9px] font-bold uppercase tracking-wider mt-0.5",
+                        activeTab === 'pg' ? "text-slate-600" : "text-white/65"
+                      )}>{s.label}</p>
                     </div>
                   ))}
                 </motion.div>
