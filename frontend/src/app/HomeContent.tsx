@@ -32,7 +32,7 @@ const heroBackgrounds: Record<string, string> = {
   buy: '/hero-housing.png',
   rent: '/hero-rent.png',
   projects: '/hero-housing.png',
-  commercial: '/hero-housing.png',
+  commercial: '/hero-commercial.png',
   plots: '/hero-housing.png',
   pg: '/hero-housing.png',
 }
@@ -177,14 +177,14 @@ export default function HomeContent() {
           - BUY/other → purple gradient + right family panel
       ═══════════════════════════════════════════════════ */}
 
-      {activeTab === 'rent' ? (
-        /* ── RENT: Full background peach image layout ── */
+      {activeTab === 'rent' || activeTab === 'commercial' ? (
+        /* ── RENT / COMMERCIAL: Full background image layout ── */
         <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden">
-          {/* Full coral banner background image uploaded by user */}
+          {/* Full banner background image */}
           <div className="absolute inset-0 z-0">
             <Image
-              src="/hero-rent.png"
-              alt="Properties for Rent"
+              src={activeTab === 'commercial' ? '/hero-commercial.png' : '/hero-rent.png'}
+              alt={activeTab === 'commercial' ? 'Commercial Spaces' : 'Properties for Rent'}
               fill
               className="object-cover object-center"
               priority
@@ -194,7 +194,7 @@ export default function HomeContent() {
           </div>
 
           <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Center aligned within the left peach area (w-full max-w-[56%] to clear the family card on right) */}
+            {/* Center aligned within the left area (w-full max-w-[56%] to clear the card on right) */}
             <div className="flex flex-col items-center text-center w-full max-w-[56%] gap-5">
 
               {/* Title */}
@@ -203,10 +203,16 @@ export default function HomeContent() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
               >
-                <h1 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-[2rem] font-bold text-[#5e413a] leading-tight tracking-tight">
+                <h1 className={cn(
+                  "font-sans text-xl sm:text-2xl md:text-3xl lg:text-[2rem] font-bold leading-tight tracking-tight",
+                  activeTab === 'commercial' ? "text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)]" : "text-[#5e413a]"
+                )}>
                   {currentTheme.title}
                 </h1>
-                <p className="mt-2 text-[11px] sm:text-xs md:text-sm text-[#7c5b52] font-semibold max-w-sm leading-relaxed">
+                <p className={cn(
+                  "mt-2 text-[11px] sm:text-xs md:text-sm font-semibold max-w-sm leading-relaxed",
+                  activeTab === 'commercial' ? "text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]" : "text-[#7c5b52]"
+                )}>
                   {currentTheme.subtitle}
                 </p>
               </motion.div>
@@ -226,63 +232,91 @@ export default function HomeContent() {
                 />
               </motion.div>
 
-              {/* Popular Localities horizontal scroll / buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-                className="flex items-center gap-2 mt-2 text-[11px] sm:text-xs flex-wrap justify-center"
-              >
-                <span className="font-bold text-[#5e413a] flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#ea7d68]" />
-                  Popular Localities
-                </span>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {['Dwarka', 'South Delhi', 'Greater Kailash', 'Lajpat Nagar'].map((loc) => (
-                    <button
-                      key={loc}
-                      onClick={() => {}}
-                      className="px-3 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-sm text-[10px] font-bold text-slate-800 flex items-center gap-1 hover:border-slate-350 hover:bg-slate-50 transition-all cursor-pointer"
-                    >
-                      <span>{loc}</span>
-                      <span className="text-[9px] text-[#ea7d68] font-black">›</span>
-                    </button>
-                  ))}
-                  <button className="w-5 h-5 rounded-full bg-[#523d38] text-white flex items-center justify-center hover:bg-[#3d2c28] transition-all font-black text-xs shrink-0 select-none cursor-pointer">
-                    ›
-                  </button>
-                </div>
-              </motion.div>
+              {/* Conditionally render Localities row (only for rent) or Stats row (only for commercial) */}
+              {activeTab === 'rent' ? (
+                <>
+                  {/* Popular Localities horizontal scroll / buttons */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.2 }}
+                    className="flex items-center gap-2 mt-2 text-[11px] sm:text-xs flex-wrap justify-center"
+                  >
+                    <span className="font-bold text-[#5e413a] flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-[#ea7d68]" />
+                      Popular Localities
+                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {['Dwarka', 'South Delhi', 'Greater Kailash', 'Lajpat Nagar'].map((loc) => (
+                        <button
+                          key={loc}
+                          onClick={() => {}}
+                          className="px-3 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-sm text-[10px] font-bold text-slate-800 flex items-center gap-1 hover:border-slate-350 hover:bg-slate-50 transition-all cursor-pointer"
+                        >
+                          <span>{loc}</span>
+                          <span className="text-[9px] text-[#ea7d68] font-black">›</span>
+                        </button>
+                      ))}
+                      <button className="w-5 h-5 rounded-full bg-[#523d38] text-white flex items-center justify-center hover:bg-[#3d2c28] transition-all font-black text-xs shrink-0 select-none cursor-pointer">
+                        ›
+                      </button>
+                    </div>
+                  </motion.div>
 
-              {/* Why Choose Us Icons section */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.3 }}
-                className="w-full mt-4 border-t border-[#f4c8b9]/60 pt-4 flex flex-col items-center"
-              >
-                <h3 className="text-[10px] font-black text-[#523d38] uppercase tracking-widest mb-3">Why Choose Us?</h3>
-                <div className="grid grid-cols-6 gap-2 w-full justify-center">
+                  {/* Why Choose Us Icons section */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.3 }}
+                    className="w-full mt-4 border-t border-[#f4c8b9]/60 pt-4 flex flex-col items-center"
+                  >
+                    <h3 className="text-[10px] font-black text-[#523d38] uppercase tracking-widest mb-3">Why Choose Us?</h3>
+                    <div className="grid grid-cols-6 gap-2 w-full justify-center">
+                      {[
+                        { label: 'Verified Listings', icon: Shield },
+                        { label: 'Wide Range of Properties', icon: Home },
+                        { label: 'Best Price Guarantee', icon: Award },
+                        { label: 'Expert Support 24/7', icon: Phone },
+                        { label: 'Trusted by Thousands', icon: Star },
+                        { label: 'Safe & Secure Deals', icon: Shield }
+                      ].map((item, idx) => {
+                        const Icon = item.icon
+                        return (
+                          <div key={idx} className="flex flex-col items-center text-center">
+                            <div className="w-9 h-9 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm mb-1 transition-transform duration-300 hover:scale-105">
+                              <Icon className="w-4.5 h-4.5 text-[#ea7d68]" />
+                            </div>
+                            <span className="text-[8px] font-extrabold text-[#61453e] leading-snug max-w-[70px]">{item.label}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </motion.div>
+                </>
+              ) : (
+                /* Stats row for Commercial */
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 0.4 }}
+                  className="flex flex-wrap gap-2 sm:gap-3 w-full"
+                >
                   {[
-                    { label: 'Verified Listings', icon: Shield },
-                    { label: 'Wide Range of Properties', icon: Home },
-                    { label: 'Best Price Guarantee', icon: Award },
-                    { label: 'Expert Support 24/7', icon: Phone },
-                    { label: 'Trusted by Thousands', icon: Star },
-                    { label: 'Safe & Secure Deals', icon: Shield }
-                  ].map((item, idx) => {
-                    const Icon = item.icon
-                    return (
-                      <div key={idx} className="flex flex-col items-center text-center">
-                        <div className="w-9 h-9 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm mb-1 transition-transform duration-300 hover:scale-105">
-                          <Icon className="w-4.5 h-4.5 text-[#ea7d68]" />
-                        </div>
-                        <span className="text-[8px] font-extrabold text-[#61453e] leading-snug max-w-[70px]">{item.label}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              </motion.div>
+                    { value: platformStats.properties, label: 'Spaces Listed' },
+                    { value: platformStats.buyers, label: 'Happy Clients' },
+                    { value: `${platformStats.verifiedPercent}%`, label: 'Partner Verified' },
+                    { value: platformStats.cities, label: 'Prime Regions' },
+                  ].map((s) => (
+                    <div
+                      key={s.label}
+                      className="text-center py-2 px-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex-1 min-w-[85px] transition-all duration-300 hover:-translate-y-1 hover:bg-white/20 shadow"
+                    >
+                      <p className="text-sm sm:text-base font-black text-white tracking-tight">{s.value}</p>
+                      <p className="text-[8px] sm:text-[9px] text-white/65 font-bold uppercase tracking-wider mt-0.5">{s.label}</p>
+                    </div>
+                  ))}
+                </motion.div>
+              )}
 
             </div>
           </div>
