@@ -30,7 +30,7 @@ const faqs = HOME_FAQS
 
 const heroBackgrounds: Record<string, string> = {
   buy: '/hero-housing.png',
-  rent: '/hero-rent.jpg',
+  rent: '/hero-rent.png',
   projects: '/hero-housing.png',
   commercial: '/hero-housing.png',
   plots: '/hero-housing.png',
@@ -182,7 +182,7 @@ export default function HomeContent() {
           {/* Full coral banner background image uploaded by user */}
           <div className="absolute inset-0 z-0">
             <Image
-              src="/hero-rent.jpg"
+              src="/hero-rent.png"
               alt="Properties for Rent"
               fill
               className="object-cover object-center"
