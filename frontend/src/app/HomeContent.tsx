@@ -187,7 +187,7 @@ export default function HomeContent() {
                 src={currentTheme.bgImage}
                 alt={currentTheme.title}
                 fill
-                className="object-cover object-right-bottom brightness-100"
+                className="object-cover object-[right_30%] brightness-100"
                 priority
                 quality={85}
                 sizes="100vw"
