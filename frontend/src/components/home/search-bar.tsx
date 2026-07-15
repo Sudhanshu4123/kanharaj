@@ -144,7 +144,7 @@ export function SearchBar({
   return (
     <div className="w-full max-w-2xl mx-auto">
       {/* Premium Translucent Tabs Container */}
-      <div className="w-full overflow-x-auto scrollbar-none rounded-t-xl bg-[#1e1d32]/95 border border-white/10 border-b-0">
+      <div className="w-full overflow-x-auto scrollbar-none rounded-t-xl bg-[#2a1d8f]/90 border border-white/15 border-b-0 backdrop-blur-sm">
         <div className="flex gap-6 px-6 py-3 select-none items-center">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.value
