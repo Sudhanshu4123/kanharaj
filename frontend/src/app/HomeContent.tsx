@@ -213,10 +213,10 @@ export default function HomeContent() {
                   transition={{ duration: 0.6 }}
                   className="flex flex-col items-center text-center"
                 >
-                  <h1 className="font-sans text-2xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+                  <h1 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
                     {currentTheme.title}
                   </h1>
-                  <p className="mt-3 text-xs sm:text-sm md:text-base text-slate-100/90 font-bold drop-shadow-md max-w-2xl leading-relaxed">
+                  <p className="mt-2 text-[11px] sm:text-xs md:text-sm text-slate-200 font-semibold drop-shadow-md max-w-2xl leading-relaxed">
                     {currentTheme.subtitle}
                   </p>
                 </motion.div>
