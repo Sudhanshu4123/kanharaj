@@ -187,15 +187,15 @@ export default function HomeContent() {
                 src={currentTheme.bgImage}
                 alt={currentTheme.title}
                 fill
-                className="object-cover brightness-[0.85]"
+                className="object-cover brightness-100"
                 priority
                 quality={85}
                 sizes="100vw"
               />
             </motion.div>
           </AnimatePresence>
-          <div className="absolute inset-0 bg-slate-950/45 z-10" />
-          <div className={cn("absolute inset-0 bg-gradient-to-b via-transparent to-slate-50/90 z-10", currentTheme.gradientClass)} />
+          <div className="absolute inset-0 bg-slate-950/15 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-50 z-10" />
 
           {/* Subtle Grid Overlay for Tech-Premium Aesthetics */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))] z-10 pointer-events-none" />
