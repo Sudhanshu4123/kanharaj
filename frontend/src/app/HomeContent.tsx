@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
@@ -23,6 +23,7 @@ import {
   formatAreaDisplay,
   formatBedBath,
   formatStatCount,
+  getNewlyAdded
 } from '@/lib/platform-data'
 
 const faqs = HOME_FAQS
@@ -67,6 +68,14 @@ export default function HomeContent() {
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'buy' | 'rent' | 'projects' | 'commercial' | 'pg' | 'plots'>('buy')
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const { scrollLeft } = scrollRef.current
+      const scrollTo = direction === 'left' ? scrollLeft - 340 : scrollLeft + 340
+      scrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' })
+    }
+  }
   const [platformStats, setPlatformStats] = useState({
     properties: '0',
     buyers: '0',
@@ -101,6 +110,7 @@ export default function HomeContent() {
 
   const displayProperties = useMemo(() => getFeaturedOrLatest(properties, 3), [properties])
   const popularCities = useMemo(() => getPopularCities(properties, 4), [properties])
+  const newlyAddedProperties = useMemo(() => getNewlyAdded(properties, 8), [properties])
 
   const getHeroConfig = () => {
     switch (activeTab) {
@@ -403,6 +413,87 @@ export default function HomeContent() {
               <p className="text-slate-400 mt-2 mb-6">Database properties will display here once added.</p>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Newly-added properties */}
+      <section className="py-10 sm:py-14 bg-white relative border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Newly-added properties</h2>
+            <p className="text-slate-500 mt-1 text-xs sm:text-sm font-medium">Fresh listings to check out</p>
+          </div>
+
+          <div className="relative group">
+            {/* Left Scroll Button */}
+            <button
+              onClick={() => scroll('left')}
+              className="absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-800 z-10 hover:bg-slate-50 active:scale-95 transition-all opacity-0 group-hover:opacity-100"
+              aria-label="Scroll Left"
+            >
+              <ChevronDown className="w-5 h-5 rotate-90" />
+            </button>
+
+            {/* Horizontal Scroll Container */}
+            <div
+              ref={scrollRef}
+              className="flex gap-5 overflow-x-auto scroll-smooth pb-4 no-scrollbar snap-x snap-mandatory scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {newlyAddedProperties.map((property) => (
+                <div
+                  key={property.id}
+                  className="min-w-[260px] sm:min-w-[300px] max-w-[300px] bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col snap-start"
+                >
+                  {/* Image */}
+                  <div className="relative h-40 overflow-hidden bg-slate-50 shrink-0">
+                    {property.images && property.images.length > 0 && property.images[0] && property.images[0] !== '[]' ? (
+                      <img
+                        src={getPropertyImageUrl(property)}
+                        alt={property.title}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-350 bg-slate-50 font-bold text-xs uppercase tracking-wider">
+                        No Image
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Card Details */}
+                  <div className="p-4 flex flex-col flex-grow text-left">
+                    <h3 className="font-bold text-sm sm:text-base text-slate-900 line-clamp-1 mb-1">
+                      {property.title}
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-slate-500 font-bold mb-0.5 leading-snug">
+                      {property.configurations || (property.bedrooms ? `${property.bedrooms} BHK ${property.propertyType?.replace('_', ' ')}` : property.propertyType?.replace('_', ' '))}
+                    </p>
+                    <p className="text-[11px] sm:text-xs text-slate-400 font-medium mb-2.5 truncate">
+                      {property.city || property.address || 'Delhi NCR'}
+                    </p>
+                    <p className="font-extrabold text-sm sm:text-base text-slate-900 mb-4">
+                      {formatPropertyPriceDisplay(property)}
+                    </p>
+
+                    <Link href={getPropertyUrl(property)} className="w-full mt-auto">
+                      <Button className="w-full border border-[#5e23dc] hover:bg-[#5e23dc] hover:text-white text-[#5e23dc] font-bold rounded-xl py-2 h-9 text-xs transition-all bg-transparent flex items-center justify-center border-solid">
+                        Contact
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Right Scroll Button */}
+            <button
+              onClick={() => scroll('right')}
+              className="absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-800 z-10 hover:bg-slate-50 active:scale-95 transition-all opacity-0 group-hover:opacity-100 sm:opacity-100"
+              aria-label="Scroll Right"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </section>
 
