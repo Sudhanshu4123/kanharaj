@@ -30,7 +30,7 @@ const faqs = HOME_FAQS
 
 const heroBackgrounds: Record<string, string> = {
   buy: '/hero-housing.png',
-  rent: '/hero-housing.png',
+  rent: '/hero-rent.png',
   projects: '/hero-housing.png',
   commercial: '/hero-housing.png',
   plots: '/hero-housing.png',
@@ -171,7 +171,16 @@ export default function HomeContent() {
   return (
     <div className="min-h-screen bg-slate-50/30 overflow-x-hidden font-sans">
       {/* Hero Section — Housing.com style */}
-      <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden bg-gradient-to-br from-[#3a28b0] via-[#5235d8] to-[#6c48e8]">
+      <section className={cn(
+        "relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden",
+        activeTab === 'rent'
+          ? "bg-gradient-to-br from-[#c4614a] via-[#e07a60] to-[#f09070]"
+          : activeTab === 'pg'
+          ? "bg-gradient-to-br from-[#065f46] via-[#047857] to-[#10b981]"
+          : activeTab === 'plots'
+          ? "bg-gradient-to-br from-[#78350f] via-[#b45309] to-[#d97706]"
+          : "bg-gradient-to-br from-[#3a28b0] via-[#5235d8] to-[#6c48e8]"
+      )}>
 
         {/* ── Family photo pinned to the right half ── */}
         {/* object-[82%_top] crops the image to show ONLY the right-side family, not the golden buildings */}
@@ -186,9 +195,15 @@ export default function HomeContent() {
             sizes="44vw"
           />
           {/* Smooth gradient fade on left edge to blend into purple */}
-          <div className="absolute inset-y-0 left-0 w-28 z-10 bg-gradient-to-r from-[#5235d8] to-transparent" />
+          <div className={cn(
+            "absolute inset-y-0 left-0 w-28 z-10 bg-gradient-to-r to-transparent",
+            activeTab === 'rent' ? "from-[#e07a60]" : activeTab === 'pg' ? "from-[#047857]" : activeTab === 'plots' ? "from-[#b45309]" : "from-[#5235d8]"
+          )} />
           {/* Fade bottom edge */}
-          <div className="absolute bottom-0 left-0 right-0 h-16 z-10 bg-gradient-to-t from-[#3a28b0]/60 to-transparent" />
+          <div className={cn(
+            "absolute bottom-0 left-0 right-0 h-16 z-10 bg-gradient-to-t to-transparent",
+            activeTab === 'rent' ? "from-[#c4614a]/60" : activeTab === 'pg' ? "from-[#065f46]/60" : activeTab === 'plots' ? "from-[#78350f]/60" : "from-[#3a28b0]/60"
+          )} />
         </div>
 
         {/* ── White building line SVG overlay (left side) ── */}
