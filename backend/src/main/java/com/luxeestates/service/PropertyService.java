@@ -36,7 +36,7 @@ public class PropertyService {
             String search,
             String city,
             String state,
-            List<Property.PropertyType> propertyTypes,
+            List<String> propertyTypes,
             Property.ListingType listingType,
             List<Integer> bedrooms,
             BigDecimal minPrice,
@@ -46,6 +46,20 @@ public class PropertyService {
             Boolean showProjectsOnly,
             Pageable pageable
     ) {
+        // Convert string list to enums list safely
+        List<Property.PropertyType> mappedEnumTypes = new ArrayList<>();
+        if (propertyTypes != null) {
+            for (String typeStr : propertyTypes) {
+                if (typeStr != null && !typeStr.trim().isEmpty()) {
+                    try {
+                        mappedEnumTypes.add(Property.PropertyType.valueOf(typeStr.toUpperCase().trim()));
+                    } catch (IllegalArgumentException e) {
+                        // ignore unmapped / invalid types
+                    }
+                }
+            }
+        }
+
         Specification<Property> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -81,8 +95,8 @@ public class PropertyService {
                     Property.PropertyType.RESIDENTIAL_PROJECT,
                     Property.PropertyType.COMMERCIAL_PROJECT
                 ));
-            } else if (propertyTypes != null && !propertyTypes.isEmpty()) {
-                predicates.add(root.get("propertyType").in(propertyTypes));
+            } else if (!mappedEnumTypes.isEmpty()) {
+                predicates.add(root.get("propertyType").in(mappedEnumTypes));
             } else {
                 // By default, exclude project types unless explicitly requested
                 predicates.add(cb.not(root.get("propertyType").in(

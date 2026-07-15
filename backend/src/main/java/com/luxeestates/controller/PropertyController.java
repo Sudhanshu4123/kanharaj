@@ -39,7 +39,7 @@ public class PropertyController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String state,
-            @RequestParam(required = false) List<Property.PropertyType> propertyTypes,
+            @RequestParam(required = false) List<String> propertyTypes,
             @RequestParam(required = false) Property.ListingType listingType,
             @RequestParam(required = false) List<Integer> bedrooms,
             @RequestParam(required = false) BigDecimal minPrice,

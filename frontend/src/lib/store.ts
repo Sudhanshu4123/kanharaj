@@ -152,24 +152,21 @@ const transformToApi = (prop: Partial<Property>) => ({
   status: prop.status?.toUpperCase(),
 })
 
+export const mapFrontendToBackendPropertyType = (type: string): string => {
+  if (!type) return '';
+  const t = type.toUpperCase().replace(/[\s+]+/g, '_');
+  if (t === 'INDEPENDENT_HOUSE' || t === 'FARM_HOUSE' || t === 'HOUSE') return 'HOUSE';
+  if (t === 'INDEPENDENT_FLOOR' || t === 'BUILDER_FLOOR') return 'BUILDER_FLOOR';
+  if (t === 'PLOTS/LAND' || t === 'AGRICULTURAL_LAND' || t === 'PLOT') return 'PLOT';
+  if (t === 'PENTHOUSE' || t === 'DUPLEX' || t === 'STUDIO' || t === 'APARTMENT' || t === 'FLAT') return 'APARTMENT';
+  if (t === 'OFFICE' || t === 'OFFICE_SPACE') return 'OFFICE_SPACE';
+  if (t === 'RETAIL_SHOP' || t === 'SHOWROOM' || t === 'SHOP') return 'SHOP';
+  return t;
+}
+
 const isPropertyTypeMatch = (filterType: string, propType: string): boolean => {
   if (!filterType || !propType) return false;
-  const f = filterType.toUpperCase().replace(/[\s+]+/g, '_');
-  const p = propType.toUpperCase().replace(/[\s+]+/g, '_');
-  
-  if (f === p) return true;
-  
-  const mapType = (type: string) => {
-    if (type === 'INDEPENDENT_HOUSE' || type === 'FARM_HOUSE' || type === 'HOUSE') return 'HOUSE';
-    if (type === 'INDEPENDENT_FLOOR' || type === 'BUILDER_FLOOR') return 'BUILDER_FLOOR';
-    if (type === 'PLOTS/LAND' || type === 'AGRICULTURAL_LAND' || type === 'PLOT') return 'PLOT';
-    if (type === 'PENTHOUSE' || type === 'DUPLEX' || type === 'STUDIO' || type === 'APARTMENT' || type === 'FLAT') return 'APARTMENT';
-    if (type === 'OFFICE' || type === 'OFFICE_SPACE') return 'OFFICE_SPACE';
-    if (type === 'RETAIL_SHOP' || type === 'SHOWROOM' || type === 'SHOP') return 'SHOP';
-    return type;
-  }
-  
-  return mapType(f) === mapType(p);
+  return mapFrontendToBackendPropertyType(filterType) === mapFrontendToBackendPropertyType(propType);
 }
 
 export const usePropertyStore = create<PropertyStore>()(
@@ -277,7 +274,10 @@ export const usePropertyStore = create<PropertyStore>()(
             params.set('listingType', filters.listingType.toUpperCase())
           }
           if (filters.propertyType && filters.propertyType.length > 0) {
-            params.set('propertyTypes', filters.propertyType.map(t => t.toUpperCase()).join(','))
+            const mappedTypes = Array.from(new Set(filters.propertyType.map(t => mapFrontendToBackendPropertyType(t)).filter(Boolean)));
+            if (mappedTypes.length > 0) {
+              params.set('propertyTypes', mappedTypes.join(','))
+            }
           }
           if (filters.bedrooms && filters.bedrooms.length > 0) {
             params.set('bedrooms', filters.bedrooms.join(','))
