@@ -33,7 +33,7 @@ const heroBackgrounds: Record<string, string> = {
   rent: '/hero-rent.png',
   projects: '/hero-housing.png',
   commercial: '/hero-commercial.png',
-  plots: '/hero-housing.png',
+  plots: '/hero-plots.jpg',
   pg: '/hero-housing.png',
 }
 
@@ -177,14 +177,26 @@ export default function HomeContent() {
           - BUY/other → purple gradient + right family panel
       ═══════════════════════════════════════════════════ */}
 
-      {activeTab === 'rent' || activeTab === 'commercial' ? (
-        /* ── RENT / COMMERCIAL: Full background image layout ── */
+      {activeTab === 'rent' || activeTab === 'commercial' || activeTab === 'plots' ? (
+        /* ── RENT / COMMERCIAL / PLOTS: Full background image layout ── */
         <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden">
           {/* Full banner background image */}
           <div className="absolute inset-0 z-0">
             <Image
-              src={activeTab === 'commercial' ? '/hero-commercial.png' : '/hero-rent.png'}
-              alt={activeTab === 'commercial' ? 'Commercial Spaces' : 'Properties for Rent'}
+              src={
+                activeTab === 'commercial'
+                  ? '/hero-commercial.png'
+                  : activeTab === 'plots'
+                  ? '/hero-plots.jpg'
+                  : '/hero-rent.png'
+              }
+              alt={
+                activeTab === 'commercial'
+                  ? 'Commercial Spaces'
+                  : activeTab === 'plots'
+                  ? 'Plots & Land'
+                  : 'Properties for Rent'
+              }
               fill
               className="object-cover object-center"
               priority
@@ -205,13 +217,17 @@ export default function HomeContent() {
               >
                 <h1 className={cn(
                   "font-sans text-xl sm:text-2xl md:text-3xl lg:text-[2rem] font-bold leading-tight tracking-tight",
-                  activeTab === 'commercial' ? "text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)]" : "text-[#5e413a]"
+                  activeTab === 'commercial' || activeTab === 'plots'
+                    ? "text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
+                    : "text-[#5e413a]"
                 )}>
                   {currentTheme.title}
                 </h1>
                 <p className={cn(
                   "mt-2 text-[11px] sm:text-xs md:text-sm font-semibold max-w-sm leading-relaxed",
-                  activeTab === 'commercial' ? "text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]" : "text-[#7c5b52]"
+                  activeTab === 'commercial' || activeTab === 'plots'
+                    ? "text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
+                    : "text-[#7c5b52]"
                 )}>
                   {currentTheme.subtitle}
                 </p>
@@ -294,7 +310,7 @@ export default function HomeContent() {
                   </motion.div>
                 </>
               ) : (
-                /* Stats row for Commercial */
+                /* Stats row for Commercial / Plots */
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -302,7 +318,7 @@ export default function HomeContent() {
                   className="flex flex-wrap gap-2 sm:gap-3 w-full"
                 >
                   {[
-                    { value: platformStats.properties, label: 'Spaces Listed' },
+                    { value: platformStats.properties, label: activeTab === 'plots' ? 'Plots Listed' : 'Spaces Listed' },
                     { value: platformStats.buyers, label: 'Happy Clients' },
                     { value: `${platformStats.verifiedPercent}%`, label: 'Partner Verified' },
                     { value: platformStats.cities, label: 'Prime Regions' },
