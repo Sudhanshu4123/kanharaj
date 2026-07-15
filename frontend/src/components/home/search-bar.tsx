@@ -142,10 +142,41 @@ export function SearchBar({
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-3xl mx-auto">
+      {/* Dynamic Tagline Above Tabs (Only shown in Buy mode or default) */}
+      {activeTab === 'buy' && (
+        <div className="flex items-center gap-2 mb-3 px-2 sm:px-0 justify-center">
+          <span className="flex h-2 w-2 relative">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-400"></span>
+          </span>
+          <span className="text-white/95 text-[11px] sm:text-xs font-black tracking-wide drop-shadow-md uppercase">
+            👑 {activeCount > 0 ? `${propertyLabel} verified listings` : 'Verified residential listings'} ready to explore
+          </span>
+        </div>
+      )}
+
       {/* Premium Translucent Tabs Container */}
-      <div className="w-full overflow-x-auto scrollbar-none rounded-t-xl bg-[#1e1d32]/95 border border-white/10 border-b-0">
-        <div className="flex gap-6 px-6 py-3 select-none items-center">
+      <style>{`
+        .custom-tab-scrollbar::-webkit-scrollbar {
+          height: 5px;
+        }
+        .custom-tab-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-tab-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.3);
+          border-radius: 10px;
+        }
+      `}</style>
+      <div
+        className="w-full overflow-x-auto scroll-smooth pb-2 custom-tab-scrollbar"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(255, 255, 255, 0.3) transparent',
+        }}
+      >
+        <div className="flex gap-1.5 p-1 bg-black/45 backdrop-blur-md rounded-t-xl border border-white/10 border-b-0 w-fit mx-auto select-none shrink-0 px-2.5">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.value
             return (
@@ -153,148 +184,164 @@ export function SearchBar({
                 key={tab.value}
                 onClick={() => selectTab(tab.value)}
                 className={cn(
-                  "text-xs font-bold uppercase tracking-wider pb-1 transition-all duration-200 relative shrink-0",
+                  "px-4 py-2 text-[10px] sm:text-xs font-black uppercase tracking-wider transition-all duration-300 rounded-lg shrink-0 snap-start",
                   isActive
-                    ? "text-white font-extrabold"
-                    : "text-slate-450 hover:text-white"
+                    ? "text-slate-950 bg-white shadow-md font-extrabold"
+                    : "text-white/80 hover:text-white hover:bg-white/10"
                 )}
               >
-                <span>{tab.label}</span>
-                {isActive && (
-                  <motion.div
-                    layoutId="activeTabUnderline"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"
-                  />
-                )}
+                {tab.label}
               </button>
             )
           })}
         </div>
       </div>
 
-      {/* Main Search Input Box */}
-      <div className="bg-white rounded-b-xl border border-slate-200/80 p-2 shadow-lg w-full">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-0">
+      {/* Main Search Container (Nested card styling removed for single-layer layout) */}
+      <div className="mt-4 sm:mt-5">
+
+        {/* Dynamic Title / Subtitle inside search card for Buy mode only */}
+        {title && (
+          <div className="mb-4 border-b border-slate-100 pb-3">
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight leading-tight mb-1">
+              {title}
+            </h2>
+            {subtitle && (
+              <p className="text-xs font-semibold text-slate-500">
+                {subtitle}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Input cluster area */}
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-1 md:p-1.5 shadow-inner">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-1.5 md:gap-0">
 
             {/* City Selection Dropdown (Only for RENT, COMMERCIAL, PG, PLOTS) */}
             {activeTab !== 'buy' && (
-              <div ref={dropdownRef} className="flex items-center pl-3 pr-2 border-b md:border-b-0 md:border-r border-slate-200 shrink-0 select-none relative h-8 justify-between md:justify-start">
-                <MapPin className="h-4 w-4 text-[#5e23dc] mr-1 shrink-0" />
-                <button
-                  type="button"
-                  onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
-                  className="focus:outline-none text-slate-800 font-extrabold text-xs cursor-pointer pr-4 relative select-none truncate flex items-center gap-1"
-                >
-                  <span>{selectedCity}</span>
-                  <span className="text-[8px] text-slate-400">▼</span>
-                </button>
-
-                <AnimatePresence>
-                  {isCityDropdownOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 8 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute left-0 top-full mt-2 w-72 max-h-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden text-left"
+              <div ref={dropdownRef} className="flex items-center px-3 py-1 border-b md:border-b-0 md:border-r border-slate-200 shrink-0 select-none relative">
+                <MapPin className="h-4 w-4 text-slate-400 mr-2 shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider leading-none mb-0.5">City</span>
+                  <div className="relative flex items-center">
+                    <button
+                      type="button"
+                      onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                      className="w-[70px] text-left focus:outline-none text-slate-950 font-black text-xs cursor-pointer pr-4 relative -ml-0.5 select-none truncate flex items-center justify-between h-5"
                     >
-                      {/* Search Input Area */}
-                      <div className="p-2 border-b border-slate-100 flex items-center bg-slate-50 gap-1.5 shrink-0">
-                        <Search className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                        <input
-                          type="text"
-                          value={citySearchQuery}
-                          onChange={(e) => setCitySearchQuery(e.target.value)}
-                          placeholder="Search city..."
-                          className="w-full bg-transparent focus:outline-none text-xs text-slate-800 font-bold placeholder:text-slate-400 h-6 border-0 p-0 focus:ring-0 focus-visible:outline-none focus:outline-none"
-                          autoFocus
-                        />
-                        {citySearchQuery && (
-                          <button
-                            type="button"
-                            onClick={() => setCitySearchQuery('')}
-                            className="text-[9px] text-[#5e23dc] hover:text-[#4e20b1] font-black px-1"
-                          >
-                            CLEAR
-                          </button>
-                        )}
-                      </div>
+                      <span>{selectedCity}</span>
+                      <span className="text-[7px] text-slate-400 font-extrabold absolute right-0 pointer-events-none">▼</span>
+                    </button>
 
-                      {/* Cities Scrollable List */}
-                      <div className="flex-1 overflow-y-auto max-h-60 py-1.5 text-left scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
-                        {filteredTopCities.length === 0 && filteredOtherCities.length === 0 ? (
-                          <div className="px-4 py-3 text-xs font-semibold text-slate-400 text-center">
-                            No cities found
+                    <AnimatePresence>
+                      {isCityDropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 8 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute left-0 top-full mt-2 w-72 max-h-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden"
+                        >
+                          {/* Search Input Area */}
+                          <div className="p-2 border-b border-slate-100 flex items-center bg-slate-50 gap-1.5 shrink-0">
+                            <Search className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                            <input
+                              type="text"
+                              value={citySearchQuery}
+                              onChange={(e) => setCitySearchQuery(e.target.value)}
+                              placeholder="Search city..."
+                              className="w-full bg-transparent focus:outline-none text-xs text-slate-800 font-bold placeholder:text-slate-400 h-6 border-0 p-0 focus:ring-0 focus-visible:outline-none focus:outline-none"
+                              autoFocus
+                            />
+                            {citySearchQuery && (
+                              <button
+                                type="button"
+                                onClick={() => setCitySearchQuery('')}
+                                className="text-[9px] text-[#5f27cd] hover:text-[#4e20b1] font-black px-1"
+                              >
+                                CLEAR
+                              </button>
+                            )}
                           </div>
-                        ) : (
-                          <>
-                            {filteredTopCities.length > 0 && (
-                              <div>
-                                <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
-                                  Top Cities
-                                </div>
-                                {filteredTopCities.map((city) => (
-                                  <button
-                                    key={city}
-                                    type="button"
-                                    onClick={() => {
-                                      setSelectedCity(city)
-                                      setIsCityDropdownOpen(false)
-                                      setCitySearchQuery('')
-                                    }}
-                                    className={cn(
-                                      "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
-                                      selectedCity === city
-                                        ? "bg-[#5e23dc]/5 text-[#5e23dc]"
-                                        : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                                    )}
-                                  >
-                                    <span>{city}</span>
-                                    {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
 
-                            {filteredOtherCities.length > 0 && (
-                              <div className="mt-1">
-                                <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
-                                  Other Cities
-                                </div>
-                                {filteredOtherCities.map((city) => (
-                                  <button
-                                    key={city}
-                                    type="button"
-                                    onClick={() => {
-                                      setSelectedCity(city)
-                                      setIsCityDropdownOpen(false)
-                                      setCitySearchQuery('')
-                                    }}
-                                    className={cn(
-                                      "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
-                                      selectedCity === city
-                                        ? "bg-[#5e23dc]/5 text-[#5e23dc]"
-                                        : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                                    )}
-                                  >
-                                    <span>{city}</span>
-                                    {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
-                                  </button>
-                                ))}
+                          {/* Cities Scrollable List */}
+                          <div className="flex-1 overflow-y-auto max-h-60 py-1.5 text-left scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+                            {filteredTopCities.length === 0 && filteredOtherCities.length === 0 ? (
+                              <div className="px-4 py-3 text-xs font-semibold text-slate-400 text-center">
+                                No cities found
                               </div>
+                            ) : (
+                              <>
+                                {filteredTopCities.length > 0 && (
+                                  <div>
+                                    <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                                      Top Cities
+                                    </div>
+                                    {filteredTopCities.map((city) => (
+                                      <button
+                                        key={city}
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedCity(city)
+                                          setIsCityDropdownOpen(false)
+                                          setCitySearchQuery('')
+                                        }}
+                                        className={cn(
+                                          "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
+                                          selectedCity === city
+                                            ? "bg-[#5f27cd]/5 text-[#5f27cd]"
+                                            : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                                        )}
+                                      >
+                                        <span>{city}</span>
+                                        {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {filteredOtherCities.length > 0 && (
+                                  <div className="mt-1">
+                                    <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                                      Other Cities
+                                    </div>
+                                    {filteredOtherCities.map((city) => (
+                                      <button
+                                        key={city}
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedCity(city)
+                                          setIsCityDropdownOpen(false)
+                                          setCitySearchQuery('')
+                                        }}
+                                        className={cn(
+                                          "w-full text-left px-3 py-1.5 text-xs font-bold transition-colors flex items-center justify-between",
+                                          selectedCity === city
+                                            ? "bg-[#5f27cd]/5 text-[#5f27cd]"
+                                            : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                                        )}
+                                      >
+                                        <span>{city}</span>
+                                        {selectedCity === city && <span className="text-[10px] font-black">✓</span>}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </>
                             )}
-                          </>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
               </div>
             )}
 
             {/* Core Search Input Field */}
-            <div className="flex-1 flex items-center px-3 py-1">
-              <Search className="h-5 w-5 text-slate-400 mr-3 shrink-0" />
+            <div className="flex-1 flex items-center px-3 py-1.5">
+              <Search className="h-4 w-4 text-slate-400 mr-2 shrink-0" />
               <input
                 type="text"
                 value={search}
@@ -304,9 +351,9 @@ export function SearchBar({
                     ? "Search Locality"
                     : activeTab === 'pg'
                       ? "Search for locality, landmark"
-                      : "Search for locality, landmark, project, or builder"
+                      : `Try "${locations[placeholderIndex]}"`
                 }
-                className="w-full bg-transparent focus:outline-none text-sm text-slate-800 placeholder:text-slate-400 h-10 border-0 p-0 focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:outline-none"
+                className="w-full bg-transparent focus:outline-none text-xs sm:text-sm text-slate-900 font-bold placeholder:text-slate-400/80 h-8 border-0 p-0 focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:outline-none"
               />
             </div>
 
@@ -323,9 +370,9 @@ export function SearchBar({
                   />
                   <div className={cn(
                     "w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-all",
-                    commercialType === 'buy' ? "border-[#5e23dc] bg-white" : "border-slate-300"
+                    commercialType === 'buy' ? "border-[#5f27cd] bg-white" : "border-slate-300"
                   )}>
-                    {commercialType === 'buy' && <div className="w-2 h-2 rounded-full bg-[#5e23dc]" />}
+                    {commercialType === 'buy' && <div className="w-2 h-2 rounded-full bg-[#5f27cd]" />}
                   </div>
                   <span className="text-[10px] font-black text-slate-700 group-hover:text-slate-950 uppercase tracking-wider">Buy</span>
                 </label>
@@ -340,9 +387,9 @@ export function SearchBar({
                   />
                   <div className={cn(
                     "w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-all",
-                    commercialType === 'lease' ? "border-[#5e23dc] bg-white" : "border-slate-300"
+                    commercialType === 'lease' ? "border-[#5f27cd] bg-white" : "border-slate-300"
                   )}>
-                    {commercialType === 'lease' && <div className="w-2 h-2 rounded-full bg-[#5e23dc]" />}
+                    {commercialType === 'lease' && <div className="w-2 h-2 rounded-full bg-[#5f27cd]" />}
                   </div>
                   <span className="text-[10px] font-black text-slate-700 group-hover:text-slate-950 uppercase tracking-wider">Lease</span>
                 </label>
@@ -352,13 +399,23 @@ export function SearchBar({
             {/* Dynamic CTA Search Button */}
             <button
               onClick={() => handleSearch()}
-              className="h-10 px-8 rounded-lg bg-[#5e23dc] hover:bg-[#4e20b1] text-white font-bold text-sm tracking-wide shadow-md transition-all duration-200 flex items-center justify-center shrink-0 active:scale-[0.98] border-0"
+              className={cn(
+                "h-9 md:h-10 px-6 rounded-lg font-black text-white text-xs uppercase tracking-wider shadow-md transition-all duration-300 flex items-center justify-center gap-1.5 shrink-0 md:m-0.5 active:scale-[0.98]",
+                (activeTab === 'buy' || activeTab === 'rent')
+                  ? "bg-[#5f27cd] hover:bg-[#4e20b1] shadow-[#5f27cd]/20"
+                  : "bg-[#00c58d] hover:bg-[#10b981] shadow-[#00c58d]/20"
+              )}
             >
-              Search
+              <Search className="h-3.5 w-3.5 shrink-0" />
+              <span>Search</span>
             </button>
 
           </div>
         </div>
+
+
+
       </div>
-    )
-  }
+    </div>
+  )
+}
