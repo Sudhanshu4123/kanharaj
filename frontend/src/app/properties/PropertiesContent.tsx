@@ -512,6 +512,11 @@ export default function PropertiesContent() {
         return t.trim().charAt(0).toUpperCase() + t.trim().slice(1);
       });
       setPropertyTypes(types)
+      
+      if (type.toLowerCase().includes('project')) {
+        setShowProjectsOnly(true)
+        initialFilters.showProjectsOnly = true
+      }
     } else {
       setPropertyTypes([])
       initialFilters.propertyType = []
