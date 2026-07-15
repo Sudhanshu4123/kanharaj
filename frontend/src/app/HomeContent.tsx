@@ -31,7 +31,7 @@ const faqs = HOME_FAQS
 const heroBackgrounds: Record<string, string> = {
   buy: '/hero-housing.png',
   rent: '/hero-rent.png',
-  projects: '/hero-housing.png',
+  projects: '/hero-projects.png',
   commercial: '/hero-commercial.png',
   plots: '/hero-plots.jpg',
   pg: '/hero-housing.png',
@@ -177,8 +177,8 @@ export default function HomeContent() {
           - BUY/other → purple gradient + right family panel
       ═══════════════════════════════════════════════════ */}
 
-      {activeTab === 'rent' || activeTab === 'commercial' || activeTab === 'plots' ? (
-        /* ── RENT / COMMERCIAL / PLOTS: Full background image layout ── */
+      {activeTab === 'rent' || activeTab === 'commercial' || activeTab === 'plots' || activeTab === 'projects' ? (
+        /* ── RENT / COMMERCIAL / PLOTS / PROJECTS: Full background image layout ── */
         <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden">
           {/* Full banner background image */}
           <div className="absolute inset-0 z-0">
@@ -188,6 +188,8 @@ export default function HomeContent() {
                   ? '/hero-commercial.png'
                   : activeTab === 'plots'
                   ? '/hero-plots.jpg'
+                  : activeTab === 'projects'
+                  ? '/hero-projects.png'
                   : '/hero-rent.png'
               }
               alt={
@@ -195,6 +197,8 @@ export default function HomeContent() {
                   ? 'Commercial Spaces'
                   : activeTab === 'plots'
                   ? 'Plots & Land'
+                  : activeTab === 'projects'
+                  ? 'Premium New Projects'
                   : 'Properties for Rent'
               }
               fill
@@ -217,7 +221,7 @@ export default function HomeContent() {
               >
                 <h1 className={cn(
                   "font-sans text-xl sm:text-2xl md:text-3xl lg:text-[2rem] font-bold leading-tight tracking-tight",
-                  activeTab === 'commercial' || activeTab === 'plots'
+                  activeTab === 'commercial' || activeTab === 'plots' || activeTab === 'projects'
                     ? "text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
                     : "text-[#5e413a]"
                 )}>
@@ -225,7 +229,7 @@ export default function HomeContent() {
                 </h1>
                 <p className={cn(
                   "mt-2 text-[11px] sm:text-xs md:text-sm font-semibold max-w-sm leading-relaxed",
-                  activeTab === 'commercial' || activeTab === 'plots'
+                  activeTab === 'commercial' || activeTab === 'plots' || activeTab === 'projects'
                     ? "text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
                     : "text-[#7c5b52]"
                 )}>
@@ -310,7 +314,7 @@ export default function HomeContent() {
                   </motion.div>
                 </>
               ) : (
-                /* Stats row for Commercial / Plots */
+                /* Stats row for Commercial / Plots / Projects */
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -318,7 +322,14 @@ export default function HomeContent() {
                   className="flex flex-wrap gap-2 sm:gap-3 w-full"
                 >
                   {[
-                    { value: platformStats.properties, label: activeTab === 'plots' ? 'Plots Listed' : 'Spaces Listed' },
+                    {
+                      value: platformStats.properties,
+                      label: activeTab === 'plots'
+                        ? 'Plots Listed'
+                        : activeTab === 'projects'
+                        ? 'Projects Listed'
+                        : 'Spaces Listed'
+                    },
                     { value: platformStats.buyers, label: 'Happy Clients' },
                     { value: `${platformStats.verifiedPercent}%`, label: 'Partner Verified' },
                     { value: platformStats.cities, label: 'Prime Regions' },
