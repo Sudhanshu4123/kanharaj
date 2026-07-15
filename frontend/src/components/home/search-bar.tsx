@@ -144,7 +144,10 @@ export function SearchBar({
   return (
     <div className="w-full max-w-2xl mx-auto">
       {/* Premium Translucent Tabs Container */}
-      <div className="w-full overflow-x-auto scrollbar-none rounded-t-xl bg-[#2a1d8f]/90 border border-white/15 border-b-0 backdrop-blur-sm">
+      <div className={cn(
+        "w-full overflow-x-auto scrollbar-none rounded-t-xl border border-b-0",
+        activeTab === 'rent' ? "bg-[#9c756b] border-white/20" : "bg-[#1e1d32]/95 border-white/10"
+      )}>
         <div className="flex gap-6 px-6 py-3 select-none items-center">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.value
@@ -180,7 +183,7 @@ export function SearchBar({
           {activeTab !== 'buy' && (
             <div ref={dropdownRef} className="flex items-center pl-3 pr-2 border-b md:border-b-0 md:border-r border-slate-200 shrink-0 select-none relative h-8 justify-between md:justify-start">
               <div className="flex items-center">
-                <MapPin className="h-4 w-4 text-[#5e23dc] mr-1 shrink-0" />
+                <MapPin className={cn("h-4 w-4 mr-1 shrink-0", activeTab === 'rent' ? "text-[#ea7d68]" : "text-[#5e23dc]")} />
                 <button
                   type="button"
                   onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
@@ -348,7 +351,12 @@ export function SearchBar({
           {/* Dynamic CTA Search Button */}
           <button
             onClick={() => handleSearch()}
-            className="h-10 px-8 rounded-lg bg-[#5e23dc] hover:bg-[#4e20b1] text-white font-bold text-sm tracking-wide shadow-md transition-all duration-200 flex items-center justify-center shrink-0 active:scale-[0.98] border-0"
+            className={cn(
+              "h-10 px-8 rounded-lg text-white font-bold text-sm tracking-wide shadow-md transition-all duration-200 flex items-center justify-center shrink-0 active:scale-[0.98] border-0",
+              activeTab === 'rent'
+                ? "bg-[#ea7d68] hover:bg-[#d96a55]"
+                : "bg-[#5e23dc] hover:bg-[#4e20b1]"
+            )}
           >
             Search
           </button>

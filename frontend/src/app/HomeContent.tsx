@@ -30,7 +30,7 @@ const faqs = HOME_FAQS
 
 const heroBackgrounds: Record<string, string> = {
   buy: '/hero-housing.png',
-  rent: '/hero-rent.png',
+  rent: '/hero-rent.jpg',
   projects: '/hero-housing.png',
   commercial: '/hero-housing.png',
   plots: '/hero-housing.png',
@@ -123,8 +123,8 @@ export default function HomeContent() {
         }
       case 'rent':
         return {
-          title: 'Rental Properties in All India',
-          subtitle: 'Ready-to-move-in flats and houses at direct prices.',
+          title: 'Properties for rent in New Delhi',
+          subtitle: '6K+ listings added daily and 69K+ total verified',
           bgImage: heroBackgrounds.rent,
           gradientClass: 'from-indigo-950/70 via-indigo-900/50 to-indigo-900/10',
         }
@@ -177,13 +177,13 @@ export default function HomeContent() {
       ═══════════════════════════════════════════════════ */}
 
       {activeTab === 'rent' ? (
-        /* ── RENT: Full background image, dark text, Housing.com layout ── */
+        /* ── RENT: Full background peach image layout ── */
         <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden">
-          {/* Full coral banner image */}
-          <div className="absolute inset-0">
+          {/* Full coral banner background image uploaded by user */}
+          <div className="absolute inset-0 z-0">
             <Image
-              src="/hero-rent.png"
-              alt="Rental Properties"
+              src="/hero-rent.jpg"
+              alt="Properties for Rent"
               fill
               className="object-cover object-center"
               priority
@@ -192,32 +192,179 @@ export default function HomeContent() {
             />
           </div>
 
-          {/* Content — centered in left half, DARK text (image is light coral) */}
           <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col items-center text-center w-full max-w-[55%] gap-5">
+            {/* Center aligned within the left peach area (w-full max-w-[56%] to clear the family card on right) */}
+            <div className="flex flex-col items-center text-center w-full max-w-[56%] gap-5">
 
+              {/* Title */}
               <motion.div
                 initial={{ opacity: 0, y: -15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
               >
-                <h1 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-[2rem] font-bold text-slate-800 leading-tight tracking-tight">
+                <h1 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-[2rem] font-bold text-[#5e413a] leading-tight tracking-tight">
                   {currentTheme.title}
                 </h1>
-                <p className="mt-2 text-[11px] sm:text-xs md:text-sm text-slate-600 font-semibold max-w-sm leading-relaxed">
+                <p className="mt-2 text-[11px] sm:text-xs md:text-sm text-[#7c5b52] font-semibold max-w-sm leading-relaxed">
                   {currentTheme.subtitle}
                 </p>
               </motion.div>
 
+              {/* Search Bar */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
                 className="w-full max-w-xl"
               >
-                <SearchBar activeTab={activeTab} setActiveTab={setActiveTab} />
+                <SearchBar
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                />
               </motion.div>
 
+              {/* Popular Localities horizontal scroll / buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="flex items-center gap-2 mt-2 text-[11px] sm:text-xs flex-wrap justify-center"
+              >
+                <span className="font-bold text-[#5e413a] flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-[#ea7d68]" />
+                  Popular Localities
+                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {['Dwarka', 'South Delhi', 'Greater Kailash', 'Lajpat Nagar'].map((loc) => (
+                    <button
+                      key={loc}
+                      onClick={() => {}}
+                      className="px-3 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-sm text-[10px] font-bold text-slate-800 flex items-center gap-1 hover:border-slate-350 hover:bg-slate-50 transition-all cursor-pointer"
+                    >
+                      <span>{loc}</span>
+                      <span className="text-[9px] text-[#ea7d68] font-black">›</span>
+                    </button>
+                  ))}
+                  <button className="w-5 h-5 rounded-full bg-[#523d38] text-white flex items-center justify-center hover:bg-[#3d2c28] transition-all font-black text-xs shrink-0 select-none cursor-pointer">
+                    ›
+                  </button>
+                </div>
+              </motion.div>
+
+              {/* Why Choose Us Icons section */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 }}
+                className="w-full mt-4 border-t border-[#f4c8b9]/60 pt-4 flex flex-col items-center"
+              >
+                <h3 className="text-[10px] font-black text-[#523d38] uppercase tracking-widest mb-3">Why Choose Us?</h3>
+                <div className="grid grid-cols-6 gap-2 w-full justify-center">
+                  {[
+                    { label: 'Verified Listings', icon: Shield },
+                    { label: 'Wide Range of Properties', icon: Home },
+                    { label: 'Best Price Guarantee', icon: Award },
+                    { label: 'Expert Support 24/7', icon: Phone },
+                    { label: 'Trusted by Thousands', icon: Star },
+                    { label: 'Safe & Secure Deals', icon: Shield }
+                  ].map((item, idx) => {
+                    const Icon = item.icon
+                    return (
+                      <div key={idx} className="flex flex-col items-center text-center">
+                        <div className="w-9 h-9 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm mb-1 transition-transform duration-300 hover:scale-105">
+                          <Icon className="w-4.5 h-4.5 text-[#ea7d68]" />
+                        </div>
+                        <span className="text-[8px] font-extrabold text-[#61453e] leading-snug max-w-[70px]">{item.label}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </motion.div>
+
+            </div>
+          </div>
+        </section>
+      ) : (
+        /* ── BUY / Other Tabs: Purple gradient bg + right family photo layout ── */
+        <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden bg-gradient-to-br from-[#3a28b0] via-[#5235d8] to-[#6c48e8]">
+
+          {/* ── Family photo pinned to the right half ── */}
+          <div className="absolute right-0 top-0 bottom-0 w-[44%] md:w-[40%] z-0 pointer-events-none">
+            <Image
+              src="/hero-housing.png"
+              alt="Happy family finding perfect property"
+              fill
+              className="object-cover object-[82%_top]"
+              priority
+              quality={90}
+              sizes="44vw"
+            />
+            {/* Smooth gradient fade on left edge to blend into purple */}
+            <div className="absolute inset-y-0 left-0 w-28 z-10 bg-gradient-to-r from-[#5235d8] to-transparent" />
+            {/* Fade bottom edge */}
+            <div className="absolute bottom-0 left-0 right-0 h-16 z-10 bg-gradient-to-t from-[#3a28b0]/60 to-transparent" />
+          </div>
+
+          {/* ── White building line SVG overlay (left side) ── */}
+          <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
+            <svg className="absolute bottom-0 left-0 h-full w-[56%] opacity-[0.12]" viewBox="0 0 600 400" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
+              <g fill="none" stroke="white" strokeWidth="1.2">
+                <rect x="20" y="120" width="30" height="280" />
+                <rect x="25" y="140" width="6" height="8" /><rect x="35" y="140" width="6" height="8" />
+                <rect x="25" y="170" width="6" height="8" /><rect x="35" y="170" width="6" height="8" />
+                <rect x="60" y="60" width="50" height="340" />
+                <rect x="68" y="80" width="8" height="10" /><rect x="82" y="80" width="8" height="10" /><rect x="96" y="80" width="8" height="10" />
+                <rect x="68" y="116" width="8" height="10" /><rect x="82" y="116" width="8" height="10" /><rect x="96" y="116" width="8" height="10" />
+                <rect x="120" y="90" width="40" height="310" />
+                <rect x="128" y="108" width="7" height="9" /><rect x="140" y="108" width="7" height="9" /><rect x="152" y="108" width="7" height="9" />
+                <rect x="170" y="150" width="28" height="250" />
+                <rect x="176" y="165" width="6" height="8" /><rect x="186" y="165" width="6" height="8" />
+                <rect x="205" y="180" width="35" height="220" />
+                <rect x="210" y="195" width="7" height="9" /><rect x="222" y="195" width="7" height="9" />
+                <rect x="248" y="210" width="22" height="190" />
+                <rect x="278" y="240" width="18" height="160" />
+              </g>
+            </svg>
+            {/* Small birds */}
+            <svg className="absolute top-10 left-[14%] opacity-25 w-16" viewBox="0 0 80 25" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 12 Q9 7 13 12" fill="none" stroke="white" strokeWidth="1.4" />
+              <path d="M22 8 Q26 3 30 8" fill="none" stroke="white" strokeWidth="1.4" />
+              <path d="M42 14 Q46 9 50 14" fill="none" stroke="white" strokeWidth="1.4" />
+            </svg>
+          </div>
+
+          {/* ── Main content — left aligned on purple area ── */}
+          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col items-start text-left w-full max-w-[56%] gap-5">
+
+              {/* Title */}
+              <motion.div
+                initial={{ opacity: 0, y: -15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <h1 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-[2.1rem] font-bold text-white leading-tight tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
+                  {currentTheme.title}
+                </h1>
+                <p className="mt-2 text-[11px] sm:text-xs md:text-sm text-white/80 font-semibold max-w-sm leading-relaxed">
+                  {currentTheme.subtitle}
+                </p>
+              </motion.div>
+
+              {/* Search Bar */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.1 }}
+                className="w-full max-w-xl"
+              >
+                <SearchBar
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                />
+              </motion.div>
+
+              {/* Stats row */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -230,93 +377,10 @@ export default function HomeContent() {
                   { value: `${platformStats.verifiedPercent}%`, label: 'Partner Verified' },
                   { value: platformStats.cities, label: 'Prime Regions' },
                 ].map((s) => (
-                  <div key={s.label} className="text-center py-2 px-3 rounded-xl bg-white/50 backdrop-blur-md border border-white/60 flex-1 min-w-[85px] transition-all duration-300 hover:-translate-y-1 hover:bg-white/70 shadow">
-                    <p className="text-sm sm:text-base font-black text-slate-800 tracking-tight">{s.value}</p>
-                    <p className="text-[8px] sm:text-[9px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">{s.label}</p>
-                  </div>
-                ))}
-              </motion.div>
-
-            </div>
-          </div>
-        </section>
-      ) : (
-        /* ── BUY / PROJECTS / COMMERCIAL / PG / PLOTS: Purple gradient + right panel ── */
-        <section className={cn(
-          "relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden",
-          activeTab === 'pg'
-            ? "bg-gradient-to-br from-[#065f46] via-[#047857] to-[#10b981]"
-            : activeTab === 'plots'
-            ? "bg-gradient-to-br from-[#78350f] via-[#b45309] to-[#d97706]"
-            : "bg-gradient-to-br from-[#3a28b0] via-[#5235d8] to-[#6c48e8]"
-        )}>
-          {/* Family photo — right half */}
-          <div className="absolute right-0 top-0 bottom-0 w-[44%] md:w-[40%] z-0 pointer-events-none">
-            <Image
-              src={currentTheme.bgImage}
-              alt="Happy family finding perfect property"
-              fill
-              className="object-cover object-[82%_top]"
-              priority
-              quality={90}
-              sizes="44vw"
-            />
-            <div className={cn(
-              "absolute inset-y-0 left-0 w-28 z-10 bg-gradient-to-r to-transparent",
-              activeTab === 'pg' ? "from-[#047857]" : activeTab === 'plots' ? "from-[#b45309]" : "from-[#5235d8]"
-            )} />
-            <div className={cn(
-              "absolute bottom-0 left-0 right-0 h-16 z-10 bg-gradient-to-t to-transparent",
-              activeTab === 'pg' ? "from-[#065f46]/60" : activeTab === 'plots' ? "from-[#78350f]/60" : "from-[#3a28b0]/60"
-            )} />
-          </div>
-
-          {/* Building line SVG */}
-          <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
-            <svg className="absolute bottom-0 left-0 h-full w-[56%] opacity-[0.12]" viewBox="0 0 600 400" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
-              <g fill="none" stroke="white" strokeWidth="1.2">
-                <rect x="20" y="120" width="30" height="280" /><rect x="25" y="140" width="6" height="8" /><rect x="35" y="140" width="6" height="8" />
-                <rect x="25" y="170" width="6" height="8" /><rect x="35" y="170" width="6" height="8" />
-                <rect x="60" y="60" width="50" height="340" /><rect x="68" y="80" width="8" height="10" /><rect x="82" y="80" width="8" height="10" /><rect x="96" y="80" width="8" height="10" />
-                <rect x="68" y="116" width="8" height="10" /><rect x="82" y="116" width="8" height="10" /><rect x="96" y="116" width="8" height="10" />
-                <rect x="120" y="90" width="40" height="310" /><rect x="128" y="108" width="7" height="9" /><rect x="140" y="108" width="7" height="9" /><rect x="152" y="108" width="7" height="9" />
-                <rect x="170" y="150" width="28" height="250" /><rect x="176" y="165" width="6" height="8" /><rect x="186" y="165" width="6" height="8" />
-                <rect x="205" y="180" width="35" height="220" /><rect x="210" y="195" width="7" height="9" /><rect x="222" y="195" width="7" height="9" />
-                <rect x="248" y="210" width="22" height="190" /><rect x="278" y="240" width="18" height="160" />
-              </g>
-            </svg>
-            <svg className="absolute top-10 left-[14%] opacity-25 w-16" viewBox="0 0 80 25" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5 12 Q9 7 13 12" fill="none" stroke="white" strokeWidth="1.4"/>
-              <path d="M22 8 Q26 3 30 8" fill="none" stroke="white" strokeWidth="1.4"/>
-              <path d="M42 14 Q46 9 50 14" fill="none" stroke="white" strokeWidth="1.4"/>
-            </svg>
-          </div>
-
-          {/* Content — white text on purple/dark bg */}
-          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col items-center text-center w-full max-w-[55%] gap-5">
-
-              <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-                <h1 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-[2.1rem] font-bold text-white leading-tight tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
-                  {currentTheme.title}
-                </h1>
-                <p className="mt-2 text-[11px] sm:text-xs md:text-sm text-white/80 font-semibold max-w-sm leading-relaxed">
-                  {currentTheme.subtitle}
-                </p>
-              </motion.div>
-
-              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }} className="w-full max-w-xl">
-                <SearchBar activeTab={activeTab} setActiveTab={setActiveTab} />
-              </motion.div>
-
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.4 }} className="flex flex-wrap gap-2 sm:gap-3 w-full">
-                {[
-                  { value: platformStats.properties, label: 'Properties Listed' },
-                  { value: platformStats.buyers, label: 'Happy Clients' },
-                  { value: `${platformStats.verifiedPercent}%`, label: 'Partner Verified' },
-                  { value: platformStats.cities, label: 'Prime Regions' },
-                ].map((s) => (
-                  <div key={s.label} className="text-center py-2 px-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex-1 min-w-[85px] transition-all duration-300 hover:-translate-y-1 hover:bg-white/20 shadow">
+                  <div
+                    key={s.label}
+                    className="text-center py-2 px-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex-1 min-w-[85px] transition-all duration-300 hover:-translate-y-1 hover:bg-white/20 shadow"
+                  >
                     <p className="text-sm sm:text-base font-black text-white tracking-tight">{s.value}</p>
                     <p className="text-[8px] sm:text-[9px] text-white/65 font-bold uppercase tracking-wider mt-0.5">{s.label}</p>
                   </div>
@@ -327,7 +391,6 @@ export default function HomeContent() {
           </div>
         </section>
       )}
-
 
 
 
