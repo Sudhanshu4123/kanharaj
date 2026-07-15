@@ -219,9 +219,9 @@ export default function HomeContent() {
           </svg>
         </div>
 
-        {/* ── Main content — left aligned on purple area ── */}
+        {/* ── Main content — centered within the left purple area ── */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-start text-left w-full max-w-[56%] gap-5">
+          <div className="flex flex-col items-center text-center w-full max-w-[55%] gap-5">
 
             {/* Title */}
             <motion.div
