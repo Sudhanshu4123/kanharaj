@@ -182,14 +182,16 @@ export default function HomeContent() {
           : "bg-gradient-to-br from-[#3a28b0] via-[#5235d8] to-[#6c48e8]"
       )}>
 
-        {/* ── Family photo pinned to the right half ── */}
-        {/* object-[82%_top] crops the image to show ONLY the right-side family, not the golden buildings */}
+        {/* ── Family photo / hero image pinned to the right half ── */}
         <div className="absolute right-0 top-0 bottom-0 w-[44%] md:w-[40%] z-0 pointer-events-none">
           <Image
-            src="/hero-housing.png"
+            src={currentTheme.bgImage}
             alt="Happy family finding perfect property"
             fill
-            className="object-cover object-[82%_top]"
+            className={cn(
+              "object-cover",
+              activeTab === 'rent' ? "object-[75%_center]" : "object-[82%_top]"
+            )}
             priority
             quality={90}
             sizes="44vw"
