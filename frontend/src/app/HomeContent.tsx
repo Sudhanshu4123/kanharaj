@@ -238,12 +238,11 @@ export default function HomeContent() {
 
           </div>
 
-          {/* Quick Stats Grid with Interactive Hover */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4 }}
-            className="mt-12 grid grid-cols-2 md:flex md:justify-center gap-4 sm:gap-8 w-full max-w-4xl mx-auto"
+            className="mt-8 grid grid-cols-2 md:flex md:justify-center gap-3 sm:gap-5 w-full max-w-3xl mx-auto"
           >
             {[
               { value: platformStats.properties, label: 'Properties Listed', color: 'border-rose-500/20' },
@@ -254,12 +253,12 @@ export default function HomeContent() {
               <div
                 key={s.label}
                 className={cn(
-                  "text-center p-4 rounded-2xl bg-slate-900/60 backdrop-blur-md border border-white/10 min-w-[130px] flex-1 transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:bg-slate-900/80 shadow-md",
+                  "text-center py-2.5 px-3 rounded-xl bg-slate-900/60 backdrop-blur-md border border-white/10 min-w-[110px] sm:min-w-[125px] flex-1 transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:bg-slate-900/80 shadow-md",
                   s.color
                 )}
               >
-                <p className="text-xl sm:text-2xl font-black text-white tracking-tight">{s.value}</p>
-                <p className="text-[10px] text-slate-300 font-bold uppercase tracking-wider mt-1">{s.label}</p>
+                <p className="text-base sm:text-lg font-black text-white tracking-tight">{s.value}</p>
+                <p className="text-[8px] sm:text-[9px] text-slate-300 font-bold uppercase tracking-wider mt-0.5">{s.label}</p>
               </div>
             ))}
           </motion.div>
