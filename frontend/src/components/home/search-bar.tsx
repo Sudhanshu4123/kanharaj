@@ -32,6 +32,8 @@ interface SearchBarProps {
   onTabChange?: (tab: TabType) => void
   title?: string
   subtitle?: string
+  selectedCity?: string
+  setSelectedCity?: (city: string) => void
 }
 
 export function SearchBar({
@@ -39,7 +41,9 @@ export function SearchBar({
   setActiveTab: externalSetActiveTab,
   onTabChange,
   title,
-  subtitle
+  subtitle,
+  selectedCity: externalSelectedCity,
+  setSelectedCity: externalSetSelectedCity
 }: SearchBarProps = {}) {
   const router = useRouter()
   const { properties } = usePropertyStore()
@@ -52,7 +56,9 @@ export function SearchBar({
 
   const [search, setSearch] = useState('')
   const [commercialType, setCommercialType] = useState<'buy' | 'lease'>('buy')
-  const [selectedCity, setSelectedCity] = useState('Delhi')
+  const [internalSelectedCity, setInternalSelectedCity] = useState('Delhi')
+  const selectedCity = externalSelectedCity || internalSelectedCity
+  const setSelectedCity = externalSetSelectedCity || setInternalSelectedCity
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false)
   const [citySearchQuery, setCitySearchQuery] = useState('')
   const dropdownRef = useRef<HTMLDivElement>(null)

@@ -67,6 +67,7 @@ const calculateEMI = (p: number, annualRate: number, years: number) => {
 export default function HomeContent() {
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'buy' | 'rent' | 'projects' | 'commercial' | 'pg' | 'plots'>('buy')
+  const [selectedCity, setSelectedCity] = useState('Delhi')
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const scroll = (direction: 'left' | 'right') => {
@@ -123,7 +124,7 @@ export default function HomeContent() {
         }
       case 'rent':
         return {
-          title: 'Properties for rent in New Delhi',
+          title: `Properties for rent in ${selectedCity === 'Delhi' ? 'New Delhi' : selectedCity}`,
           subtitle: '6K+ listings added daily and 69K+ total verified',
           bgImage: heroBackgrounds.rent,
           gradientClass: 'from-indigo-950/70 via-indigo-900/50 to-indigo-900/10',
@@ -220,6 +221,8 @@ export default function HomeContent() {
                 <SearchBar
                   activeTab={activeTab}
                   setActiveTab={setActiveTab}
+                  selectedCity={selectedCity}
+                  setSelectedCity={setSelectedCity}
                 />
               </motion.div>
 
@@ -361,6 +364,8 @@ export default function HomeContent() {
                 <SearchBar
                   activeTab={activeTab}
                   setActiveTab={setActiveTab}
+                  selectedCity={selectedCity}
+                  setSelectedCity={setSelectedCity}
                 />
               </motion.div>
 
