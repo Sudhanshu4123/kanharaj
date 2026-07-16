@@ -214,8 +214,8 @@ export default function HomeContent() {
           </div>
 
           <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Center aligned within the left area (w-full max-w-[56%] to clear the card on right) */}
-            <div className="flex flex-col items-center text-center w-full max-w-[56%] gap-5">
+            {/* Left-aligned content within left half (w-full max-w-[56%] to clear the card on right) */}
+            <div className="flex flex-col items-start text-left w-full max-w-[56%] gap-5">
 
               {/* Title */}
               <motion.div
@@ -256,111 +256,50 @@ export default function HomeContent() {
                 />
               </motion.div>
 
-              {/* Conditionally render Localities row (only for rent) or Stats row (only for commercial) */}
-              {activeTab === 'rent' ? (
-                <>
-                  {/* Popular Localities horizontal scroll / buttons */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.2 }}
-                    className="flex items-center gap-2 mt-2 text-[11px] sm:text-xs flex-wrap justify-center"
+              {/* Stats row — styled per background tone */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.4 }}
+                className="flex flex-wrap gap-2 sm:gap-3 w-full"
+              >
+                {[
+                  {
+                    value: platformStats.properties,
+                    label: activeTab === 'plots'
+                      ? 'Plots Listed'
+                      : activeTab === 'projects'
+                      ? 'Projects Listed'
+                      : activeTab === 'pg'
+                      ? 'PG Homes Listed'
+                      : activeTab === 'rent'
+                      ? 'Rental Listings'
+                      : 'Spaces Listed'
+                  },
+                  { value: platformStats.buyers, label: activeTab === 'pg' ? 'Happy Guests' : 'Happy Clients' },
+                  { value: `${platformStats.verifiedPercent}%`, label: 'Partner Verified' },
+                  { value: platformStats.cities, label: 'Prime Regions' },
+                ].map((s) => (
+                  <div
+                    key={s.label}
+                    className={cn(
+                      "text-center py-2 px-3 rounded-xl flex-1 min-w-[85px] transition-all duration-300 hover:-translate-y-1 shadow",
+                      activeTab === 'rent' || activeTab === 'pg'
+                        ? "bg-white/55 backdrop-blur-md border border-white/60 hover:bg-white/70"
+                        : "bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20"
+                    )}
                   >
-                    <span className="font-bold text-[#5e413a] flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-[#ea7d68]" />
-                      Popular Localities
-                    </span>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {['Dwarka', 'South Delhi', 'Greater Kailash', 'Lajpat Nagar'].map((loc) => (
-                        <button
-                          key={loc}
-                          onClick={() => {}}
-                          className="px-3 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-sm text-[10px] font-bold text-slate-800 flex items-center gap-1 hover:border-slate-350 hover:bg-slate-50 transition-all cursor-pointer"
-                        >
-                          <span>{loc}</span>
-                          <span className="text-[9px] text-[#ea7d68] font-black">›</span>
-                        </button>
-                      ))}
-                      <button className="w-5 h-5 rounded-full bg-[#523d38] text-white flex items-center justify-center hover:bg-[#3d2c28] transition-all font-black text-xs shrink-0 select-none cursor-pointer">
-                        ›
-                      </button>
-                    </div>
-                  </motion.div>
-
-                  {/* Why Choose Us Icons section */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.3 }}
-                    className="w-full mt-4 border-t border-[#f4c8b9]/60 pt-4 flex flex-col items-center"
-                  >
-                    <h3 className="text-[10px] font-black text-[#523d38] uppercase tracking-widest mb-3">Why Choose Us?</h3>
-                    <div className="grid grid-cols-6 gap-2 w-full justify-center">
-                      {[
-                        { label: 'Verified Listings', icon: Shield },
-                        { label: 'Wide Range of Properties', icon: Home },
-                        { label: 'Best Price Guarantee', icon: Award },
-                        { label: 'Expert Support 24/7', icon: Phone },
-                        { label: 'Trusted by Thousands', icon: Star },
-                        { label: 'Safe & Secure Deals', icon: Shield }
-                      ].map((item, idx) => {
-                        const Icon = item.icon
-                        return (
-                          <div key={idx} className="flex flex-col items-center text-center">
-                            <div className="w-9 h-9 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm mb-1 transition-transform duration-300 hover:scale-105">
-                              <Icon className="w-4.5 h-4.5 text-[#ea7d68]" />
-                            </div>
-                            <span className="text-[8px] font-extrabold text-[#61453e] leading-snug max-w-[70px]">{item.label}</span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </motion.div>
-                </>
-              ) : (
-                /* Stats row for Commercial / Plots / Projects / PG */
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 0.4 }}
-                  className="flex flex-wrap gap-2 sm:gap-3 w-full"
-                >
-                  {[
-                    {
-                      value: platformStats.properties,
-                      label: activeTab === 'plots'
-                        ? 'Plots Listed'
-                        : activeTab === 'projects'
-                        ? 'Projects Listed'
-                        : activeTab === 'pg'
-                        ? 'PG Homes Listed'
-                        : 'Spaces Listed'
-                    },
-                    { value: platformStats.buyers, label: activeTab === 'pg' ? 'Happy Guests' : 'Happy Clients' },
-                    { value: `${platformStats.verifiedPercent}%`, label: 'Partner Verified' },
-                    { value: platformStats.cities, label: 'Prime Regions' },
-                  ].map((s) => (
-                    <div
-                      key={s.label}
-                      className={cn(
-                        "text-center py-2 px-3 rounded-xl flex-1 min-w-[85px] transition-all duration-300 hover:-translate-y-1 shadow",
-                        activeTab === 'pg'
-                          ? "bg-white/55 backdrop-blur-md border border-white/60 hover:bg-white/70"
-                          : "bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 shadow"
-                      )}
-                    >
-                      <p className={cn(
-                        "text-sm sm:text-base font-black tracking-tight",
-                        activeTab === 'pg' ? "text-slate-800" : "text-white"
-                      )}>{s.value}</p>
-                      <p className={cn(
-                        "text-[8px] sm:text-[9px] font-bold uppercase tracking-wider mt-0.5",
-                        activeTab === 'pg' ? "text-slate-600" : "text-white/65"
-                      )}>{s.label}</p>
-                    </div>
-                  ))}
-                </motion.div>
-              )}
+                    <p className={cn(
+                      "text-sm sm:text-base font-black tracking-tight",
+                      activeTab === 'rent' || activeTab === 'pg' ? "text-[#5e413a]" : "text-white"
+                    )}>{s.value}</p>
+                    <p className={cn(
+                      "text-[8px] sm:text-[9px] font-bold uppercase tracking-wider mt-0.5",
+                      activeTab === 'rent' || activeTab === 'pg' ? "text-[#7c5b52]" : "text-white/65"
+                    )}>{s.label}</p>
+                  </div>
+                ))}
+              </motion.div>
 
             </div>
           </div>
