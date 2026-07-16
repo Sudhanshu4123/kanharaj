@@ -36,7 +36,7 @@ export default function ProjectsPage() {
       if (!adminToken) { router.push("/login"); return }
       setToken(adminToken)
       try {
-        const data = await fetchAdminProperties()
+        const data = await fetchAdminProperties(true)
         // Filter ONLY Projects
         const projectsOnly = data.filter(p => p.propertyType === 'RESIDENTIAL_PROJECT' || p.propertyType === 'COMMERCIAL_PROJECT')
         setProperties(projectsOnly)

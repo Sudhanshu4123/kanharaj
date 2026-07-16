@@ -97,8 +97,11 @@ export async function updateUserRoleAPI(userId: string, role: string, token: str
   return res.json()
 }
 
-export async function fetchAdminProperties(): Promise<AdminProperty[]> {
-  const res = await fetch(`${getApiUrl()}/properties?size=1000`)
+export async function fetchAdminProperties(showProjectsOnly?: boolean): Promise<AdminProperty[]> {
+  const url = showProjectsOnly 
+    ? `${getApiUrl()}/properties?size=1000&showProjectsOnly=true` 
+    : `${getApiUrl()}/properties?size=1000`
+  const res = await fetch(url)
   if (!res.ok) throw new Error("Failed to fetch property list")
   const data = await res.json()
   return (data.content || data || []).map((p: AdminProperty) => ({ ...p, id: String(p.id) }))
