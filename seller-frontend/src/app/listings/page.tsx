@@ -96,7 +96,8 @@ function PropertyCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04 }}
-      className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md transition-all duration-200"
+      onClick={() => onEdit(prop.id)}
+      className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md hover:border-[#0a2540]/40 transition-all duration-200 cursor-pointer group"
     >
       <div className="flex flex-col sm:flex-row">
         {/* Image */}
@@ -212,7 +213,7 @@ function PropertyCard({
           {/* Action buttons */}
           <div className="flex items-center gap-3 pt-1 border-t border-slate-100 flex-wrap">
             <button
-              onClick={() => onEdit(prop.id)}
+              onClick={(e) => { e.stopPropagation(); onEdit(prop.id) }}
               className="text-xs font-black text-[#0a2540] hover:underline transition-colors"
             >
               Manage
@@ -220,32 +221,34 @@ function PropertyCard({
             {prop.verified ? (
               <button
                 disabled
+                onClick={(e) => e.stopPropagation()}
                 className="px-4 py-1.5 bg-emerald-50 border border-emerald-300 text-emerald-600 rounded-lg text-xs font-black flex items-center gap-1 cursor-default"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" /> Verified
               </button>
             ) : (
               <button
-                onClick={() => onVerify(prop)}
+                onClick={(e) => { e.stopPropagation(); onVerify(prop) }}
                 className="px-4 py-1.5 rounded-lg text-xs font-black border border-emerald-400 text-emerald-600 hover:bg-emerald-50 transition-colors"
               >
                 Verify
               </button>
             )}
             <button
+              onClick={(e) => e.stopPropagation()}
               className="px-4 py-1.5 rounded-lg text-xs font-black bg-[#0a2540]/5 border border-[#0a2540] text-[#0a2540] hover:bg-[#0a2540]/10 transition-colors"
             >
               Repost
             </button>
             <button
-              onClick={() => onView(prop.id)}
+              onClick={(e) => { e.stopPropagation(); onView(prop.id) }}
               className="ml-auto flex items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-slate-700 transition-colors"
               title="View on site"
             >
               <ExternalLink className="w-3.5 h-3.5" />
             </button>
             <button
-              onClick={() => onDelete(prop.id)}
+              onClick={(e) => { e.stopPropagation(); onDelete(prop.id) }}
               className="flex items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-[#0a2540] transition-colors"
               title="Delete"
             >
