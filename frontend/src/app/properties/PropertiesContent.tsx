@@ -16,13 +16,30 @@ import { cn, hasSellerDashboardAccess, BRAND_LOGO_SRC, getSellerUrl } from '@/li
 import { useUserActivityStore } from '@/lib/user-activity-store'
 import { topCities, otherCities } from '@/lib/location-data'
 
-const BUDGET_MAX_LAKH = 100
-const BUDGET_STEP = 5
+export const BUDGET_VALUES = [
+  0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100,
+  120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 360, 380, 400, 420, 440, 460, 480, 500,
+  550, 600, 650, 700, 750, 800, 850, 900, 950, 1000,
+  1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
+  2500, 3000, 3500, 4000, 4500, 5000,
+  6000, 7000, 8000, 9000, 10000
+]
 
-function formatBudgetLabel(lakh: number) {
+const BUDGET_MAX_LAKH = 10000
+
+export function formatBudgetLabel(lakh: number) {
   if (lakh <= 0) return '0'
-  if (lakh >= BUDGET_MAX_LAKH) return '1Cr+'
+  if (lakh >= BUDGET_MAX_LAKH) return '100Cr+'
+  if (lakh >= 100) {
+    const cr = lakh / 100
+    return `${cr % 1 === 0 ? cr.toFixed(0) : cr.toFixed(2)} Cr`
+  }
   return `${lakh} Lakh`
+}
+
+export function getBudgetIndex(lakh: number): number {
+  const idx = BUDGET_VALUES.findIndex(v => v >= lakh)
+  return idx !== -1 ? idx : BUDGET_VALUES.length - 1
 }
 
 
@@ -143,7 +160,7 @@ export default function PropertiesContent() {
   // Real filter states
   const [propertyTypes, setPropertyTypes] = useState<string[]>([])
   const [bhkTypes, setBhkTypes] = useState<string[]>([])
-  const [budgetRange, setBudgetRange] = useState<[number, number]>([0, BUDGET_MAX_LAKH])
+  const [budgetRange, setBudgetRange] = useState<[number, number]>([0, BUDGET_VALUES.length - 1])
   const [saleTypes, setSaleTypes] = useState<string[]>([])
   const [constructionStatus, setConstructionStatus] = useState<string[]>([])
 
@@ -176,7 +193,7 @@ export default function PropertiesContent() {
   const [tempProjectsSearch, setTempProjectsSearch] = useState('')
   const [tempPropertyTypes, setTempPropertyTypes] = useState<string[]>([])
   const [tempBhkTypes, setTempBhkTypes] = useState<string[]>([])
-  const [tempBudgetRange, setTempBudgetRange] = useState<[number, number]>([0, BUDGET_MAX_LAKH])
+  const [tempBudgetRange, setTempBudgetRange] = useState<[number, number]>([0, BUDGET_VALUES.length - 1])
   const [tempSaleTypes, setTempSaleTypes] = useState<string[]>([])
   const [tempConstructionStatus, setTempConstructionStatus] = useState<string[]>([])
 
@@ -194,7 +211,7 @@ export default function PropertiesContent() {
     propertyTypes.length > 0 ||
     bhkTypes.length > 0 ||
     budgetRange[0] > 0 ||
-    budgetRange[1] < BUDGET_MAX_LAKH ||
+    budgetRange[1] < BUDGET_VALUES.length - 1 ||
     saleTypes.length > 0 ||
     constructionStatus.length > 0;
 
@@ -210,7 +227,7 @@ export default function PropertiesContent() {
   if (projects.length > 0) activeMoreFiltersCount++;
   if (propertyTypes.length > 0) activeMoreFiltersCount++;
   if (bhkTypes.length > 0) activeMoreFiltersCount++;
-  if (budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH) activeMoreFiltersCount++;
+  if (budgetRange[0] > 0 || budgetRange[1] < BUDGET_VALUES.length - 1) activeMoreFiltersCount++;
   if (saleTypes.length > 0) activeMoreFiltersCount++;
   if (constructionStatus.length > 0) activeMoreFiltersCount++;
 
@@ -221,9 +238,9 @@ export default function PropertiesContent() {
     setTempAmenities(amenities)
     setTempAge(age)
     setTempFacing(facing)
-    setTempPropertyDetails(propertyDetails)
-    setTempRera(rera)
-    setTempProjects(projects)
+    setPropertyDetails(propertyDetails)
+    setRera(rera)
+    setProjects(projects)
     setTempProjectsSearch('')
     setTempPropertyTypes(propertyTypes)
     setTempBhkTypes(bhkTypes)
@@ -264,7 +281,7 @@ export default function PropertiesContent() {
     setTempProjectsSearch('')
     setTempPropertyTypes([])
     setTempBhkTypes([])
-    setTempBudgetRange([0, BUDGET_MAX_LAKH])
+    setTempBudgetRange([0, BUDGET_VALUES.length - 1])
     setTempSaleTypes([])
     setTempConstructionStatus([])
   }
@@ -334,13 +351,13 @@ export default function PropertiesContent() {
     return pages
   }
 
-  const hasActiveFilters = showProjectsOnly || propertyTypes.length > 0 || bhkTypes.length > 0 || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH || saleTypes.length > 0 || constructionStatus.length > 0 || isAnyMoreFilterActive;
+  const hasActiveFilters = showProjectsOnly || propertyTypes.length > 0 || bhkTypes.length > 0 || budgetRange[0] > 0 || budgetRange[1] < BUDGET_VALUES.length - 1 || saleTypes.length > 0 || constructionStatus.length > 0 || isAnyMoreFilterActive;
 
   const handleResetFilters = () => {
     setShowProjectsOnly(false)
     setPropertyTypes([])
     setBhkTypes([])
-    setBudgetRange([0, BUDGET_MAX_LAKH])
+    setBudgetRange([0, BUDGET_VALUES.length - 1])
     setSaleTypes([])
     setConstructionStatus([])
     setListedBy([])
@@ -538,15 +555,18 @@ export default function PropertiesContent() {
     }
 
     if (urlMinPrice || urlMaxPrice) {
-      const min = urlMinPrice ? Math.floor(parseInt(urlMinPrice) / 100000) : 0
-      const max = urlMaxPrice ? Math.ceil(parseInt(urlMaxPrice) / 100000) : BUDGET_MAX_LAKH
-      setBudgetRange([min, max])
-      initialFilters.priceMin = min * 100000
-      initialFilters.priceMax = max * 100000
+      const minLakh = urlMinPrice ? Math.floor(parseInt(urlMinPrice) / 100000) : 0
+      const maxLakh = urlMaxPrice ? Math.ceil(parseInt(urlMaxPrice) / 100000) : BUDGET_VALUES[BUDGET_VALUES.length - 1]
+      const minIdx = getBudgetIndex(minLakh)
+      const maxIdx = getBudgetIndex(maxLakh)
+      setBudgetRange([minIdx, maxIdx])
+      initialFilters.priceMin = BUDGET_VALUES[minIdx] * 100000
+      initialFilters.priceMax = BUDGET_VALUES[maxIdx] * 100000
     } else {
-      setBudgetRange([0, BUDGET_MAX_LAKH])
+      const maxIdx = BUDGET_VALUES.length - 1
+      setBudgetRange([0, maxIdx])
       initialFilters.priceMin = 0
-      initialFilters.priceMax = BUDGET_MAX_LAKH * 100000
+      initialFilters.priceMax = BUDGET_VALUES[maxIdx] * 100000
     }
 
     if (urlVerified) {
@@ -783,13 +803,16 @@ export default function PropertiesContent() {
         displaySearch = search.replace(/(\d)\s*(bhk|rk)s?/i, '').replace(/\b(in|at|for|near)\b/gi, '').replace(/\s+/g, ' ').trim();
       }
 
+      const minLakh = BUDGET_VALUES[budgetRange[0]]
+      const maxLakh = BUDGET_VALUES[budgetRange[1]]
+
       setFilters({
         search: displaySearch,
         propertyType: propertyTypes.length > 0 ? propertyTypes.map(t => t.toUpperCase()) : [],
         listingType: listingMode ? listingMode.toUpperCase() as any : 'all',
         bedrooms: parsedBhk.length > 0 ? parsedBhk.map(b => b.includes('+') ? 5 : parseInt(b.split(' ')[0])).filter(n => !isNaN(n)) : [],
-        priceMin: budgetRange[0] * 100000,
-        priceMax: budgetRange[1] >= BUDGET_MAX_LAKH ? 10000000000 : budgetRange[1] * 100000,
+        priceMin: minLakh * 100000,
+        priceMax: budgetRange[1] >= BUDGET_VALUES.length - 1 ? 100000000000 : maxLakh * 100000,
         city: selectedCity || '',
         state: selectedState || '',
         verified: verified,
@@ -810,10 +833,10 @@ export default function PropertiesContent() {
         params.set('bhk', bhkTypes.map(b => b.split(' ')[0].toLowerCase()).join(','))
       }
       if (budgetRange[0] > 0) {
-        params.set('minPrice', String(budgetRange[0] * 100000))
+        params.set('minPrice', String(minLakh * 100000))
       }
-      if (budgetRange[1] < BUDGET_MAX_LAKH) {
-        params.set('maxPrice', String(budgetRange[1] * 100000))
+      if (budgetRange[1] < BUDGET_VALUES.length - 1) {
+        params.set('maxPrice', String(maxLakh * 100000))
       }
       if (verified) {
         params.set('verified', 'true')
@@ -1226,9 +1249,9 @@ export default function PropertiesContent() {
             <div className="relative filter-dropdown-container">
               <button
                 onClick={(e) => toggleDropdown(e, 'budget', 420)}
-                className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'budget' || budgetRange[0] > 0 || budgetRange[1] < BUDGET_MAX_LAKH ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
+                className={cn("flex items-center gap-2 border rounded px-3 py-1.5 text-sm whitespace-nowrap transition-colors", activeDropdown === 'budget' || budgetRange[0] > 0 || budgetRange[1] < BUDGET_VALUES.length - 1 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540] font-bold" : "border-slate-200 hover:bg-slate-50 text-slate-700")}
               >
-                ₹{formatBudgetLabel(budgetRange[0])} - ₹{formatBudgetLabel(budgetRange[1])} <ChevronDown className="w-4 h-4 opacity-70" />
+                ₹{formatBudgetLabel(BUDGET_VALUES[budgetRange[0]])} - ₹{formatBudgetLabel(BUDGET_VALUES[budgetRange[1]])} <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
               {activeDropdown === 'budget' && (
                 <div
@@ -1241,15 +1264,15 @@ export default function PropertiesContent() {
                   className="bg-white border border-slate-200 shadow-2xl rounded-xl p-4 sm:p-6 max-h-[70vh] overflow-y-auto z-[100] filter-dropdown-panel"
                 >
                   <div className="flex justify-between text-sm font-bold text-slate-700 mb-6">
-                    <span>₹{formatBudgetLabel(budgetRange[0])}</span>
-                    <span>₹{formatBudgetLabel(budgetRange[1])}</span>
+                    <span>₹{formatBudgetLabel(BUDGET_VALUES[budgetRange[0]])}</span>
+                    <span>₹{formatBudgetLabel(BUDGET_VALUES[budgetRange[1]])}</span>
                   </div>
 
                   <Slider.Root
-                    className="relative flex items-center select-none touch-none w-full h-5"
+                    className="relative flex items-center select-none touch-none w-full h-5 mt-6"
                     value={budgetRange}
-                    max={BUDGET_MAX_LAKH}
-                    step={BUDGET_STEP}
+                    max={BUDGET_VALUES.length - 1}
+                    step={1}
                     onValueChange={(val: [number, number]) => setBudgetRange(val)}
                   >
                     <Slider.Track className="bg-slate-200 relative grow rounded-full h-1.5">
@@ -1265,9 +1288,9 @@ export default function PropertiesContent() {
 
                   <div className="flex justify-between text-xs text-slate-400 mt-2 font-medium px-2">
                     <div className="flex flex-col items-center gap-1"><span>|</span><span>₹0</span></div>
-                    <div className="flex flex-col items-center gap-1"><span>|</span><span>₹25 Lakh</span></div>
-                    <div className="flex flex-col items-center gap-1"><span>|</span><span>₹50 Lakh</span></div>
-                    <div className="flex flex-col items-center gap-1"><span>|</span><span>₹1Cr+</span></div>
+                    <div className="flex flex-col items-center gap-1"><span>|</span><span>₹1 Cr</span></div>
+                    <div className="flex flex-col items-center gap-1"><span>|</span><span>₹10 Cr</span></div>
+                    <div className="flex flex-col items-center gap-1"><span>|</span><span>₹100 Cr+</span></div>
                   </div>
                 </div>
               )}
@@ -1619,15 +1642,15 @@ export default function PropertiesContent() {
                       <div className="flex justify-between items-center">
                         <p className="text-xs text-slate-400">Set your budget range</p>
                         <span className="text-xs font-bold text-[#0a2540]">
-                          ₹{formatBudgetLabel(tempBudgetRange[0])} – ₹{formatBudgetLabel(tempBudgetRange[1])}
+                          ₹{formatBudgetLabel(BUDGET_VALUES[tempBudgetRange[0]])} – ₹{formatBudgetLabel(BUDGET_VALUES[tempBudgetRange[1]])}
                         </span>
                       </div>
                       <div className="px-1 py-2">
                         <Slider.Root
                           className="relative flex items-center select-none touch-none w-full h-5 my-2"
                           value={tempBudgetRange}
-                          max={BUDGET_MAX_LAKH}
-                          step={BUDGET_STEP}
+                          max={BUDGET_VALUES.length - 1}
+                          step={1}
                           onValueChange={(val: [number, number]) => setTempBudgetRange(val)}
                         >
                           <Slider.Track className="bg-slate-200 relative grow rounded-full h-1.5">
@@ -1637,16 +1660,19 @@ export default function PropertiesContent() {
                           <Slider.Thumb className="block w-4 h-4 bg-white border-2 border-[#0a2540] rounded-full shadow focus:outline-none cursor-grab" aria-label="Max Budget" />
                         </Slider.Root>
                         <div className="flex justify-between text-[10px] text-slate-400 mt-2 font-medium">
-                          <span>₹0</span><span>₹25 Lakh</span><span>₹50 Lakh</span><span>₹75 Lakh</span><span>₹1Cr+</span>
+                          <span>₹0</span><span>₹1 Cr</span><span>₹5 Cr</span><span>₹10 Cr</span><span>₹50 Cr</span><span>₹100 Cr+</span>
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2 mt-2">
-                        {[5, 10, 15, 20, 25, 30, 40, 50, 75, 100].map(val => (
-                          <button key={val} type="button" onClick={() => setTempBudgetRange([0, val])}
-                            className={cn("border rounded-lg px-3 py-2 text-xs font-semibold transition-all", tempBudgetRange[1] === val && tempBudgetRange[0] === 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540]" : "border-slate-200 text-slate-600 hover:bg-slate-50")}>
-                            Up to ₹{formatBudgetLabel(val)}
-                          </button>
-                        ))}
+                        {[25, 50, 100, 200, 500, 1000, 2000, 5000, 10000].map(val => {
+                          const valIndex = getBudgetIndex(val)
+                          return (
+                            <button key={val} type="button" onClick={() => setTempBudgetRange([0, valIndex])}
+                              className={cn("border rounded-lg px-3 py-2 text-xs font-semibold transition-all", tempBudgetRange[1] === valIndex && tempBudgetRange[0] === 0 ? "border-[#0a2540] bg-[#0a2540]/5 text-[#0a2540]" : "border-slate-200 text-slate-600 hover:bg-slate-50")}>
+                              Up to ₹{formatBudgetLabel(val)}
+                            </button>
+                          )
+                        })}
                       </div>
                     </div>
                   )}
