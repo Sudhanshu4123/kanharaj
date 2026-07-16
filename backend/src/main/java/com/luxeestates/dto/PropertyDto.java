@@ -121,6 +121,76 @@ public class PropertyDto {
                 .build();
     }
 
+    public static PropertyDto fromProjectEntity(com.luxeestates.model.Project project) {
+        if (project == null) return null;
+        
+        Property.PropertyType pType = null;
+        if (project.getPropertyType() != null) {
+            try {
+                pType = Property.PropertyType.valueOf(project.getPropertyType().name());
+            } catch (Exception e) {}
+        }
+
+        Property.Status pStatus = null;
+        if (project.getStatus() != null) {
+            try {
+                pStatus = Property.Status.valueOf(project.getStatus().name());
+            } catch (Exception e) {}
+        }
+
+        return PropertyDto.builder()
+                .id(project.getId())
+                .title(project.getTitle())
+                .description(project.getDescription())
+                .price(project.getPrice())
+                .propertyType(pType)
+                .listingType(Property.ListingType.BUY)
+                .address(project.getAddress())
+                .city(project.getCity())
+                .state(project.getState())
+                .pincode(project.getPincode())
+                .bedrooms(0)
+                .bathrooms(0)
+                .area(0)
+                .yearBuilt(0)
+                .amenities(tryParse(project.getAmenities()))
+                .images(tryParse(project.getImages()))
+                .latitude(project.getLatitude())
+                .longitude(project.getLongitude())
+                .status(pStatus)
+                .featured(project.getFeatured())
+                .verified(project.getVerified())
+                .verifiedAt(project.getVerifiedAt())
+                .verificationLatitude(project.getVerificationLatitude())
+                .verificationLongitude(project.getVerificationLongitude())
+                .verificationPhotoUrl(project.getVerificationPhotoUrl())
+                .views(project.getViews())
+                .userId(project.getUser() != null ? project.getUser().getId() : null)
+                .userName(project.getUser() != null ? project.getUser().getName() : null)
+                .userPhone(project.getUser() != null ? project.getUser().getPhone() : null)
+                .userProfileImage(project.getUser() != null ? project.getUser().getProfileImage() : null)
+                .userDescription(project.getUser() != null ? project.getUser().getDescription() : null)
+                .userExperienceYears(project.getUser() != null ? project.getUser().getExperienceYears() : null)
+                .developer(project.getDeveloper())
+                .reraId(project.getReraId())
+                .constructionStatus(project.getConstructionStatus())
+                .possessionDate(project.getPossessionDate())
+                .projectUnits(project.getProjectUnits())
+                .areaUnit(project.getAreaUnit())
+                .projectArea(project.getProjectArea())
+                .sizes(project.getSizes())
+                .configurations(project.getConfigurations())
+                .projectSize(project.getProjectSize())
+                .launchDate(project.getLaunchDate())
+                .avgPrice(project.getAvgPrice())
+                .brochureUrl(project.getBrochureUrl())
+                .projectId(null)
+                .projectName(project.getTitle())
+                .createdAt(project.getCreatedAt())
+                .updatedAt(project.getUpdatedAt())
+                .build();
+    }
+
     private static java.util.List<String> tryParse(String json) {
         if (json == null || json.isEmpty()) return new java.util.ArrayList<>();
         try {

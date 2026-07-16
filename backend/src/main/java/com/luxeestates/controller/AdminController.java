@@ -6,6 +6,8 @@ import com.luxeestates.model.User;
 import com.luxeestates.model.Property;
 import com.luxeestates.repository.UserRepository;
 import com.luxeestates.repository.PropertyRepository;
+import com.luxeestates.repository.ProjectRepository;
+import com.luxeestates.model.Project;
 import com.luxeestates.service.AuthService;
 import com.luxeestates.service.InquiryService;
 import com.luxeestates.service.PropertyService;
@@ -30,6 +32,7 @@ public class AdminController {
     private final InquiryService inquiryService;
     private final UserRepository userRepository;
     private final PropertyRepository propertyRepository;
+    private final ProjectRepository projectRepository;
     
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> getDashboard() {
@@ -78,6 +81,18 @@ public class AdminController {
             @PathVariable Long id,
             @RequestParam boolean verified
     ) {
+        if (projectRepository.existsById(id)) {
+            Project project = projectRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Project not found"));
+            project.setVerified(verified);
+            if (verified) {
+                project.setVerifiedAt(LocalDateTime.now());
+            } else {
+                project.setVerifiedAt(null);
+            }
+            projectRepository.save(project);
+            return ResponseEntity.ok(PropertyDto.fromProjectEntity(project));
+        }
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
         property.setVerified(verified);
@@ -95,6 +110,13 @@ public class AdminController {
             @PathVariable Long id,
             @RequestParam boolean featured
     ) {
+        if (projectRepository.existsById(id)) {
+            Project project = projectRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Project not found"));
+            project.setFeatured(featured);
+            projectRepository.save(project);
+            return ResponseEntity.ok(PropertyDto.fromProjectEntity(project));
+        }
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
         property.setFeatured(featured);

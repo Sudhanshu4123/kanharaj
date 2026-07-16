@@ -8,19 +8,27 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
-@Table(name = "properties")
+@Table(name = "projects")
 @EntityListeners(AuditingEntityListener.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Property {
+public class Project {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "project_id_gen")
+    @TableGenerator(
+        name = "project_id_gen",
+        table = "id_generators",
+        pkColumnName = "gen_name",
+        valueColumnName = "gen_value",
+        pkColumnValue = "project_id",
+        initialValue = 100000,
+        allocationSize = 1
+    )
     private Long id;
 
     @Column(nullable = false, length = 200)
@@ -36,10 +44,6 @@ public class Property {
     @Column(nullable = false)
     private PropertyType propertyType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ListingType listingType;
-
     @Column(nullable = false, length = 300)
     private String address;
 
@@ -51,17 +55,6 @@ public class Property {
 
     @Column(length = 10)
     private String pincode;
-
-    @Column(nullable = false)
-    private Integer bedrooms;
-
-    @Column(nullable = false)
-    private Integer bathrooms;
-
-    @Column(nullable = false)
-    private Integer area;
-
-    private Integer yearBuilt;
 
     @Column(columnDefinition = "JSON")
     private String amenities;
@@ -119,15 +112,7 @@ public class Property {
     private String projectSize;
     private String launchDate;
     private String avgPrice;
-
     private String brochureUrl;
-
-    @Column(name = "project_id")
-    private Long projectId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", insertable = false, updatable = false)
-    private Project project;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -141,15 +126,10 @@ public class Property {
     private LocalDateTime updatedAt;
 
     public enum PropertyType {
-        HOUSE, APARTMENT, VILLA, FLAT, PLOT, RESIDENTIAL_PROJECT, COMMERCIAL_PROJECT, COMMERCIAL, PG, HOTEL, OFFICE_SPACE, SHOP,
-        BUILDER_FLOOR, GUEST_HOUSE
-    }
-
-    public enum ListingType {
-        BUY, RENT
+        RESIDENTIAL_PROJECT, COMMERCIAL_PROJECT
     }
 
     public enum Status {
-        ACTIVE, INACTIVE, SOLD
+        ACTIVE, INACTIVE
     }
 }

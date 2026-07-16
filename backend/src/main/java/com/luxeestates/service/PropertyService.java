@@ -4,8 +4,10 @@ import com.luxeestates.dto.PropertyDto;
 import com.luxeestates.model.Property;
 import com.luxeestates.model.User;
 import com.luxeestates.repository.PropertyRepository;
+import com.luxeestates.repository.ProjectRepository;
 import com.luxeestates.repository.UserRepository;
 import com.luxeestates.repository.InquiryRepository;
+import com.luxeestates.model.Project;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -31,6 +33,8 @@ public class PropertyService {
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
     private final CloudinaryService cloudinaryService;
     private final NotificationService notificationService;
+    private final ProjectRepository projectRepository;
+    private final ProjectService projectService;
 
     public Page<PropertyDto> getAllProperties(
             String search,
@@ -46,6 +50,12 @@ public class PropertyService {
             Boolean showProjectsOnly,
             Pageable pageable
     ) {
+        if (showProjectsOnly != null && showProjectsOnly) {
+            return projectService.getAllProjects(
+                    search, city, state, propertyTypes,
+                    minPrice, maxPrice, verified, constructionStatus, pageable
+            );
+        }
         // Convert string list to enums list safely
         List<Property.PropertyType> mappedEnumTypes = new ArrayList<>();
         if (propertyTypes != null) {
@@ -153,12 +163,18 @@ public class PropertyService {
 
     @Cacheable(value = "featuredProperties", unless = "#result == null || #result.isEmpty()")
     public List<PropertyDto> getFeaturedProperties() {
-        return propertyRepository.findByFeaturedTrueAndStatus(Property.Status.ACTIVE, Pageable.ofSize(6))
+        List<PropertyDto> props = new ArrayList<>(propertyRepository.findByFeaturedTrueAndStatus(Property.Status.ACTIVE, Pageable.ofSize(6))
                 .map(PropertyDto::fromEntity)
-                .getContent();
+                .getContent());
+        List<PropertyDto> projects = projectService.getFeaturedProjects();
+        props.addAll(projects);
+        return props;
     }
 
     public PropertyDto getPropertyById(Long id) {
+        if (projectRepository.existsById(id)) {
+            return projectService.getProjectById(id);
+        }
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
         return PropertyDto.fromEntity(property);
@@ -167,6 +183,10 @@ public class PropertyService {
     @Transactional
     @CacheEvict(value = { "platformStats", "featuredProperties", "properties" }, allEntries = true)
     public PropertyDto createProperty(PropertyDto dto, Long userId) {
+        if (dto.getPropertyType() == Property.PropertyType.RESIDENTIAL_PROJECT ||
+            dto.getPropertyType() == Property.PropertyType.COMMERCIAL_PROJECT) {
+            return projectService.createProject(dto, userId);
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -266,6 +286,9 @@ public class PropertyService {
     @Transactional
     @CacheEvict(value = { "platformStats", "featuredProperties", "properties" }, allEntries = true)
     public PropertyDto updateProperty(Long id, PropertyDto dto, Long userId) {
+        if (projectRepository.existsById(id)) {
+            return projectService.updateProject(id, dto, userId);
+        }
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
 
@@ -313,6 +336,10 @@ public class PropertyService {
     @Transactional
     @CacheEvict(value = { "platformStats", "featuredProperties", "properties" }, allEntries = true)
     public void deleteProperty(Long id, Long userId) {
+        if (projectRepository.existsById(id)) {
+            projectService.deleteProject(id, userId);
+            return;
+        }
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
 
@@ -394,6 +421,10 @@ public class PropertyService {
 
     @Transactional
     public void incrementViews(Long id) {
+        if (projectRepository.existsById(id)) {
+            projectService.incrementViews(id);
+            return;
+        }
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
         property.setViews(property.getViews() != null ? property.getViews() + 1 : 1);
@@ -401,10 +432,13 @@ public class PropertyService {
     }
 
     public List<PropertyDto> getPropertiesByUserId(Long userId) {
-        return propertyRepository.findByUserIdAndStatus(userId, Property.Status.ACTIVE)
+        List<PropertyDto> props = new ArrayList<>(propertyRepository.findByUserIdAndStatus(userId, Property.Status.ACTIVE)
                 .stream()
                 .map(PropertyDto::fromEntity)
-                .toList();
+                .toList());
+        List<PropertyDto> projects = projectService.getProjectsByUserId(userId);
+        props.addAll(projects);
+        return props;
     }
 
     private String toJson(java.util.List<String> list) {
@@ -651,11 +685,6 @@ public class PropertyService {
     }
 
     public List<PropertyDto> getActiveProjects() {
-        return propertyRepository.findByPropertyTypeInAndStatus(
-                List.of(Property.PropertyType.RESIDENTIAL_PROJECT, Property.PropertyType.COMMERCIAL_PROJECT),
-                Property.Status.ACTIVE
-        ).stream()
-                .map(PropertyDto::fromEntity)
-                .collect(Collectors.toList());
+        return projectService.getActiveProjects();
     }
 }
