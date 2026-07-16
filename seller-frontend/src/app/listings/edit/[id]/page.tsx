@@ -22,6 +22,7 @@ import {
 import { useRouter } from "next/navigation"
 import { getSellerAuthHeaders, getApiErrorMessage } from "@/lib/utils"
 import { getApiUrl } from "@/lib/auth"
+import { getCityState } from "@/lib/cities"
 
 const steps = ["Basic Info", "Location", "Specifications", "Photos"]
 
@@ -70,7 +71,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     listingType: "BUY",
     address: "",
     city: "Dwarka",
-    state: "Delhi",
+    state: "",
     pincode: "110075",
     bedrooms: 3,
     bathrooms: 3,
@@ -93,7 +94,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
             listingType: data.listingType || "BUY",
             address: data.address || "",
             city: data.city || "Dwarka",
-            state: data.state || "Delhi",
+            state: data.state || getCityState(data.city || "") || "",
             pincode: data.pincode || "110075",
             bedrooms: data.bedrooms || 3,
             bathrooms: data.bathrooms || 3,

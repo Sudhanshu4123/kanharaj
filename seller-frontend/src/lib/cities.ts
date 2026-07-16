@@ -41,3 +41,214 @@ export const otherCities = [
   "Yadgir", "Yamuna Nagar", "Yavatmal",
   "Zirakpur", "Zunheboto"
 ]
+
+/** Returns the Indian state for a given city name. Falls back to empty string if unknown. */
+export function getCityState(city: string): string {
+  const c = (city || "").toLowerCase().trim()
+
+  // Delhi NCR
+  if (["delhi", "new delhi", "noida", "greater noida", "ghaziabad", "faridabad", "gurgaon", "gurugram"].includes(c)) {
+    if (["noida", "greater noida", "ghaziabad"].includes(c)) return "Uttar Pradesh"
+    if (["faridabad", "gurgaon", "gurugram"].includes(c)) return "Haryana"
+    return "Delhi"
+  }
+
+  // Maharashtra
+  if (["mumbai", "pune", "nagpur", "nashik", "thane", "navi mumbai", "aurangabad", "solapur", "kolhapur",
+    "nanded", "amravati", "jalgaon", "akola", "latur", "dhule", "ahmednagar", "ratnagiri", "sangli",
+    "satara", "beed", "yavatmal", "osmanabad", "buldhana", "chandrapur", "wardha", "gadchiroli", "gondia",
+    "bhandara", "washim", "hingoli", "parbhani", "malegaon", "lonavala", "mahabaleshwar", "alibag",
+    "palghar", "sindhudurg", "raigad", "nandurbar"].includes(c)) return "Maharashtra"
+
+  // Karnataka
+  if (["bengaluru", "bangalore", "mysore", "hubali-dharwad", "mangalore", "belagavi", "gulbarga",
+    "bellary", "bidar", "shivamogga", "tumkur", "davanagere", "hospete", "raichur", "chitradurga",
+    "gadag", "haveri", "koppal", "bagalkot", "vijayapura", "mandya", "hassan", "chikkamagaluru",
+    "kodagu", "udupi", "uttara kannada", "karwar", "hosur"].includes(c)) return "Karnataka"
+
+  // Tamil Nadu
+  if (["chennai", "coimbatore", "madurai", "tiruchirappalli", "tirunelveli", "salem", "erode",
+    "vellore", "thoothukudi", "tiruppur", "ooty", "kanyakumari", "nagercoil", "thanjavur",
+    "dindigul", "cuddalore", "nagapattinam", "tiruvannamalai", "villupuram", "puducherry",
+    "namakkal", "dharmapuri", "krishnagiri", "perambalur", "ariyalur", "mayiladuthurai",
+    "tiruvarur", "ramanathapuram", "virudhunagar", "sivaganga", "theni", "pudukkottai"].includes(c)) return "Tamil Nadu"
+
+  // Telangana
+  if (["hyderabad", "warangal", "karimnagar", "nizamabad", "khammam", "nalgonda", "mahbubnagar",
+    "adilabad", "siddipet", "suryapet", "jagtial", "mancherial", "peddapalli", "rajanna sircilla",
+    "vikarabad", "sangareddy", "medak", "yadadri", "jogulamba gadwal", "nagarkurnool",
+    "wanaparthy", "narayanpet", "kothagudem", "mulugu", "bhadradri"].includes(c)) return "Telangana"
+
+  // Andhra Pradesh
+  if (["visakhapatnam", "vijayawada", "guntur", "nellore", "kurnool", "tirupathi", "kakinada",
+    "rajahmundry", "kadapa", "anantapur", "eluru", "ongole", "gudivada", "bhimavaram",
+    "tadepalligudem", "nandyala", "proddatur", "narasaraopet", "tenali", "srikakulam",
+    "vizianagaram", "east godavari", "west godavari", "prakasam"].includes(c)) return "Andhra Pradesh"
+
+  // Gujarat
+  if (["ahmedabad", "surat", "vadodara", "rajkot", "bhavnagar", "jamnagar", "gandhinagar", "anand",
+    "nadiad", "mehsana", "junagadh", "bharuch", "navsari", "valsad", "vapi", "ankleshwar",
+    "morbi", "gondal", "kutch", "bhuj", "patan", "banaskantha", "sabarkantha", "aravalli",
+    "mahisagar district", "dahod", "panchmahal", "dang", "tapi", "narmada", "gir somnath",
+    "porbandar", "devbhoomi dwarka", "botad", "amreli", "himatnagar", "kalol", "gift city",
+    "dholera", "modasa", "visnagar", "dholka"].includes(c)) return "Gujarat"
+
+  // Rajasthan
+  if (["jaipur", "jodhpur", "udaipur", "kota", "ajmer", "bikaner", "alwar", "bhilwara", "sikar",
+    "jaisalmer", "bharatpur", "pali", "barmer", "nagaur", "churu", "hanumangarh", "jhunjhunu",
+    "tonk", "sawaimadhopur", "rajsamand", "chittorgarh", "dholpur", "karauli", "baran",
+    "jalore", "jhalawar", "dausa", "bundi", "dungarpur", "banswara", "pratapgarh", "sirohi",
+    "beawar", "neemrana", "nathdwara", "sojat"].includes(c)) return "Rajasthan"
+
+  // Uttar Pradesh
+  if (["lucknow", "kanpur", "agra", "varanasi", "allahabad", "meerut", "bareilly", "aligarh",
+    "moradabad", "saharanpur", "gorakhpur", "firozabad", "jhansi", "muzaffarnagar", "mathura",
+    "shahjahanpur", "rampur", "ayodhya", "faizabad", "mau", "bulandshahr", "sambhal", "amroha",
+    "hapur", "etawah", "mirzapur", "sonbhadra", "jaunpur", "bahraich", "ballia", "hardoi",
+    "sitapur", "lakhimpur", "unnao", "rae bareli", "raebareli", "basti", "deoria", "gonda",
+    "kushinagar", "azamgarh", "mainpuri", "etah", "kasganj", "budaun", "pilibhit",
+    "shahada", "fatehpur", "banda", "chitrakoot", "hamirpur", "mahoba", "lalitpur",
+    "sant kabir nagar", "bhadohi", "chandauli", "ghazipur", "auraiya", "kaushambi",
+    "pratapgarh, up", "ambedkar nagar", "amethi", "sultan pur", "sultanpur", "barabanki",
+    "shravasti", "siddharthnagar", "maharajganj", "kushinagar", "gajraula"].includes(c)) return "Uttar Pradesh"
+
+  // West Bengal
+  if (["kolkata", "asansol", "siliguri", "durgapur", "bardhaman", "malda", "jalpaiguri",
+    "kharagpur", "berhampore", "haldia", "birbhum", "bankura", "purulia", "nadia",
+    "murshidabad", "north 24 parganas district", "south 24 parganas", "purba medinipur",
+    "west medinipur", "darjeeling", "kalimpong", "alipurduar", "cooch behar", "bolpur-santiniketan",
+    "dakshin dinajpur", "uttar dinajpur"].includes(c)) return "West Bengal"
+
+  // Punjab
+  if (["amritsar", "ludhiana", "jalandhar", "patiala", "bathinda", "pathankot", "hoshiarpur",
+    "mohali", "fatehgarh sahib", "faridkot", "moga", "barnala", "sangrur", "muktsar",
+    "sri muktsar sahib", "gurdaspur", "kapurthala", "nawanshahr", "rupnagar", "phagwara",
+    "zirakpur", "dera bassi", "morinda"].includes(c)) return "Punjab"
+
+  // Haryana
+  if (["ambala", "bhiwani", "charkhi dadri", "faridabad", "fatehabad", "gurgaon", "gurugram",
+    "hisar", "jhajjar", "jind", "kaithal", "karnal", "kurukshetra", "mahendragarh", "mewat",
+    "palwal", "panchkula", "panipat", "rewari", "rohtak", "sirsa", "sonipat", "yamunanagar",
+    "jagadhri", "dharuhera", "bhiwadi", "bahadurgarh", "hodal", "neemrana"].includes(c)) return "Haryana"
+
+  // Madhya Pradesh
+  if (["bhopal", "indore", "jabalpur", "gwalior", "ujjain", "sagar", "rewa", "satna", "dewas",
+    "chhindwara", "ratlam", "mandsaur", "vidisha", "shivpuri", "damoh", "datia", "morena",
+    "bhind", "guna", "ashoknagar", "raisen", "sehore", "harda", "hoshangabad", "betul",
+    "narsinghpur", "seoni", "mandla", "dindori", "balaghat", "gondia", "chhatarpur",
+    "tikamgarh", "panna", "katni", "umaria", "shahdol", "anuppur", "sidhi", "singrauli",
+    "alirajpur", "jhabua", "dhar", "khargone", "khandwa", "burhanpur", "rajgarh", "shajapur",
+    "agar malwa", "agarmalwa", "neemuch"].includes(c)) return "Madhya Pradesh"
+
+  // Bihar
+  if (["patna", "gaya", "muzaffarpur", "bhagalpur", "darbhanga", "arrah", "biharsharif",
+    "bihar sharif", "munger", "begusarai", "purnia", "purnea", "katihar", "samastipur",
+    "hajipur", "sasaram", "dehri on sone", "bettiah", "motihari", "sitamarhi", "madhubani",
+    "supaul", "saharsa", "madhepura", "khagaria", "nawada", "aurangabad, bihar", "jehanabad",
+    "arwal", "nalanda", "sheikhpura", "lakhisarai", "jamui", "banka", "buxar", "rohtas",
+    "kaimur", "gopalganj", "siwan", "saran", "vaishali", "east champaran", "west champaran",
+    "purvi champaran", "pashchim champaran", "sheohar"].includes(c)) return "Bihar"
+
+  // Odisha
+  if (["bhubaneswar", "cuttack", "rourkela", "sambalpur", "berhampur", "puri", "jharsuguda",
+    "balasore", "bhadrak", "koraput", "rayagada", "sundargarh", "bargarh", "bolangir",
+    "dhenkanal", "keonjhar", "kendujhar", "ganjam", "gajapati", "kalahandi", "nuapada",
+    "kandhamal", "boudh", "angul", "deogarh", "subarnapur", "jajpur", "jagatsinghpur",
+    "kendrapara", "mayurbhanj", "bauda", "nayagarh", "khordha district", "nabarangpur",
+    "malkangiri", "brajrajnagar"].includes(c)) return "Odisha"
+
+  // Jharkhand
+  if (["ranchi", "jamshedpur", "dhanbad", "bokaro", "deoghar", "hazaribagh", "giridih",
+    "ramgarh", "chatra", "garhwa", "palamu", "lohardaga", "gumla", "simdega", "west singhbhum",
+    "east singhbhum", "seraikela kharsawan", "saraikela", "khunti", "jamtara", "dumka",
+    "godda", "pakur", "sahebganj", "sahibganj", "koderma", "latehar"].includes(c)) return "Jharkhand"
+
+  // Kerala
+  if (["thiruvananthapuram", "kochi", "kozhikode", "thrissur", "kollam", "palakkad", "alappuzha",
+    "malappuram", "kannur", "kasaragod", "ernakulam", "idukki", "pathanamthitta", "kottayam",
+    "wayanad", "aluva"].includes(c)) return "Kerala"
+
+  // Assam
+  if (["guwahati", "dibrugarh", "jorhat", "silchar", "tezpur", "nagaon", "bongaigaon",
+    "tinsukia", "goalpara", "dhubri", "kokrajhar", "nalbari", "barpeta", "karimganj",
+    "hailakandi", "cachar", "dima hasao", "karbi anglong", "west karbi anglong", "hojai",
+    "morigaon", "biswanath", "charaideo", "sonitpur", "darrang", "baksa", "chirang",
+    "udalguri", "tamulpur", "bajali"].includes(c)) return "Assam"
+
+  // Himachal Pradesh
+  if (["shimla", "dharamsala", "mandi", "solan", "kullu", "hamirpur", "kangra", "chamba",
+    "una", "bilaspur, hp", "sirmaur", "kinnaur", "lahaul and spiti", "baddi", "mussoorie"].includes(c)) return "Himachal Pradesh"
+
+  // Uttarakhand
+  if (["dehradun", "haridwar", "rishikesh", "nainital", "roorkee", "kashipur", "rudrapur",
+    "haldwani", "pithoragarh", "almora", "bageshwar", "chamoli", "champawat", "pauri garhwal",
+    "tehri", "uttarkashi district", "rudraprayag", "sitarganj", "udham singh nagar",
+    "ranikhet"].includes(c)) return "Uttarakhand"
+
+  // Jammu & Kashmir
+  if (["srinagar", "jammu", "anantnag", "baramulla", "kupwara", "pulwama", "shopian",
+    "kulgam", "badgam", "bandipora", "ganderbal", "poonch", "rajouri", "reasi", "ramban",
+    "doda", "kishtwar", "udhampur", "kathua", "samba"].includes(c)) return "Jammu & Kashmir"
+
+  // Ladakh
+  if (["leh", "kargil"].includes(c)) return "Ladakh"
+
+  // Goa
+  if (["goa", "panaji", "margao", "vasco da gama"].includes(c)) return "Goa"
+
+  // Tripura
+  if (["agartala", "dhalai", "gomati", "khowai", "north tripura", "south tripura",
+    "sipahijala", "unakoti", "west tripura"].includes(c)) return "Tripura"
+
+  // Manipur
+  if (["imphal", "thoubal", "bishnupur", "churachandpur", "senapati", "tamenglong",
+    "chandel", "ukhrul", "jiribam", "kakching", "kamjong", "kangpokpi", "noney",
+    "pherzawl", "tengnoupal"].includes(c)) return "Manipur"
+
+  // Meghalaya
+  if (["shillong", "ri bhoi", "east khasi hills", "west khasi hills", "east jaintia hills",
+    "east garo hills", "west garo hills", "south garo hills", "north garo hills",
+    "south west khasi hills", "west jaintia hills"].includes(c)) return "Meghalaya"
+
+  // Nagaland
+  if (["kohima", "dimapur", "mokokchung", "wokha", "zunheboto", "phek", "mon", "tuensang",
+    "peren", "longleng", "kiphire", "noklak"].includes(c)) return "Nagaland"
+
+  // Mizoram
+  if (["aizawl", "lunglei", "mamit", "kolasib", "serchhip", "siaha", "lawngtlai",
+    "champhai", "saitual", "hnahthial", "khawzawl"].includes(c)) return "Mizoram"
+
+  // Arunachal Pradesh
+  if (["itanagar", "tawang", "changlang", "lohit", "anjaw", "namsai", "dibang valley",
+    "lower dibang valley", "east siang", "west kameng", "east kameng", "papum pare",
+    "lower siang", "siang", "upper siang", "upper subansiri", "lower subansiri",
+    "longding"].includes(c)) return "Arunachal Pradesh"
+
+  // Sikkim
+  if (["gangtok", "east sikkim", "west sikkim", "north sikkim", "south sikkim"].includes(c)) return "Sikkim"
+
+  // Chhattisgarh
+  if (["raipur", "bilaspur", "durg", "korba", "bhilai", "jagdalpur", "raigarh",
+    "ambikapur", "rajnandgaon", "mahasamund", "kabirdham", "kondagaon", "bastar",
+    "sukma", "dantewada", "kanker", "gariaband", "bemetara", "mungeli", "balod",
+    "balrampur", "narayanpur", "surajpur", "baloda bazar", "bhatapara", "janjgir-champa",
+    "jashpur", "gaurela-pendra-marwahi", "bhanupratappur", "sarguja", "surguja",
+    "koriya", "mungeli", "dhamtari", "berla"].includes(c)) return "Chhattisgarh"
+
+  // Puducherry
+  if (["puducherry", "pondicherry"].includes(c)) return "Puducherry"
+
+  // Chandigarh (UT)
+  if (["chandigarh"].includes(c)) return "Chandigarh"
+
+  // Andaman & Nicobar
+  if (["port blair", "north andaman", "middle andaman", "south andaman", "nicobar"].includes(c)) return "Andaman & Nicobar Islands"
+
+  // Lakshadweep
+  if (["kavaratti"].includes(c)) return "Lakshadweep"
+
+  // Dadra & Nagar Haveli / Daman & Diu
+  if (["silvassa", "dadra and nagar haveli", "daman", "diu"].includes(c)) return "Dadra & Nagar Haveli and Daman & Diu"
+
+  return ""
+}

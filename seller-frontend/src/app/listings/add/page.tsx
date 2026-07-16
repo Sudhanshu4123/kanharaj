@@ -57,7 +57,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { topCities, otherCities } from "@/lib/cities"
+import { topCities, otherCities, getCityState } from "@/lib/cities"
 import { getApiUrl } from "@/lib/auth"
 import {
   getSellerAuthHeaders,
@@ -970,7 +970,7 @@ ${formData.description}`
             ? `${buildingName}, ${formData.address}`
             : (additionalAddress ? `${buildingName}, ${additionalAddress}` : buildingName),
         city: city,
-        state: "Delhi",
+        state: getCityState(city) || city,
         pincode: sector === "Commercial" ? "" : (lookingTo === "Rent" ? formData.pincode : ""),
         bedrooms: sector === "Commercial" ? 0 : bedroomsCount,
         bathrooms: (sector === "Commercial" || isPlotOrLand) ? 0 : bathroomCount,
