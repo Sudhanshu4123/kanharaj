@@ -114,7 +114,17 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    setFormData(prev => {
+      const updated = { ...prev, [name]: value }
+      // Auto-fill state when city changes (only if state not manually set)
+      if (name === 'city') {
+        const detectedState = getCityState(value)
+        if (detectedState) {
+          updated.state = detectedState
+        }
+      }
+      return updated
+    })
   }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -330,7 +340,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-2">City</label>
                     <input
@@ -338,6 +348,18 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                       value={formData.city}
                       onChange={handleInputChange}
                       type="text"
+                      placeholder="Enter city"
+                      className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">State</label>
+                    <input
+                      name="state"
+                      value={formData.state}
+                      onChange={handleInputChange}
+                      type="text"
+                      placeholder="Auto-filled or enter manually"
                       className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-2 focus:ring-[#0a2540] outline-none text-sm font-medium"
                     />
                   </div>

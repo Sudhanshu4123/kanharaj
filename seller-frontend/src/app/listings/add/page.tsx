@@ -171,8 +171,17 @@ export default function AddPropertyPage() {
   const [sector, setSector] = useState("Residential")
   const [lookingTo, setLookingTo] = useState("Sell")
   const [city, setCity] = useState("New Delhi")
+  const [state, setState] = useState("Delhi")
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false)
   const cityDropdownRef = useRef<HTMLDivElement>(null)
+
+  const handleCityChange = (newCity: string) => {
+    setCity(newCity)
+    const detectedState = getCityState(newCity)
+    if (detectedState) {
+      setState(detectedState)
+    }
+  }
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -970,7 +979,7 @@ ${formData.description}`
             ? `${buildingName}, ${formData.address}`
             : (additionalAddress ? `${buildingName}, ${additionalAddress}` : buildingName),
         city: city,
-        state: getCityState(city) || city,
+        state: state || getCityState(city) || city,
         pincode: sector === "Commercial" ? "" : (lookingTo === "Rent" ? formData.pincode : ""),
         bedrooms: sector === "Commercial" ? 0 : bedroomsCount,
         bathrooms: (sector === "Commercial" || isPlotOrLand) ? 0 : bathroomCount,
@@ -1241,7 +1250,7 @@ ${formData.description}`
                         type="text"
                         value={city}
                         onChange={e => {
-                          setCity(e.target.value)
+                          handleCityChange(e.target.value)
                           setIsCityDropdownOpen(true)
                         }}
                         onFocus={e => {
@@ -1255,9 +1264,9 @@ ${formData.description}`
                             if (query) {
                               const match = topCities.concat(otherCities).find(c => c.toLowerCase() === query.toLowerCase())
                               if (match) {
-                                setCity(match)
+                                handleCityChange(match)
                               } else {
-                                setCity(query)
+                                handleCityChange(query)
                               }
                               setIsCityDropdownOpen(false)
                             }
@@ -1308,7 +1317,7 @@ ${formData.description}`
                                         key={c}
                                         type="button"
                                         onClick={() => {
-                                          setCity(c)
+                                          handleCityChange(c)
                                           setIsCityDropdownOpen(false)
                                         }}
                                         className={`w-full text-left px-4 py-1.5 text-xs font-bold transition-colors flex items-center justify-between ${city === c ? "bg-[#0a2540]/5 text-[#0a2540]" : "text-slate-700 hover:bg-slate-50"}`}
@@ -1337,7 +1346,7 @@ ${formData.description}`
                                         key={c}
                                         type="button"
                                         onClick={() => {
-                                          setCity(c)
+                                          handleCityChange(c)
                                           setIsCityDropdownOpen(false)
                                         }}
                                         className={`w-full text-left px-4 py-1.5 text-xs font-bold transition-colors flex items-center justify-between ${city === c ? "bg-[#0a2540]/5 text-[#0a2540]" : "text-slate-700 hover:bg-slate-50"}`}
@@ -1362,6 +1371,18 @@ ${formData.description}`
                         </motion.div>
                       )}
                     </AnimatePresence>
+                  </div>
+
+                  {/* State */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-500 mb-1 block">State <span className="text-rose-500">*</span></label>
+                    <input
+                      type="text"
+                      value={state}
+                      onChange={e => setState(e.target.value)}
+                      className="w-full text-base font-bold text-slate-800 pb-2 border-b border-slate-200 focus:border-[#0a2540] outline-none transition-colors"
+                      placeholder="Auto-filled or type manually..."
+                    />
                   </div>
 
                   {/* Sub Property Type */}
