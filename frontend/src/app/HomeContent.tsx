@@ -179,7 +179,7 @@ export default function HomeContent() {
 
       {activeTab === 'rent' || activeTab === 'commercial' || activeTab === 'plots' || activeTab === 'projects' || activeTab === 'pg' ? (
         /* ── RENT / COMMERCIAL / PLOTS / PROJECTS / PG: Full background image layout ── */
-        <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden">
+        <section className="relative min-h-[360px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden">
           {/* Full banner background image */}
           <div className="absolute inset-0 z-0">
             <Image
@@ -213,9 +213,12 @@ export default function HomeContent() {
             />
           </div>
 
+          {/* Mobile dark overlay for text readability on small screens */}
+          <div className="absolute inset-0 z-[1] sm:hidden bg-black/30" />
+
           <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Left-aligned content within left half (w-full max-w-[56%] to clear the card on right) */}
-            <div className="flex flex-col items-start text-left w-full max-w-[56%] gap-5">
+            {/* Full width on mobile, 56% on sm+ to leave room for right-side image */}
+            <div className="flex flex-col items-start text-left w-full sm:max-w-[56%] gap-4 sm:gap-5">
 
               {/* Title */}
               <motion.div
@@ -224,18 +227,18 @@ export default function HomeContent() {
                 transition={{ duration: 0.6 }}
               >
                 <h1 className={cn(
-                  "font-sans text-xl sm:text-2xl md:text-3xl lg:text-[2rem] font-bold leading-tight tracking-tight",
+                  "font-sans text-lg sm:text-2xl md:text-3xl lg:text-[2rem] font-bold leading-tight tracking-tight",
                   activeTab === 'commercial' || activeTab === 'plots' || activeTab === 'projects'
                     ? "text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
-                    : "text-[#5e413a]"
+                    : "text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.3)] sm:text-[#5e413a] sm:drop-shadow-none"
                 )}>
                   {currentTheme.title}
                 </h1>
                 <p className={cn(
-                  "mt-2 text-[11px] sm:text-xs md:text-sm font-semibold max-w-sm leading-relaxed",
+                  "mt-1 text-[11px] sm:text-xs md:text-sm font-semibold max-w-sm leading-relaxed",
                   activeTab === 'commercial' || activeTab === 'plots' || activeTab === 'projects'
                     ? "text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
-                    : "text-[#7c5b52]"
+                    : "text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] sm:text-[#7c5b52] sm:drop-shadow-none"
                 )}>
                   {currentTheme.subtitle}
                 </p>
@@ -306,10 +309,10 @@ export default function HomeContent() {
         </section>
       ) : (
         /* ── BUY / Other Tabs: Purple gradient bg + right family photo layout ── */
-        <section className="relative min-h-[420px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden bg-gradient-to-br from-[#3a28b0] via-[#5235d8] to-[#6c48e8]">
+        <section className="relative min-h-[360px] sm:min-h-[480px] flex items-center pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden bg-gradient-to-br from-[#3a28b0] via-[#5235d8] to-[#6c48e8]">
 
-          {/* ── Family photo pinned to the right half ── */}
-          <div className="absolute right-0 top-0 bottom-0 w-[44%] md:w-[40%] z-0 pointer-events-none">
+          {/* ── Family photo pinned to the right half — hidden on mobile ── */}
+          <div className="hidden sm:block absolute right-0 top-0 bottom-0 w-[44%] md:w-[40%] z-0 pointer-events-none">
             <Image
               src="/hero-housing.png"
               alt="Happy family finding perfect property"
@@ -355,7 +358,7 @@ export default function HomeContent() {
 
           {/* ── Main content — left aligned on purple area ── */}
           <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col items-start text-left w-full max-w-[56%] gap-5">
+            <div className="flex flex-col items-start text-left w-full sm:max-w-[56%] gap-4 sm:gap-5">
 
               {/* Title */}
               <motion.div
@@ -363,7 +366,7 @@ export default function HomeContent() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
               >
-                <h1 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-[2.1rem] font-bold text-white leading-tight tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
+                <h1 className="font-sans text-lg sm:text-2xl md:text-3xl lg:text-[2.1rem] font-bold text-white leading-tight tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
                   {currentTheme.title}
                 </h1>
                 <p className="mt-2 text-[11px] sm:text-xs md:text-sm text-white/80 font-semibold max-w-sm leading-relaxed">

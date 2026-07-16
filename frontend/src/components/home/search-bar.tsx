@@ -15,13 +15,13 @@ import { parseSearchInput, getRoutingUrl } from '@/lib/routing-utils'
 
 type TabType = 'buy' | 'rent' | 'projects' | 'commercial' | 'pg' | 'plots'
 
-const tabs: { value: TabType; label: string }[] = [
-  { value: 'buy', label: 'BUY' },
-  { value: 'rent', label: 'RENT' },
-  { value: 'projects', label: 'PROJECTS' },
-  { value: 'commercial', label: 'COMMERCIAL' },
-  { value: 'pg', label: 'PG / CO-LIVING' },
-  { value: 'plots', label: 'PLOTS' },
+const tabs: { value: TabType; label: string; short: string }[] = [
+  { value: 'buy', label: 'BUY', short: 'BUY' },
+  { value: 'rent', label: 'RENT', short: 'RENT' },
+  { value: 'projects', label: 'PROJECTS', short: 'PROJECTS' },
+  { value: 'commercial', label: 'COMMERCIAL', short: 'COMM.' },
+  { value: 'pg', label: 'PG / CO-LIVING', short: 'PG' },
+  { value: 'plots', label: 'PLOTS', short: 'PLOTS' },
 ]
 
 export { topCities, otherCities }
@@ -151,7 +151,7 @@ export function SearchBar({
     <div className="w-full max-w-2xl mx-auto">
       {/* Premium Translucent Tabs Container */}
       <div className="w-full overflow-x-auto scrollbar-none rounded-t-xl bg-[#9c756b] border border-white/20 border-b-0">
-        <div className="flex gap-6 px-6 py-3 select-none items-center">
+        <div className="flex gap-3 sm:gap-6 px-3 sm:px-6 py-2.5 select-none items-center min-w-max">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.value
             return (
@@ -159,13 +159,14 @@ export function SearchBar({
                 key={tab.value}
                 onClick={() => selectTab(tab.value)}
                 className={cn(
-                  "text-xs font-bold uppercase tracking-wider pb-1 transition-all duration-200 relative shrink-0",
+                  "text-[10px] sm:text-xs font-bold uppercase tracking-wider pb-1 transition-all duration-200 relative shrink-0 whitespace-nowrap",
                   isActive
                     ? "text-white font-extrabold"
                     : "text-slate-450 hover:text-white"
                 )}
               >
-                <span>{tab.label}</span>
+                <span className="sm:hidden">{tab.short}</span>
+                <span className="hidden sm:inline">{tab.label}</span>
                 {isActive && (
                   <motion.div
                     layoutId="activeTabUnderline"
@@ -355,7 +356,7 @@ export function SearchBar({
           <button
             onClick={() => handleSearch()}
             className={cn(
-              "h-10 px-8 rounded-lg text-white font-bold text-sm tracking-wide shadow-md transition-all duration-200 flex items-center justify-center shrink-0 active:scale-[0.98] border-0",
+              "h-10 px-8 rounded-lg text-white font-bold text-sm tracking-wide shadow-md transition-all duration-200 flex items-center justify-center shrink-0 active:scale-[0.98] border-0 w-full md:w-auto",
               activeTab === 'rent'
                 ? "bg-[#ea7d68] hover:bg-[#d96a55]"
                 : "bg-[#5e23dc] hover:bg-[#4e20b1]"
