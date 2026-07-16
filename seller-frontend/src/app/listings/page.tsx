@@ -96,7 +96,7 @@ function PropertyCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04 }}
-      onClick={() => onEdit(prop.id)}
+      onClick={() => onView(prop.id)}
       className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md hover:border-[#0a2540]/40 transition-all duration-200 cursor-pointer group"
     >
       <div className="flex flex-col sm:flex-row">
@@ -216,7 +216,7 @@ function PropertyCard({
               onClick={(e) => { e.stopPropagation(); onEdit(prop.id) }}
               className="text-xs font-black text-[#0a2540] hover:underline transition-colors"
             >
-              Manage
+              Edit
             </button>
             {prop.verified ? (
               <button
