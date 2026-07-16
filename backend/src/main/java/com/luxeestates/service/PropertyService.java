@@ -243,6 +243,7 @@ public class PropertyService {
                 .launchDate(dto.getLaunchDate())
                 .avgPrice(dto.getAvgPrice())
                 .brochureUrl(dto.getBrochureUrl())
+                .videoUrl(dto.getVideoUrl())
                 .projectId(dto.getProjectId())
                 .user(user)
                 .build();
@@ -328,6 +329,7 @@ public class PropertyService {
         property.setLaunchDate(dto.getLaunchDate());
         property.setAvgPrice(dto.getAvgPrice());
         property.setBrochureUrl(dto.getBrochureUrl());
+        property.setVideoUrl(dto.getVideoUrl());
         property.setProjectId(dto.getProjectId());
 
         return PropertyDto.fromEntity(propertyRepository.save(property));

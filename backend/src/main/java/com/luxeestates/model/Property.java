@@ -122,6 +122,9 @@ public class Property {
 
     private String brochureUrl;
 
+    @Column(length = 500)
+    private String videoUrl;
+
     @Column(name = "project_id")
     private Long projectId;
 

@@ -46,6 +46,7 @@ export interface AdminProperty {
   avgPrice?: string
   projectId?: number
   projectName?: string
+  videoUrl?: string
   userId: string
   user?: { id: string; name: string; phone: string; profileImage?: string }
 }

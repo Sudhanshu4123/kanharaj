@@ -29,6 +29,7 @@ export default function ListingsPage() {
   const [msg, setMsg] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [uploadingImages, setUploadingImages] = useState(false)
+  const [uploadingVideo, setUploadingVideo] = useState(false)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -469,6 +470,58 @@ export default function ListingsPage() {
                         </div>
                       ))}
                     </div>
+                  )}
+                </div>
+
+                {/* Video upload */}
+                <div className="space-y-3">
+                  <label className="text-[9px] uppercase tracking-wider text-slate-400 block">Property Video (Optional)</label>
+                  {propForm.videoUrl ? (
+                    <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-900">
+                      <video src={propForm.videoUrl} controls className="w-full max-h-44 object-contain" />
+                      <button
+                        type="button"
+                        onClick={() => setPropForm(prev => ({ ...prev, videoUrl: '' }))}
+                        className="absolute top-2 right-2 bg-white/90 p-1.5 rounded-lg text-slate-800 shadow-sm hover:bg-white transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className={`flex items-center justify-center gap-3 w-full h-14 bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:border-[#dfa127] transition-all group ${uploadingVideo ? 'opacity-60 pointer-events-none' : ''}`}>
+                      <input type="file" accept="video/*" className="hidden" disabled={uploadingVideo}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0]
+                          if (!file || !token) return
+                          setUploadingVideo(true)
+                          try {
+                            const formData = new FormData()
+                            formData.append('file', file)
+                            const res = await fetch(`${getApiUrl()}/upload/video`, {
+                              method: 'POST',
+                              headers: { 'Authorization': `Bearer ${token}` },
+                              body: formData,
+                            })
+                            if (!res.ok) throw new Error(`Upload failed`)
+                            const data = await res.json()
+                            if (data.url) {
+                              setPropForm(prev => ({ ...prev, videoUrl: data.url }))
+                              setMsg(`Video uploaded successfully.`)
+                            } else {
+                              throw new Error(data.error || "Unknown error")
+                            }
+                          } catch (err: any) { setMsg(`Video upload failed: ${err.message}`) }
+                          finally { setUploadingVideo(false); e.target.value = '' }
+                        }}
+                      />
+                      <div className="w-7 h-7 rounded-lg bg-white border flex items-center justify-center shadow-sm">
+                        {uploadingVideo ? <Loader2 className="w-4 h-4 animate-spin text-[#dfa127]" /> : <Plus size={15} className="text-slate-400 group-hover:text-[#0a2540]" />}
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-slate-600 group-hover:text-[#dfa127] transition-all">Upload Video</p>
+                        <p className="text-[9px] text-slate-400">MP4, MOV • Max 100MB</p>
+                      </div>
+                    </label>
                   )}
                 </div>
 

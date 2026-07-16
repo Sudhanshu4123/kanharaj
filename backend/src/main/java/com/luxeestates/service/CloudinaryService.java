@@ -69,6 +69,36 @@ public class CloudinaryService {
         cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
     }
 
+    public String uploadVideo(MultipartFile file) throws IOException {
+        boolean isCloudinaryConfigured = cloudName != null &&
+                                       !cloudName.trim().isEmpty() &&
+                                       !"your_cloud_name".equals(cloudName) &&
+                                       !"Root".equals(cloudName);
+
+        if (isCloudinaryConfigured) {
+            try {
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                        file.getBytes(),
+                        ObjectUtils.asMap(
+                                "folder", "shrishyam/videos",
+                                "resource_type", "video"
+                        )
+                );
+                return (String) uploadResult.get("secure_url");
+            } catch (Exception e) {
+                throw new IOException("Cloudinary video upload failed: " + e.getMessage());
+            }
+        }
+
+        // Fallback to local storage
+        String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.-]", "_");
+        java.nio.file.Path path = java.nio.file.Paths.get(uploadPath, filename).toAbsolutePath().normalize();
+        java.nio.file.Files.createDirectories(path.getParent());
+        java.nio.file.Files.copy(file.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+        return "/api/uploads/" + filename;
+    }
+
     public String uploadDocument(MultipartFile file) throws IOException {
         boolean isCloudinaryConfigured = cloudName != null && 
                                        !cloudName.trim().isEmpty() && 

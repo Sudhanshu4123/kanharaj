@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Building2, Plus, Pencil, Trash2, X, CheckCircle2,
-  AlertCircle, MapPin, Search, ShieldCheck, Star, Loader2, Camera, Trash
+  AlertCircle, MapPin, Search, ShieldCheck, Star, Loader2, Camera, Trash, Video
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { getApiUrl } from "@/lib/auth"
@@ -28,6 +28,7 @@ export default function ProjectsPage() {
   const [msg, setMsg] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [uploadingImages, setUploadingImages] = useState(false)
+  const [uploadingVideo, setUploadingVideo] = useState(false)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -89,6 +90,31 @@ export default function ProjectsPage() {
       setTimeout(() => setMsg(''), 4000)
     } finally {
       setUploadingImages(false)
+    }
+  }
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingVideo(true)
+    const formData = new FormData()
+    formData.append('file', file)
+    try {
+      const res = await fetch(`${getApiUrl()}/upload/video`, {
+        method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+        body: formData
+      })
+      if (!res.ok) throw new Error('Video upload failed')
+      const result = await res.json()
+      if (result.url) {
+        setPropForm(prev => ({ ...prev, videoUrl: result.url }))
+      }
+    } catch (err: any) {
+      setMsg(`Video Upload Error: ${err.message}`)
+      setTimeout(() => setMsg(''), 4000)
+    } finally {
+      setUploadingVideo(false)
     }
   }
 
@@ -472,6 +498,32 @@ export default function ProjectsPage() {
                       <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImages} />
                     </label>
                   </div>
+                </div>
+
+                {/* Video Upload */}
+                <div className="space-y-3">
+                  <label className="text-[9px] uppercase tracking-wider text-slate-400 block">Project Video <span className="text-slate-300">(Optional)</span></label>
+                  {propForm.videoUrl ? (
+                    <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-900">
+                      <video src={propForm.videoUrl} controls className="w-full max-h-44 object-contain" />
+                      <button
+                        type="button"
+                        onClick={() => setPropForm(prev => ({ ...prev, videoUrl: '' }))}
+                        className="absolute top-2 right-2 bg-white/90 p-1.5 rounded-lg text-slate-800 shadow-sm hover:bg-white transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="border border-dashed border-slate-350 hover:border-[#dfa127] rounded-xl flex flex-col items-center justify-center gap-1.5 cursor-pointer text-slate-400 hover:text-[#dfa127] hover:bg-slate-50 transition-all py-6">
+                      {uploadingVideo ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <><Video size={18} /><span className="text-[9px] font-black uppercase">Add Video</span><span className="text-[8px] text-slate-300">MP4, MOV • Max 100MB</span></>
+                      )}
+                      <input type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} disabled={uploadingVideo} />
+                    </label>
+                  )}
                 </div>
 
                 {/* Action buttons */}

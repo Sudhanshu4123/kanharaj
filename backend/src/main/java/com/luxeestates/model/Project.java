@@ -114,6 +114,9 @@ public class Project {
     private String avgPrice;
     private String brochureUrl;
 
+    @Column(length = 500)
+    private String videoUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

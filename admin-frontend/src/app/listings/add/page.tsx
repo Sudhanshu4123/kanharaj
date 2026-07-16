@@ -358,6 +358,9 @@ export default function AddPropertyPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [uploadingVideo, setUploadingVideo] = useState(false)
+  const [videoUrl, setVideoUrl] = useState("")
+  const videoInputRef = useRef<HTMLInputElement>(null)
 
   const formatHelperAmount = (numStr: string) => {
     const val = parseFloat(numStr)
@@ -743,6 +746,39 @@ export default function AddPropertyPage() {
     }))
   }
 
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingVideo(true)
+    const data = new FormData()
+    data.append("file", file)
+    const token = localStorage.getItem("admin_token")
+    try {
+      const res = await fetch(`${getApiUrl()}/upload/video`, {
+        method: "POST",
+        headers: token ? { "Authorization": `Bearer ${token}` } : {},
+        body: data
+      })
+      if (res.status === 401 || res.status === 403) {
+        alert("Session expired. Please login again.")
+        return
+      }
+      const result = await res.json()
+      if (result.url) {
+        const url = result.url.startsWith('http') ? result.url :
+          (getApiUrl()?.startsWith('http') ? `${getApiUrl()!.replace(/\/api$/, '')}${result.url}` : result.url)
+        setVideoUrl(url)
+      } else {
+        alert("Video upload failed: " + (result.error || "Unknown error"))
+      }
+    } catch (err: any) {
+      alert("Video upload failed: " + (err.message || err))
+    } finally {
+      setUploadingVideo(false)
+      if (videoInputRef.current) videoInputRef.current.value = ""
+    }
+  }
+
   const handleSubmit = async () => {
     const userData = localStorage.getItem("admin_user")
     const authHeaders = getAdminAuthHeaders()
@@ -979,6 +1015,7 @@ ${formData.description}`
         status: "ACTIVE",
         images: formData.images,
         amenities: formData.amenities,
+        videoUrl: videoUrl || undefined,
       }
 
       const res = await fetch(`${getApiUrl()}/properties`, {
@@ -4256,6 +4293,42 @@ ${formData.description}`
                     <p className="text-xs text-blue-800 font-medium leading-relaxed">
                       Add at least 3 high-quality photos. Only images are allowed (JPG, PNG, WEBP). Properties with more photos tend to get 3x more views!
                     </p>
+                  </div>
+
+                  {/* Video Upload Section */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-black text-slate-800">Property Video <span className="text-slate-400 font-medium">(Optional)</span></h3>
+                    {videoUrl ? (
+                      <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-900">
+                        <video src={videoUrl} controls className="w-full max-h-56 object-contain" />
+                        <button
+                          type="button"
+                          onClick={() => setVideoUrl("")}
+                          className="absolute top-2 right-2 bg-white/90 backdrop-blur-md p-1.5 rounded-lg text-slate-800 shadow-sm hover:bg-white transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => videoInputRef.current?.click()}
+                        className="w-full border-2 border-dashed border-slate-200 rounded-xl py-8 flex flex-col items-center justify-center cursor-pointer hover:border-[#0a2540] hover:bg-[#0a2540]/5 transition-all gap-2"
+                      >
+                        {uploadingVideo ? (
+                          <><Loader2 className="animate-spin text-[#0a2540]" size={28} /><span className="text-xs font-bold text-slate-500">Uploading video...</span></>
+                        ) : (
+                          <><Video className="text-slate-400" size={28} /><span className="text-xs font-bold text-slate-600">Upload Property Video</span><span className="text-[11px] text-slate-400">MP4, MOV, AVI • Max 100MB</span></>
+                        )}
+                      </div>
+                    )}
+                    <input
+                      ref={videoInputRef}
+                      type="file"
+                      accept="video/*"
+                      className="hidden"
+                      onChange={handleVideoUpload}
+                      disabled={uploadingVideo}
+                    />
                   </div>
 
                   <AnimatePresence>

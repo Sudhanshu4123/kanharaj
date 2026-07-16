@@ -61,6 +61,7 @@ public class PropertyDto {
     private String launchDate;
     private String avgPrice;
     private String brochureUrl;
+    private String videoUrl;
 
     private Long projectId;
     private String projectName;
@@ -114,6 +115,7 @@ public class PropertyDto {
                 .launchDate(property.getLaunchDate())
                 .avgPrice(property.getAvgPrice())
                 .brochureUrl(property.getBrochureUrl())
+                .videoUrl(property.getVideoUrl())
                 .projectId(property.getProjectId())
                 .projectName(property.getProject() != null ? property.getProject().getTitle() : null)
                 .createdAt(property.getCreatedAt())
@@ -184,6 +186,7 @@ public class PropertyDto {
                 .launchDate(project.getLaunchDate())
                 .avgPrice(project.getAvgPrice())
                 .brochureUrl(project.getBrochureUrl())
+                .videoUrl(project.getVideoUrl())
                 .projectId(null)
                 .projectName(project.getTitle())
                 .createdAt(project.getCreatedAt())

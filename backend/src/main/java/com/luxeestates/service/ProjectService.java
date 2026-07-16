@@ -176,6 +176,7 @@ public class ProjectService {
                 .launchDate(dto.getLaunchDate())
                 .avgPrice(dto.getAvgPrice())
                 .brochureUrl(dto.getBrochureUrl())
+                .videoUrl(dto.getVideoUrl())
                 .user(user)
                 .build();
 
@@ -239,6 +240,7 @@ public class ProjectService {
         project.setLaunchDate(dto.getLaunchDate());
         project.setAvgPrice(dto.getAvgPrice());
         project.setBrochureUrl(dto.getBrochureUrl());
+        project.setVideoUrl(dto.getVideoUrl());
         project.setLatitude(dto.getLatitude());
         project.setLongitude(dto.getLongitude());
 

@@ -17,7 +17,8 @@ import {
   X,
   Upload,
   Loader2,
-  ShieldAlert
+  ShieldAlert,
+  Video
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { getSellerAuthHeaders, getApiErrorMessage } from "@/lib/utils"
@@ -35,6 +36,9 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [uploadingVideo, setUploadingVideo] = useState(false)
+  const [videoUrl, setVideoUrl] = useState("")
+  const videoInputRef = useRef<HTMLInputElement>(null)
 
   const [showPhotosConsentModal, setShowPhotosConsentModal] = useState(false)
   const [photosConsentStatus, setPhotosConsentStatus] = useState<"default" | "granted" | "denied">("default")
@@ -102,6 +106,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
             amenities: data.amenities || [],
             images: data.images || []
           })
+          if (data.videoUrl) setVideoUrl(data.videoUrl)
         }
       } catch (err) {
         console.error("Failed to fetch property", err)
@@ -177,6 +182,42 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     }))
   }
 
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingVideo(true)
+    const data = new FormData()
+    data.append("file", file)
+    const token = localStorage.getItem("seller_token")
+
+    try {
+      const res = await fetch(`${getApiUrl()}/upload/video`, {
+        method: "POST",
+        headers: token ? { "Authorization": `Bearer ${token}` } : {},
+        body: data
+      })
+      if (res.status === 401 || res.status === 403) {
+        alert("Session expired. Please login again.")
+        router.push("/login")
+        return
+      }
+      const result = await res.json()
+      if (result.url) {
+        const url = result.url.startsWith('http') ? result.url :
+          (getApiUrl()?.startsWith('http') ? `${getApiUrl()!.replace(/\/api$/, '')}${result.url}` : result.url)
+        setVideoUrl(url)
+      } else {
+        alert("Video upload failed: " + (result.error || "Unknown error"))
+      }
+    } catch (err: any) {
+      alert("Video upload failed: " + (err.message || err))
+    } finally {
+      setUploadingVideo(false)
+      if (videoInputRef.current) videoInputRef.current.value = ""
+    }
+  }
+
   const handleSubmit = async () => {
     const userData = localStorage.getItem("seller_user")
     const authHeaders = getSellerAuthHeaders()
@@ -195,6 +236,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         bathrooms: parseInt(formData.bathrooms.toString()) || 0,
         images: formData.images,
         amenities: formData.amenities,
+        videoUrl: videoUrl || undefined,
       }
 
       const res = await fetch(`${getApiUrl()}/properties/${propertyId}`, {
@@ -460,6 +502,42 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
                     onChange={handleImageUpload}
                     disabled={uploading}
                     onClick={e => e.stopPropagation()}
+                  />
+                </div>
+
+                {/* Video Upload Section */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-black text-slate-800">Property Video <span className="text-slate-400 font-medium">(Optional)</span></h3>
+                  {videoUrl ? (
+                    <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-900">
+                      <video src={videoUrl} controls className="w-full max-h-56 object-contain" />
+                      <button
+                        type="button"
+                        onClick={() => setVideoUrl("")}
+                        className="absolute top-2 right-2 bg-white/90 backdrop-blur-md p-1.5 rounded-lg text-slate-800 shadow-sm hover:bg-white transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => videoInputRef.current?.click()}
+                      className="w-full border-2 border-dashed border-slate-200 rounded-xl py-8 flex flex-col items-center justify-center cursor-pointer hover:border-[#0a2540] hover:bg-[#0a2540]/5 transition-all gap-2"
+                    >
+                      {uploadingVideo ? (
+                        <><Loader2 className="animate-spin text-[#0a2540]" size={28} /><span className="text-xs font-bold text-slate-500">Uploading video...</span></>
+                      ) : (
+                        <><Video className="text-slate-400" size={28} /><span className="text-xs font-bold text-slate-600">Upload Property Video</span><span className="text-[11px] text-slate-400">MP4, MOV, AVI • Max 100MB</span></>
+                      )}
+                    </div>
+                  )}
+                  <input
+                    ref={videoInputRef}
+                    type="file"
+                    accept="video/*"
+                    className="hidden"
+                    onChange={handleVideoUpload}
+                    disabled={uploadingVideo}
                   />
                 </div>
                 {photosConsentStatus === "denied" && (

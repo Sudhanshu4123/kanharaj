@@ -81,4 +81,33 @@ public class UploadController {
                     .body(Map.of("error", "Failed to upload document: " + e.getMessage()));
         }
     }
+
+    @PostMapping("/video")
+    public ResponseEntity<Map<String, String>> uploadVideo(
+            @RequestParam("file") MultipartFile file
+    ) {
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || (!contentType.startsWith("video/"))) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Only video files are allowed (MP4, MOV, AVI, etc.)."));
+        }
+
+        // Limit file size to 100MB
+        if (file.getSize() > 100 * 1024 * 1024) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Video file size cannot exceed 100MB."));
+        }
+
+        try {
+            String url = cloudinaryService.uploadVideo(file);
+            return ResponseEntity.ok(Map.of("url", url));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "Failed to upload video: " + e.getMessage()));
+        }
+    }
 }
