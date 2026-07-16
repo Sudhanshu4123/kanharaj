@@ -15,14 +15,15 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [isScriptsLoaded, setIsScriptsLoaded] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+  const [isDownloading, setIsDownloading] = useState(false)
+
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const renderTaskRef = useRef<any>(null)
 
   // 1. Load PDF.js from CDN dynamically
   useEffect(() => {
-    if (window.google && (window as any).pdfjsLib) {
+    if ((window as any).pdfjsLib) {
       setIsScriptsLoaded(true)
       return
     }
@@ -33,7 +34,8 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
     script.onload = () => {
       const pdfjsLib = (window as any).pdfjsLib
       if (pdfjsLib) {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js"
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js"
         setIsScriptsLoaded(true)
       } else {
         setError("Failed to initialize PDF library.")
@@ -86,7 +88,6 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
 
     setIsLoading(true)
 
-    // Cancel existing render task if any
     if (renderTaskRef.current) {
       renderTaskRef.current.cancel()
     }
@@ -95,25 +96,19 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
       (page: any) => {
         const canvas = canvasRef.current
         if (!canvas) return
-        
+
         const context = canvas.getContext("2d")
         if (!context) return
 
-        // Compute viewport scale based on container width
         const containerWidth = container.clientWidth || 800
         const unscaledViewport = page.getViewport({ scale: 1.0 })
         const scale = (containerWidth - 32) / unscaledViewport.width
-        const viewport = page.getViewport({ scale: scale * 1.5 }) // Render at slightly higher scale for crisp quality
+        const viewport = page.getViewport({ scale: scale * 1.5 })
 
         canvas.width = viewport.width
         canvas.height = viewport.height
 
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport,
-        }
-
-        const renderTask = page.render(renderContext)
+        const renderTask = page.render({ canvasContext: context, viewport })
         renderTaskRef.current = renderTask
 
         renderTask.promise.then(
@@ -122,7 +117,6 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
             renderTaskRef.current = null
           },
           (err: any) => {
-            // Ignore rendering cancellations
             if (err.name !== "RenderingCancelledException") {
               console.error("Page render error:", err)
               setIsLoading(false)
@@ -137,22 +131,16 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
     )
   }
 
-  // Render trigger on page change or PDF document loaded
   useEffect(() => {
-    if (pdf) {
-      renderPage(pageNum)
-    }
+    if (pdf) renderPage(pageNum)
   }, [pdf, pageNum])
 
-  // Handle window resizing to adjust canvas width
   useEffect(() => {
     let timeoutId: any
     const handleResize = () => {
       clearTimeout(timeoutId)
       timeoutId = setTimeout(() => {
-        if (pdf) {
-          renderPage(pageNum)
-        }
+        if (pdf) renderPage(pageNum)
       }, 300)
     }
     window.addEventListener("resize", handleResize)
@@ -162,17 +150,12 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
     }
   }, [pdf, pageNum])
 
-  // Pagination controls
   const handlePrev = () => {
-    if (pageNum > 1) {
-      setPageNum(prev => prev - 1)
-    }
+    if (pageNum > 1) setPageNum(prev => prev - 1)
   }
 
   const handleNext = () => {
-    if (pageNum < numPages) {
-      setPageNum(prev => prev + 1)
-    }
+    if (pageNum < numPages) setPageNum(prev => prev + 1)
   }
 
   const handleFullscreen = () => {
@@ -180,15 +163,42 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
       if (document.fullscreenElement) {
         document.exitFullscreen()
       } else {
-        containerRef.current.requestFullscreen().catch((err) => {
+        containerRef.current.requestFullscreen().catch(err => {
           console.error("Error entering fullscreen:", err)
         })
       }
     }
   }
 
+  // Download brochure — fetch as blob to force real file download
+  const handleDownload = async () => {
+    if (isDownloading) return
+    setIsDownloading(true)
+    try {
+      const response = await fetch(pdfUrl, { mode: "cors" })
+      if (!response.ok) throw new Error("Fetch failed")
+      const blob = await response.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = blobUrl
+      const safeName = title
+        ? title.replace(/[^a-z0-9]/gi, "_").toLowerCase()
+        : "brochure"
+      link.download = `${safeName}_brochure.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000)
+    } catch (err) {
+      console.warn("Blob download failed, falling back to new tab:", err)
+      window.open(pdfUrl, "_blank", "noopener,noreferrer")
+    } finally {
+      setIsDownloading(false)
+    }
+  }
+
   return (
-    <div 
+    <div
       ref={containerRef}
       className="relative bg-[#0d1527] rounded-2xl overflow-hidden border border-slate-800 flex flex-col items-center justify-between group shadow-inner min-h-[350px] md:h-[500px]"
     >
@@ -198,18 +208,18 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
           <div className="text-center text-slate-400 p-6 max-w-md">
             <RefreshCw className="w-10 h-10 mx-auto text-slate-500 mb-3 animate-spin-slow" />
             <p className="text-xs font-bold">{error}</p>
-            <a 
-              href={pdfUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href={pdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="mt-4 inline-block text-xs font-extrabold text-blue-500 hover:underline"
             >
               Open PDF directly in new tab
             </a>
           </div>
         ) : (
-          <canvas 
-            ref={canvasRef} 
+          <canvas
+            ref={canvasRef}
             className="max-h-full max-w-full object-contain rounded-lg shadow-2xl transition-all duration-300"
           />
         )}
@@ -222,18 +232,21 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
         </div>
       )}
 
-      {/* Absolute Overlays (Download on bottom-left, Maximize on top-right) - ALWAYS VISIBLE */}
+      {/* Download (bottom-left) & Fullscreen (top-right) buttons */}
       {!error && (
         <>
-          <a
-            href={pdfUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="absolute bottom-16 left-6 p-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 z-20 flex items-center justify-center cursor-pointer"
+          <button
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="absolute bottom-16 left-6 p-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 z-20 flex items-center justify-center cursor-pointer"
             title="Download PDF"
           >
-            <Download className="w-5 h-5" />
-          </a>
+            {isDownloading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Download className="w-5 h-5" />
+            )}
+          </button>
 
           <button
             onClick={handleFullscreen}
@@ -245,7 +258,7 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
         </>
       )}
 
-      {/* Bottom Slider & Navigation Controller - ALWAYS VISIBLE */}
+      {/* Bottom Page Navigation */}
       {numPages > 0 && !error && (
         <div className="w-full bg-[#0a0f1d] border-t border-slate-800/80 px-6 py-3 flex items-center justify-center gap-6 shrink-0 z-20">
           <button
@@ -255,7 +268,7 @@ export default function PdfViewer({ pdfUrl, title }: PdfViewerProps) {
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          
+
           <span className="text-[11px] font-black tracking-widest text-slate-400 select-none uppercase">
             {pageNum} of {numPages}
           </span>

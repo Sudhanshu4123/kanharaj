@@ -11,7 +11,7 @@ import {
   ChevronDown, Search, Menu, User, LogOut, IndianRupee, FileText,
   Video, Lock, Flame, Dumbbell, Waves, Trophy, Footprints, Target, Gamepad2,
   Zap, Car, Droplets, Settings, Trash2, Users, Trees, Play, Wifi, Coffee,
-  BookOpen, CloudRain, Sun, ShoppingBag, Briefcase, Smile, Landmark, Fingerprint, Tv
+  BookOpen, CloudRain, Sun, ShoppingBag, Briefcase, Smile, Landmark, Fingerprint, Tv, Loader2
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -422,6 +422,37 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
   const [shareTooltip, setShareTooltip] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [showAllAmenities, setShowAllAmenities] = useState(false)
+  const [isBrochureDownloading, setIsBrochureDownloading] = useState(false)
+
+  // Download brochure as blob to force real file download
+  const handleBrochureDownload = async () => {
+    if (!property.brochureUrl || isBrochureDownloading) return
+    const url = property.brochureUrl.startsWith('http')
+      ? property.brochureUrl
+      : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`
+    setIsBrochureDownloading(true)
+    try {
+      const response = await fetch(url, { mode: 'cors' })
+      if (!response.ok) throw new Error('Fetch failed')
+      const blob = await response.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = blobUrl
+      const safeName = property.title
+        ? property.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()
+        : 'brochure'
+      link.download = `${safeName}_brochure.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000)
+    } catch (err) {
+      console.warn('Blob download failed, opening in new tab:', err)
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } finally {
+      setIsBrochureDownloading(false)
+    }
+  }
   
   // Project units list
   const [projectUnits, setProjectUnits] = useState<Property[]>([])
@@ -2060,15 +2091,16 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                       </p>
                     </div>
                   </div>
-                  <a
-                    href={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
-                    download
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 h-11 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition shadow-sm uppercase tracking-wider shrink-0 cursor-pointer"
+                  <button
+                    onClick={handleBrochureDownload}
+                    disabled={isBrochureDownloading}
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 h-11 px-6 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white rounded-xl text-xs font-black transition shadow-sm uppercase tracking-wider shrink-0 cursor-pointer"
                   >
-                    <Download className="w-4 h-4" /> Download
-                  </a>
+                    {isBrochureDownloading
+                      ? <><Loader2 className="w-4 h-4 animate-spin" /> Downloading...</>
+                      : <><Download className="w-4 h-4" /> Download</>
+                    }
+                  </button>
                 </div>
               </Card>
             )}
