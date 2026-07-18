@@ -419,6 +419,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
 
   // Custom states
   const [isFavorite, setIsFavorite] = useState(false)
+  const [touchStartX, setTouchStartX] = useState(0)
   const [shareTooltip, setShareTooltip] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [showAllAmenities, setShowAllAmenities] = useState(false)
@@ -815,6 +816,18 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     )
   }, [citySearchQuery])
 
+  // Mobile swipe carousel handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX)
+  }
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diff = touchStartX - e.changedTouches[0].clientX
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) setCurrentImageIndex(prev => (prev + 1) % propertyImages.length)
+      else setCurrentImageIndex(prev => (prev - 1 + propertyImages.length) % propertyImages.length)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
 
@@ -1087,8 +1100,245 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
         </div>
       </div>
 
+      {/* ===== MOBILE HOUSING.COM STYLE LAYOUT ===== */}
+      <div className="block md:hidden">
+
+        {/* Mobile Full-Screen Image Carousel */}
+        <div
+          className="relative w-full bg-black overflow-hidden"
+          style={{ height: '60vw', maxHeight: '320px' }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {propertyImages.map((img, idx) => (
+            <div
+              key={idx}
+              className={cn(
+                'absolute inset-0 transition-opacity duration-300',
+                currentImageIndex === idx ? 'opacity-100' : 'opacity-0'
+              )}
+              onClick={() => openLightbox(idx)}
+            >
+              <Image src={img} alt={`${property.title} photo ${idx + 1}`} fill className="object-cover" priority={idx === 0} />
+            </div>
+          ))}
+
+          {/* Overlay: Back + Heart + Share at top */}
+          <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-3 pt-3 z-10 bg-gradient-to-b from-black/50 to-transparent">
+            <button onClick={() => router.back()} className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow">
+              <ArrowLeft className="h-4 w-4 text-slate-800" />
+            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsFavorite(prev => !prev)}
+                className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow"
+              >
+                <Heart className={cn('h-4 w-4', isFavorite ? 'fill-rose-500 text-rose-500' : 'text-slate-700')} />
+              </button>
+              <div className="relative">
+                <button onClick={copyShareLink} className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow">
+                  <Share2 className="h-4 w-4 text-slate-700" />
+                </button>
+                <AnimatePresence>
+                  {shareTooltip && (
+                    <motion.span
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 6 }}
+                      className="absolute right-0 top-10 bg-slate-900 text-white text-[10px] px-2 py-1 rounded font-bold whitespace-nowrap shadow-lg"
+                    >
+                      Link copied!
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom overlay: agent info + count */}
+          <div className="absolute bottom-0 left-0 right-0 px-3 pb-3 pt-6 bg-gradient-to-t from-black/60 to-transparent z-10 flex items-end justify-between">
+            <div className="flex items-center gap-1.5">
+              <div className="w-6 h-6 rounded-full bg-[#dfa127] flex items-center justify-center text-white text-[10px] font-black shrink-0">
+                {(property.user?.name || 'K').charAt(0).toUpperCase()}
+              </div>
+              <span className="text-white text-[10px] font-semibold">
+                by {property.user?.name || 'Kanharaj'}
+              </span>
+            </div>
+            <span className="text-white text-[10px] font-bold bg-black/40 px-2 py-0.5 rounded-full">
+              📷 {propertyImages.length} | 🎬 0
+            </span>
+          </div>
+
+          {/* Dot indicators */}
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+            {propertyImages.slice(0, 6).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentImageIndex(idx)}
+                className={cn(
+                  'h-1.5 rounded-full transition-all',
+                  currentImageIndex === idx ? 'w-4 bg-white' : 'w-1.5 bg-white/50'
+                )}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile Content Card - Housing.com style */}
+        <div className="bg-white rounded-t-3xl -mt-4 relative z-10 pb-28">
+
+          {/* Verified + info row */}
+          <div className="px-4 pt-4 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 border border-emerald-200 bg-emerald-50 px-2.5 py-1 rounded-full">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Verified
+            </span>
+            <Info className="h-3.5 w-3.5 text-slate-400" />
+          </div>
+
+          {/* Price */}
+          <div className="px-4 pt-2">
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-black text-slate-900">{formatPrice(property.price)}</span>
+              {property.listingType === 'RENT' && <span className="text-sm text-slate-500 font-semibold">/month</span>}
+            </div>
+            <p className="text-xs text-slate-500 font-semibold mt-0.5">
+              Negotiable, No Brokerage,{' '}
+              <span className="text-blue-600 font-bold cursor-pointer">See Price Details ›</span>
+            </p>
+          </div>
+
+          {/* Tags (Ready to Move, etc) */}
+          <div className="px-4 pt-3 flex flex-wrap gap-2">
+            <span className="text-xs font-semibold text-slate-600 border border-slate-300 px-3 py-1 rounded-full">
+              {possessionVal}
+            </span>
+            {bedroomsVal && (
+              <span className="text-xs font-semibold text-slate-600 border border-slate-300 px-3 py-1 rounded-full">
+                {bedroomsVal}
+              </span>
+            )}
+            {areaVal !== 'N/A' && (
+              <span className="text-xs font-semibold text-slate-600 border border-slate-300 px-3 py-1 rounded-full">
+                {areaVal}
+              </span>
+            )}
+          </div>
+
+          {/* Amenities as checklist — Housing.com style */}
+          {property.amenities && property.amenities.length > 0 && (
+            <div className="px-4 pt-4 space-y-2.5">
+              {(showAllAmenities ? property.amenities : property.amenities.slice(0, 5)).map((amenity) => (
+                <div key={amenity} className="flex items-center gap-2.5">
+                  <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span className="text-sm font-semibold text-slate-700">{amenity}</span>
+                </div>
+              ))}
+              {property.amenities.length > 5 && (
+                <button
+                  onClick={() => setShowAllAmenities(!showAllAmenities)}
+                  className="text-xs font-bold text-blue-600 mt-1"
+                >
+                  {showAllAmenities ? 'Show less' : `+${property.amenities.length - 5} more amenities`}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Social proof */}
+          <div className="mx-4 mt-4 flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-xl px-3 py-2.5">
+            <div className="w-5 h-5 rounded-full bg-[#dfa127] flex items-center justify-center text-white text-[9px] font-black shrink-0">
+              {(property.user?.name || 'K').charAt(0).toUpperCase()}
+            </div>
+            <span className="text-xs font-semibold text-slate-700">
+              {Math.floor(Math.random() * 5) + 2} people already contacted yesterday
+            </span>
+          </div>
+
+          {/* Address */}
+          <div className="px-4 pt-3 flex items-start gap-1.5">
+            <MapPin className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
+            <span className="text-xs font-semibold text-slate-600">{property.address}, {property.city}, {property.state}</span>
+          </div>
+
+          {/* Divider */}
+          <div className="h-2 bg-slate-100 mt-5" />
+
+          {/* Specs Table (compact for mobile) */}
+          <div className="px-4 py-4">
+            <h2 className="text-sm font-black text-slate-900 mb-3">Property Details</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {bedroomsVal && (
+                <div className="flex items-center gap-2">
+                  <Bed className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Bedrooms</div>
+                    <div className="text-sm font-bold text-slate-800">{bedroomsVal}</div>
+                  </div>
+                </div>
+              )}
+              {bathroomsVal && (
+                <div className="flex items-center gap-2">
+                  <Bath className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Bathrooms</div>
+                    <div className="text-sm font-bold text-slate-800">{bathroomsVal}</div>
+                  </div>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <Maximize className="h-4 w-4 text-indigo-500 shrink-0" />
+                <div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">{areaLabel}</div>
+                  <div className="text-sm font-bold text-slate-800">{areaVal}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Compass className="h-4 w-4 text-indigo-500 shrink-0" />
+                <div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Facing</div>
+                  <div className="text-sm font-bold text-slate-800">{facingVal}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-indigo-500 shrink-0" />
+                <div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Possession</div>
+                  <div className="text-sm font-bold text-slate-800">{possessionVal}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-indigo-500 shrink-0" />
+                <div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Age</div>
+                  <div className="text-sm font-bold text-slate-800">{ageVal}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="h-2 bg-slate-100" />
+
+          {/* Description */}
+          {cleanDescription && (
+            <div className="px-4 py-4">
+              <h2 className="text-sm font-black text-slate-900 mb-2">Property Description</h2>
+              <p className="text-sm text-slate-600 leading-relaxed font-medium line-clamp-6">
+                {cleanDescription}
+              </p>
+            </div>
+          )}
+
+        </div>
+      </div>
+
+      {/* ===== DESKTOP LAYOUT ONLY ===== */}
+      <div className="hidden md:block">
+
       {/* Top Breadcrumb & Actions Bar */}
-      <div className="bg-white border-b border-slate-200 py-3 relative z-30 shadow-sm mt-24 md:mt-0">
+      <div className="bg-white border-b border-slate-200 py-3 relative z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
 
           {/* Breadcrumb Links */}
@@ -1151,7 +1401,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
               variant="outline"
               size="sm"
               onClick={() => window.print()}
-              className="h-9 border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl font-semibold hidden md:flex"
+              className="h-9 border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl font-semibold"
             >
               <Printer className="h-4 w-4 mr-2" />
               Print
@@ -2337,6 +2587,9 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
 
         </div>
 
+      </div> {/* end desktop max-w-7xl */}
+      </div> {/* end hidden md:block */}
+
         {/* Project Inventory / Sub-units list */}
         {isProject && (
           <div className="mt-12 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
@@ -2500,21 +2753,35 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
         )}
       </AnimatePresence>
 
-      {/* Sticky Mobile Call Actions bar */}
-      <div className="fixed bottom-mobile-nav left-0 right-0 z-40 bg-white border-t border-slate-200 p-3.5 pb-safe block lg:hidden shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
+      {/* Sticky Mobile Call Actions bar — Housing.com style */}
+      <div className="fixed bottom-mobile-nav left-0 right-0 z-40 bg-white border-t border-slate-200 px-3 py-2.5 pb-safe block lg:hidden shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
         <div className="flex gap-2">
-          <Button variant="outline" className="flex-1 h-12 rounded-xl border-slate-200 font-bold text-slate-700 text-xs px-2" onClick={() => window.location.href = `tel:+91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}>
-            <Phone className="h-4.5 w-4.5 mr-1 text-rose-500" />
-            CALL
-          </Button>
-          <Button className="flex-1 h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs px-2" onClick={() => window.location.href = `https://wa.me/91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}>
-            <MessageCircle className="h-4.5 w-4.5 mr-1" />
+          {/* Call */}
+          <a
+            href={`tel:+91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}
+            className="flex-none flex flex-col items-center justify-center gap-0.5 border-2 border-slate-300 rounded-full h-12 px-4 font-bold text-slate-700 text-[10px] bg-white active:bg-slate-50"
+          >
+            <Phone className="h-4 w-4 text-rose-500" />
+            <span>Call</span>
+          </a>
+          {/* WhatsApp */}
+          <a
+            href={`https://wa.me/91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex-1 flex items-center justify-center gap-1.5 bg-[#25D366] hover:bg-[#1fba58] text-white font-bold text-sm rounded-full h-12"
+          >
+            <MessageCircle className="h-4.5 w-4.5" />
             WHATSAPP
-          </Button>
-          <Button className="flex-1 h-12 rounded-xl bg-[#6B46C1] hover:bg-[#5A38A7] text-white font-bold text-xs px-2" onClick={handleChatStart}>
-            <MessageCircle className="h-4.5 w-4.5 mr-1" />
-            CHAT
-          </Button>
+          </a>
+          {/* View Number */}
+          <button
+            onClick={handleChatStart}
+            className="flex-1 flex items-center justify-center gap-1.5 bg-[#1565C0] hover:bg-[#0d47a1] text-white font-bold text-sm rounded-full h-12"
+          >
+            <Phone className="h-4.5 w-4.5" />
+            View Number
+          </button>
         </div>
       </div>
 
