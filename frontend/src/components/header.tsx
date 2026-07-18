@@ -229,7 +229,7 @@ export function Header() {
       ]
     : navLinks
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { isMobileMenuOpen: isMenuOpen, setIsMobileMenuOpen: setIsMenuOpen } = useLocationStore()
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [activeActivityTab, setActiveActivityTab] = useState<ActivityTab>('seen')
   const [mounted, setMounted] = useState(false)
