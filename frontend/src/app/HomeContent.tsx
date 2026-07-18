@@ -229,15 +229,6 @@ export default function HomeContent() {
             {/* Full width on mobile, 56% on sm+ to leave room for right-side image */}
             <div className="flex flex-col items-start text-left w-full sm:max-w-[56%] gap-4 sm:gap-5">
 
-              {/* Location Selector Pill */}
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-              >
-                <LocationSelectorDropdown />
-              </motion.div>
-
               {/* Title */}
               <motion.div
                 initial={{ opacity: 0, y: -15 }}
