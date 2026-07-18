@@ -1252,7 +1252,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
               {(property.user?.name || 'K').charAt(0).toUpperCase()}
             </div>
             <span className="text-xs font-semibold text-slate-700">
-              {Math.floor(Math.random() * 5) + 2} people already contacted yesterday
+              {((Number(property.id) % 5) + 2)} people already contacted yesterday
             </span>
           </div>
 
