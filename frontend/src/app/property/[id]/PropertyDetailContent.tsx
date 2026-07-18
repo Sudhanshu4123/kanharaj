@@ -2680,8 +2680,6 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
           </div>
         )}
 
-      </div>
-
       {/* Full screen photo Lightbox */}
       <AnimatePresence>
         {isLightboxOpen && (
