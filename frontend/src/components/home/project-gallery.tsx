@@ -13,9 +13,16 @@ import {
 import { PropertyGridSkeleton } from '@/components/skeletons/property-skeletons'
 import { getPropertyUrl } from '@/lib/utils'
 
-export function ProjectGallery() {
+interface ProjectGalleryProps {
+  selectedCity?: string
+}
+
+export function ProjectGallery({ selectedCity }: ProjectGalleryProps = {}) {
   const { properties, loading } = usePropertyStore()
-  const projects = getProjectProperties(properties, 3)
+  const filteredProperties = (selectedCity && selectedCity !== 'All India')
+    ? properties.filter(p => (p.city || p.address || '').toLowerCase().includes(selectedCity.toLowerCase()))
+    : properties
+  const projects = getProjectProperties(filteredProperties, 3)
 
   return (
     <section className="py-20 bg-slate-50">

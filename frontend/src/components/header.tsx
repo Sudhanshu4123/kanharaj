@@ -10,7 +10,10 @@ import {
   HelpCircle, ChevronRight, QrCode, Facebook, Instagram, Twitter,
   Linkedin, Youtube, PhoneCall, Key, LayoutGrid, Tag, Newspaper
 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { Globe, MapPin } from 'lucide-react'
+import { useLocationStore } from '@/lib/location-store'
+import { topCities, otherCities } from '@/lib/location-data'
 import { Button } from './ui/button'
 import { cn, hasSellerDashboardAccess, BRAND_LOGO_SRC, getSellerUrl } from '@/lib/utils'
 import { useAuthStore } from '@/lib/store'
@@ -183,6 +186,30 @@ export function Header() {
   const pathname = usePathname()
   const router = useRouter()
 
+  const { selectedCity, setSelectedCity } = useLocationStore()
+  const [isLocationOpen, setIsLocationOpen] = useState(false)
+  const [locationSearch, setLocationSearch] = useState('')
+  const locationDropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close location dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (locationDropdownRef.current && !locationDropdownRef.current.contains(event.target as Node)) {
+        setIsLocationOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Filtered city lists for dropdown
+  const filteredTopCities = ['All India', ...topCities].filter(c =>
+    c.toLowerCase().includes(locationSearch.toLowerCase())
+  )
+  const filteredOtherCities = otherCities.filter(c =>
+    c.toLowerCase().includes(locationSearch.toLowerCase())
+  )
+
   const isPropertiesPage =
     pathname === '/properties' ||
     pathname?.startsWith('/property/') ||
@@ -281,24 +308,129 @@ export function Header() {
       scrolled && "shadow-lg shadow-black/20",
       isPropertiesPage && "hidden"
     )}>
-      {/* Logo */}
-      <div className="flex items-center shrink-0">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="relative h-9 w-9 rounded-full overflow-hidden flex items-center justify-center bg-[#0d233a] border border-[#dfa127] shrink-0 shadow-sm">
-            <img
-              src={BRAND_LOGO_SRC}
-              alt="Kanharaj Logo"
-              className="h-6 w-6 object-contain"
-            />
-          </div>
-          <div className="flex flex-col justify-center leading-none">
-            <div className="flex items-baseline">
-              <span className="font-sans font-black text-base text-white tracking-tighter leading-none">KANHARAJ</span>
-              <span className="text-[9px] font-black text-[#dfa127] ml-0.5 leading-none">.COM</span>
+      {/* Logo & Location Dropdown */}
+      <div className="flex items-center gap-3 sm:gap-5 shrink-0">
+        <div className="flex items-center shrink-0">
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="relative h-9 w-9 rounded-full overflow-hidden flex items-center justify-center bg-[#0d233a] border border-[#dfa127] shrink-0 shadow-sm">
+              <img
+                src={BRAND_LOGO_SRC}
+                alt="Kanharaj Logo"
+                className="h-6 w-6 object-contain"
+              />
             </div>
-            <span className="hidden sm:block text-[8px] font-bold text-white/50 mt-0.5 uppercase tracking-wide whitespace-nowrap">Dream Property. Right Place.</span>
-          </div>
-        </Link>
+            <div className="flex flex-col justify-center leading-none">
+              <div className="flex items-baseline">
+                <span className="font-sans font-black text-base text-white tracking-tighter leading-none">KANHARAJ</span>
+                <span className="text-[9px] font-black text-[#dfa127] ml-0.5 leading-none">.COM</span>
+              </div>
+              <span className="hidden sm:block text-[8px] font-bold text-white/50 mt-0.5 uppercase tracking-wide whitespace-nowrap">Dream Property. Right Place.</span>
+            </div>
+          </Link>
+        </div>
+
+        {/* Location Dropdown Selector — Housing.com style: plain text, no box */}
+        <div ref={locationDropdownRef} className="relative inline-flex items-center">
+          {/* Thin vertical divider */}
+          <span className="h-5 w-px bg-white/20 mr-3 sm:mr-4 hidden sm:block" />
+          <button
+            type="button"
+            onClick={() => { setIsLocationOpen(!isLocationOpen); setLocationSearch('') }}
+            className="flex items-center gap-1 sm:gap-1.5 text-white/90 hover:text-white text-[11px] sm:text-sm font-semibold transition-colors duration-150 select-none"
+          >
+            <span>{selectedCity}</span>
+            <ChevronDown className={cn('h-3.5 w-3.5 text-white/70 transition-transform duration-200', isLocationOpen && 'rotate-180')} />
+          </button>
+
+          <AnimatePresence>
+            {isLocationOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.97 }}
+                transition={{ duration: 0.15 }}
+                className="absolute left-0 top-full mt-2 w-72 max-h-80 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden text-slate-800"
+              >
+                {/* Search */}
+                <div className="p-2 border-b border-slate-100 flex items-center gap-1.5 bg-slate-50 shrink-0">
+                  <Search className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                  <input
+                    type="text"
+                    value={locationSearch}
+                    onChange={e => setLocationSearch(e.target.value)}
+                    placeholder="Search city..."
+                    className="w-full bg-transparent focus:outline-none text-xs text-slate-800 font-bold placeholder:text-slate-400 h-6 border-0 p-0"
+                    autoFocus
+                  />
+                  {locationSearch && (
+                    <button type="button" onClick={() => setLocationSearch('')} className="text-slate-400 hover:text-slate-600">
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+
+                {/* City list */}
+                <div className="flex-1 overflow-y-auto py-1.5 scrollbar-thin">
+                  {/* Popular cities */}
+                  {filteredTopCities.length > 0 && (
+                    <div>
+                      <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/60">
+                        {locationSearch ? 'Matching Cities' : 'Popular Cities'}
+                      </div>
+                      {filteredTopCities.map(city => (
+                        <button
+                          key={city}
+                          type="button"
+                          onClick={() => { setSelectedCity(city); setIsLocationOpen(false); setLocationSearch('') }}
+                          className={cn(
+                            'w-full text-left px-3 py-2 text-xs font-bold transition-colors flex items-center justify-between gap-2',
+                            selectedCity === city
+                              ? 'bg-violet-50 text-violet-750'
+                              : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                          )}
+                        >
+                          <span className="flex items-center gap-2">
+                            {city === 'All India' ? <Globe className="h-3.5 w-3.5 text-slate-400" /> : <MapPin className="h-3.5 w-3.5 text-rose-455" />}
+                            {city}
+                          </span>
+                          {selectedCity === city && <span className="text-[10px] font-black text-violet-605">✓</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {/* Other cities */}
+                  {filteredOtherCities.length > 0 && (
+                    <div className="mt-1">
+                      <div className="px-3 py-1 text-[9px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/60">Other Cities</div>
+                      {filteredOtherCities.map(city => (
+                        <button
+                          key={city}
+                          type="button"
+                          onClick={() => { setSelectedCity(city); setIsLocationOpen(false); setLocationSearch('') }}
+                          className={cn(
+                            'w-full text-left px-3 py-2 text-xs font-bold transition-colors flex items-center justify-between gap-2',
+                            selectedCity === city
+                              ? 'bg-violet-50 text-violet-750'
+                              : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                          )}
+                        >
+                          <span className="flex items-center gap-2">
+                            <MapPin className="h-3.5 w-3.5 text-rose-455" />
+                            {city}
+                          </span>
+                          {selectedCity === city && <span className="text-[10px] font-black text-violet-605">✓</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {filteredTopCities.length === 0 && filteredOtherCities.length === 0 && (
+                    <div className="px-4 py-6 text-xs font-semibold text-slate-400 text-center">No cities found</div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       <nav className="hidden lg:flex items-center gap-2 xl:gap-4 ml-auto mr-4">

@@ -1,17 +1,16 @@
 "use client"
 
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
-import { ArrowRight, Star, Home, Building2, MapPin, Shield, Phone, ChevronRight, ChevronDown, Award, Compass, Heart } from 'lucide-react'
+import { ArrowRight, Building2, MapPin, ChevronRight, ChevronDown, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { SearchBar } from '@/components/home/search-bar'
-import { FeaturedCollections } from '@/components/home/featured-collections'
 import { ProjectGallery } from '@/components/home/project-gallery'
 import { PropertyGridSkeleton } from '@/components/skeletons/property-skeletons'
 import { usePropertyStore } from '@/lib/store'
+import { useLocationStore } from '@/lib/location-store'
 import { cn, getPropertyUrl } from '@/lib/utils'
 import { HOME_FAQS } from '@/lib/seo'
 import {
@@ -67,7 +66,7 @@ const calculateEMI = (p: number, annualRate: number, years: number) => {
 export default function HomeContent() {
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'buy' | 'rent' | 'projects' | 'commercial' | 'pg' | 'plots'>('buy')
-  const [selectedCity, setSelectedCity] = useState('Delhi')
+  const { selectedCity, setSelectedCity } = useLocationStore()
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const scroll = (direction: 'left' | 'right') => {
@@ -109,15 +108,25 @@ export default function HomeContent() {
     })
   }, [])
 
-  const displayProperties = useMemo(() => getFeaturedOrLatest(properties, 3), [properties])
+  // Filter properties by selected city
+  const filterByCity = useCallback((props: typeof properties) => {
+    if (!selectedCity || selectedCity === 'All India') return props
+    return props.filter(p => {
+      const city = (p.city || p.address || '').toLowerCase()
+      return city.includes(selectedCity.toLowerCase())
+    })
+  }, [selectedCity])
+
+  const displayProperties = useMemo(() => getFeaturedOrLatest(filterByCity(properties), 3), [properties, filterByCity])
   const popularCities = useMemo(() => getPopularCities(properties, 4), [properties])
-  const newlyAddedProperties = useMemo(() => getNewlyAdded(properties, 8), [properties])
+  const newlyAddedProperties = useMemo(() => getNewlyAdded(filterByCity(properties), 8), [properties, filterByCity])
 
   const getHeroConfig = () => {
+    const cityLabel = selectedCity === 'All India' ? 'India' : selectedCity
     switch (activeTab) {
       case 'buy':
         return {
-          title: 'Find Your Perfect Property in All india',
+          title: `Find Your Perfect Property in ${cityLabel}`,
           subtitle: 'Verified flats, builder floors, and luxury homes directly from partners & builders.',
           bgImage: heroBackgrounds.buy,
           gradientClass: 'from-slate-950/70 via-slate-900/50 to-slate-900/10',
@@ -131,14 +140,14 @@ export default function HomeContent() {
         }
       case 'projects':
         return {
-          title: 'Premium New Projects',
+          title: `Premium New Projects in ${cityLabel}`,
           subtitle: 'Explore ready-to-move and under construction developer projects directly from partners & builders.',
           bgImage: heroBackgrounds.projects,
           gradientClass: 'from-slate-950/70 via-slate-900/50 to-slate-900/10',
         }
       case 'commercial':
         return {
-          title: 'Premium Commercial Spaces',
+          title: `Premium Commercial Spaces in ${cityLabel}`,
           subtitle: 'Offices, shops, and showrooms in premium commercial hubs.',
           bgImage: heroBackgrounds.commercial,
           gradientClass: 'from-slate-950/70 via-slate-900/50 to-slate-900/10',
@@ -152,14 +161,14 @@ export default function HomeContent() {
         }
       case 'plots':
         return {
-          title: 'Residential & Commercial Plots',
+          title: `Residential & Commercial Plots in ${cityLabel}`,
           subtitle: 'Premium land and plots in upcoming locations.',
           bgImage: heroBackgrounds.plots,
           gradientClass: 'from-amber-950/70 via-amber-900/50 to-amber-900/10',
         }
       default:
         return {
-          title: 'Find Your Perfect Property in Dwarka',
+          title: `Find Your Perfect Property in ${cityLabel}`,
           subtitle: 'Verified flats, builder floors, and luxury homes directly from partners & builders.',
           bgImage: heroBackgrounds.buy,
           gradientClass: 'from-slate-950/70 via-slate-900/50 to-slate-900/10',
@@ -219,6 +228,15 @@ export default function HomeContent() {
           <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Full width on mobile, 56% on sm+ to leave room for right-side image */}
             <div className="flex flex-col items-start text-left w-full sm:max-w-[56%] gap-4 sm:gap-5">
+
+              {/* Location Selector Pill */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                <LocationSelectorDropdown />
+              </motion.div>
 
               {/* Title */}
               <motion.div
@@ -430,12 +448,16 @@ export default function HomeContent() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-600 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
                 </span>
-                Handpicked Premium Properties
+                {selectedCity !== 'All India' ? `Properties in ${selectedCity}` : 'Handpicked Premium Properties'}
               </span>
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 mt-2">Kanharaj's Top Picks</h2>
-              <p className="text-slate-500 mt-1 text-xs font-medium">Most premium and recommended properties with direct builder contact.</p>
+              <p className="text-slate-500 mt-1 text-xs font-medium">
+                {selectedCity !== 'All India'
+                  ? `Premium properties in ${selectedCity} with direct builder contact.`
+                  : 'Most premium and recommended properties with direct builder contact.'}
+              </p>
             </div>
-            <Link href="/properties">
+            <Link href={selectedCity !== 'All India' ? `/properties?search=${encodeURIComponent(selectedCity)}` : '/properties'}>
               <Button className="bg-slate-950 hover:bg-rose-600 text-white font-bold rounded-xl flex items-center gap-1.5 h-10 px-5 shadow-sm transition-all text-sm">
                 Browse All <ArrowRight className="h-3.5 w-3.5" />
               </Button>
@@ -548,8 +570,23 @@ export default function HomeContent() {
           ) : (
             <div className="text-center py-20 bg-slate-50 rounded-[2.5rem] border border-slate-100 shadow-sm">
               <Building2 className="h-16 w-16 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-slate-700">No Premium Picks Found</h3>
-              <p className="text-slate-400 mt-2 mb-6">Database properties will display here once added.</p>
+              <h3 className="text-lg font-bold text-slate-700">
+                {selectedCity !== 'All India' ? `No Properties Found in ${selectedCity}` : 'No Premium Picks Found'}
+              </h3>
+              <p className="text-slate-400 mt-2 mb-6">
+                {selectedCity !== 'All India'
+                  ? `Try selecting a different city or browse all properties.`
+                  : 'Database properties will display here once added.'}
+              </p>
+              {selectedCity !== 'All India' && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedCity('All India')}
+                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-sm transition-colors"
+                >
+                  Show All India Properties
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -559,8 +596,12 @@ export default function HomeContent() {
       <section className="py-10 sm:py-14 bg-white relative border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Newly-added properties</h2>
-            <p className="text-slate-500 mt-1 text-xs sm:text-sm font-medium">Fresh listings to check out</p>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              {selectedCity !== 'All India' ? `Newly-added in ${selectedCity}` : 'Newly-added properties'}
+            </h2>
+            <p className="text-slate-500 mt-1 text-xs sm:text-sm font-medium">
+              {selectedCity !== 'All India' ? `Fresh listings in ${selectedCity}` : 'Fresh listings to check out'}
+            </p>
           </div>
 
           <div className="relative group">
