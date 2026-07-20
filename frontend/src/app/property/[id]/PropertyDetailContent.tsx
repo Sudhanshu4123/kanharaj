@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Bed, Bath, Maximize, MapPin, Calendar, Phone, Mail, Heart, Share2,
+  Bed, Bath, Maximize, MapPin, Calendar, Phone, Mail, Heart, Share2, Home,
   ChevronLeft, ChevronRight, Check, MessageCircle, MessageSquare, ArrowLeft, Building2,
   ShieldAlert, ShieldCheck, Info, Sparkles, AlertCircle, Compass, Star,
   X, Printer, DollarSign, Download, School, Activity, Shield, ArrowUpDown,
@@ -1380,12 +1380,12 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   <div className="text-xs font-bold text-slate-800">{areaVal}</div>
                 </div>
               </div>
-              {parsedHighlights.carpetArea && (
+              {highlights.carpetArea && (
                 <div className="flex items-center gap-2">
                   <Maximize className="h-4 w-4 text-indigo-500 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Carpet Area</div>
-                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.carpetArea}</div>
+                    <div className="text-xs font-bold text-slate-800">{highlights.carpetArea}</div>
                   </div>
                 </div>
               )}
@@ -1410,84 +1410,84 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   <div className="text-xs font-bold text-slate-800">{ageVal}</div>
                 </div>
               </div>
-              {parsedHighlights.furnishType && (
+              {highlights.furnishType && (
                 <div className="flex items-center gap-2">
                   <Home className="h-4 w-4 text-indigo-500 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Furnishing</div>
-                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.furnishType}</div>
+                    <div className="text-xs font-bold text-slate-800">{highlights.furnishType}</div>
                   </div>
                 </div>
               )}
-              {parsedHighlights.balconies && (
+              {highlights.balconies && (
                 <div className="flex items-center gap-2">
                   <Building2 className="h-4 w-4 text-indigo-500 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Balconies</div>
-                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.balconies}</div>
+                    <div className="text-xs font-bold text-slate-800">{highlights.balconies}</div>
                   </div>
                 </div>
               )}
-              {parsedHighlights.floorDetails && (
+              {highlights.floorDetails && (
                 <div className="flex items-center gap-2">
                   <Building2 className="h-4 w-4 text-indigo-500 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Floor Details</div>
-                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.floorDetails}</div>
+                    <div className="text-xs font-bold text-slate-800">{highlights.floorDetails}</div>
                   </div>
                 </div>
               )}
-              {parsedHighlights.coveredParking && (
+              {highlights.coveredParking && (
                 <div className="flex items-center gap-2">
                   <Car className="h-4 w-4 text-indigo-500 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Covered Parking</div>
-                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.coveredParking}</div>
+                    <div className="text-xs font-bold text-slate-800">{highlights.coveredParking}</div>
                   </div>
                 </div>
               )}
-              {parsedHighlights.openParking && (
+              {highlights.openParking && (
                 <div className="flex items-center gap-2">
                   <Car className="h-4 w-4 text-indigo-500 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Open Parking</div>
-                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.openParking}</div>
+                    <div className="text-xs font-bold text-slate-800">{highlights.openParking}</div>
                   </div>
                 </div>
               )}
-              {parsedHighlights.preferredTenant && (
+              {highlights.preferredTenant && (
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-indigo-500 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Preferred Tenant</div>
-                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.preferredTenant}</div>
+                    <div className="text-xs font-bold text-slate-800">{highlights.preferredTenant}</div>
                   </div>
                 </div>
               )}
-              {parsedHighlights.securityDeposit && (
+              {highlights.securityDeposit && (
                 <div className="flex items-center gap-2">
                   <IndianRupee className="h-4 w-4 text-indigo-500 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Security Deposit</div>
-                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.securityDeposit}</div>
+                    <div className="text-xs font-bold text-slate-800">{highlights.securityDeposit}</div>
                   </div>
                 </div>
               )}
-              {parsedHighlights.maintenanceCharges && (
+              {highlights.maintenanceCharges && (
                 <div className="flex items-center gap-2">
                   <IndianRupee className="h-4 w-4 text-indigo-500 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Maintenance</div>
-                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.maintenanceCharges}</div>
+                    <div className="text-xs font-bold text-slate-800">{highlights.maintenanceCharges}</div>
                   </div>
                 </div>
               )}
-              {(property.reraId || parsedHighlights.reraId) && (
+              {(property.reraId || highlights.reraId) && (
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-indigo-500 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">RERA ID</div>
-                    <div className="text-xs font-bold text-slate-800">{property.reraId || parsedHighlights.reraId}</div>
+                    <div className="text-xs font-bold text-slate-800">{property.reraId || highlights.reraId}</div>
                   </div>
                 </div>
               )}
@@ -1507,24 +1507,13 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
           {/* Floor Plan Schematics */}
           <div className="px-4 py-4 border-t border-slate-100">
             <h2 className="text-sm font-black text-slate-900 mb-3">Floor Plan & Layout Schematics</h2>
-            <FloorPlanSchematic
-              rooms={buildFloorPlanRooms(bedroomsVal ? parseInt(bedroomsVal) : 2, bathroomsVal ? parseInt(bathroomsVal) : 2, property.area || 1000)}
-              totalAreaSqFt={property.area || 1000}
-              bhkLabel={bedroomsVal || 'Layout'}
-              isResidential={isResidentialFloorPlan(property.propertyType)}
-            />
+            <FloorPlanSchematic property={property} />
           </div>
 
           {/* Locality Map & Trends */}
           <div className="px-4 py-4 border-t border-slate-100">
             <h2 className="text-sm font-black text-slate-900 mb-3">Locality Map & Surrounding Highlights</h2>
-            <PropertyLocalityMap
-              address={property.address}
-              city={property.city}
-              state={property.state}
-              pincode={property.pincode}
-              title={property.title}
-            />
+            <PropertyLocalityMap property={property} />
           </div>
 
           {/* PDF Brochure Download */}
@@ -2916,6 +2905,10 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
               </div>
             </Card>
 
+          </div> {/* end right sidebar */}
+
+        </div> {/* end 2-column grid */}
+
         {/* Dynamic Compare with Similar Properties (Desktop View) */}
         {similarProperties && similarProperties.length > 0 && (
           <div className="mt-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
@@ -3017,6 +3010,96 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* Project Inventory / Sub-units list */}
+        {isProject && (
+          <div className="mt-12 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
+              <div>
+                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Flats & Configurations in this Project</h3>
+                <p className="text-xs text-slate-500 font-semibold mt-1">Explore all the developer listings and direct-owner flats currently listed within {property.title}.</p>
+              </div>
+              <Badge className="bg-indigo-50 text-indigo-700 font-black border border-indigo-150 px-3.5 py-1.5 rounded-xl shrink-0">
+                {projectUnits.length} Units Available
+              </Badge>
+            </div>
+
+            {projectUnits.length === 0 ? (
+              <div className="py-12 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-3 animate-pulse" />
+                <h4 className="text-sm font-bold text-slate-700">No flats listed yet</h4>
+                <p className="text-xs text-slate-400 font-semibold mt-1">Be the first to list a flat in this project via the seller panel!</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projectUnits.map(unit => (
+                  <div key={unit.id} className="group bg-slate-50 hover:bg-white border border-slate-150 hover:border-indigo-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-md flex flex-col">
+                    {/* Thumbnail Image */}
+                    <div className="relative h-48 w-full bg-slate-100 shrink-0 overflow-hidden">
+                      <img
+                        src={getImageUrl(unit.images)}
+                        alt={unit.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; }}
+                      />
+                      <Badge className="absolute top-3 left-3 bg-[#0a2540] text-white font-extrabold px-2.5 py-1 rounded-lg border-none">
+                        {unit.listingType === 'RENT' ? 'For Rent' : 'For Sale'}
+                      </Badge>
+                    </div>
+
+                    {/* Details */}
+                    <div className="p-5 flex-1 flex flex-col justify-between">
+                      <div className="space-y-2">
+                        <div className="text-lg font-black text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                          {unit.title}
+                        </div>
+                        <div className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                          <span className="truncate">{unit.address || property.address}</span>
+                        </div>
+                        
+                        {/* Area, Bedrooms, Bathrooms Specs */}
+                        <div className="flex gap-4 pt-2 text-xs font-bold text-slate-700 border-t border-slate-100">
+                          {unit.bedrooms > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Bed className="w-4 h-4 text-slate-450 shrink-0" /> {unit.bedrooms} BHK
+                            </div>
+                          )}
+                          {unit.bathrooms > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Bath className="w-4 h-4 text-slate-455 shrink-0" /> {unit.bathrooms} Baths
+                            </div>
+                          )}
+                          {unit.area > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Maximize className="w-4 h-4 text-slate-456 shrink-0" /> {unit.area} Sq.Ft.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Pricing & CTA */}
+                      <div className="flex items-center justify-between mt-5 pt-3 border-t border-slate-150 shrink-0">
+                        <div>
+                          <span className="text-[9px] uppercase font-extrabold text-slate-400 block tracking-wider">Pricing</span>
+                          <span className="text-base font-black text-slate-900">
+                            {formatPrice(unit.price)}
+                            {unit.listingType === 'RENT' && <span className="text-xs font-bold text-slate-500">/mo</span>}
+                          </span>
+                        </div>
+                        <Link href={`/property/${unit.id}`}>
+                          <Button size="sm" className="bg-[#0a2540] hover:bg-[#07192c] text-white font-extrabold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
+                            View Flat
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
