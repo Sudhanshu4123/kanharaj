@@ -1527,45 +1527,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
             </div>
           )}
 
-          {/* Listed By / Owner Card */}
-          <div className="px-4 py-4 border-t border-slate-100">
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-              <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest block mb-2">Listed By Owner / Agent</span>
-              <div className="flex items-center gap-3">
-                {property.user?.profileImage ? (
-                  <img src={property.user.profileImage} alt={property.user.name} className="w-12 h-12 rounded-xl object-cover" />
-                ) : (
-                  <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xl font-black">
-                    {(property.user?.name || 'K').charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <div>
-                  <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-1">
-                    {property.user?.name || 'Kanharaj Seller'}
-                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-                  </h4>
-                  {property.user?.experienceYears && (
-                    <p className="text-[11px] text-slate-500 font-semibold">{property.user.experienceYears} experience</p>
-                  )}
-                </div>
-              </div>
-              <div className="mt-4 flex gap-2">
-                <a href={`tel:+91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`} className="flex-1">
-                  <Button variant="outline" className="w-full h-10 border-slate-300 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1">
-                    <Phone className="w-3.5 h-3.5 text-rose-500" /> Call
-                  </Button>
-                </a>
-                <a href={`https://wa.me/91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="flex-1">
-                  <Button className="w-full h-10 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1">
-                    <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
-                  </Button>
-                </a>
-                <Button onClick={handleChatStart} className="flex-1 h-10 bg-[#6B46C1] hover:bg-[#5A38A7] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1">
-                  <MessageSquare className="w-3.5 h-3.5" /> Chat
-                </Button>
-              </div>
-            </div>
-          </div>
+
 
           {/* Request Callback / Inquiry Form */}
           <div className="px-4 py-4 border-t border-slate-100">
