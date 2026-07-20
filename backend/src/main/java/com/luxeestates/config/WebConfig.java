@@ -1,6 +1,9 @@
 package com.luxeestates.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -40,13 +43,11 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations(absolutePath);
     }
 
-    @org.springframework.context.annotation.Bean
-    public org.springframework.boot.web.server.WebServerFactoryCustomizer<org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory> tomcatCustomizer() {
-        return factory -> factory.addContextCustomizers(context -> {
-            org.apache.tomcat.util.http.Rfc6265CookieProcessor cookieProcessor = new org.apache.tomcat.util.http.Rfc6265CookieProcessor();
-            cookieProcessor.setRelaxedQueryChars("{}[]\"");
-            cookieProcessor.setRelaxedPathChars("{}[]\"");
-            context.setCookieProcessor(cookieProcessor);
+    @Bean
+    public WebServerFactoryCustomizer<TomcatServletWebServerFactory> tomcatCustomizer() {
+        return factory -> factory.addConnectorCustomizers(connector -> {
+            connector.setProperty("relaxedQueryChars", "{}[]\"");
+            connector.setProperty("relaxedPathChars", "{}[]\"");
         });
     }
 }
