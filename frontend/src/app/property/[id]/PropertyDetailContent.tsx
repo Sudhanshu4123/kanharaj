@@ -1124,7 +1124,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
       </div>
 
       {/* ===== MOBILE HOUSING.COM STYLE LAYOUT ===== */}
-      <div className="block md:hidden">
+      <div className="block md:hidden -mt-[60px]">
 
         {/* Mobile Full-Screen Image Carousel */}
         <div
