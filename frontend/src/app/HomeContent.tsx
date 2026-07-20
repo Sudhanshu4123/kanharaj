@@ -730,59 +730,7 @@ export default function HomeContent() {
 
 
 
-      {/* FAQ Section for SEO */}
-      <section className="py-12 bg-slate-50 relative">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <span className="text-rose-600 text-xs font-black uppercase tracking-[0.2em] bg-rose-50 px-3 py-1 rounded-full inline-block">
-              Quick Reference
-            </span>
-            <h2 className="text-lg md:text-xl font-bold tracking-tight text-slate-900 mt-3">Frequently Asked Questions</h2>
-            <div className="w-8 h-0.5 bg-rose-600 mx-auto mt-3 rounded-full" />
-          </div>
 
-          <div className="space-y-2.5">
-            {faqs.map((faq, index) => {
-              const isOpen = expandedFaq === index;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.06 }}
-                  className="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
-                >
-                  <button
-                    onClick={() => setExpandedFaq(isOpen ? null : index)}
-                    className="w-full text-left p-4 sm:p-5 flex items-center justify-between gap-4 focus:outline-none"
-                  >
-                    <h3 className="text-sm font-bold text-slate-900 flex items-start gap-2.5">
-                      <span className="w-5 h-5 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-[10px] font-black shrink-0 border border-rose-100 mt-0.5">Q</span>
-                      <span className="leading-snug">{faq.question}</span>
-                    </h3>
-                    <ChevronDown className={cn("w-4 h-4 text-slate-400 transition-transform duration-300 shrink-0", isOpen && "rotate-180")} />
-                  </button>
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25, ease: "easeInOut" }}
-                      >
-                        <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 pl-[38px] text-slate-500 text-xs leading-relaxed">
-                          {faq.answer}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
 
     </div>
