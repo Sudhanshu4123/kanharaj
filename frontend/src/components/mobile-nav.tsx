@@ -45,11 +45,15 @@ export function MobileNav() {
   const isSearchActive = pathname === '/properties' || pathname.startsWith('/buy') || pathname.startsWith('/rent')
   const isPostActive = pathname === '/properties/post'
   const isActivityActive = pathname.startsWith('/profile') || pathname.includes('tab=activity')
-  const isMenuDropdownActive = isMobileMenuOpen
+  const isMenuActive = pathname === '/categories'
 
-  // Hide on property detail & project detail pages (they have their own sticky CTA)
-  const isPropertyDetailPage = pathname?.startsWith('/property/') || pathname?.startsWith('/project/')
-  if (isPropertyDetailPage) return null
+  // Hide on property detail, project detail, and chat pages
+  const isHiddenPage =
+    pathname?.startsWith('/property/') ||
+    pathname?.startsWith('/project/') ||
+    pathname === '/chat' ||
+    pathname?.startsWith('/chat')
+  if (isHiddenPage) return null
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 block lg:hidden bg-white border-t border-slate-200 pb-safe shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
@@ -61,10 +65,10 @@ export function MobileNav() {
           onClick={() => setIsMobileMenuOpen(false)}
           className={cn(
             "flex flex-col items-center justify-center relative w-full h-full transition-all gap-1",
-            isHomeActive && !isMobileMenuOpen ? "text-slate-900" : "text-slate-400"
+            isHomeActive ? "text-slate-900" : "text-slate-400"
           )}
         >
-          <Home className={cn("h-[22px] w-[22px]", isHomeActive && !isMobileMenuOpen && "fill-slate-900")} />
+          <Home className={cn("h-[22px] w-[22px]", isHomeActive && "fill-slate-900")} />
           <span className="text-[10px] font-bold leading-none">Home</span>
         </Link>
 
@@ -74,7 +78,7 @@ export function MobileNav() {
           onClick={() => setIsMobileMenuOpen(false)}
           className={cn(
             "flex flex-col items-center justify-center relative w-full h-full transition-all gap-1",
-            isSearchActive && !isMobileMenuOpen ? "text-slate-900" : "text-slate-400"
+            isSearchActive ? "text-slate-900" : "text-slate-400"
           )}
         >
           <Search className="h-[22px] w-[22px]" />
@@ -89,18 +93,18 @@ export function MobileNav() {
           }}
           className={cn(
             "flex flex-col items-center justify-center relative w-full h-full transition-all gap-1",
-            isPostActive && !isMobileMenuOpen ? "text-slate-900" : "text-slate-400"
+            isPostActive ? "text-slate-900" : "text-slate-400"
           )}
         >
           <div className="relative flex flex-col items-center justify-center -mt-4.5 mb-1 select-none">
             {/* Border card shape */}
             <div className={cn(
               "w-[34px] h-[34px] border-2 rounded-xl flex items-center justify-center bg-white shadow-sm transition-all duration-200",
-              isPostActive && !isMobileMenuOpen ? "border-slate-800 shadow-md" : "border-slate-400"
+              isPostActive ? "border-slate-800 shadow-md" : "border-slate-400"
             )}>
               <span className={cn(
                 "text-lg font-black leading-none -mt-0.5",
-                isPostActive && !isMobileMenuOpen ? "text-slate-800" : "text-slate-400"
+                isPostActive ? "text-slate-800" : "text-slate-400"
               )}>+</span>
             </div>
             {/* FREE Badge */}
@@ -117,24 +121,25 @@ export function MobileNav() {
           onClick={() => setIsMobileMenuOpen(false)}
           className={cn(
             "flex flex-col items-center justify-center relative w-full h-full transition-all gap-1",
-            isActivityActive && !isMobileMenuOpen ? "text-slate-900" : "text-slate-400"
+            isActivityActive ? "text-slate-900" : "text-slate-400"
           )}
         >
-          <Heart className={cn("h-[22px] w-[22px]", isActivityActive && !isMobileMenuOpen && "fill-slate-900")} />
+          <Heart className={cn("h-[22px] w-[22px]", isActivityActive && "fill-slate-900")} />
           <span className="text-[10px] font-bold leading-none">Activity</span>
         </Link>
 
-        {/* Menu (Hamburger) */}
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        {/* Menu (Categories Page Link) */}
+        <Link
+          href="/categories"
+          onClick={() => setIsMobileMenuOpen(false)}
           className={cn(
             "flex flex-col items-center justify-center relative w-full h-full transition-all gap-1",
-            isMenuDropdownActive ? "text-slate-900" : "text-slate-400"
+            isMenuActive ? "text-slate-900" : "text-slate-400"
           )}
         >
-          <Menu className="h-[22px] w-[22px]" />
+          <Menu className={cn("h-[22px] w-[22px]", isMenuActive && "text-slate-900")} />
           <span className="text-[10px] font-bold leading-none">Menu</span>
-        </button>
+        </Link>
 
       </div>
     </nav>

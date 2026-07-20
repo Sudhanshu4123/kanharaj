@@ -72,22 +72,24 @@ export function MobileHome() {
   }
 
   return (
-    <div className="lg:hidden bg-white min-h-screen -mt-16 sm:-mt-20 pb-4">
+    <div className="lg:hidden bg-white min-h-screen pb-4">
       <MobileTopBar />
 
-      <div className="px-4 pt-4 pb-2">
-        <form onSubmit={handleSearch} className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+      {/* Search Bar - styled exactly as requested */}
+      <div className="px-4 pt-3 pb-1">
+        <form onSubmit={handleSearch} className="flex items-center bg-slate-100/90 hover:bg-slate-100 focus-within:bg-white border border-slate-200 rounded-full px-4 py-2.5 transition-all shadow-sm">
           <input
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by locality, project or builder"
-            className="w-full h-12 pl-12 pr-4 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#A21133] focus:bg-white"
+            placeholder="Search city, locality, project, landmark etc"
+            className="w-full bg-transparent text-xs text-slate-800 placeholder-slate-400 font-medium focus:outline-none pr-2"
           />
+          <button type="submit" className="p-0.5 text-slate-400 hover:text-slate-600 shrink-0 transition-colors" aria-label="Search">
+            <Search className="w-4.5 h-4.5 text-slate-500" />
+          </button>
         </form>
       </div>
-
       {/* Quick categories */}
       <div className="px-4 py-4 grid grid-cols-4 gap-3">
         {quickCategories.map((cat) => (

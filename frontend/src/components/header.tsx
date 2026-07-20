@@ -8,7 +8,8 @@ import {
   Building2, Grid, Compass, Store, Phone, CheckSquare, Heart,
   Search, Clock, Gem, CreditCard, Star, Bell, ShieldAlert,
   HelpCircle, ChevronRight, QrCode, Facebook, Instagram, Twitter,
-  Linkedin, Youtube, PhoneCall, Key, LayoutGrid, Tag, Newspaper
+  Linkedin, Youtube, PhoneCall, Key, LayoutGrid, Tag, Newspaper,
+  Mountain, DollarSign
 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { Globe, MapPin } from 'lucide-react'
@@ -130,6 +131,76 @@ const newsMegaData = {
   ]
 }
 
+const drawerTabs = [
+  { id: 'sell_rent', label: 'Sell/Rent', icon: PlusCircle, isBadge: true, badgeText: 'FREE' },
+  { id: 'buy_res', label: 'Buy Residential', icon: Home },
+  { id: 'rent_pg', label: 'Rent / PG', icon: Key },
+  { id: 'buy_comm', label: 'Buy Commercial', icon: Store },
+  { id: 'lease_comm', label: 'Lease Commercial', icon: Building2 },
+  { id: 'insights', label: 'Price & Insights', icon: DollarSign },
+  { id: 'activity', label: 'Activity & Profile', icon: User },
+]
+
+const drawerCategories = {
+  buy_res: {
+    title: 'Property Options',
+    items: [
+      { label: 'Flat / Apartment', href: '/properties?type=flat&listing=buy', icon: Building2, iconBg: 'bg-[#0052cc]' },
+      { label: 'Residential Land', href: '/properties?type=plot&listing=buy', icon: Grid, iconBg: 'bg-[#00875a]' },
+      { label: 'Independent House / Villa', href: '/properties?type=house&listing=buy', icon: Home, iconBg: 'bg-[#ffab00]' },
+      { label: 'Builder Floor', href: '/properties?type=floor&listing=buy', icon: Building, iconBg: 'bg-[#6554c0]' },
+      { label: 'Studio Apartment', href: '/properties?type=flat&bhk=1rk&listing=buy', icon: Compass, iconBg: 'bg-[#36b37e]' },
+      { label: 'Farm House', href: '/properties?type=villa&listing=buy', icon: Mountain, iconBg: 'bg-[#ff5630]' },
+      { label: 'Ready to Move', href: '/properties?status=ready&listing=buy', icon: CheckSquare, iconBg: 'bg-[#ff007f]' },
+    ]
+  },
+  rent_pg: {
+    title: 'Rental & PG Options',
+    items: [
+      { label: 'Flats for Rent', href: '/rent/flat', icon: Building2, iconBg: 'bg-[#0052cc]' },
+      { label: 'Houses for Rent', href: '/rent/house', icon: Home, iconBg: 'bg-[#ffab00]' },
+      { label: 'Builder Floors', href: '/rent/floor', icon: Building, iconBg: 'bg-[#6554c0]' },
+      { label: 'PG / Co-Living', href: '/rent/pg', icon: User, iconBg: 'bg-[#36b37e]' },
+      { label: 'Furnished Flats', href: '/properties?furnishing=fully-furnished&type=flat&listing=rent', icon: Key, iconBg: 'bg-[#ff5630]' },
+      { label: 'Zero Brokerage', href: '/properties?brokerage=zero&listing=rent', icon: Gem, iconBg: 'bg-amber-500' },
+    ]
+  },
+  buy_comm: {
+    title: 'Commercial Buy Options',
+    items: [
+      { label: 'Buy Commercial', href: '/buy/commercial', icon: Store, iconBg: 'bg-[#0052cc]' },
+      { label: 'Commercial Plots', href: '/properties?type=commercial&listing=buy', icon: Grid, iconBg: 'bg-[#00875a]' },
+      { label: 'Retail Shops', href: '/properties?type=commercial&subtype=shop&listing=buy', icon: Store, iconBg: 'bg-[#ffab00]' },
+      { label: 'Office Space', href: '/properties?type=commercial&subtype=office&listing=buy', icon: Building2, iconBg: 'bg-[#6554c0]' },
+    ]
+  },
+  lease_comm: {
+    title: 'Commercial Lease Options',
+    items: [
+      { label: 'Lease Office Space', href: '/properties?type=commercial&listing=rent', icon: Building2, iconBg: 'bg-[#0052cc]' },
+      { label: 'Commercial Shops', href: '/properties?type=commercial&subtype=shop&listing=rent', icon: Store, iconBg: 'bg-[#ffab00]' },
+      { label: 'Co-working Space', href: '/properties?type=commercial&subtype=coworking&listing=rent', icon: LayoutGrid, iconBg: 'bg-[#36b37e]' },
+    ]
+  },
+  insights: {
+    title: 'Price & Guides',
+    items: [
+      { label: 'Real Estate News', href: '/news', icon: Newspaper, iconBg: 'bg-[#ff5630]' },
+      { label: 'Buying Guide', href: '/buying-guide', icon: HelpCircle, iconBg: 'bg-[#0052cc]' },
+      { label: 'Research Insights', href: '/#research-insights', icon: Compass, iconBg: 'bg-[#00875a]' },
+    ]
+  },
+  activity: {
+    title: 'Account & Activity',
+    items: [
+      { label: 'My Wishlist', href: '/profile?tab=wishlist', icon: Heart, iconBg: 'bg-[#ff007f]' },
+      { label: 'Contacted Properties', href: '/profile?tab=activity&activity=contacted', icon: PhoneCall, iconBg: 'bg-[#0052cc]' },
+      { label: 'My Profile / Edit', href: '/profile', icon: User, iconBg: 'bg-[#6554c0]' },
+      { label: 'Log In / Register', href: '/login', icon: User, iconBg: 'bg-[#00875a]' },
+    ]
+  }
+}
+
 
 const navLinks = [
   {
@@ -221,6 +292,16 @@ export function Header() {
 
   const isNewsPage = pathname === '/news' || pathname?.startsWith('/news/')
 
+  const isExcludedFromStickyMobileSearch =
+    isPropertiesPage ||
+    pathname === '/categories' ||
+    pathname === '/profile' ||
+    pathname === '/login' ||
+    pathname === '/properties/post' ||
+    pathname === '/feedback' ||
+    pathname === '/chat' ||
+    pathname?.startsWith('/chat')
+
   const activeNavLinks: NavLinkItem[] = isNewsPage
     ? [
         { label: 'Home', href: '/news', icon: Home },
@@ -230,11 +311,26 @@ export function Header() {
     : navLinks
 
   const { isMobileMenuOpen: isMenuOpen, setIsMobileMenuOpen: setIsMenuOpen } = useLocationStore()
+  const [drawerTab, setDrawerTab] = useState<'buy_res' | 'rent_pg' | 'buy_comm' | 'lease_comm' | 'insights' | 'activity'>('buy_res')
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [activeActivityTab, setActiveActivityTab] = useState<ActivityTab>('seen')
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [sellerUrl, setSellerUrl] = useState('https://seller.kanharaj.com')
+  const [mobileSearchQuery, setMobileSearchQuery] = useState('')
+
+  const handleMobileSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!mobileSearchQuery.trim() && (!selectedCity || selectedCity === 'All India')) {
+      router.push('/properties')
+      return
+    }
+    const params = new URLSearchParams()
+    if (selectedCity && selectedCity !== 'All India') params.set('city', selectedCity)
+    if (mobileSearchQuery.trim()) params.set('search', mobileSearchQuery.trim())
+    router.push(`/properties?${params.toString()}`)
+  }
+
   useEffect(() => {
     setSellerUrl(getSellerUrl())
   }, [])
@@ -298,16 +394,13 @@ export function Header() {
     return () => document.removeEventListener('mousedown', handleOutsideClick)
   }, [openDropdown])
 
-  if (isPropertiesPage) {
-    return null
-  }
-
   return (
-    <header className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#0a2540] h-[60px] flex items-center px-4 sm:px-6 lg:px-10 justify-between border-b border-white/10",
-      scrolled && "shadow-lg shadow-black/20",
-      isPropertiesPage && "hidden"
-    )}>
+    <>
+      {!isPropertiesPage && (
+        <header className={cn(
+          "hidden md:flex fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#0a2540] h-[60px] items-center px-4 sm:px-6 lg:px-10 justify-between border-b border-white/10",
+          scrolled && "shadow-lg shadow-black/20"
+        )}>
       {/* Logo & Location Dropdown */}
       <div className="flex items-center gap-3 sm:gap-5 shrink-0">
         <div className="flex items-center shrink-0">
@@ -873,533 +966,27 @@ export function Header() {
       >
         {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
-
-      {isMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          className="lg:hidden absolute top-[84px] left-0 right-0 bg-white border border-slate-200 shadow-2xl rounded-2xl p-4 max-h-[75vh] overflow-y-auto z-50 text-slate-800 flex flex-col gap-4"
-        >
-          <div className="px-4 py-4 space-y-1">
-            {activeNavLinks.map((link) => (
-              <div key={link.label}>
-                <div className="space-y-1">
-                  {link.href ? (
-                    <Link
-                      href={link.href}
-                      onClick={() => setIsMenuOpen(false)}
-                      className="w-full flex items-center gap-2 py-2.5 px-3 text-sm font-bold text-slate-700 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                    >
-                      {link.icon && <link.icon className="h-4 w-4 text-slate-400" />}
-                      {link.label}
-                    </Link>
-                  ) : (
-                    <button
-                      onClick={() => setOpenDropdown(openDropdown === link.label ? null : link.label)}
-                      className="w-full flex items-center justify-between py-2.5 px-3 text-sm font-bold text-slate-700 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                    >
-                      <span className="flex items-center gap-2">
-                        {link.icon && <link.icon className="h-4 w-4 text-slate-400" />}
-                        {link.label}
-                      </span>
-                      <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", openDropdown === link.label ? "rotate-180" : "")} />
-                    </button>
-                  )}
-                  {link.subLinks && (
-                    <AnimatePresence>
-                    {openDropdown === link.label && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="pl-4 overflow-hidden py-2 space-y-4 border-l border-slate-100 ml-3"
-                      >
-                        {link.label === 'For Buyers' ? (
-                          <>
-                            {/* Property Type */}
-                            <div>
-                              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">Property type</span>
-                              <div className="grid grid-cols-2 gap-1">
-                                {buyersMegaData.propertyTypes.map((item) => {
-                                  const Icon = item.icon;
-                                  return (
-                                    <Link
-                                      key={item.label}
-                                      href={item.href}
-                                      onClick={() => {
-                                        setIsMenuOpen(false)
-                                        setOpenDropdown(null)
-                                      }}
-                                      className="flex items-center gap-2 py-1.5 px-2 text-xs font-semibold text-slate-600 hover:text-[#f22b68] hover:bg-slate-50 rounded-lg transition-all"
-                                    >
-                                      <Icon className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                                      {item.label}
-                                    </Link>
-                                  );
-                                })}
-                              </div>
-                            </div>
-
-                            {/* Popular Areas */}
-                            <div>
-                              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">Popular areas</span>
-                              <div className="grid grid-cols-2 gap-1">
-                                {buyersMegaData.popularAreas.map((item) => (
-                                  <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    onClick={() => {
-                                      setIsMenuOpen(false)
-                                      setOpenDropdown(null)
-                                    }}
-                                    className="block py-1.5 px-2 text-xs font-semibold text-slate-600 hover:text-[#f22b68] hover:bg-slate-50 rounded-lg transition-all"
-                                  >
-                                    {item.label}
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
-
-                            {/* BHK */}
-                            <div>
-                              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">Search by BHK</span>
-                              <div className="grid grid-cols-2 gap-1">
-                                {buyersMegaData.byBhk.map((item) => (
-                                  <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    onClick={() => {
-                                      setIsMenuOpen(false)
-                                      setOpenDropdown(null)
-                                    }}
-                                    className="block py-1.5 px-2 text-xs font-semibold text-slate-600 hover:text-[#f22b68] hover:bg-slate-50 rounded-lg transition-all"
-                                  >
-                                    {item.label}
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
-
-                            {/* Popular Searches */}
-                            <div>
-                              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">Popular searches</span>
-                              <div className="space-y-1">
-                                {buyersMegaData.popularSearches.map((item) => (
-                                  <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    onClick={() => {
-                                      setIsMenuOpen(false)
-                                      setOpenDropdown(null)
-                                    }}
-                                    className="block py-1 px-2 text-xs font-semibold text-slate-600 hover:text-[#f22b68] hover:bg-slate-50 rounded-lg transition-all"
-                                  >
-                                    {item.label}
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
-                          </>
-                        ) : link.label === 'For Tenants' ? (
-                          <>
-                            {/* Property Type */}
-                            <div>
-                              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">Property type</span>
-                              <div className="grid grid-cols-2 gap-1">
-                                {tenantsMegaData.propertyTypes.map((item) => {
-                                  const Icon = item.icon;
-                                  return (
-                                    <Link
-                                      key={item.label}
-                                      href={item.href}
-                                      onClick={() => {
-                                        setIsMenuOpen(false)
-                                        setOpenDropdown(null)
-                                      }}
-                                      className="flex items-center gap-2 py-1.5 px-2 text-xs font-semibold text-slate-600 hover:text-[#f22b68] hover:bg-slate-50 rounded-lg transition-all"
-                                    >
-                                      <Icon className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                                      {item.label}
-                                    </Link>
-                                  );
-                                })}
-                              </div>
-                            </div>
-
-                            {/* Popular Areas */}
-                            <div>
-                              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">Popular areas</span>
-                              <div className="grid grid-cols-2 gap-1">
-                                {tenantsMegaData.popularAreas.map((item) => (
-                                  <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    onClick={() => {
-                                      setIsMenuOpen(false)
-                                      setOpenDropdown(null)
-                                    }}
-                                    className="block py-1.5 px-2 text-xs font-semibold text-slate-600 hover:text-[#f22b68] hover:bg-slate-50 rounded-lg transition-all"
-                                  >
-                                    {item.label}
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
-
-                            {/* BHK */}
-                            <div>
-                              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">Search by BHK</span>
-                              <div className="grid grid-cols-2 gap-1">
-                                {tenantsMegaData.byBhk.map((item) => (
-                                  <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    onClick={() => {
-                                      setIsMenuOpen(false)
-                                      setOpenDropdown(null)
-                                    }}
-                                    className="block py-1.5 px-2 text-xs font-semibold text-slate-600 hover:text-[#f22b68] hover:bg-slate-50 rounded-lg transition-all"
-                                  >
-                                    {item.label}
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
-
-                            {/* Popular Searches */}
-                            <div>
-                              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">Popular searches</span>
-                              <div className="space-y-1">
-                                {tenantsMegaData.popularSearches.map((item) => (
-                                  <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    onClick={() => {
-                                      setIsMenuOpen(false)
-                                      setOpenDropdown(null)
-                                    }}
-                                    className="block py-1 px-2 text-xs font-semibold text-slate-600 hover:text-[#f22b68] hover:bg-slate-50 rounded-lg transition-all"
-                                  >
-                                    {item.label}
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
-                          </>
-                        ) : link.label === 'For Sellers' ? (
-                          <>
-                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">{sellersMegaData.title}</span>
-                            <div className="space-y-1">
-                              {sellersMegaData.items.map((item) => (
-                                <Link
-                                  key={item.label}
-                                  href={item.href}
-                                  onClick={() => {
-                                    setIsMenuOpen(false)
-                                    setOpenDropdown(null)
-                                  }}
-                                  className="block py-1.5 px-2 rounded-lg hover:bg-slate-50 transition-all group"
-                                >
-                                  <span className="text-xs font-bold text-slate-900 block group-hover:text-slate-900">{item.label}</span>
-                                  <span className="text-[10px] font-semibold text-slate-400 block">{item.description}</span>
-                                </Link>
-                              ))}
-                            </div>
-                          </>
-                        ) : link.label === 'Services' ? (
-                          <>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">{servicesMegaData.edge.title}</span>
-                                <div className="space-y-1">
-                                  {servicesMegaData.edge.items.map((item) => (
-                                    <Link
-                                      key={item.label}
-                                      href={item.href}
-                                      onClick={() => {
-                                        setIsMenuOpen(false)
-                                        setOpenDropdown(null)
-                                      }}
-                                      className="block py-1.5 px-2 text-xs font-bold text-slate-600 hover:text-[#f22b68] hover:bg-slate-50 rounded-lg transition-all"
-                                    >
-                                      {item.label}
-                                    </Link>
-                                  ))}
-                                </div>
-                              </div>
-                              <div>
-                                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">{servicesMegaData.tools.title}</span>
-                                <div className="space-y-1">
-                                  {servicesMegaData.tools.items.map((item) => (
-                                    <Link
-                                      key={item.label}
-                                      href={item.href}
-                                      onClick={() => {
-                                        setIsMenuOpen(false)
-                                        setOpenDropdown(null)
-                                      }}
-                                      className="block py-1.5 px-2 text-xs font-bold text-slate-600 hover:text-[#f22b68] hover:bg-slate-50 rounded-lg transition-all"
-                                    >
-                                      {item.label}
-                                    </Link>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          </>
-                        ) : link.label === 'News & Guide' ? (
-                          <>
-                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">{newsMegaData.title}</span>
-                            <div className="space-y-1">
-                              {newsMegaData.items.map((item: any) => (
-                                <Link
-                                  key={item.label}
-                                  href={item.href}
-                                  target={item.target}
-                                  rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
-                                  onClick={() => {
-                                    setIsMenuOpen(false)
-                                    setOpenDropdown(null)
-                                  }}
-                                  className="block py-1.5 px-2 rounded-lg hover:bg-slate-50 transition-all group"
-                                >
-                                  <span className="text-xs font-bold text-slate-900 block group-hover:text-slate-900">{item.label}</span>
-                                  <span className="text-[10px] font-semibold text-slate-400 block">{item.description}</span>
-                                </Link>
-                              ))}
-                            </div>
-                          </>
-                        ) : (
-                          link.subLinks && link.subLinks.map((sub: any) => (
-                            <Link
-                              key={sub.href}
-                              href={sub.href}
-                              target={sub.target}
-                              rel={sub.target === '_blank' ? 'noopener noreferrer' : undefined}
-                              onClick={() => {
-                                setIsMenuOpen(false)
-                                setOpenDropdown(null)
-                              }}
-                              className="block py-2 px-3 text-sm font-semibold text-slate-600 hover:text-rose-600 rounded-lg transition-colors"
-                            >
-                              {sub.label}
-                            </Link>
-                          ))
-                        )}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                  )}
-                </div>
-              </div>
-            ))}
-
-            <div className="pt-4 border-t border-slate-100 space-y-3">
-              <button
-                onClick={(e) => {
-                  setIsMenuOpen(false)
-                  handlePostPropertyFreeClick(e)
-                }}
-                className="w-full bg-gradient-to-r from-[#f22b68] to-[#e01f5c] text-white font-extrabold h-11 flex items-center justify-center gap-2 rounded-xl hover:opacity-95 shadow-sm active:scale-95 transition-all text-sm"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Post Property FREE</span>
-              </button>
-
-              {showSellerDashboard && (
-                <a
-                  href={sellerDashboardHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block"
-                >
-                  <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold h-11 flex items-center justify-center gap-2 rounded-xl">
-                    <span>Seller Dashboard</span>
-                  </Button>
-                </a>
-              )}
-
-              {/* Collapsible Mobile Dashboard Accordion */}
-              <div className="space-y-1">
-                <button
-                  onClick={() => setOpenDropdown(openDropdown === 'mobile-user' ? null : 'mobile-user')}
-                  className="w-full flex items-center justify-between py-3 px-3.5 text-sm font-extrabold text-slate-800 bg-slate-50 border border-slate-100 rounded-xl hover:bg-slate-100/80 transition-colors"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <User className="h-4.5 w-4.5 text-[#f22b68]" />
-                    <span>
-                      {isAuthenticated ? (user?.name || 'My Account') : 'Account'} (Dashboard)
-                    </span>
-                  </div>
-                  <ChevronDown className={cn("h-4 w-4 transition-transform duration-200 text-slate-400", openDropdown === 'mobile-user' ? "rotate-180" : "")} />
-                </button>
-
-                <AnimatePresence>
-                  {openDropdown === 'mobile-user' && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="pl-3 overflow-hidden py-3 space-y-4 ml-1 flex flex-col gap-4 border-l border-indigo-100"
-                    >
-                      {/* Mobile Profile Card */}
-                      <div className="bg-[#f8fafc] border border-slate-100 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
-                        <div>
-                          <h4 className="text-xs font-black text-slate-900 leading-tight">
-                            {isAuthenticated ? (user?.name || 'My Account') : 'Welcome to Kanharaj'}
-                          </h4>
-                          {isAuthenticated ? (
-                            <>
-                              <p className="text-[10px] text-slate-500 font-bold mt-0.5">
-                                {user?.email}
-                              </p>
-                              {user?.phone && (
-                                <p className="text-[10px] text-slate-400 font-bold mt-0.5">
-                                  {user.phone}
-                                </p>
-                              )}
-                            </>
-                          ) : (
-                            <p className="text-[10px] text-slate-500 font-bold mt-0.5">
-                              Log in to access your dashboard
-                            </p>
-                          )}
-                        </div>
-                        {isAuthenticated ? (
-                          <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
-                            <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[10px] px-3 py-1 rounded-full font-bold shadow-sm transition-colors">
-                              Edit
-                            </button>
-                          </Link>
-                        ) : (
-                          <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                            <button className="bg-[#f22b68] hover:bg-[#e01f5c] text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-sm transition-colors">
-                              Log In
-                            </button>
-                          </Link>
-                        )}
-                      </div>
-
-                      {isAuthenticated && (
-                        <>
-                          <MyActivityPanel
-                            variant="mobile"
-                            activeTab={activeActivityTab}
-                            setActiveTab={setActiveActivityTab}
-                            onNavigate={() => setIsMenuOpen(false)}
-                          />
-
-                          {/* Mobile Links List */}
-                          <div className="flex flex-col gap-1 pr-2">
-                            <Link
-                              href="/properties?brokerage=zero"
-                              onClick={() => setIsMenuOpen(false)}
-                              className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Gem className="h-4 w-4 text-amber-500" />
-                                <span>Zero Brokerage Properties</span>
-                              </div>
-                              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                            </Link>
-
-                            <Link
-                              href="/profile?tab=activity&activity=contacted"
-                              onClick={() => setIsMenuOpen(false)}
-                              className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
-                            >
-                              <div className="flex items-center gap-2">
-                                <CreditCard className="h-4 w-4 text-blue-500" />
-                                <span>My Transactions</span>
-                              </div>
-                              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                            </Link>
-
-                            <Link
-                              href="/feedback"
-                              onClick={() => setIsMenuOpen(false)}
-                              className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Star className="h-4 w-4 text-yellow-500" />
-                                <div className="flex items-center">
-                                  <span>My Reviews</span>
-                                  <span className="ml-2 px-1.5 py-0.5 text-[7px] font-black bg-[#ff007f] text-white rounded-full uppercase">NEW</span>
-                                </div>
-                              </div>
-                              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                            </Link>
-
-                            <a
-                              href="mailto:kanharaj1389@gmail.com?subject=Unsubscribe%20Alerts"
-                              onClick={() => setIsMenuOpen(false)}
-                              className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Bell className="h-4 w-4 text-rose-500" />
-                                <span>Unsubscribe Alerts</span>
-                              </div>
-                              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                            </a>
-
-                            <a
-                              href="mailto:kanharaj1389@gmail.com?subject=Report%20Fraud"
-                              onClick={() => setIsMenuOpen(false)}
-                              className="flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors font-bold text-xs"
-                            >
-                              <div className="flex items-center gap-2">
-                                <ShieldAlert className="h-4 w-4 text-red-500" />
-                                <span>Report a Fraud</span>
-                              </div>
-                              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                            </a>
-                          </div>
-
-                        </>
-                      )}
-
-                      {/* Actions */}
-                      <div className="space-y-2 pr-2">
-
-                        {isAuthenticated ? (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              handleLogout()
-                            }}
-                            className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-3.5 py-2.5 rounded-xl flex items-center justify-between transition-colors font-extrabold text-xs w-full"
-                          >
-                            <div className="flex items-center gap-2">
-                              <LogOut className="h-4 w-4 text-slate-500" />
-                              <span>Log Out</span>
-                            </div>
-                            <ChevronRight className="h-4 w-4 text-slate-500" />
-                          </button>
-                        ) : (
-                          <Link
-                            href="/login"
-                            onClick={() => setIsMenuOpen(false)}
-                            className="bg-[#f22b68] hover:bg-[#e01f5c] text-white px-3.5 py-2.5 rounded-xl flex items-center justify-between transition-colors font-extrabold text-xs w-full"
-                          >
-                            <div className="flex items-center gap-2">
-                              <User className="h-4 w-4" />
-                              <span>Log In / Register</span>
-                            </div>
-                            <ChevronRight className="h-4 w-4" />
-                          </Link>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
     </header>
+    )}
+
+
+      {/* ===== MOBILE STICKY SEARCH HEADER (APPEARS ON SCROLL ON MOBILE) ===== */}
+      {scrolled && !isExcludedFromStickyMobileSearch && (
+        <div className="flex md:hidden fixed top-0 left-0 right-0 z-50 bg-[#0a2540] text-white py-2.5 px-4 shadow-xl border-b border-white/10 items-center animate-in fade-in slide-in-from-top-2 duration-200">
+          <form onSubmit={handleMobileSearchSubmit} className="w-full flex items-center bg-slate-100/95 hover:bg-slate-100 focus-within:bg-white border border-slate-200 rounded-full px-4 py-2 transition-all shadow-sm">
+            <input
+              type="text"
+              placeholder="Search city, locality, project, landmark etc"
+              value={mobileSearchQuery}
+              onChange={(e) => setMobileSearchQuery(e.target.value)}
+              className="w-full bg-transparent text-xs text-slate-800 placeholder-slate-400 font-medium focus:outline-none pr-2"
+            />
+            <button type="submit" className="p-0.5 text-slate-400 hover:text-slate-600 shrink-0 transition-colors" aria-label="Search">
+              <Search className="w-4.5 h-4.5 text-slate-500" />
+            </button>
+          </form>
+        </div>
+      )}
+    </>
   )
 }

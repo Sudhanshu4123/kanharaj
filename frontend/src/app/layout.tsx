@@ -73,7 +73,7 @@ export default function RootLayout({
           </Suspense>
           <LoadingProvider>
             <Header />
-            <main className="flex-1 pt-[60px] pb-mobile-nav lg:pb-0 min-w-0">
+            <main className="flex-1 pt-0 md:pt-[60px] pb-mobile-nav lg:pb-0 min-w-0">
               {children}
             </main>
             <MobileNav />

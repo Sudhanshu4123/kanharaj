@@ -37,8 +37,14 @@ const socialLinks = [
 export function Footer() {
   const pathname = usePathname()
 
-  // Hide on property/project detail pages
-  if (pathname?.startsWith('/property/') || pathname?.startsWith('/project/')) return null
+  // Hide on property/project detail pages, chat page, and categories page
+  if (
+    pathname?.startsWith('/property/') ||
+    pathname?.startsWith('/project/') ||
+    pathname === '/chat' ||
+    pathname?.startsWith('/chat') ||
+    pathname === '/categories'
+  ) return null
 
   return (
     <footer className="hidden md:block bg-slate-900 text-white pb-mobile-nav lg:pb-0">

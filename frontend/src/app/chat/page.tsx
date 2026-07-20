@@ -403,37 +403,7 @@ function ChatContent() {
   if (!isAuthenticated || !user) return null
 
   return (
-    <div className="h-screen bg-[#F5F7FA] flex flex-col overflow-hidden text-slate-800 font-sans md:-mt-16 sm:-mt-20">
-
-      {/* Dynamic Header (Same styling as main app) */}
-      <div className="h-14 bg-[#0a2540] text-white flex items-center justify-between px-4 sm:px-6 z-10 shrink-0 shadow-md">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="relative h-6 w-6 rounded overflow-hidden flex items-center justify-center bg-white shadow-sm">
-              <img src={BRAND_LOGO_SRC} alt="Kanharaj Logo" className="h-full w-full object-cover" />
-            </div>
-            <span className="font-heading text-base font-black tracking-tighter text-white">
-              KANHARAJ<span className="text-[8px] font-extrabold ml-0.5 opacity-80 text-white">.COM</span>
-            </span>
-          </Link>
-          <div className="w-px h-5 bg-white/20 mx-1" />
-          <span className="text-xs font-semibold text-white/70">Inbox Chat Portal</span>
-        </div>
-
-        <Link href="/profile" className="flex items-center gap-2 hover:opacity-90">
-          <div className="text-right hidden sm:block">
-            <p className="text-xs font-bold leading-tight text-white">{user.name}</p>
-            <p className="text-[9px] text-white/60 leading-none">View Profile</p>
-          </div>
-          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-xs font-bold overflow-hidden shadow-sm border border-white/20">
-            {user.profileImage ? (
-              <img src={user.profileImage} alt={user.name} className="w-full h-full object-cover" />
-            ) : (
-              user.name.charAt(0).toUpperCase()
-            )}
-          </div>
-        </Link>
-      </div>
+    <div className="fixed inset-0 z-40 bg-[#F5F7FA] flex flex-col overflow-hidden text-slate-800 font-sans">
 
       {/* Main Grid View */}
       <div className="flex-1 flex overflow-hidden">
@@ -441,16 +411,24 @@ function ChatContent() {
         {/* Left Side: Conversations Inbox List (Light theme styling) */}
         <div className={`w-full md:w-[360px] lg:w-[400px] border-r border-slate-200 flex flex-col bg-white shrink-0 transition-all duration-300 ${activeConv ? 'hidden md:flex' : 'flex'
           }`}>
-          {/* Inbox Search Bar */}
-          <div className="p-4 border-b border-slate-100">
-            <div className="relative">
+          {/* Inbox Search Bar & Back Action */}
+          <div className="p-3.5 border-b border-slate-100 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search chats or listings..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs placeholder:text-slate-400 text-slate-800 focus:outline-none focus:border-[#0a2540] focus:ring-1 focus:ring-[#0a2540] transition-all font-semibold"
+                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs placeholder:text-slate-400 text-slate-800 focus:outline-none focus:border-[#0a2540] focus:ring-1 focus:ring-[#0a2540] transition-all font-semibold"
               />
             </div>
           </div>
