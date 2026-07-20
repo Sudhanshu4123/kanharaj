@@ -21,7 +21,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { formatPrice, formatNumber, cn, BRAND_LOGO_SRC, hasSellerDashboardAccess, getSellerUrl, getApiUrl } from '@/lib/utils'
-import { useInquiryStore, useAuthStore } from '@/lib/store'
+import { useInquiryStore, useAuthStore, usePropertyStore } from '@/lib/store'
 import { useUserActivityStore } from '@/lib/user-activity-store'
 import { useChatBoxStore } from '@/lib/chat-box-store'
 import { Property } from '@/lib/data'
@@ -682,6 +682,69 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     return ['/placeholder.png'];
   }, [property.images, property.brochureUrl]);
 
+  // Store properties for similar comparison
+  const { properties: storeProperties, fetchProperties } = usePropertyStore()
+
+  useEffect(() => {
+    if (storeProperties.length === 0) {
+      fetchProperties(50)
+    }
+  }, [storeProperties.length, fetchProperties])
+
+  // Get similar properties for dynamic comparison
+  const similarProperties = useMemo(() => {
+    if (!storeProperties || storeProperties.length === 0) return []
+
+    const currentId = String(property.id)
+    const currentListingType = (property.listingType || 'SALE').toUpperCase()
+    const currentType = (property.propertyType || '').toLowerCase().replace(/_/g, ' ')
+    const isPlot = currentType.includes('plot') || currentType.includes('land')
+    const isCommercial = currentType.includes('commercial') || currentType.includes('office') || currentType.includes('shop')
+    const isHouse = currentType.includes('house') || currentType.includes('villa') || currentType.includes('floor')
+
+    // Filter properties matching category & listingType
+    let matches = storeProperties.filter(p => {
+      if (String(p.id) === currentId) return false
+      const pListingType = (p.listingType || 'SALE').toUpperCase()
+      if (pListingType !== currentListingType) return false
+
+      const pType = (p.propertyType || '').toLowerCase().replace(/_/g, ' ')
+      if (isPlot) return pType.includes('plot') || pType.includes('land')
+      if (isCommercial) return pType.includes('commercial') || pType.includes('office') || pType.includes('shop')
+      if (isHouse) return pType.includes('house') || pType.includes('villa') || pType.includes('floor')
+      return !pType.includes('plot') && !pType.includes('land') && !pType.includes('commercial')
+    })
+
+    if (matches.length < 3) {
+      const fallbackMatches = storeProperties.filter(p => String(p.id) !== currentId && (p.listingType || 'SALE').toUpperCase() === currentListingType)
+      const existingIds = new Set(matches.map(m => m.id))
+      for (const f of fallbackMatches) {
+        if (!existingIds.has(f.id)) {
+          matches.push(f)
+          if (matches.length >= 6) break
+        }
+      }
+    }
+
+    return matches.slice(0, 6)
+  }, [storeProperties, property])
+
+  const getCompareTitle = () => {
+    const pType = (property.propertyType || '').toLowerCase().replace(/_/g, ' ')
+    const isRent = property.listingType === 'RENT'
+    const suffix = isRent ? 'for Rent' : 'for Sale'
+
+    if (pType.includes('plot') || pType.includes('land')) {
+      return `Compare with Similar Plots ${suffix}`
+    } else if (pType.includes('house') || pType.includes('villa') || pType.includes('floor')) {
+      return `Compare with Similar Houses ${suffix}`
+    } else if (pType.includes('commercial') || pType.includes('office') || pType.includes('shop')) {
+      return `Compare with Similar Commercial Properties ${suffix}`
+    } else {
+      return `Compare with Similar Flats ${suffix}`
+    }
+  }
+
   // Lightbox handlers
   const openLightbox = (index: number) => {
     setLightboxIndex(index)
@@ -1288,16 +1351,16 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
           {/* Divider */}
           <div className="h-2 bg-slate-100 mt-5" />
 
-          {/* Specs Table (compact for mobile) */}
+          {/* Complete Specifications & Details Table */}
           <div className="px-4 py-4">
-            <h2 className="text-sm font-black text-slate-900 mb-3">Property Details</h2>
-            <div className="grid grid-cols-2 gap-3">
+            <h2 className="text-sm font-black text-slate-900 mb-3">Complete Property Specifications</h2>
+            <div className="grid grid-cols-2 gap-3.5 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
               {bedroomsVal && (
                 <div className="flex items-center gap-2">
                   <Bed className="h-4 w-4 text-indigo-500 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Bedrooms</div>
-                    <div className="text-sm font-bold text-slate-800">{bedroomsVal}</div>
+                    <div className="text-xs font-bold text-slate-800">{bedroomsVal}</div>
                   </div>
                 </div>
               )}
@@ -1306,7 +1369,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                   <Bath className="h-4 w-4 text-indigo-500 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Bathrooms</div>
-                    <div className="text-sm font-bold text-slate-800">{bathroomsVal}</div>
+                    <div className="text-xs font-bold text-slate-800">{bathroomsVal}</div>
                   </div>
                 </div>
               )}
@@ -1314,43 +1377,290 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
                 <Maximize className="h-4 w-4 text-indigo-500 shrink-0" />
                 <div>
                   <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">{areaLabel}</div>
-                  <div className="text-sm font-bold text-slate-800">{areaVal}</div>
+                  <div className="text-xs font-bold text-slate-800">{areaVal}</div>
                 </div>
               </div>
+              {parsedHighlights.carpetArea && (
+                <div className="flex items-center gap-2">
+                  <Maximize className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Carpet Area</div>
+                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.carpetArea}</div>
+                  </div>
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 <Compass className="h-4 w-4 text-indigo-500 shrink-0" />
                 <div>
                   <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Facing</div>
-                  <div className="text-sm font-bold text-slate-800">{facingVal}</div>
+                  <div className="text-xs font-bold text-slate-800">{facingVal}</div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-indigo-500 shrink-0" />
                 <div>
                   <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Possession</div>
-                  <div className="text-sm font-bold text-slate-800">{possessionVal}</div>
+                  <div className="text-xs font-bold text-slate-800">{possessionVal}</div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-indigo-500 shrink-0" />
                 <div>
-                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Age</div>
-                  <div className="text-sm font-bold text-slate-800">{ageVal}</div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Property Age</div>
+                  <div className="text-xs font-bold text-slate-800">{ageVal}</div>
                 </div>
+              </div>
+              {parsedHighlights.furnishType && (
+                <div className="flex items-center gap-2">
+                  <Home className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Furnishing</div>
+                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.furnishType}</div>
+                  </div>
+                </div>
+              )}
+              {parsedHighlights.balconies && (
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Balconies</div>
+                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.balconies}</div>
+                  </div>
+                </div>
+              )}
+              {parsedHighlights.floorDetails && (
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Floor Details</div>
+                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.floorDetails}</div>
+                  </div>
+                </div>
+              )}
+              {parsedHighlights.coveredParking && (
+                <div className="flex items-center gap-2">
+                  <Car className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Covered Parking</div>
+                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.coveredParking}</div>
+                  </div>
+                </div>
+              )}
+              {parsedHighlights.openParking && (
+                <div className="flex items-center gap-2">
+                  <Car className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Open Parking</div>
+                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.openParking}</div>
+                  </div>
+                </div>
+              )}
+              {parsedHighlights.preferredTenant && (
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Preferred Tenant</div>
+                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.preferredTenant}</div>
+                  </div>
+                </div>
+              )}
+              {parsedHighlights.securityDeposit && (
+                <div className="flex items-center gap-2">
+                  <IndianRupee className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Security Deposit</div>
+                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.securityDeposit}</div>
+                  </div>
+                </div>
+              )}
+              {parsedHighlights.maintenanceCharges && (
+                <div className="flex items-center gap-2">
+                  <IndianRupee className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Maintenance</div>
+                    <div className="text-xs font-bold text-slate-800">{parsedHighlights.maintenanceCharges}</div>
+                  </div>
+                </div>
+              )}
+              {(property.reraId || parsedHighlights.reraId) && (
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">RERA ID</div>
+                    <div className="text-xs font-bold text-slate-800">{property.reraId || parsedHighlights.reraId}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Description */}
+          {cleanDescription && (
+            <div className="px-4 py-4 border-t border-slate-100">
+              <h2 className="text-sm font-black text-slate-900 mb-2">Property Description</h2>
+              <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                {cleanDescription}
+              </p>
+            </div>
+          )}
+
+          {/* Floor Plan Schematics */}
+          <div className="px-4 py-4 border-t border-slate-100">
+            <h2 className="text-sm font-black text-slate-900 mb-3">Floor Plan & Layout Schematics</h2>
+            <FloorPlanSchematic
+              rooms={buildFloorPlanRooms(bedroomsVal ? parseInt(bedroomsVal) : 2, bathroomsVal ? parseInt(bathroomsVal) : 2, property.area || 1000)}
+              totalAreaSqFt={property.area || 1000}
+              bhkLabel={bedroomsVal || 'Layout'}
+              isResidential={isResidentialFloorPlan(property.propertyType)}
+            />
+          </div>
+
+          {/* Locality Map & Trends */}
+          <div className="px-4 py-4 border-t border-slate-100">
+            <h2 className="text-sm font-black text-slate-900 mb-3">Locality Map & Surrounding Highlights</h2>
+            <PropertyLocalityMap
+              address={property.address}
+              city={property.city}
+              state={property.state}
+              pincode={property.pincode}
+              title={property.title}
+            />
+          </div>
+
+          {/* PDF Brochure Download */}
+          {property.brochureUrl && (
+            <div className="px-4 py-4 border-t border-slate-100">
+              <h2 className="text-sm font-black text-slate-900 mb-2">Property Brochure</h2>
+              <PdfViewer
+                pdfUrl={property.brochureUrl.startsWith('http') ? property.brochureUrl : `${getApiUrl().replace(/\/api$/, '')}${property.brochureUrl.startsWith('/') ? '' : '/'}${property.brochureUrl}`}
+                title={property.title}
+              />
+            </div>
+          )}
+
+          {/* Listed By / Owner Card */}
+          <div className="px-4 py-4 border-t border-slate-100">
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest block mb-2">Listed By Owner / Agent</span>
+              <div className="flex items-center gap-3">
+                {property.user?.profileImage ? (
+                  <img src={property.user.profileImage} alt={property.user.name} className="w-12 h-12 rounded-xl object-cover" />
+                ) : (
+                  <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xl font-black">
+                    {(property.user?.name || 'K').charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div>
+                  <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-1">
+                    {property.user?.name || 'Kanharaj Seller'}
+                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+                  </h4>
+                  {property.user?.experienceYears && (
+                    <p className="text-[11px] text-slate-500 font-semibold">{property.user.experienceYears} experience</p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-4 flex gap-2">
+                <a href={`tel:+91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`} className="flex-1">
+                  <Button variant="outline" className="w-full h-10 border-slate-300 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1">
+                    <Phone className="w-3.5 h-3.5 text-rose-500" /> Call
+                  </Button>
+                </a>
+                <a href={`https://wa.me/91${(property.user?.phone || SUPPORT_PHONE).replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="flex-1">
+                  <Button className="w-full h-10 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1">
+                    <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+                  </Button>
+                </a>
+                <Button onClick={handleChatStart} className="flex-1 h-10 bg-[#6B46C1] hover:bg-[#5A38A7] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1">
+                  <MessageSquare className="w-3.5 h-3.5" /> Chat
+                </Button>
               </div>
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="h-2 bg-slate-100" />
+          {/* Request Callback / Inquiry Form */}
+          <div className="px-4 py-4 border-t border-slate-100">
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <h3 className="text-sm font-black text-slate-900 mb-1">Request Callback</h3>
+              <p className="text-[11px] text-slate-500 font-medium mb-3">Send your contact info directly to the property owner.</p>
+              <form onSubmit={handleInquiry} className="space-y-3">
+                <Input
+                  name="name"
+                  placeholder="Full Name"
+                  value={inquiryForm.name}
+                  onChange={(e) => setInquiryForm({ ...inquiryForm, name: e.target.value })}
+                  readOnly={contactLocked}
+                  required
+                  className="bg-white border-slate-200 text-xs h-9 rounded-lg"
+                />
+                <Input
+                  name="email"
+                  type="email"
+                  placeholder="Email Address"
+                  value={inquiryForm.email}
+                  onChange={(e) => setInquiryForm({ ...inquiryForm, email: e.target.value })}
+                  readOnly={contactLocked}
+                  required
+                  className="bg-white border-slate-200 text-xs h-9 rounded-lg"
+                />
+                <Input
+                  name="phone"
+                  type="tel"
+                  placeholder="Mobile Number"
+                  value={inquiryForm.phone}
+                  onChange={(e) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
+                  readOnly={contactLocked}
+                  required
+                  className="bg-white border-slate-200 text-xs h-9 rounded-lg"
+                />
+                <Button type="submit" disabled={submitted} className="w-full h-10 bg-[#6B46C1] text-white font-bold rounded-xl text-xs">
+                  <Mail className="h-3.5 w-3.5 mr-1.5" /> Request Callback
+                </Button>
+              </form>
+            </div>
+          </div>
 
-          {/* Description */}
-          {cleanDescription && (
-            <div className="px-4 py-4">
-              <h2 className="text-sm font-black text-slate-900 mb-2">Property Description</h2>
-              <p className="text-sm text-slate-600 leading-relaxed font-medium line-clamp-6">
-                {cleanDescription}
-              </p>
+          {/* Dynamic Compare with Similar Properties (Mobile View) */}
+          {similarProperties && similarProperties.length > 0 && (
+            <div className="px-4 py-4 border-t border-slate-100">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-black text-slate-900 flex items-center gap-1.5">
+                  <ArrowUpDown className="w-4 h-4 text-[#6B46C1]" />
+                  {getCompareTitle()}
+                </h3>
+              </div>
+              <div className="space-y-3">
+                {similarProperties.map((simProp) => {
+                  const simImage = getImageUrl(simProp.images);
+                  const pricePerSqFt = simProp.area > 0 ? Math.round(simProp.price / simProp.area) : null;
+
+                  return (
+                    <div
+                      key={simProp.id}
+                      className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex gap-3 items-center justify-between"
+                    >
+                      <img src={simImage} alt={simProp.title} className="w-16 h-16 rounded-lg object-cover shrink-0" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; }} />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-black text-slate-900 truncate">{simProp.title}</div>
+                        <div className="text-[11px] font-bold text-slate-700 mt-0.5">
+                          {formatPrice(simProp.price)}
+                          {simProp.listingType === 'RENT' && <span className="text-[10px] text-slate-500 font-normal">/mo</span>}
+                          {pricePerSqFt && <span className="text-[9px] text-slate-400 font-semibold ml-1.5">({pricePerSqFt}/sq.ft)</span>}
+                        </div>
+                        <div className="text-[10px] text-slate-500 truncate flex items-center gap-1 mt-0.5">
+                          <MapPin className="w-2.5 h-2.5 text-rose-500 shrink-0" />
+                          <span>{simProp.address}, {simProp.city}</span>
+                        </div>
+                      </div>
+                      <Link href={`/property/${simProp.id}`} className="shrink-0">
+                        <Button size="sm" className="h-8 bg-[#6B46C1] hover:bg-[#5A38A7] text-white text-[10px] font-bold px-2.5 rounded-lg">
+                          Compare →
+                        </Button>
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
@@ -2606,9 +2916,109 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
               </div>
             </Card>
 
-          </div>
+        {/* Dynamic Compare with Similar Properties (Desktop View) */}
+        {similarProperties && similarProperties.length > 0 && (
+          <div className="mt-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+              <div>
+                <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                  <ArrowUpDown className="w-5 h-5 text-[#6B46C1]" />
+                  {getCompareTitle()}
+                </h3>
+                <p className="text-xs text-slate-500 font-semibold mt-1">
+                  Compare prices, area, and key details with similar properties in {property.city || 'this area'}.
+                </p>
+              </div>
+              <Link href={`/properties?listing=${(property.listingType || 'buy').toLowerCase()}`}>
+                <span className="text-xs font-extrabold text-[#6B46C1] hover:underline cursor-pointer flex items-center gap-1">
+                  View All Similar Properties →
+                </span>
+              </Link>
+            </div>
 
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {similarProperties.map((simProp) => {
+                const simImage = getImageUrl(simProp.images);
+                const pricePerSqFt = simProp.area > 0 ? Math.round(simProp.price / simProp.area) : null;
+
+                return (
+                  <div
+                    key={simProp.id}
+                    className="group bg-slate-50 hover:bg-white border border-slate-200 hover:border-[#6B46C1]/30 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-md flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="relative h-44 w-full bg-slate-200 shrink-0 overflow-hidden">
+                        <img
+                          src={simImage}
+                          alt={simProp.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; }}
+                        />
+                        <Badge className="absolute top-3 left-3 bg-[#0a2540] text-white text-[11px] font-bold px-2.5 py-1 rounded-md border-none">
+                          {simProp.listingType === 'RENT' ? 'For Rent' : 'For Sale'}
+                        </Badge>
+                        {simProp.verified && (
+                          <Badge className="absolute top-3 right-3 bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-md border-none flex items-center gap-1">
+                            <ShieldCheck className="w-3.5 h-3.5" /> Verified
+                          </Badge>
+                        )}
+                      </div>
+
+                      <div className="p-4 space-y-2.5">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <span className="text-lg font-black text-slate-900">
+                            {formatPrice(simProp.price)}
+                            {simProp.listingType === 'RENT' && <span className="text-xs font-semibold text-slate-500">/mo</span>}
+                          </span>
+                          {pricePerSqFt && (
+                            <span className="text-xs font-bold text-slate-600 bg-slate-200/70 px-2 py-0.5 rounded-md">
+                              ₹{pricePerSqFt}/sq.ft
+                            </span>
+                          )}
+                        </div>
+
+                        <h4 className="text-sm font-extrabold text-slate-800 line-clamp-1 group-hover:text-[#6B46C1] transition-colors">
+                          {simProp.title}
+                        </h4>
+
+                        <p className="text-xs text-slate-500 flex items-center gap-1 font-medium">
+                          <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                          <span className="truncate">{simProp.address}, {simProp.city}</span>
+                        </p>
+
+                        <div className="flex flex-wrap gap-2 pt-1 text-xs font-bold text-slate-700">
+                          {simProp.bedrooms > 0 && (
+                            <span className="bg-white border border-slate-200 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                              <Bed className="w-3.5 h-3.5 text-indigo-500" /> {simProp.bedrooms} BHK
+                            </span>
+                          )}
+                          {simProp.bathrooms > 0 && (
+                            <span className="bg-white border border-slate-200 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                              <Bath className="w-3.5 h-3.5 text-indigo-500" /> {simProp.bathrooms} Baths
+                            </span>
+                          )}
+                          {simProp.area > 0 && (
+                            <span className="bg-white border border-slate-200 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                              <Maximize className="w-3.5 h-3.5 text-indigo-500" /> {simProp.area} Sq.Ft.
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 pt-0">
+                      <Link href={`/property/${simProp.id}`} className="block">
+                        <Button className="w-full h-10 bg-[#6B46C1] hover:bg-[#5A38A7] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition shadow-sm">
+                          Compare Details →
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
       </div> {/* end desktop max-w-7xl */}
       </div> {/* end hidden md:block */}
