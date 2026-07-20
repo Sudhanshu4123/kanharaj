@@ -40,5 +40,13 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations(absolutePath);
     }
 
-
+    @org.springframework.context.annotation.Bean
+    public org.springframework.boot.web.server.WebServerFactoryCustomizer<org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory> tomcatCustomizer() {
+        return factory -> factory.addContextCustomizers(context -> {
+            org.apache.tomcat.util.http.Rfc6265CookieProcessor cookieProcessor = new org.apache.tomcat.util.http.Rfc6265CookieProcessor();
+            cookieProcessor.setRelaxedQueryChars("{}[]\"");
+            cookieProcessor.setRelaxedPathChars("{}[]\"");
+            context.setCookieProcessor(cookieProcessor);
+        });
+    }
 }
