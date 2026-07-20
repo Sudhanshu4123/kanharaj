@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Building, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react'
 import { BRAND_LOGO_SRC } from '@/lib/utils'
+import { usePathname } from 'next/navigation'
 
 const footerLinks = {
   properties: [
@@ -34,6 +35,11 @@ const socialLinks = [
 ]
 
 export function Footer() {
+  const pathname = usePathname()
+
+  // Hide on property/project detail pages
+  if (pathname?.startsWith('/property/') || pathname?.startsWith('/project/')) return null
+
   return (
     <footer className="bg-slate-900 text-white pb-mobile-nav lg:pb-0">
       {/* Main Footer */}

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Bed, Bath, Maximize, MapPin, Calendar, Phone, Mail, Heart, Share2,
-  ChevronLeft, ChevronRight, Check, MessageCircle, ArrowLeft, Building2,
+  ChevronLeft, ChevronRight, Check, MessageCircle, MessageSquare, ArrowLeft, Building2,
   ShieldAlert, ShieldCheck, Info, Sparkles, AlertCircle, Compass, Star,
   X, Printer, DollarSign, Download, School, Activity, Shield, ArrowUpDown,
   ChevronDown, Search, Menu, User, LogOut, IndianRupee, FileText,
@@ -768,11 +768,34 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
     }
   }
 
-  // Copy shareable link
-  const copyShareLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setShareTooltip(true);
-    setTimeout(() => setShareTooltip(false), 2000);
+  // Share property using Web Share API or copy link fallback
+  const copyShareLink = async () => {
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : ''
+    const shareData = {
+      title: property.title || 'Property Details',
+      text: property.title ? `${property.title} - Kanharaj Property` : 'Check out this property',
+      url: currentUrl,
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share(shareData)
+        return
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') return
+      }
+    }
+
+    // Fallback: Copy link to clipboard
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(currentUrl)
+        setShareTooltip(true)
+        setTimeout(() => setShareTooltip(false), 2000)
+      } catch (err) {
+        console.error('Failed to copy link', err)
+      }
+    }
   }
 
   const handleChatStart = () => {
@@ -831,8 +854,8 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
   return (
     <div className="min-h-screen bg-slate-50">
 
-      {/* Properties search bar — same on phone & desktop (responsive website) */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-[#0a2540] text-white py-2 px-3 sm:px-4 md:px-6 shadow-md">
+      {/* Properties search bar — desktop only (mobile uses image carousel back button) */}
+      <div className="hidden md:block fixed top-0 left-0 right-0 z-50 bg-[#0a2540] text-white py-2 px-3 sm:px-4 md:px-6 shadow-md">
         <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row md:items-center gap-2.5 md:gap-5 relative">
           
           {/* Row 1 on Mobile: Logo & Mobile Triggers */}
@@ -1186,7 +1209,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
         </div>
 
         {/* Mobile Content Card - Housing.com style */}
-        <div className="bg-white rounded-t-3xl -mt-4 relative z-10 pb-28">
+        <div className="bg-white rounded-t-3xl -mt-4 relative z-10 pb-32">
 
           {/* Verified + info row */}
           <div className="px-4 pt-4 flex items-center gap-2">
@@ -2752,7 +2775,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
       </AnimatePresence>
 
       {/* Sticky Mobile Call Actions bar — Housing.com style */}
-      <div className="fixed bottom-mobile-nav left-0 right-0 z-40 bg-white border-t border-slate-200 px-3 py-2.5 pb-safe block lg:hidden shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-3 py-2.5 pb-safe block lg:hidden shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
         <div className="flex gap-2">
           {/* Call */}
           <a
@@ -2772,13 +2795,13 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
             <MessageCircle className="h-4.5 w-4.5" />
             WHATSAPP
           </a>
-          {/* View Number */}
+          {/* Chat */}
           <button
             onClick={handleChatStart}
             className="flex-1 flex items-center justify-center gap-1.5 bg-[#1565C0] hover:bg-[#0d47a1] text-white font-bold text-sm rounded-full h-12"
           >
-            <Phone className="h-4.5 w-4.5" />
-            View Number
+            <MessageSquare className="h-4.5 w-4.5" />
+            Chat
           </button>
         </div>
       </div>

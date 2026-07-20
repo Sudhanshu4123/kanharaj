@@ -236,11 +236,22 @@ export function PropertyCard({ property, index = 0 }: PropertyCardProps) {
         <button
           className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md backdrop-blur-md text-slate-700"
           aria-label="Share property"
-          onClick={(e) => {
+          onClick={async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            if (navigator.share) {
-              navigator.share({ title: property.title, url: window.location.href + 'property/' + property.id })
+            const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/property/${property.id}` : '';
+            const shareData = { title: property.title, url: shareUrl };
+            if (typeof navigator !== 'undefined' && navigator.share) {
+              try {
+                await navigator.share(shareData);
+                return;
+              } catch (err) {
+                if ((err as Error).name === 'AbortError') return;
+              }
+            }
+            if (typeof navigator !== 'undefined' && navigator.clipboard) {
+              await navigator.clipboard.writeText(shareUrl);
+              alert('Link copied to clipboard!');
             }
           }}
         >

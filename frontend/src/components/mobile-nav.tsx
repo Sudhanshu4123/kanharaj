@@ -47,6 +47,10 @@ export function MobileNav() {
   const isActivityActive = pathname.startsWith('/profile') || pathname.includes('tab=activity')
   const isMenuDropdownActive = isMobileMenuOpen
 
+  // Hide on property detail & project detail pages (they have their own sticky CTA)
+  const isPropertyDetailPage = pathname?.startsWith('/property/') || pathname?.startsWith('/project/')
+  if (isPropertyDetailPage) return null
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 block lg:hidden bg-white border-t border-slate-200 pb-safe shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
       <div className="flex items-center justify-around h-[60px] px-1">
