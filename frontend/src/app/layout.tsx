@@ -9,7 +9,7 @@ import Script from "next/script"
 import { AuthProvider } from "@/components/auth-provider"
 import { CrossSiteLogoutHandler } from "@/components/cross-site-logout"
 import { Suspense } from "react"
-import { buildRootMetadata } from "@/lib/seo"
+import { buildRootMetadata, buildWebsiteJsonLd, buildOrganizationJsonLd, buildRealEstateAgentJsonLd } from "@/lib/seo"
 import { ChatBox } from "@/components/chat-box"
 
 export const viewport = {
@@ -28,11 +28,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const websiteJsonLd = buildWebsiteJsonLd()
+  const orgJsonLd = buildOrganizationJsonLd()
+  const agentJsonLd = buildRealEstateAgentJsonLd()
+
   return (
     <html lang="en-IN">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(agentJsonLd) }}
+        />
         {/* Google Tag Manager */}
         <Script id="gtm-script" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':

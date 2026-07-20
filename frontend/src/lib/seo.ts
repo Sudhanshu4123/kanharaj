@@ -3,11 +3,11 @@ import type { Metadata } from 'next'
 /** Canonical site config — used for metadata, JSON-LD, sitemap */
 export const SITE = {
   name: 'Kanharaj',
-  legalName: 'Kanharaj Real Estate',
+  legalName: 'Kanharaj Real Estate Platform',
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://kanharaj.com',
-  tagline: 'Trusted by Millions — Rent Homes in Top Localities',
+  tagline: "India's Leading Real Estate & Property Portal — Buy, Sell & Rent",
   description:
-    "Rent Homes in Top Localities — Search trusted houses for rent near you — affordable, verified, move-in ready. Explore nearby houses & flats for rent — secure your next home today.",
+    "Kanharaj (Kanharaj.com) is a premier digital real estate technology platform in India & Delhi NCR. Find verified residential flats, luxury apartments, builder floors, plots, commercial spaces, and rental properties with zero brokerage options and direct buyer-seller connections.",
   keywords: [
     'kanharaj',
     'kanharaj trusted by millions',
@@ -122,6 +122,8 @@ export const SITE = {
   geo: { latitude: 28.5823, longitude: 77.05 },
   hours: { opens: '09:00', closes: '21:00' },
   sameAs: [
+    'https://www.linkedin.com/company/kanharaj-com/?viewAsMember=true',
+    'https://www.youtube.com/@KanhaRaj4',
     'https://www.facebook.com/kanharaj',
     'https://www.instagram.com/kanharaj',
   ],
