@@ -972,7 +972,7 @@ export function Header() {
 
       {/* ===== MOBILE STICKY SEARCH HEADER (APPEARS ON SCROLL ON MOBILE) ===== */}
       {scrolled && !isExcludedFromStickyMobileSearch && (
-        <div className="flex md:hidden fixed top-0 left-0 right-0 z-50 bg-[#0a2540] text-white py-2.5 px-4 shadow-xl border-b border-white/10 items-center animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="flex md:hidden fixed top-0 left-0 right-0 z-50 bg-[#0a2540] text-white pt-[env(safe-area-inset-top,0px)] pb-2.5 px-4 shadow-xl border-b border-white/10 items-center animate-in fade-in slide-in-from-top-2 duration-200">
           <form onSubmit={handleMobileSearchSubmit} className="w-full flex items-center bg-slate-100/95 hover:bg-slate-100 focus-within:bg-white border border-slate-200 rounded-full px-4 py-2 transition-all shadow-sm">
             <input
               type="text"

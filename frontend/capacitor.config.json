@@ -18,6 +18,11 @@
     "webContentsDebuggingEnabled": false
   },
   "plugins": {
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "DARK",
+      "backgroundColor": "#0a2540"
+    },
     "SplashScreen": {
       "launchShowDuration": 2000,
       "launchAutoHide": true,
@@ -26,8 +31,6 @@
       "androidScaleType": "CENTER_CROP",
       "showSpinner": true,
       "spinnerColor": "#eab308",
-      "splashFullScreen": true,
-      "splashImmersive": true,
       "useDialog": true
     }
   }

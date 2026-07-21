@@ -903,7 +903,7 @@ export default function PropertiesContent() {
       {/* Header Container - Fixed to Top */}
       <div className="fixed top-0 left-0 right-0 z-40">
         {/* Properties search bar — same on phone & desktop (responsive website) */}
-        <div className="bg-[#0a2540] text-white py-2 px-3 sm:px-4 md:px-6 shadow-md">
+        <div className="bg-[#0a2540] text-white pt-[env(safe-area-inset-top,0px)] pb-2 px-3 sm:px-4 md:px-6 shadow-md">
           <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row md:items-center gap-2.5 md:gap-5 relative">
           
           {/* Row 1 on Mobile: Logo & Mobile Triggers */}
