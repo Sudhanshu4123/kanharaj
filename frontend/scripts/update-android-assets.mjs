@@ -38,26 +38,61 @@ const splashSizes = [
 ]
 
 async function generateAndroidAssets() {
-  console.log('Generating Android icons and splash screens from logo.png...')
+  console.log('Generating Android icons and splash screens from logo.png with Safe-Zone Padding...')
 
-  // 1. Generate Launcher Icons
+  // 1. Generate Launcher Icons with Safe Zone Padding (70% scale so Android circular mask never crops text)
   for (const item of launcherSizes) {
     const targetFolder = path.join(resDir, item.dir)
     if (!fs.existsSync(targetFolder)) fs.mkdirSync(targetFolder, { recursive: true })
 
-    // ic_launcher.png
-    await sharp(sourceLogo)
-      .resize(item.size, item.size)
+    // Resized logo inside safe zone (70% size)
+    const iconInnerSize = Math.round(item.size * 0.72)
+    const resizedIcon = await sharp(sourceLogo)
+      .resize(iconInnerSize, iconInnerSize, { fit: 'contain' })
+      .toBuffer()
+
+    // ic_launcher.png (Transparent background canvas)
+    await sharp({
+      create: {
+        width: item.size,
+        height: item.size,
+        channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 0 }
+      }
+    })
+      .composite([{ input: resizedIcon, gravity: 'center' }])
+      .png()
       .toFile(path.join(targetFolder, 'ic_launcher.png'))
 
     // ic_launcher_round.png
-    await sharp(sourceLogo)
-      .resize(item.size, item.size)
+    await sharp({
+      create: {
+        width: item.size,
+        height: item.size,
+        channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 0 }
+      }
+    })
+      .composite([{ input: resizedIcon, gravity: 'center' }])
+      .png()
       .toFile(path.join(targetFolder, 'ic_launcher_round.png'))
 
-    // ic_launcher_foreground.png
-    await sharp(sourceLogo)
-      .resize(item.foreSize, item.foreSize)
+    // Foreground icon for Android Adaptive Icons (62% size inside 108dp canvas to guarantee safe zone)
+    const foreInnerSize = Math.round(item.foreSize * 0.62)
+    const resizedFore = await sharp(sourceLogo)
+      .resize(foreInnerSize, foreInnerSize, { fit: 'contain' })
+      .toBuffer()
+
+    await sharp({
+      create: {
+        width: item.foreSize,
+        height: item.foreSize,
+        channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 0 }
+      }
+    })
+      .composite([{ input: resizedFore, gravity: 'center' }])
+      .png()
       .toFile(path.join(targetFolder, 'ic_launcher_foreground.png'))
   }
 
@@ -68,7 +103,7 @@ async function generateAndroidAssets() {
 
     const logoSize = Math.min(item.width, item.height) * 0.45
     const resizedLogo = await sharp(sourceLogo)
-      .resize(Math.round(logoSize), Math.round(logoSize))
+      .resize(Math.round(logoSize), Math.round(logoSize), { fit: 'contain' })
       .toBuffer()
 
     await sharp({
@@ -84,7 +119,7 @@ async function generateAndroidAssets() {
       .toFile(path.join(targetFolder, 'splash.png'))
   }
 
-  console.log('✅ Android Launcher Icons & Splash Screens generated successfully!')
+  console.log('✅ Android Launcher Icons & Splash Screens regenerated with Safe-Zone Padding!')
 }
 
 generateAndroidAssets().catch(err => {
