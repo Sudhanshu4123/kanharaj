@@ -11,7 +11,6 @@ import { CrossSiteLogoutHandler } from "@/components/cross-site-logout"
 import { Suspense } from "react"
 import { buildRootMetadata, buildWebsiteJsonLd, buildOrganizationJsonLd, buildRealEstateAgentJsonLd } from "@/lib/seo"
 import { ChatBox } from "@/components/chat-box"
-import { AppSplashScreen } from "@/components/app-splash-screen"
 
 export const viewport = {
   width: "device-width",
@@ -85,7 +84,6 @@ export default function RootLayout({
         </noscript>
         {/* End Google Tag Manager (noscript) */}
         <AuthProvider>
-          <AppSplashScreen />
           <Suspense fallback={null}>
             <CrossSiteLogoutHandler />
           </Suspense>
