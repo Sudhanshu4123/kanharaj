@@ -1,24 +1,27 @@
 "use client"
 
 import { useEffect, useState } from 'react'
+import { Capacitor } from '@capacitor/core'
 import { BRAND_LOGO_SRC } from '@/lib/utils'
 
 export function AppSplashScreen() {
-  const [isVisible, setIsVisible] = useState(true)
+  const [isVisible, setIsVisible] = useState(false)
   const [isFading, setIsFading] = useState(false)
 
   useEffect(() => {
-    // Check if splash was already shown in this browser session
-    const hasSeenSplash = sessionStorage.getItem('kanharaj_splash_shown')
+    // Only run inside Native Mobile App (Capacitor Android/iOS), NEVER on web browsers
+    const isNative = typeof window !== 'undefined' && Capacitor.isNativePlatform()
+    if (!isNative) return
 
-    // On app launch, run smooth 1.5s motion animation
+    setIsVisible(true)
+
+    // On mobile app launch, run smooth 1.5s motion animation
     const fadeTimer = setTimeout(() => {
       setIsFading(true)
     }, 1400)
 
     const hideTimer = setTimeout(() => {
       setIsVisible(false)
-      sessionStorage.setItem('kanharaj_splash_shown', 'true')
     }, 1900)
 
     return () => {
