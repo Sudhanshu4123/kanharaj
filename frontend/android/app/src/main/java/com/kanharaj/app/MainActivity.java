@@ -12,6 +12,11 @@ public class MainActivity extends BridgeActivity {
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
+        // Ensure Android WebView never extends into camera notch cutout area
+        if (getBridge() != null && getBridge().getWebView() != null) {
+            getBridge().getWebView().setFitsSystemWindows(true);
+        }
+
         // Add exit animation (Motion effect like Housing/Google apps)
         splashScreen.setOnExitAnimationListener(splashScreenView -> {
             // Create a scale up animation for the icon
