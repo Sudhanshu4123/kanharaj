@@ -71,17 +71,24 @@ export function hasSellerDashboardAccess(user: User | null | undefined): boolean
 
 /** Resolves Seller Dashboard URL dynamically to prevent hardcoded localhost/dev issues in production. */
 export function getSellerUrl(): string {
+  let baseUrl = 'https://seller.kanharaj.com';
+
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     const protocol = window.location.protocol;
-    if (hostname === 'kanharaj.com' || hostname === 'www.kanharaj.com') {
-      return 'https://seller.kanharaj.com';
+    if (hostname !== 'kanharaj.com' && hostname !== 'www.kanharaj.com' && hostname !== 'seller.kanharaj.com') {
+      baseUrl = `${protocol}//${hostname}:3001`;
     }
-    return `${protocol}//${hostname}:3001`;
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      return `${baseUrl}/login?token=${encodeURIComponent(token)}`;
+    }
   }
+
   return (process.env.NEXT_PUBLIC_SELLER_URL && process.env.NEXT_PUBLIC_SELLER_URL !== 'undefined')
     ? process.env.NEXT_PUBLIC_SELLER_URL
-    : 'https://seller.kanharaj.com';
+    : baseUrl;
 }
 
 /** Resolves Backend API URL dynamically to prevent hardcoded localhost/dev issues in production. */

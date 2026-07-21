@@ -106,6 +106,14 @@ export default function DashboardPage() {
     async function fetchDashboardData() {
       const userData = localStorage.getItem("seller_user")
       if (!userData) {
+        if (typeof window !== 'undefined') {
+          const searchParams = new URLSearchParams(window.location.search)
+          const urlToken = searchParams.get("token") || searchParams.get("sso_token")
+          if (urlToken) {
+            router.replace(`/login?token=${encodeURIComponent(urlToken)}`)
+            return
+          }
+        }
         router.push("/login")
         return
       }
