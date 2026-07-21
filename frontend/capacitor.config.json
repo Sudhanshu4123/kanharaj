@@ -1,0 +1,14 @@
+{
+  "appId": "com.kanharaj.app",
+  "appName": "Kanharaj Real Estate",
+  "webDir": "public",
+  "server": {
+    "url": "https://kanharaj.com",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  }
+}
