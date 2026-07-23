@@ -120,7 +120,11 @@ export default function HomeContent() {
 
   const displayProperties = useMemo(() => getFeaturedOrLatest(filterByCity(properties), 8), [properties, filterByCity])
   const popularCities = useMemo(() => getPopularCities(properties, 4), [properties])
-  const newlyAddedProperties = useMemo(() => getNewlyAdded(filterByCity(properties), 8), [properties, filterByCity])
+  const newlyAddedProperties = useMemo(() => {
+    const picksIds = new Set(displayProperties.map(p => p.id))
+    const fresh = filterByCity(properties).filter(p => !picksIds.has(p.id))
+    return getNewlyAdded(fresh, 8)
+  }, [properties, filterByCity, displayProperties])
 
   const getHeroConfig = () => {
     const cityLabel = selectedCity === 'All India' ? 'India' : selectedCity
