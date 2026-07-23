@@ -343,7 +343,7 @@ export default function BuyingGuidePage() {
           {/* Desktop Right Actions: Dashboard & Profile Menu (Hidden on Mobile) */}
           <div className="hidden md:flex gap-2 sm:gap-4 items-center ml-auto shrink-0 flex-nowrap">
             {showSellerDashboard && (
-              <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
+              <a href={sellerDashboardHref} target={typeof window !== 'undefined' && ((window as any).Capacitor || window.innerWidth < 1024) ? '_self' : '_blank'} rel="noopener noreferrer">
                 <button className="bg-[#00D289] hover:bg-[#00c07d] text-white font-bold rounded shadow-none h-9 px-5 whitespace-nowrap cursor-pointer text-xs">
                   Dashboard
                 </button>

@@ -822,7 +822,7 @@ export function Header() {
 
       <div className="hidden lg:flex items-center gap-3 shrink-0">
         {showSellerDashboard && (
-          <a href={sellerDashboardHref} target="_blank" rel="noopener noreferrer">
+          <a href={sellerDashboardHref} target={typeof window !== 'undefined' && ((window as any).Capacitor || window.innerWidth < 1024) ? '_self' : '_blank'} rel="noopener noreferrer">
             <Button className="h-9 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg text-xs shadow-sm transition-all duration-300">
               Seller Dashboard
             </Button>
