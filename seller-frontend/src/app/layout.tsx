@@ -343,9 +343,15 @@ export default function RootLayout({
                 <Link href="/listings" className="block py-2 text-sm font-bold text-slate-700 hover:text-[#3b2b85]">Listings</Link>
                 <Link href="/subscription" className="block py-2 text-sm font-bold text-slate-700 hover:text-[#3b2b85]">Packages</Link>
                 <Link href="/profile" className="block py-2 text-sm font-bold text-slate-700 hover:text-[#3b2b85]">Profile Settings</Link>
+                <a
+                  href={getMainSiteUrl()}
+                  className="block py-2 text-sm font-bold text-slate-700 hover:text-[#3b2b85] border-t border-slate-100 mt-2 pt-2"
+                >
+                  Switch to Home Search
+                </a>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left py-2 text-sm font-bold text-[#0a2540] border-t border-slate-100 mt-2 pt-2 flex items-center gap-2"
+                  className="w-full text-left py-2 text-sm font-bold text-[#0a2540] flex items-center gap-2 mt-1"
                 >
                   <LogOut className="w-4 h-4" /> Logout
                 </button>
