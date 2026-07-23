@@ -1192,7 +1192,7 @@ export default function PropertyDetailContent({ property }: PropertyDetailConten
         {/* Mobile Full-Screen Image Carousel */}
         <div
           className="relative w-full bg-black overflow-hidden"
-          style={{ height: '60vw', maxHeight: '320px' }}
+          style={{ height: '85vw', maxHeight: '420px' }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >

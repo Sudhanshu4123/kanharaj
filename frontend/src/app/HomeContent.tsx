@@ -68,12 +68,13 @@ export default function HomeContent() {
   const [activeTab, setActiveTab] = useState<'buy' | 'rent' | 'projects' | 'commercial' | 'pg' | 'plots'>('buy')
   const { selectedCity, setSelectedCity } = useLocationStore()
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const { scrollLeft } = scrollRef.current
+  const topPicksScrollRef = useRef<HTMLDivElement>(null)
+  const newlyAddedScrollRef = useRef<HTMLDivElement>(null)
+  const scroll = (ref: React.RefObject<HTMLDivElement | null>, direction: 'left' | 'right') => {
+    if (ref.current) {
+      const { scrollLeft } = ref.current
       const scrollTo = direction === 'left' ? scrollLeft - 340 : scrollLeft + 340
-      scrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' })
+      ref.current.scrollTo({ left: scrollTo, behavior: 'smooth' })
     }
   }
   const [platformStats, setPlatformStats] = useState({
@@ -117,7 +118,7 @@ export default function HomeContent() {
     })
   }, [selectedCity])
 
-  const displayProperties = useMemo(() => getFeaturedOrLatest(filterByCity(properties), 3), [properties, filterByCity])
+  const displayProperties = useMemo(() => getFeaturedOrLatest(filterByCity(properties), 8), [properties, filterByCity])
   const popularCities = useMemo(() => getPopularCities(properties, 4), [properties])
   const newlyAddedProperties = useMemo(() => getNewlyAdded(filterByCity(properties), 8), [properties, filterByCity])
 
@@ -458,105 +459,75 @@ export default function HomeContent() {
           {loading && displayProperties.length === 0 ? (
             <PropertyGridSkeleton count={3} variant="home" />
           ) : displayProperties.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 justify-center justify-items-center">
-              {displayProperties.map((property, index) => {
-                const { beds, baths } = formatBedBath(property)
-                const isVerified = property.featured || (property.images?.length ?? 0) > 0
-                return (
-                  <motion.div
+            <div className="relative group">
+              {/* Left Scroll Button */}
+              <button
+                onClick={() => scroll(topPicksScrollRef, 'left')}
+                className="absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-800 z-10 hover:bg-slate-50 active:scale-95 transition-all opacity-0 group-hover:opacity-100"
+                aria-label="Scroll Left"
+              >
+                <ChevronDown className="w-5 h-5 rotate-90" />
+              </button>
+
+              {/* Horizontal Scroll Container */}
+              <div
+                ref={topPicksScrollRef}
+                className="flex gap-5 overflow-x-auto scroll-smooth pb-4 no-scrollbar snap-x snap-mandatory scrollbar-hide"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {displayProperties.map((property) => (
+                  <div
                     key={property.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.06 }}
-                    className="group bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg hover:border-rose-500/30 transition-all duration-300 flex flex-col h-full max-w-[380px] w-full mx-auto"
+                    className="min-w-[260px] sm:min-w-[300px] max-w-[300px] bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col snap-start"
                   >
-                    {/* Image Area */}
-                    <div className="relative h-28 sm:h-52 overflow-hidden shrink-0 w-full bg-slate-100 flex items-center justify-center text-slate-400">
+                    {/* Image */}
+                    <div className="relative h-40 overflow-hidden bg-slate-50 shrink-0">
                       {property.images && property.images.length > 0 && property.images[0] && property.images[0] !== '[]' ? (
                         <img
                           src={getPropertyImageUrl(property)}
                           alt={property.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-[0.93]"
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
-                        <div className="flex flex-col items-center justify-center gap-1 text-slate-300">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">No Image</span>
+                        <div className="w-full h-full flex items-center justify-center text-slate-350 bg-slate-50 font-bold text-xs uppercase tracking-wider">
+                          No Image
                         </div>
                       )}
-                      {/* Gradient bottom shadow to ensure overlay readability */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-
-                      {/* Badges container */}
-                      <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-                        {isVerified && (
-                          <span className="px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-500 text-white text-[7px] sm:text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-md">
-                            <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-white animate-pulse" />
-                            <span className="hidden sm:inline">Verified Agent Listing</span>
-                            <span className="sm:hidden">Verified</span>
-                          </span>
-                        )}
-                        {property.featured && (
-                          <span className="px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-rose-600 to-pink-600 text-white text-[7px] sm:text-[9px] font-black uppercase tracking-wider shadow-md">
-                            <span className="hidden sm:inline">Featured Spotlight</span>
-                            <span className="sm:hidden">Featured</span>
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Favorite Button */}
-                      <button className="absolute top-2 right-2 w-6 h-6 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-rose-600 hover:text-white transition-all shadow-md group/fav">
-                        <Heart className="w-3 h-3 sm:w-4 sm:h-4 group-hover/fav:fill-white" />
-                      </button>
-
-                      {/* Pricing Overlay */}
-                      <div className="absolute bottom-2 sm:bottom-4 left-2.5 sm:left-5 right-2.5 sm:right-5 flex items-end justify-between text-white">
-                        <div>
-                          <p className="text-sm sm:text-2xl font-black tracking-tight leading-tight">{formatPropertyPriceDisplay(property)}</p>
-                          <p className="text-[8px] sm:text-xs text-slate-200/90 font-bold uppercase tracking-wider mt-0">
-                            {property.propertyType?.replace('_', ' ')} • {property.listingType}
-                          </p>
-                        </div>
-                      </div>
                     </div>
 
-                    {/* Content Details */}
-                    <div className="p-2.5 sm:p-4 flex flex-col flex-grow">
-                      <h3 className="text-xs sm:text-base font-bold text-slate-900 group-hover:text-rose-600 transition-colors line-clamp-1 mb-1">
+                    {/* Card Details */}
+                    <div className="p-4 flex flex-col flex-grow text-left">
+                      <h3 className="font-bold text-sm sm:text-base text-slate-900 line-clamp-1 mb-1">
                         {property.title}
                       </h3>
+                      <p className="text-[11px] sm:text-xs text-slate-500 font-bold mb-0.5 leading-snug">
+                        {property.configurations || (property.bedrooms ? `${property.bedrooms} BHK ${property.propertyType?.replace('_', ' ')}` : property.propertyType?.replace('_', ' '))}
+                      </p>
+                      <p className="text-[11px] sm:text-xs text-slate-400 font-medium mb-2.5 truncate">
+                        {property.city || property.address || 'Delhi NCR'}
+                      </p>
+                      <p className="font-extrabold text-sm sm:text-base text-slate-900 mb-4">
+                        {formatPropertyPriceDisplay(property)}
+                      </p>
 
-                      <div className="flex items-center gap-1 text-slate-500 text-[10px] sm:text-xs font-semibold mb-2 sm:mb-4">
-                        <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-rose-500 shrink-0" />
-                        <span className="truncate">{property.city || property.address || 'Location on request'}</span>
-                      </div>
-
-                      {/* Grid attributes - hidden on very small, shown compact */}
-                      <div className="grid grid-cols-3 gap-1 py-1.5 sm:py-3 border-y border-slate-100 text-center text-slate-600 font-bold text-xs mb-2 sm:mb-4 mt-auto">
-                        <div className="bg-slate-50/50 py-1.5 sm:py-2.5 rounded-lg sm:rounded-2xl border border-slate-100/50">
-                          <p className="text-[7px] sm:text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mb-0">Beds</p>
-                          <p className="text-slate-800 font-black text-[10px] sm:text-sm">{beds}</p>
-                        </div>
-                        <div className="bg-slate-50/50 py-1.5 sm:py-2.5 rounded-lg sm:rounded-2xl border border-slate-100/50">
-                          <p className="text-[7px] sm:text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mb-0">Baths</p>
-                          <p className="text-slate-800 font-black text-[10px] sm:text-sm">{baths}</p>
-                        </div>
-                        <div className="bg-slate-50/50 py-1.5 sm:py-2.5 rounded-lg sm:rounded-2xl border border-slate-100/50">
-                          <p className="text-[7px] sm:text-[9px] text-slate-400 uppercase tracking-widest font-extrabold mb-0">Area</p>
-                          <p className="text-slate-800 font-black text-[10px] sm:text-sm truncate">{formatAreaDisplay(property.area)}</p>
-                        </div>
-                      </div>
-
-                      {/* View Details Action */}
-                      <Link href={getPropertyUrl(property)} className="block">
-                        <Button className="w-full h-7 sm:h-10 bg-slate-900 hover:bg-rose-600 text-white font-bold rounded-lg sm:rounded-xl transition-all duration-300 flex items-center justify-center gap-1 text-[10px] sm:text-sm">
-                          View <ArrowRight className="w-2.5 h-2.5 sm:w-4 sm:h-4" />
+                      <Link href={getPropertyUrl(property)} className="w-full mt-auto">
+                        <Button className="w-full border border-[#5e23dc] hover:bg-[#5e23dc] hover:text-white text-[#5e23dc] font-bold rounded-xl py-2 h-9 text-xs transition-all bg-transparent flex items-center justify-center border-solid">
+                          Contact
                         </Button>
                       </Link>
                     </div>
-                  </motion.div>
-                )
-              })}
+                  </div>
+                ))}
+              </div>
+
+              {/* Right Scroll Button */}
+              <button
+                onClick={() => scroll(topPicksScrollRef, 'right')}
+                className="absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-800 z-10 hover:bg-slate-50 active:scale-95 transition-all opacity-0 group-hover:opacity-100 sm:opacity-100"
+                aria-label="Scroll Right"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
             </div>
           ) : (
             <div className="text-center py-20 bg-slate-50 rounded-[2.5rem] border border-slate-100 shadow-sm">
@@ -598,7 +569,7 @@ export default function HomeContent() {
           <div className="relative group">
             {/* Left Scroll Button */}
             <button
-              onClick={() => scroll('left')}
+              onClick={() => scroll(newlyAddedScrollRef, 'left')}
               className="absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-800 z-10 hover:bg-slate-50 active:scale-95 transition-all opacity-0 group-hover:opacity-100"
               aria-label="Scroll Left"
             >
@@ -607,7 +578,7 @@ export default function HomeContent() {
 
             {/* Horizontal Scroll Container */}
             <div
-              ref={scrollRef}
+              ref={newlyAddedScrollRef}
               className="flex gap-5 overflow-x-auto scroll-smooth pb-4 no-scrollbar snap-x snap-mandatory scrollbar-hide"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
@@ -658,7 +629,7 @@ export default function HomeContent() {
 
             {/* Right Scroll Button */}
             <button
-              onClick={() => scroll('right')}
+              onClick={() => scroll(newlyAddedScrollRef, 'right')}
               className="absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-800 z-10 hover:bg-slate-50 active:scale-95 transition-all opacity-0 group-hover:opacity-100 sm:opacity-100"
               aria-label="Scroll Right"
             >
