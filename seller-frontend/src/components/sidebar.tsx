@@ -83,13 +83,6 @@ export function Sidebar() {
             </Link>
           )
         })}
-        <a
-          href={mainUrl}
-          className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all group text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-        >
-          <Home size={20} className="transition-transform group-hover:scale-110 text-slate-400 group-hover:text-slate-900" />
-          Main Website
-        </a>
       </nav>
 
       <div className="p-4 mt-auto">
@@ -104,9 +97,17 @@ export function Sidebar() {
            <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-[#0a2540]/20 rounded-full blur-2xl group-hover:bg-[#0a2540]/30 transition-all" />
         </div>
         
+        <a 
+          href={mainUrl}
+          className="flex items-center gap-3 px-4 py-3.5 mt-2 w-full text-slate-500 hover:text-slate-900 text-sm font-semibold transition-colors group"
+        >
+          <Home size={20} className="text-slate-400 group-hover:text-slate-900 transition-transform group-hover:scale-110" />
+          Switch to Home Search
+        </a>
+
         <button 
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-4 mt-4 w-full text-slate-500 hover:text-[#0a2540] text-sm font-semibold transition-colors"
+          className="flex items-center gap-3 px-4 py-4 mt-2 w-full text-slate-500 hover:text-[#0a2540] text-sm font-semibold transition-colors"
         >
           <LogOut size={20} />
           Sign Out
