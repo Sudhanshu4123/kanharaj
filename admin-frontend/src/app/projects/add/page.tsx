@@ -160,6 +160,12 @@ export default function AddProjectPage() {
   };
 
   useEffect(() => {
+    if (projectType === "COMMERCIAL_PROJECT") {
+      setConfigurations("");
+      setSizes("");
+      return;
+    }
+
     // Generate configurations string: e.g. "2 BHK (1200 sq.ft. / Carpet: 1000 sq.ft.)"
     const configsStr = projectFlats
       .map(f => {
@@ -659,112 +665,138 @@ export default function AddProjectPage() {
                     </div>
 
                     {/* Flats Layout & Pricing List */}
-                    <div className="space-y-3 pt-4 border-t border-slate-100">
-                      <div className="flex justify-between items-center">
-                        <label className="text-[10px] font-black uppercase text-[#0a2540] tracking-wider">Flats / Layout Configurations & Prices *</label>
-                        <button
-                          type="button"
-                          onClick={() => setProjectFlats(prev => [...prev, { bhk: "2 BHK", priceText: "", sqft: "", carpet: "" }])}
-                          className="px-2.5 py-1 bg-[#0a2540]/5 hover:bg-[#0a2540]/10 text-[#0a2540] text-[10px] font-black rounded-lg border border-[#0a2540]/10 transition-colors cursor-pointer"
-                        >
-                          + Add BHK / Flat
-                        </button>
-                      </div>
+                    {projectType === "RESIDENTIAL_PROJECT" ? (
+                      <div className="space-y-3 pt-4 border-t border-slate-100">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-black uppercase text-[#0a2540] tracking-wider">Flats / Layout Configurations & Prices *</label>
+                          <button
+                            type="button"
+                            onClick={() => setProjectFlats(prev => [...prev, { bhk: "2 BHK", priceText: "", sqft: "", carpet: "" }])}
+                            className="px-2.5 py-1 bg-[#0a2540]/5 hover:bg-[#0a2540]/10 text-[#0a2540] text-[10px] font-black rounded-lg border border-[#0a2540]/10 transition-colors cursor-pointer"
+                          >
+                            + Add BHK / Flat
+                          </button>
+                        </div>
 
-                      <div className="space-y-3">
-                        {projectFlats.map((flat, idx) => (
-                          <div key={idx} className="flex gap-3 items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
-                            <div className="flex-1 grid grid-cols-4 gap-3">
-                              <div className="space-y-1">
-                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Configuration / BHK</label>
-                                <input
-                                  type="text"
-                                  value={flat.bhk}
-                                  onChange={e => {
-                                    const val = e.target.value;
-                                    setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, bhk: val } : f));
-                                  }}
-                                  className="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-[11px] font-bold focus:border-indigo-500 outline-none"
-                                  placeholder="e.g. 2 BHK, 3 BHK"
-                                />
-                              </div>
-                              <div className="space-y-1">
-                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Size (Sq.Ft.)</label>
-                                <div className="relative">
+                        <div className="space-y-3">
+                          {projectFlats.map((flat, idx) => (
+                            <div key={idx} className="flex gap-3 items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                              <div className="flex-1 grid grid-cols-4 gap-3">
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Configuration / BHK</label>
                                   <input
-                                    type="number"
-                                    value={flat.sqft}
+                                    type="text"
+                                    value={flat.bhk}
                                     onChange={e => {
                                       const val = e.target.value;
-                                      setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, sqft: val } : f));
+                                      setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, bhk: val } : f));
                                     }}
-                                    className="w-full h-9 bg-white border border-slate-200 rounded-lg pl-3 pr-20 text-[11px] font-bold focus:border-indigo-500 outline-none"
-                                    placeholder="e.g. 1200"
+                                    className="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-[11px] font-bold focus:border-indigo-500 outline-none"
+                                    placeholder="e.g. 2 BHK, 3 BHK"
                                   />
-                                  {flat.sqft ? (
-                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.5 rounded pointer-events-none">
-                                      {formatSizeHelper(flat.sqft)}
-                                    </span>
-                                  ) : null}
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Size (Sq.Ft.)</label>
+                                  <div className="relative">
+                                    <input
+                                      type="number"
+                                      value={flat.sqft}
+                                      onChange={e => {
+                                        const val = e.target.value;
+                                        setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, sqft: val } : f));
+                                      }}
+                                      className="w-full h-9 bg-white border border-slate-200 rounded-lg pl-3 pr-20 text-[11px] font-bold focus:border-indigo-500 outline-none"
+                                      placeholder="e.g. 1200"
+                                    />
+                                    {flat.sqft ? (
+                                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.5 rounded pointer-events-none">
+                                        {formatSizeHelper(flat.sqft)}
+                                      </span>
+                                    ) : null}
+                                  </div>
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Carpet Area (Sq.Ft.)</label>
+                                  <div className="relative">
+                                    <input
+                                      type="number"
+                                      value={flat.carpet || ""}
+                                      onChange={e => {
+                                        const val = e.target.value;
+                                        setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, carpet: val } : f));
+                                      }}
+                                      className="w-full h-9 bg-white border border-slate-200 rounded-lg pl-3 pr-20 text-[11px] font-bold focus:border-indigo-500 outline-none"
+                                      placeholder="e.g. 1000"
+                                    />
+                                    {flat.carpet ? (
+                                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.5 rounded pointer-events-none">
+                                        {formatSizeHelper(flat.carpet)}
+                                      </span>
+                                    ) : null}
+                                  </div>
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Price (in ₹)</label>
+                                  <div className="relative">
+                                    <input
+                                      type="number"
+                                      max={10000000000}
+                                      value={flat.priceText}
+                                      onChange={e => {
+                                        const val = e.target.value;
+                                        if (val && Number(val) > 10000000000) return;
+                                        setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, priceText: val } : f));
+                                      }}
+                                      className="w-full h-9 bg-white border border-slate-200 rounded-lg pl-3 pr-20 text-[11px] font-bold focus:border-indigo-500 outline-none"
+                                      placeholder="e.g. 8500000"
+                                    />
+                                    {flat.priceText ? (
+                                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.5 rounded pointer-events-none">
+                                        {formatHelperAmount(flat.priceText)}
+                                      </span>
+                                    ) : null}
+                                  </div>
                                 </div>
                               </div>
-                              <div className="space-y-1">
-                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Carpet Area (Sq.Ft.)</label>
-                                <div className="relative">
-                                  <input
-                                    type="number"
-                                    value={flat.carpet || ""}
-                                    onChange={e => {
-                                      const val = e.target.value;
-                                      setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, carpet: val } : f));
-                                    }}
-                                    className="w-full h-9 bg-white border border-slate-200 rounded-lg pl-3 pr-20 text-[11px] font-bold focus:border-indigo-500 outline-none"
-                                    placeholder="e.g. 1000"
-                                  />
-                                  {flat.carpet ? (
-                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.5 rounded pointer-events-none">
-                                      {formatSizeHelper(flat.carpet)}
-                                    </span>
-                                  ) : null}
-                                </div>
-                              </div>
-                              <div className="space-y-1">
-                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Price (in ₹)</label>
-                                <div className="relative">
-                                  <input
-                                    type="number"
-                                    max={10000000000}
-                                    value={flat.priceText}
-                                    onChange={e => {
-                                      const val = e.target.value;
-                                      if (val && Number(val) > 10000000000) return;
-                                      setProjectFlats(prev => prev.map((f, i) => i === idx ? { ...f, priceText: val } : f));
-                                    }}
-                                    className="w-full h-9 bg-white border border-slate-200 rounded-lg pl-3 pr-20 text-[11px] font-bold focus:border-indigo-500 outline-none"
-                                    placeholder="e.g. 8500000"
-                                  />
-                                  {flat.priceText ? (
-                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.5 rounded pointer-events-none">
-                                      {formatHelperAmount(flat.priceText)}
-                                    </span>
-                                  ) : null}
-                                </div>
-                              </div>
+                              
+                              {projectFlats.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setProjectFlats(prev => prev.filter((_, i) => i !== idx))}
+                                  className="mt-4 p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg border border-transparent hover:border-rose-100 transition-colors shrink-0 cursor-pointer"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
                             </div>
-                            
-                            {projectFlats.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => setProjectFlats(prev => prev.filter((_, i) => i !== idx))}
-                                className="mt-4 p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg border border-transparent hover:border-rose-100 transition-colors shrink-0 cursor-pointer"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="space-y-1.5 pt-4 border-t border-slate-100">
+                        <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Starting Price (in ₹) *</label>
+                        <div className="relative">
+                          <input
+                            required
+                            type="number"
+                            max={10000000000}
+                            value={price}
+                            onChange={e => {
+                              const val = e.target.value;
+                              if (val && Number(val) > 10000000000) return;
+                              setPrice(val);
+                            }}
+                            className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all"
+                            placeholder="e.g. 8500000"
+                          />
+                          {price ? (
+                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-indigo-650 bg-indigo-50 px-2 py-0.5 rounded pointer-events-none">
+                              {formatHelperAmount(price)}
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+                    )}
 
                     {/* RERA ID & Construction Status */}
                     <div className="grid md:grid-cols-2 gap-6">
@@ -795,45 +827,47 @@ export default function AddProjectPage() {
                     </div>
 
                   {/* Project Specifications */}
-                  <div className="bg-white p-0 rounded-3xl space-y-6 pt-6 border-t border-slate-100">
-                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-3">Project Specs & Stats</h3>
-                    
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Project Units (Total flats/plots count)</label>
-                        <input type="number" value={projectUnits} onChange={e => setProjectUnits(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all" placeholder="e.g. 475" />
+                  {projectType !== "COMMERCIAL_PROJECT" && (
+                    <div className="bg-white p-0 rounded-3xl space-y-6 pt-6 border-t border-slate-100">
+                      <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-3">Project Specs & Stats</h3>
+                      
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Project Units (Total flats/plots count)</label>
+                          <input type="number" value={projectUnits} onChange={e => setProjectUnits(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all" placeholder="e.g. 475" />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Area Unit</label>
+                          <input type="text" value={areaUnit} onChange={e => setAreaUnit(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all" placeholder="e.g. sq.ft., Acres" />
+                        </div>
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Area Unit</label>
-                        <input type="text" value={areaUnit} onChange={e => setAreaUnit(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all" placeholder="e.g. sq.ft., Acres" />
-                      </div>
-                    </div>
 
-                     <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Total Buildings / Towers</label>
-                        <input type="text" value={projectSize} onChange={e => setProjectSize(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all" placeholder="e.g. 6 Buildings" />
+                       <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Total Buildings / Towers</label>
+                          <input type="text" value={projectSize} onChange={e => setProjectSize(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all" placeholder="e.g. 6 Buildings" />
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Launch Date</label>
-                        <input type="date" value={launchDate} onChange={e => setLaunchDate(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all cursor-pointer" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Avg. Price / Formatted per unit price</label>
-                        <div className="relative">
-                          <input type="text" value={avgPrice} onChange={e => setAvgPrice(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-24 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all" placeholder="e.g. 29.55k/sq.ft. or 29.55 K/sq.ft" />
-                          {avgPrice && /^\d+$/.test(avgPrice.trim()) ? (
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-indigo-650 bg-indigo-50 px-2 py-0.5 rounded pointer-events-none">
-                              {formatHelperAmount(avgPrice)}/sq.ft.
-                            </span>
-                          ) : null}
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Launch Date</label>
+                          <input type="date" value={launchDate} onChange={e => setLaunchDate(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all cursor-pointer" />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase text-slate-455 tracking-wider">Avg. Price / Formatted per unit price</label>
+                          <div className="relative">
+                            <input type="text" value={avgPrice} onChange={e => setAvgPrice(e.target.value)} className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-24 text-xs font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all" placeholder="e.g. 29.55k/sq.ft. or 29.55 K/sq.ft" />
+                            {avgPrice && /^\d+$/.test(avgPrice.trim()) ? (
+                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-indigo-650 bg-indigo-50 px-2 py-0.5 rounded pointer-events-none">
+                                {formatHelperAmount(avgPrice)}/sq.ft.
+                              </span>
+                            ) : null}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Location Section */}
                   <div className="bg-white p-0 rounded-3xl space-y-6 pt-6 border-t border-slate-100">
