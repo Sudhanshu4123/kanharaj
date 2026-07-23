@@ -151,9 +151,9 @@ export default function RootLayout({
             </div>
           </div>
         ) : (
-          <div className={`min-h-screen flex flex-col ${!isLoginPage ? 'pt-14' : ''}`}>
+          <div className={`min-h-screen flex flex-col ${!isLoginPage ? 'pt-[calc(4rem+env(safe-area-inset-top,0px))]' : ''}`}>
              {!isLoginPage && (
-              <header className="bg-[#0a2540] border-b border-white/10 fixed top-0 left-0 right-0 z-50 px-4 md:px-8 h-14 flex items-center justify-between shadow-md text-white">
+              <header className="bg-[#0a2540] border-b border-white/10 fixed top-0 left-0 right-0 z-50 px-4 md:px-8 pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-3 h-auto min-h-[64px] flex items-center justify-between shadow-md text-white">
 
                 {/* Left Section: Logo */}
                 <div className="flex items-center">
@@ -338,7 +338,7 @@ export default function RootLayout({
 
             {/* Mobile Menu Dropdown */}
             {mobileMenuOpen && !isLoginPage && (
-              <div className="md:hidden bg-white border-b border-slate-200 shadow-lg px-4 py-4 space-y-3 z-40 sticky top-16">
+              <div className="md:hidden bg-white border-b border-slate-200 shadow-lg px-4 py-4 space-y-3 z-40 sticky top-[calc(4rem+env(safe-area-inset-top,0px))]">
                 <Link href="/" className="block py-2 text-sm font-bold text-slate-700 hover:text-[#3b2b85]">Home</Link>
                 <Link href="/leads" className="block py-2 text-sm font-bold text-slate-700 hover:text-[#3b2b85]">Leads</Link>
                 <Link href="/listings" className="block py-2 text-sm font-bold text-slate-700 hover:text-[#3b2b85]">Listings</Link>

@@ -203,7 +203,7 @@ export default function CategoriesPage() {
   const currentData = categoriesData[activeTab]
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col pt-0 md:pt-4 pb-16">
+    <div className="min-h-screen bg-slate-50 flex flex-col pt-safe pb-16">
       {/* Top Header Bar */}
       <div className="bg-white border-b border-slate-200 px-4 py-3.5 flex items-center justify-between sticky top-0 z-30 shadow-xs">
         <div className="flex items-center gap-3">

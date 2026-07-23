@@ -403,7 +403,7 @@ function ChatContent() {
   if (!isAuthenticated || !user) return null
 
   return (
-    <div className="fixed inset-0 z-40 bg-[#F5F7FA] flex flex-col overflow-hidden text-slate-800 font-sans">
+    <div className="fixed inset-0 z-40 bg-[#F5F7FA] flex flex-col overflow-hidden text-slate-800 font-sans pt-safe">
 
       {/* Main Grid View */}
       <div className="flex-1 flex overflow-hidden">

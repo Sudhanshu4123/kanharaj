@@ -1422,7 +1422,7 @@ export default function PropertiesContent() {
         </div>
       </div> {/* Close Header Container */}
 
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 pt-[210px] sm:pt-[190px] md:pt-[130px] pb-6">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 pt-[calc(11.5rem+env(safe-area-inset-top,0px))] sm:pt-[calc(10rem+env(safe-area-inset-top,0px))] md:pt-[calc(8rem+env(safe-area-inset-top,0px))] pb-6">
         {/* Breadcrumb and Timestamp */}
         <div className="flex flex-col md:flex-row md:items-center justify-between text-xs text-slate-500 mb-6">
           <div className="mb-2 md:mb-0">
