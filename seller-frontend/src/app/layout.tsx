@@ -268,14 +268,15 @@ export default function RootLayout({
                 </nav>
 
                 {/* Right Section: Add Property & Profile */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
 
-                  {/* Add Property Button - purple like screenshot */}
+                  {/* Add Property Button */}
                   <Link
                     href="/listings/add"
-                    className="bg-[#0a2540] hover:bg-[#07192c] text-white px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-1.5 transition-all shadow active:scale-95 whitespace-nowrap"
+                    className="bg-[#dfa127] hover:bg-[#c29224] text-[#0a2540] px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-bold text-xs sm:text-sm flex items-center gap-1 transition-all shadow active:scale-95 whitespace-nowrap"
                   >
-                    <Plus className="w-4 h-4" /> Add Property
+                    <Plus className="w-4 h-4" strokeWidth={3} />
+                    <span className="hidden sm:inline">Add Property</span>
                   </Link>
 
                   {/* Notification Bell Dropdown */}
