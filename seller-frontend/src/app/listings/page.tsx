@@ -15,6 +15,8 @@ import {
   X,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Star,
   TrendingUp,
   ImageOff,
@@ -295,6 +297,17 @@ export default function ListingsPage() {
   const sortRef = useRef<HTMLDivElement>(null)
 
   const router = useRouter()
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 30
+
+  // Reset pagination when any filter changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [
+    activeTab, searchId, sector, service, listingStatus, locality,
+    projectName, propertyTypes, bhk, priceMin, priceMax, furnishing,
+    verificationStatus, possessionStatus, showArchived, listedBy, sortBy
+  ])
 
   useEffect(() => {
     async function loadListings() {
@@ -508,6 +521,12 @@ export default function ListingsPage() {
   if (sortBy === "High to Low") filtered = [...filtered].sort((a, b) => (b.price || 0) - (a.price || 0))
   else if (sortBy === "Low to High") filtered = [...filtered].sort((a, b) => (a.price || 0) - (b.price || 0))
   else if (sortBy === "Newest") filtered = [...filtered].sort((a, b) => b.id - a.id)
+
+  // Pagination logic
+  const totalPages = Math.ceil(filtered.length / itemsPerPage)
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem)
 
   const anyFilterActive = sector !== "Residential" || service.length > 0 ||
     listingStatus.length > 0 || !!locality || propertyTypes.length > 0 || bhk.length > 0 ||
@@ -956,8 +975,8 @@ export default function ListingsPage() {
 
         {/* Property Cards */}
         <div className="space-y-3">
-          {filtered.length > 0 ? (
-            filtered.map((prop, i) => (
+          {currentItems.length > 0 ? (
+            currentItems.map((prop, i) => (
               <PropertyCard
                 key={prop.id}
                 prop={prop}
@@ -998,6 +1017,61 @@ export default function ListingsPage() {
             </div>
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-8 pb-8">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+            >
+              <ChevronLeft className="w-4 h-4" /> Previous
+            </button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                if (
+                  page === 1 ||
+                  page === totalPages ||
+                  Math.abs(page - currentPage) <= 1
+                ) {
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-9 h-9 text-xs font-bold rounded-xl transition-all ${
+                        currentPage === page
+                          ? "bg-[#0a2540] text-white shadow-md shadow-[#0a2540]/10"
+                          : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                }
+                
+                if (page === 2 || page === totalPages - 1) {
+                  return (
+                    <span key={page} className="px-1 text-slate-400 font-bold text-xs">
+                      ...
+                    </span>
+                  )
+                }
+                
+                return null
+              })}
+            </div>
+
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+            >
+              Next <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </main>
 
       {/* ── Delete Confirm Modal ── */}
