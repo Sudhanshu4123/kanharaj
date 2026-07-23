@@ -15,7 +15,7 @@ import {
   Home
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { logoutFromSellerDashboard } from "@/lib/auth"
+import { logoutFromSellerDashboard, getMainSiteUrl } from "@/lib/auth"
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/" },
@@ -28,12 +28,14 @@ const menuItems = [
 export function Sidebar() {
   const pathname = usePathname()
   const [user, setUser] = useState<any>(null)
+  const [mainUrl, setMainUrl] = useState("https://kanharaj.com")
 
   useEffect(() => {
     const userData = localStorage.getItem("seller_user")
     if (userData) {
       setUser(JSON.parse(userData))
     }
+    setMainUrl(getMainSiteUrl())
   }, [pathname])
 
   const handleLogout = () => {
@@ -81,6 +83,13 @@ export function Sidebar() {
             </Link>
           )
         })}
+        <a
+          href={mainUrl}
+          className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all group text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+        >
+          <Home size={20} className="transition-transform group-hover:scale-110 text-slate-400 group-hover:text-slate-900" />
+          Main Website
+        </a>
       </nav>
 
       <div className="p-4 mt-auto">
